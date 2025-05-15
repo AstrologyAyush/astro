@@ -45,7 +45,7 @@ const KundaliChart: React.FC<KundaliChartProps> = ({ chart }) => {
   };
 
   // North Indian style chart (simplified for demo purposes)
-  const houses = [
+  const houseElements = [
     createHouse(1),  // Ascendant
     createHouse(4),  // 4th house
     createHouse(7),  // 7th house
@@ -69,7 +69,7 @@ const KundaliChart: React.FC<KundaliChartProps> = ({ chart }) => {
             <div className="absolute inset-0 flex items-center justify-center text-xs text-muted-foreground">
               <div className="animate-spin-slow opacity-20">✨</div>
             </div>
-            {houses}
+            {houseElements}
           </div>
         </div>
       </CardContent>
