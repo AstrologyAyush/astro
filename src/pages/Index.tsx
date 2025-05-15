@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BirthData, generateKundaliChart, formatBirthDetails, KundaliChart as KundaliChartType } from '@/lib/kundaliUtils';
@@ -6,7 +5,7 @@ import BirthDataForm from '@/components/BirthDataForm';
 import KundaliChart from '@/components/KundaliChart';
 import PlanetaryPositions from '@/components/PlanetaryPositions';
 import DashaDisplay from '@/components/DashaDisplay';
-import { useToast } from '@/components/ui/toast';
+import { useToast } from '@/hooks/use-toast';
 
 const Index = () => {
   const [kundaliData, setKundaliData] = useState<{
