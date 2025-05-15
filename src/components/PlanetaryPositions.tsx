@@ -3,6 +3,7 @@ import React from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PlanetPosition, ZODIAC_SIGNS, PLANETS, NAKSHATRAS, calculatePlanetaryStrength } from '@/lib/kundaliUtils';
+import { Badge } from '@/components/ui/badge';
 
 interface PlanetaryPositionsProps {
   planets: PlanetPosition[];
@@ -12,17 +13,17 @@ const PlanetaryPositions: React.FC<PlanetaryPositionsProps> = ({ planets }) => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Planetary Positions</CardTitle>
+        <CardTitle>ग्रह स्थिति (Planetary Positions)</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Planet</TableHead>
-              <TableHead>Sign</TableHead>
-              <TableHead>Nakshatra</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Strength</TableHead>
+              <TableHead>ग्रह (Planet)</TableHead>
+              <TableHead>राशि (Sign)</TableHead>
+              <TableHead>नक्षत्र (Nakshatra)</TableHead>
+              <TableHead>स्थिति (Status)</TableHead>
+              <TableHead>शक्ति (Strength)</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -30,25 +31,34 @@ const PlanetaryPositions: React.FC<PlanetaryPositionsProps> = ({ planets }) => {
               const zodiacSign = ZODIAC_SIGNS.find(sign => sign.id === planet.sign);
               const planetInfo = PLANETS.find(p => p.id === planet.id);
               const nakshatra = planet.nakshatra ? NAKSHATRAS[planet.nakshatra - 1]?.name : "Unknown";
+              const nakshatraSanskrit = planet.nakshatra ? NAKSHATRAS[planet.nakshatra - 1]?.sanskrit : "अज्ञात";
               const strength = calculatePlanetaryStrength(planet);
               
               return (
                 <TableRow key={planet.id}>
                   <TableCell className="font-medium">
                     <span className="mr-1">{planetInfo?.symbol}</span>
-                    {planetInfo?.name}
+                    <span className="mr-1">{planetInfo?.sanskrit}</span>
+                    <span className="text-xs text-muted-foreground">({planetInfo?.name})</span>
                   </TableCell>
                   <TableCell>
                     <span className="mr-1">{zodiacSign?.symbol}</span>
-                    {zodiacSign?.name}
+                    <span className="mr-1">{zodiacSign?.sanskrit}</span>
+                    <span className="text-xs text-muted-foreground">({zodiacSign?.name})</span>
                   </TableCell>
-                  <TableCell>{nakshatra}</TableCell>
                   <TableCell>
-                    {planet.isRetrograde && (
-                      <span className="text-amber-500">Retrograde</span>
-                    )}
-                    {!planet.isRetrograde && (
-                      <span className="text-green-500">Direct</span>
+                    <span>{nakshatraSanskrit}</span>
+                    <span className="text-xs text-muted-foreground block">({nakshatra})</span>
+                  </TableCell>
+                  <TableCell>
+                    {planet.isRetrograde ? (
+                      <Badge variant="outline" className="text-amber-500 border-amber-500">
+                        वक्री (Retrograde)
+                      </Badge>
+                    ) : (
+                      <Badge variant="outline" className="text-green-500 border-green-500">
+                        सीधा (Direct)
+                      </Badge>
                     )}
                   </TableCell>
                   <TableCell>

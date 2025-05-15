@@ -1,246 +1,271 @@
 
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  :root {
-    --background: 240 10% 97%;
-    --foreground: 222.2 84% 4.9%;
-
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-
-    --primary: 270 50% 40%;
-    --primary-foreground: 210 40% 98%;
-
-    --secondary: 240 5% 95%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-
-    --muted: 240 5% 90%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-
-    --accent: 270 50% 95%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 240 5% 84%;
-    --input: 240 5% 84%;
-    --ring: 270 50% 40%;
-
-    --radius: 0.5rem;
-
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
-
-    /* Astrology sign colors with proper HSL values */
-    --astrology-aries: 0 100% 60%;
-    --astrology-taurus: 120 61% 46%;
-    --astrology-gemini: 60 100% 50%;
-    --astrology-cancer: 210 100% 43%;
-    --astrology-leo: 30 100% 55%;
-    --astrology-virgo: 280 85% 42%;
-    --astrology-libra: 320 100% 54%;
-    --astrology-scorpio: 0 0% 7%;
-    --astrology-sagittarius: 150 100% 44%;
-    --astrology-capricorn: 330 73% 38%;
-    --astrology-aquarius: 195 100% 74%;
-    --astrology-pisces: 180 100% 42%;
-  }
-
-  .dark {
-    --background: 240 10% 5%;
-    --foreground: 240 5% 90%;
-
-    --card: 240 10% 10%;
-    --card-foreground: 240 5% 90%;
-
-    --popover: 240 10% 8%;
-    --popover-foreground: 240 5% 90%;
-
-    --primary: 270 70% 65%;
-    --primary-foreground: 240 5% 10%;
-
-    --secondary: 240 5% 20%;
-    --secondary-foreground: 240 5% 90%;
-
-    --muted: 240 5% 20%;
-    --muted-foreground: 240 5% 70%;
-
-    --accent: 270 50% 20%;
-    --accent-foreground: 240 5% 90%;
-
-    --destructive: 0 62.8% 50.6%;
-    --destructive-foreground: 240 5% 90%;
-
-    --border: 240 5% 25%;
-    --input: 240 5% 25%;
-    --ring: 270 70% 65%;
-
-    --sidebar-background: 240 10% 8%;
-    --sidebar-foreground: 240 5% 85%;
-    --sidebar-primary: 270 70% 65%;
-    --sidebar-primary-foreground: 240 5% 10%;
-    --sidebar-accent: 240 5% 15%;
-    --sidebar-accent-foreground: 240 5% 85%;
-    --sidebar-border: 240 5% 20%;
-    --sidebar-ring: 270 70% 65%;
-  }
+:root {
+  --background: 0 0% 100%;
+  --foreground: 240 10% 3.9%;
+  --card: 0 0% 100%;
+  --card-foreground: 240 10% 3.9%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 240 10% 3.9%;
+  --primary: 262.1 83.3% 57.8%;
+  --primary-foreground: 210 20% 98%;
+  --secondary: 240 4.8% 95.9%;
+  --secondary-foreground: 240 5.9% 10%;
+  --muted: 240 4.8% 95.9%;
+  --muted-foreground: 240 3.8% 46.1%;
+  --accent: 240 4.8% 95.9%;
+  --accent-foreground: 240 5.9% 10%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 240 5.9% 90%;
+  --input: 240 5.9% 90%;
+  --ring: 262.1 83.3% 57.8%;
+  --radius: 0.75rem;
+  
+  /* Astrology color variables for zodiac symbols */
+  --astrology-aries: #FF5733;
+  --astrology-taurus: #33FF57;
+  --astrology-gemini: #5733FF;
+  --astrology-cancer: #33A2FF;
+  --astrology-leo: #FFC733;
+  --astrology-virgo: #A233FF;
+  --astrology-libra: #FF33A2;
+  --astrology-scorpio: #33FFC7;
+  --astrology-sagittarius: #C7FF33;
+  --astrology-capricorn: #FF3357;
+  --astrology-aquarius: #33FFFF;
+  --astrology-pisces: #FF33FF;
 }
 
-@layer base {
-  * {
-    @apply border-border;
-  }
-
-  body {
-    @apply bg-background text-foreground;
-    font-feature-settings: "rlig" 1, "calt" 1;
-  }
+.dark {
+  --background: 240 10% 3.9%;
+  --foreground: 0 0% 98%;
+  --card: 240 10% 3.9%;
+  --card-foreground: 0 0% 98%;
+  --popover: 240 10% 3.9%;
+  --popover-foreground: 0 0% 98%;
+  --primary: 263.4 70% 50.4%;
+  --primary-foreground: 210 20% 98%;
+  --secondary: 240 3.7% 15.9%;
+  --secondary-foreground: 0 0% 98%;
+  --muted: 240 3.7% 15.9%;
+  --muted-foreground: 240 5% 64.9%;
+  --accent: 240 3.7% 15.9%;
+  --accent-foreground: 0 0% 98%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 240 3.7% 15.9%;
+  --input: 240 3.7% 15.9%;
+  --ring: 240 4.9% 83.9%;
 }
 
-/* Custom styles for kundali chart */
-.chart-container {
+* {
+  @apply border-border;
+}
+
+body {
+  @apply bg-background text-foreground font-sans;
+  font-family: 'Poppins', sans-serif;
+}
+
+/* Celestial background with subtle animation */
+.celestial-background {
+  background-image: 
+    radial-gradient(circle at top right, rgba(121, 68, 154, 0.13), transparent 80%),
+    radial-gradient(circle at 20% 80%, rgba(76, 0, 255, 0.07), transparent 70%);
   position: relative;
-  width: 100%;
-  max-width: 500px;
-  margin: 0 auto;
-  aspect-ratio: 1/1;
-}
-
-.kundali-chart {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  border: 2px solid hsl(var(--border));
-  border-radius: 4px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   overflow: hidden;
 }
 
+.celestial-background::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300' viewBox='0 0 800 800'%3E%3Cg fill='none' stroke-opacity='0.05'%3E%3Ccircle stroke='%23444' cx='400' cy='400' r='250'/%3E%3Ccircle stroke='%23444' cx='400' cy='400' r='125'/%3E%3Ccircle stroke='%23444' cx='400' cy='400' r='375'/%3E%3C/g%3E%3C/svg%3E");
+  z-index: -1;
+  opacity: 0.3;
+}
+
+/* Gradient text for headings */
+.gradient-heading {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-purple-600;
+}
+
+/* Animation for subtle rotation */
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 30s linear infinite;
+}
+
+/* Kundali chart styling */
+.chart-container {
+  @apply relative w-full aspect-square max-w-md mx-auto;
+}
+
+.kundali-chart {
+  @apply relative w-full h-full border-2 border-primary/30 rounded-md overflow-hidden;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  gap: 1px;
+  background-color: rgba(128, 128, 128, 0.1);
+}
+
+.kundali-grid {
+  @apply absolute inset-0 grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+}
+
 .kundali-house {
-  position: absolute;
-  width: 50%;
-  height: 50%;
-  border: 1px solid hsl(var(--border));
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.8rem;
-  padding: 0.5rem;
-  transition: background-color 0.2s ease;
+  @apply border border-primary/20 p-1 flex flex-col items-center justify-center text-center bg-background/80;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
 }
 
 .kundali-house:hover {
-  background-color: rgba(0, 0, 0, 0.02);
+  @apply bg-primary/5;
 }
 
+/* Position houses in the North Indian style */
 .kundali-house-1 {
-  top: 50%;
-  left: 50%;
-  transform-origin: top left;
+  grid-column: 2 / 3;
+  grid-row: 2 / 3;
+  transform: rotate(180deg);
 }
 
 .kundali-house-4 {
-  top: 0;
-  left: 50%;
-  transform-origin: bottom left;
+  grid-column: 1 / 2;
+  grid-row: 2 / 3;
+  transform: rotate(90deg);
 }
 
 .kundali-house-7 {
-  top: 0;
-  left: 0;
-  transform-origin: bottom right;
+  grid-column: 2 / 3;
+  grid-row: 1 / 2;
 }
 
 .kundali-house-10 {
-  top: 50%;
-  left: 0;
-  transform-origin: top right;
+  grid-column: 3 / 4;
+  grid-row: 2 / 3;
+  transform: rotate(-90deg);
+}
+
+.kundali-house-2 {
+  grid-column: 2 / 3;
+  grid-row: 3 / 4;
+  transform: rotate(180deg);
+}
+
+.kundali-house-5 {
+  grid-column: 1 / 2;
+  grid-row: 3 / 4;
+  transform: rotate(135deg);
+}
+
+.kundali-house-8 {
+  grid-column: 1 / 2;
+  grid-row: 1 / 2;
+  transform: rotate(45deg);
+}
+
+.kundali-house-11 {
+  grid-column: 3 / 4;
+  grid-row: 1 / 2;
+  transform: rotate(-45deg);
+}
+
+.kundali-house-3 {
+  grid-column: 3 / 4;
+  grid-row: 3 / 4;
+  transform: rotate(-135deg);
+}
+
+.kundali-house-6 {
+  grid-column: 1 / 2;
+  grid-row: 4 / 5;
+  transform: rotate(135deg);
+}
+
+.kundali-house-9 {
+  grid-column: 1 / 2;
+  grid-row: 0 / 1;
+  transform: rotate(45deg);
+}
+
+.kundali-house-12 {
+  grid-column: 4 / 5;
+  grid-row: 2 / 3;
+  transform: rotate(-90deg);
 }
 
 .zodiac-symbol {
-  font-size: 1.5rem;
-  margin-bottom: 0.25rem;
+  @apply text-2xl font-bold opacity-80;
 }
 
 .planet-symbol {
-  display: inline-block;
-  font-weight: bold;
-  margin-right: 0.25rem;
-  font-size: 1.2rem;
+  @apply inline-block text-base font-bold mx-0.5;
 }
 
-.celestial-background {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cpath d='M30,1.5A1.5,1.5,0,0,1,28.5,0h-7A1.5,1.5,0,0,0,20,1.5v7A1.5,1.5,0,0,1,18.5,10h-7A1.5,1.5,0,0,0,10,11.5v7A1.5,1.5,0,0,1,8.5,20h-7A1.5,1.5,0,0,0,0,21.5v7A1.5,1.5,0,0,1,-1.5,30h-7A1.5,1.5,0,0,0,-10,31.5v7A1.5,1.5,0,0,1,-11.5,40h-7A1.5,1.5,0,0,0,-20,41.5v7A1.5,1.5,0,0,1,-21.5,50h-7A1.5,1.5,0,0,0,-30,51.5v7A1.5,1.5,0,0,1,-31.5,60h-7A1.5,1.5,0,0,0,-40,61.5v7A1.5,1.5,0,0,1,-41.5,70h-7A1.5,1.5,0,0,0,-50,71.5v7A1.5,1.5,0,0,1,-51.5,80h-7A1.5,1.5,0,0,0,-60,81.5v7A1.5,1.5,0,0,1,-61.5,90h-7A1.5,1.5,0,0,0,-70,91.5v7A1.5,1.5,0,0,1,-71.5,100h-7A1.5,1.5,0,0,0,-80,101.5v7A1.5,1.5,0,0,1,-81.5,110h-7A1.5,1.5,0,0,0,-90,111.5v7A1.5,1.5,0,0,1,-91.5,120h-7A1.5,1.5,0,0,0,-100,121.5v7A1.5,1.5,0,0,1,-101.5,130h-7A1.5,1.5,0,0,0,-110,131.5v7A1.5,1.5,0,0,1,-111.5,140h-7A1.5,1.5,0,0,0,-120,141.5v7A1.5,1.5,0,0,1,-121.5,150h-7A1.5,1.5,0,0,0,-130,151.5v7A1.5,1.5,0,0,1,-131.5,160h-7A1.5,1.5,0,0,0,-140,161.5v7A1.5,1.5,0,0,1,-141.5,170h-7A1.5,1.5,0,0,0,-150,171.5v7A1.5,1.5,0,0,1,-151.5,180h-7A1.5,1.5,0,0,0,-160,181.5v7A1.5,1.5,0,0,1,-161.5,190h-7A1.5,1.5,0,0,0,-170,191.5v7A1.5,1.5,0,0,1,-171.5,200' opacity='.05' fill='none' stroke='%23444' stroke-width='2'%3E%3C/path%3E%3C/svg%3E");
-  background-repeat: repeat;
+/* Media queries for better mobile experience */
+@media (max-width: 640px) {
+  .kundali-chart {
+    max-width: 95vw;
+    max-height: 95vw;
+  }
+  
+  .zodiac-symbol {
+    @apply text-xl;
+  }
+  
+  .kundali-house {
+    @apply p-0.5 text-[10px];
+  }
 }
 
+/* Make the Button component from the src/components/ui/ directory */
 @layer components {
-  .gradient-heading {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-purple-600 via-blue-500 to-purple-700;
+  .btn-link {
+    @apply inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-primary underline-offset-4 hover:underline;
   }
-  
-  .planets-container {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 0.25rem;
-    max-width: 100%;
+}
+
+/* Animation class for page transitions */
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
   }
-  
-  @media (max-width: 640px) {
-    .zodiac-symbol {
-      font-size: 1.2rem;
-    }
-    
-    .planet-symbol {
-      font-size: 1rem;
-    }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
-  
-  /* Animation for elements */
-  .animate-fade-in {
-    animation: fadeIn 0.8s ease-out;
-  }
-  
-  @keyframes fadeIn {
-    from { 
-      opacity: 0;
-      transform: translateY(10px);
-    }
-    to { 
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-  
-  /* Pulse animation for important elements */
-  .pulse {
-    animation: pulse 2s infinite;
-  }
-  
-  @keyframes pulse {
-    0% {
-      transform: scale(1);
-    }
-    50% {
-      transform: scale(1.05);
-    }
-    100% {
-      transform: scale(1);
-    }
+}
+
+/* Ensure form components are mobile-friendly */
+@media (max-width: 640px) {
+  .form-control {
+    @apply text-sm;
   }
 }

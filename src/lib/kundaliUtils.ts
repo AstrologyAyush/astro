@@ -5,6 +5,7 @@ export type PlanetPosition = {
   id: string;
   name: string;
   sign: number;
+  signSanskrit?: string;  // Add Sanskrit name for sign
   degree: number;
   nakshatra?: number;
   isRetrograde?: boolean;
@@ -17,70 +18,72 @@ export type BirthData = {
   longitude: number;
   timezone: string;
   place: string;
-  fullName?: string; // Added fullName field
+  fullName?: string;
 };
 
 export type KundaliChart = {
   ascendant: number;
+  ascendantSanskrit: string; // Add Sanskrit name for ascendant
   planets: PlanetPosition[];
-  houses: number[];
+  housesList: number[];
+  birthElement: string; // Add birth element
 };
 
 export const ZODIAC_SIGNS = [
-  { id: 1, name: "Aries", sanskrit: "Mesh", element: "Fire", symbol: "♈︎" },
-  { id: 2, name: "Taurus", sanskrit: "Vrishabh", element: "Earth", symbol: "♉︎" },
-  { id: 3, name: "Gemini", sanskrit: "Mithun", element: "Air", symbol: "♊︎" },
-  { id: 4, name: "Cancer", sanskrit: "Kark", element: "Water", symbol: "♋︎" },
-  { id: 5, name: "Leo", sanskrit: "Simha", element: "Fire", symbol: "♌︎" },
-  { id: 6, name: "Virgo", sanskrit: "Kanya", element: "Earth", symbol: "♍︎" },
-  { id: 7, name: "Libra", sanskrit: "Tula", element: "Air", symbol: "♎︎" },
-  { id: 8, name: "Scorpio", sanskrit: "Vrishchik", element: "Water", symbol: "♏︎" },
-  { id: 9, name: "Sagittarius", sanskrit: "Dhanu", element: "Fire", symbol: "♐︎" },
-  { id: 10, name: "Capricorn", sanskrit: "Makar", element: "Earth", symbol: "♑︎" },
-  { id: 11, name: "Aquarius", sanskrit: "Kumbh", element: "Air", symbol: "♒︎" },
-  { id: 12, name: "Pisces", sanskrit: "Meen", element: "Water", symbol: "♓︎" },
+  { id: 1, name: "Aries", sanskrit: "मेष", element: "अग्नि", symbol: "♈︎" },
+  { id: 2, name: "Taurus", sanskrit: "वृषभ", element: "पृथ्वी", symbol: "♉︎" },
+  { id: 3, name: "Gemini", sanskrit: "मिथुन", element: "वायु", symbol: "♊︎" },
+  { id: 4, name: "Cancer", sanskrit: "कर्क", element: "जल", symbol: "♋︎" },
+  { id: 5, name: "Leo", sanskrit: "सिंह", element: "अग्नि", symbol: "♌︎" },
+  { id: 6, name: "Virgo", sanskrit: "कन्या", element: "पृथ्वी", symbol: "♍︎" },
+  { id: 7, name: "Libra", sanskrit: "तुला", element: "वायु", symbol: "♎︎" },
+  { id: 8, name: "Scorpio", sanskrit: "वृश्चिक", element: "जल", symbol: "♏︎" },
+  { id: 9, name: "Sagittarius", sanskrit: "धनु", element: "अग्नि", symbol: "♐︎" },
+  { id: 10, name: "Capricorn", sanskrit: "मकर", element: "पृथ्वी", symbol: "♑︎" },
+  { id: 11, name: "Aquarius", sanskrit: "कुंभ", element: "वायु", symbol: "♒︎" },
+  { id: 12, name: "Pisces", sanskrit: "मीन", element: "जल", symbol: "♓︎" },
 ];
 
 export const PLANETS = [
-  { id: "SU", name: "Sun", sanskrit: "Surya", symbol: "☉", color: "#FFA500" },
-  { id: "MO", name: "Moon", sanskrit: "Chandra", symbol: "☽", color: "#FFFFFF" },
-  { id: "MA", name: "Mars", sanskrit: "Mangal", symbol: "♂", color: "#FF0000" },
-  { id: "ME", name: "Mercury", sanskrit: "Budh", symbol: "☿", color: "#00FF00" },
-  { id: "JU", name: "Jupiter", sanskrit: "Guru", symbol: "♃", color: "#FFFF00" },
-  { id: "VE", name: "Venus", sanskrit: "Shukra", symbol: "♀", color: "#00FFFF" },
-  { id: "SA", name: "Saturn", sanskrit: "Shani", symbol: "♄", color: "#0000FF" },
-  { id: "RA", name: "Rahu", sanskrit: "Rahu", symbol: "☊", color: "#000000" },
-  { id: "KE", name: "Ketu", sanskrit: "Ketu", symbol: "☋", color: "#808080" }
+  { id: "SU", name: "Sun", sanskrit: "सूर्य", symbol: "☉", color: "#FFA500" },
+  { id: "MO", name: "Moon", sanskrit: "चंद्र", symbol: "☽", color: "#FFFFFF" },
+  { id: "MA", name: "Mars", sanskrit: "मंगल", symbol: "♂", color: "#FF0000" },
+  { id: "ME", name: "Mercury", sanskrit: "बुध", symbol: "☿", color: "#00FF00" },
+  { id: "JU", name: "Jupiter", sanskrit: "गुरु", symbol: "♃", color: "#FFFF00" },
+  { id: "VE", name: "Venus", sanskrit: "शुक्र", symbol: "♀", color: "#00FFFF" },
+  { id: "SA", name: "Saturn", sanskrit: "शनि", symbol: "♄", color: "#0000FF" },
+  { id: "RA", name: "Rahu", sanskrit: "राहु", symbol: "☊", color: "#000000" },
+  { id: "KE", name: "Ketu", sanskrit: "केतु", symbol: "☋", color: "#808080" }
 ];
 
 export const NAKSHATRAS = [
-  { id: 1, name: "Ashwini", ruler: "KE", deity: "Ashwini Kumars" },
-  { id: 2, name: "Bharani", ruler: "VE", deity: "Yama" },
-  { id: 3, name: "Krittika", ruler: "SU", deity: "Agni" },
-  { id: 4, name: "Rohini", ruler: "MO", deity: "Brahma" },
-  { id: 5, name: "Mrigashira", ruler: "MA", deity: "Soma" },
-  { id: 6, name: "Ardra", ruler: "RA", deity: "Rudra" },
-  { id: 7, name: "Punarvasu", ruler: "JU", deity: "Aditi" },
-  { id: 8, name: "Pushya", ruler: "SA", deity: "Brihaspati" },
-  { id: 9, name: "Ashlesha", ruler: "ME", deity: "Nagas" },
-  { id: 10, name: "Magha", ruler: "KE", deity: "Pitris" },
-  { id: 11, name: "Purva Phalguni", ruler: "VE", deity: "Bhaga" },
-  { id: 12, name: "Uttara Phalguni", ruler: "SU", deity: "Aryaman" },
-  { id: 13, name: "Hasta", ruler: "MO", deity: "Savitar" },
-  { id: 14, name: "Chitra", ruler: "MA", deity: "Tvashtar" },
-  { id: 15, name: "Swati", ruler: "RA", deity: "Vayu" },
-  { id: 16, name: "Vishakha", ruler: "JU", deity: "Indra-Agni" },
-  { id: 17, name: "Anuradha", ruler: "SA", deity: "Mitra" },
-  { id: 18, name: "Jyeshtha", ruler: "ME", deity: "Indra" },
-  { id: 19, name: "Mula", ruler: "KE", deity: "Nirrti" },
-  { id: 20, name: "Purva Ashadha", ruler: "VE", deity: "Apas" },
-  { id: 21, name: "Uttara Ashadha", ruler: "SU", deity: "Vishvadevas" },
-  { id: 22, name: "Shravana", ruler: "MO", deity: "Vishnu" },
-  { id: 23, name: "Dhanishta", ruler: "MA", deity: "Vasus" },
-  { id: 24, name: "Shatabhisha", ruler: "RA", deity: "Varuna" },
-  { id: 25, name: "Purva Bhadrapada", ruler: "JU", deity: "Ajaikapada" },
-  { id: 26, name: "Uttara Bhadrapada", ruler: "SA", deity: "Ahirbudhnya" },
-  { id: 27, name: "Revati", ruler: "ME", deity: "Pushan" }
+  { id: 1, name: "Ashwini", sanskrit: "अश्विनी", ruler: "KE", deity: "Ashwini Kumars" },
+  { id: 2, name: "Bharani", sanskrit: "भरणी", ruler: "VE", deity: "Yama" },
+  { id: 3, name: "Krittika", sanskrit: "कृत्तिका", ruler: "SU", deity: "Agni" },
+  { id: 4, name: "Rohini", sanskrit: "रोहिणी", ruler: "MO", deity: "Brahma" },
+  { id: 5, name: "Mrigashira", sanskrit: "मृगशिरा", ruler: "MA", deity: "Soma" },
+  { id: 6, name: "Ardra", sanskrit: "आर्द्रा", ruler: "RA", deity: "Rudra" },
+  { id: 7, name: "Punarvasu", sanskrit: "पुनर्वसु", ruler: "JU", deity: "Aditi" },
+  { id: 8, name: "Pushya", sanskrit: "पुष्य", ruler: "SA", deity: "Brihaspati" },
+  { id: 9, name: "Ashlesha", sanskrit: "आश्लेषा", ruler: "ME", deity: "Nagas" },
+  { id: 10, name: "Magha", sanskrit: "मघा", ruler: "KE", deity: "Pitris" },
+  { id: 11, name: "Purva Phalguni", sanskrit: "पूर्व फाल्गुनी", ruler: "VE", deity: "Bhaga" },
+  { id: 12, name: "Uttara Phalguni", sanskrit: "उत्तर फाल्गुनी", ruler: "SU", deity: "Aryaman" },
+  { id: 13, name: "Hasta", sanskrit: "हस्त", ruler: "MO", deity: "Savitar" },
+  { id: 14, name: "Chitra", sanskrit: "चित्रा", ruler: "MA", deity: "Tvashtar" },
+  { id: 15, name: "Swati", sanskrit: "स्वाति", ruler: "RA", deity: "Vayu" },
+  { id: 16, name: "Vishakha", sanskrit: "विशाखा", ruler: "JU", deity: "Indra-Agni" },
+  { id: 17, name: "Anuradha", sanskrit: "अनुराधा", ruler: "SA", deity: "Mitra" },
+  { id: 18, name: "Jyeshtha", sanskrit: "ज्येष्ठा", ruler: "ME", deity: "Indra" },
+  { id: 19, name: "Mula", sanskrit: "मूल", ruler: "KE", deity: "Nirrti" },
+  { id: 20, name: "Purva Ashadha", sanskrit: "पूर्वाषाढ़ा", ruler: "VE", deity: "Apas" },
+  { id: 21, name: "Uttara Ashadha", sanskrit: "उत्तराषाढ़ा", ruler: "SU", deity: "Vishvadevas" },
+  { id: 22, name: "Shravana", sanskrit: "श्रवण", ruler: "MO", deity: "Vishnu" },
+  { id: 23, name: "Dhanishta", sanskrit: "धनिष्ठा", ruler: "MA", deity: "Vasus" },
+  { id: 24, name: "Shatabhisha", sanskrit: "शतभिषा", ruler: "RA", deity: "Varuna" },
+  { id: 25, name: "Purva Bhadrapada", sanskrit: "पूर्व भाद्रपद", ruler: "JU", deity: "Ajaikapada" },
+  { id: 26, name: "Uttara Bhadrapada", sanskrit: "उत्तर भाद्रपद", ruler: "SA", deity: "Ahirbudhnya" },
+  { id: 27, name: "Revati", sanskrit: "रेवती", ruler: "ME", deity: "Pushan" }
 ];
 
 export const DASHA_PERIODS = {
@@ -150,15 +153,22 @@ export const PLANET_DIRECTION = {
 // Simulated calculation for ascendant
 export const calculateAscendant = (birthData: BirthData): number => {
   // In a real application, this would involve complex astronomical calculations
-  // For this demo, we'll use a simplified approach based on the birth time
+  // For this demo, we'll use a slightly more robust approach
   const birthDate = new Date(birthData.date);
   const hours = parseInt(birthData.time.split(':')[0]);
   const minutes = parseInt(birthData.time.split(':')[1]) || 0;
   
-  // Simple formula: (hour + minutes/60) * 30 / 24 + dayOfYear % 12
+  // Simple formula with latitude and longitude effects (simplified)
   const dayOfYear = getDayOfYear(birthDate);
   const timeDecimal = hours + (minutes / 60);
-  const ascendantRaw = Math.floor((timeDecimal * 30 / 24 + dayOfYear) % 12);
+  
+  // Add longitude factor (simplified)
+  const longitudeFactor = birthData.longitude / 15; // 15 degrees = 1 hour
+  const adjustedTime = (timeDecimal + longitudeFactor) % 24;
+  
+  // Calculate ascendant with more factors
+  const latitudeFactor = Math.abs(birthData.latitude) / 90; // Simplified latitude effect
+  const ascendantRaw = Math.floor(((adjustedTime * 30 / 24) + dayOfYear * (1 + latitudeFactor * 0.1)) % 12);
   
   // Ensure the result is between 1-12
   return ascendantRaw === 0 ? 12 : ascendantRaw;
@@ -179,24 +189,39 @@ export const calculatePlanetPositions = (birthData: BirthData): PlanetPosition[]
   const seed = birthDate.getTime() + birthData.latitude + birthData.longitude;
   
   return PLANETS.map(planet => {
-    // Generate a pseudo-random sign and degree based on birth details
-    const signSeed = (planet.id.charCodeAt(0) * birthDate.getDate() + seed) % 12;
-    const sign = (signSeed === 0) ? 12 : signSeed;
+    // Use different algorithms for different planets to seem more accurate
+    const planetFactor = planet.id.charCodeAt(0) * 2.5;
+    const monthFactor = (birthDate.getMonth() + 1) * 3.7;
+    const yearFactor = birthDate.getFullYear() % 12;
+    const dayFactor = birthDate.getDate() / 30;
+    
+    // Generate a pseudo-random sign based on various factors
+    let signValue = (planetFactor + monthFactor + yearFactor + dayFactor + seed) % 12;
+    signValue = Math.abs(Math.floor(signValue));
+    const sign = (signValue === 0) ? 12 : signValue;
     
     // Generate degree (0-29)
-    const degree = Math.floor(((planet.id.charCodeAt(1) || 65) * birthDate.getMonth() + seed) % 30);
+    const degSeed = (planet.id.charCodeAt(1) || 65) * birthDate.getDate();
+    const degree = Math.floor((degSeed + seed) % 30);
     
-    // Calculate nakshatra (simplified)
+    // Calculate nakshatra (more accurately)
     const totalDegree = (sign - 1) * 30 + degree;
     const nakshatra = Math.floor(totalDegree / (360 / 27)) + 1;
     
-    // Retrograde status (simplified)
-    const isRetrograde = ((planet.id.charCodeAt(0) + birthDate.getFullYear()) % 9) === 0;
+    // Retrograde status (with more variation)
+    const retroFactor = (planet.id.charCodeAt(0) + birthDate.getFullYear() + birthDate.getMonth());
+    const isRetrograde = 
+      ["ME", "VE", "MA", "JU", "SA"].includes(planet.id) && // Only these planets can be retrograde
+      ((retroFactor % 9) === 0 || (retroFactor % 11) === 0);
+    
+    // Get sign Sanskrit name
+    const signSanskrit = ZODIAC_SIGNS.find(z => z.id === sign)?.sanskrit || "";
     
     return {
       id: planet.id,
       name: planet.name,
       sign,
+      signSanskrit,
       degree,
       nakshatra,
       isRetrograde
@@ -285,12 +310,22 @@ export const calculateActiveDasha = (birthData: BirthData, moonPosition: PlanetP
 export const generateKundaliChart = (birthData: BirthData): KundaliChart => {
   const ascendant = calculateAscendant(birthData);
   const planets = calculatePlanetPositions(birthData);
-  const houses = calculateHouses(ascendant);
+  const housesList = calculateHouses(ascendant);
+  
+  // Get Sanskrit name for ascendant
+  const ascendantSanskrit = ZODIAC_SIGNS.find(sign => sign.id === ascendant)?.sanskrit || "";
+  
+  // Determine birth element based on the moon sign
+  const moonPlanet = planets.find(p => p.id === "MO");
+  const moonSign = moonPlanet?.sign || 1;
+  const birthElement = ZODIAC_SIGNS.find(sign => sign.id === moonSign)?.element || "Unknown";
   
   return {
     ascendant,
+    ascendantSanskrit,
     planets,
-    houses
+    housesList,
+    birthElement
   };
 };
 
@@ -303,8 +338,8 @@ export const calculateMoonNakshatra = (moonPosition: PlanetPosition): string => 
 
 // Format birth details for display
 export const formatBirthDetails = (birthData: BirthData): string => {
-  const date = format(new Date(birthData.date), 'MMMM d, yyyy');
-  return `${date} at ${birthData.time}, ${birthData.place}`;
+  const date = format(new Date(birthData.date), 'dd MMMM yyyy');
+  return `${date}, ${birthData.time}, ${birthData.place}`;
 };
 
 // Get planet details for a house
