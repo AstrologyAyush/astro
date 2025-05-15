@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,6 +62,21 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				// Astrology-specific colors
+				astrology: {
+					aries: '#FF4136',
+					taurus: '#2ECC40',
+					gemini: '#FFDC00',
+					cancer: '#0074D9',
+					leo: '#FF851B',
+					virgo: '#B10DC9',
+					libra: '#F012BE',
+					scorpio: '#111111',
+					sagittarius: '#01FF70',
+					capricorn: '#85144b',
+					aquarius: '#7FDBFF',
+					pisces: '#39CCCC'
 				}
 			},
 			borderRadius: {
@@ -70,25 +86,27 @@ export default {
 			},
 			keyframes: {
 				'accordion-down': {
-					from: {
-						height: '0'
-					},
-					to: {
-						height: 'var(--radix-accordion-content-height)'
-					}
+					from: { height: '0' },
+					to: { height: 'var(--radix-accordion-content-height)' }
 				},
 				'accordion-up': {
-					from: {
-						height: 'var(--radix-accordion-content-height)'
-					},
-					to: {
-						height: '0'
-					}
+					from: { height: 'var(--radix-accordion-content-height)' },
+					to: { height: '0' }
+				},
+				'fade-in': {
+					from: { opacity: '0' },
+					to: { opacity: '1' }
+				},
+				'spin-slow': {
+					from: { transform: 'rotate(0deg)' },
+					to: { transform: 'rotate(360deg)' }
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'fade-in': 'fade-in 1.5s ease-out',
+				'spin-slow': 'spin-slow 20s linear infinite'
 			}
 		}
 	},
