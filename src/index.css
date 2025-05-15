@@ -43,6 +43,20 @@
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Astrology sign colors with proper HSL values */
+    --astrology-aries: 0 100% 60%;
+    --astrology-taurus: 120 61% 46%;
+    --astrology-gemini: 60 100% 50%;
+    --astrology-cancer: 210 100% 43%;
+    --astrology-leo: 30 100% 55%;
+    --astrology-virgo: 280 85% 42%;
+    --astrology-libra: 320 100% 54%;
+    --astrology-scorpio: 0 0% 7%;
+    --astrology-sagittarius: 150 100% 44%;
+    --astrology-capricorn: 330 73% 38%;
+    --astrology-aquarius: 195 100% 74%;
+    --astrology-pisces: 180 100% 42%;
   }
 
   .dark {
@@ -101,6 +115,7 @@
   position: relative;
   width: 100%;
   max-width: 500px;
+  margin: 0 auto;
   aspect-ratio: 1/1;
 }
 
@@ -110,6 +125,8 @@
   height: 100%;
   border: 2px solid hsl(var(--border));
   border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
 }
 
 .kundali-house {
@@ -118,41 +135,44 @@
   height: 50%;
   border: 1px solid hsl(var(--border));
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   font-size: 0.8rem;
+  padding: 0.5rem;
+  transition: background-color 0.2s ease;
+}
+
+.kundali-house:hover {
+  background-color: rgba(0, 0, 0, 0.02);
 }
 
 .kundali-house-1 {
   top: 50%;
   left: 50%;
   transform-origin: top left;
-  padding: 10px;
 }
 
 .kundali-house-4 {
   top: 0;
   left: 50%;
   transform-origin: bottom left;
-  padding: 10px;
 }
 
 .kundali-house-7 {
   top: 0;
   left: 0;
   transform-origin: bottom right;
-  padding: 10px;
 }
 
 .kundali-house-10 {
   top: 50%;
   left: 0;
   transform-origin: top right;
-  padding: 10px;
 }
 
 .zodiac-symbol {
-  font-size: 1.2rem;
+  font-size: 1.5rem;
   margin-bottom: 0.25rem;
 }
 
@@ -160,6 +180,7 @@
   display: inline-block;
   font-weight: bold;
   margin-right: 0.25rem;
+  font-size: 1.2rem;
 }
 
 .celestial-background {
@@ -169,6 +190,57 @@
 
 @layer components {
   .gradient-heading {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-purple-500 via-blue-500 to-purple-700;
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-purple-600 via-blue-500 to-purple-700;
+  }
+  
+  .planets-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.25rem;
+    max-width: 100%;
+  }
+  
+  @media (max-width: 640px) {
+    .zodiac-symbol {
+      font-size: 1.2rem;
+    }
+    
+    .planet-symbol {
+      font-size: 1rem;
+    }
+  }
+  
+  /* Animation for elements */
+  .animate-fade-in {
+    animation: fadeIn 0.8s ease-out;
+  }
+  
+  @keyframes fadeIn {
+    from { 
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to { 
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* Pulse animation for important elements */
+  .pulse {
+    animation: pulse 2s infinite;
+  }
+  
+  @keyframes pulse {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.05);
+    }
+    100% {
+      transform: scale(1);
+    }
   }
 }

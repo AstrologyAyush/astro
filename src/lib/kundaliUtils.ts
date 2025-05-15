@@ -1,4 +1,3 @@
-
 import { format } from 'date-fns';
 
 // Types for Kundali calculations
@@ -18,6 +17,7 @@ export type BirthData = {
   longitude: number;
   timezone: string;
   place: string;
+  fullName?: string; // Added fullName field
 };
 
 export type KundaliChart = {

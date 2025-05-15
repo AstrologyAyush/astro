@@ -60,7 +60,7 @@ const KundaliChart: React.FC<KundaliChartProps> = ({ chart }) => {
         <div className="text-center mb-4">
           <h3 className="text-lg font-semibold">Kundali Chart</h3>
           <div className="text-sm text-muted-foreground">
-            Ascendant: {ascendantSign.name} ({ascendantSign.sanskrit})
+            Ascendant: {ascendantSign.name} ({ascendantSign.sanskrit}) {ascendantSign.element} Element
           </div>
         </div>
         
@@ -71,6 +71,14 @@ const KundaliChart: React.FC<KundaliChartProps> = ({ chart }) => {
             </div>
             {houseElements}
           </div>
+        </div>
+        
+        <div className="mt-4 text-sm">
+          <h4 className="font-medium mb-1">Chart Explanation:</h4>
+          <p className="text-muted-foreground">
+            This chart represents a simplified North Indian style Kundali, showing houses 1, 4, 7, and
+            10. The symbols inside each house represent planets positioned there at the time of birth.
+          </p>
         </div>
       </CardContent>
     </Card>
