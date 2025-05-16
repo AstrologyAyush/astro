@@ -1,4 +1,3 @@
-
 import { format } from 'date-fns';
 
 // Types for Kundali calculations
@@ -50,18 +49,18 @@ export type DashaPeriod = {
 };
 
 export const ZODIAC_SIGNS = [
-  { id: 1, name: "Aries", sanskrit: "मेष", element: "अग्नि", symbol: "♈︎" },
-  { id: 2, name: "Taurus", sanskrit: "वृषभ", element: "पृथ्वी", symbol: "♉︎" },
-  { id: 3, name: "Gemini", sanskrit: "मिथुन", element: "वायु", symbol: "♊︎" },
-  { id: 4, name: "Cancer", sanskrit: "कर्क", element: "जल", symbol: "♋︎" },
-  { id: 5, name: "Leo", sanskrit: "सिंह", element: "अग्नि", symbol: "♌︎" },
-  { id: 6, name: "Virgo", sanskrit: "कन्या", element: "पृथ्वी", symbol: "♍︎" },
-  { id: 7, name: "Libra", sanskrit: "तुला", element: "वायु", symbol: "♎︎" },
-  { id: 8, name: "Scorpio", sanskrit: "वृश्चिक", element: "जल", symbol: "♏︎" },
-  { id: 9, name: "Sagittarius", sanskrit: "धनु", element: "अग्नि", symbol: "♐︎" },
-  { id: 10, name: "Capricorn", sanskrit: "मकर", element: "पृथ्वी", symbol: "♑︎" },
-  { id: 11, name: "Aquarius", sanskrit: "कुंभ", element: "वायु", symbol: "♒︎" },
-  { id: 12, name: "Pisces", sanskrit: "मीन", element: "जल", symbol: "♓︎" },
+  { id: 1, name: "Aries", sanskrit: "मेष", element: "Fire", symbol: "♈", ruler: "MA" },
+  { id: 2, name: "Taurus", sanskrit: "वृषभ", element: "Earth", symbol: "♉", ruler: "VE" },
+  { id: 3, name: "Gemini", sanskrit: "मिथुन", element: "Air", symbol: "♊", ruler: "ME" },
+  { id: 4, name: "Cancer", sanskrit: "कर्क", element: "Water", symbol: "♋", ruler: "MO" },
+  { id: 5, name: "Leo", sanskrit: "सिंह", element: "Fire", symbol: "♌", ruler: "SU" },
+  { id: 6, name: "Virgo", sanskrit: "कन्या", element: "Earth", symbol: "♍", ruler: "ME" },
+  { id: 7, name: "Libra", sanskrit: "तुला", element: "Air", symbol: "♎", ruler: "VE" },
+  { id: 8, name: "Scorpio", sanskrit: "वृश्चिक", element: "Water", symbol: "♏", ruler: "MA" },
+  { id: 9, name: "Sagittarius", sanskrit: "धनु", element: "Fire", symbol: "♐", ruler: "JU" },
+  { id: 10, name: "Capricorn", sanskrit: "मकर", element: "Earth", symbol: "♑", ruler: "SA" },
+  { id: 11, name: "Aquarius", sanskrit: "कुंभ", element: "Air", symbol: "♒", ruler: "SA" },
+  { id: 12, name: "Pisces", sanskrit: "मीन", element: "Water", symbol: "♓", ruler: "JU" },
 ];
 
 export const PLANETS = [
@@ -574,5 +573,14 @@ export const degreesToDMS = (degrees: number): string => {
   const m = Math.floor(mTemp);
   const s = Math.floor((mTemp - m) * 60);
   
-  return `${d}° ${m}' ${s}"`;
+  return `${d}° ${m}' ${s"`;
 };
+
+export interface ZodiacDetails {
+  id: number;
+  name: string;
+  sanskrit: string;
+  element: string;
+  symbol: string;
+  ruler: string; // Added ruler property
+}
