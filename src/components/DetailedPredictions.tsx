@@ -114,7 +114,8 @@ const DetailedPredictions: React.FC<DetailedPredictionsProps> = ({ chart, birthD
   const generateCareerPrediction = () => {
     // Based on 10th house and its lord, sun position
     const tenthHouseSign = chart.housesList[9];
-    const tenthLord = getPlanetDetails(getZodiacDetails(tenthHouseSign)?.lord || "SU");
+    const tenthLordId = getZodiacDetails(tenthHouseSign)?.ruler || "SU";
+    const tenthLord = getPlanetDetails(tenthLordId);
     
     if (jupiter && [1, 2, 4, 5, 9, 10, 11].includes(getHousePosition(jupiter.sign))) {
       return language === 'hi' 
@@ -134,7 +135,8 @@ const DetailedPredictions: React.FC<DetailedPredictionsProps> = ({ chart, birthD
   const generateRelationshipPrediction = () => {
     // Based on 7th house, Venus and Mars
     const seventhHouseSign = chart.housesList[6];
-    const seventhLord = getPlanetDetails(getZodiacDetails(seventhHouseSign)?.lord || "VE");
+    const seventhLordId = getZodiacDetails(seventhHouseSign)?.ruler || "VE";
+    const seventhLord = getPlanetDetails(seventhLordId);
     
     if (venus && [1, 4, 5, 7, 10, 11].includes(getHousePosition(venus.sign))) {
       return language === 'hi'
