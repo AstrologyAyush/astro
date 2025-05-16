@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BirthData, generateKundaliChart, formatBirthDetails, KundaliChart as KundaliChartType, calculateMoonNakshatra } from '@/lib/kundaliUtils';
@@ -115,6 +116,14 @@ const Index = () => {
                           {kundaliData.chart.birthElement || "Unknown"}
                         </Badge>
                       </div>
+                      {kundaliData.chart.yogas?.filter(y => y.present).length > 0 && (
+                        <div>
+                          <span className="font-medium">प्रमुख योग:</span>{" "}
+                          <Badge variant="outline" className="ml-1">
+                            {kundaliData.chart.yogas.filter(y => y.present).map(y => y.sanskritName).join(", ")}
+                          </Badge>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -160,6 +169,7 @@ const Index = () => {
         
         <footer className="mt-12 text-center text-sm text-muted-foreground">
           <p>नोट: यह एप्लिकेशन शैक्षिक उद्देश्यों के लिए वैदिक ज्योतिष गणनाओं का एक सरलीकृत संस्करण प्रदान करती है।</p>
+          <p className="mt-1">जन्मपत्रिका की सटीक व्याख्या के लिए अनुभवी ज्योतिषी से परामर्श करें।</p>
         </footer>
       </div>
     </div>

@@ -1,3 +1,4 @@
+
 import { format } from 'date-fns';
 
 // Types for Kundali calculations
@@ -7,7 +8,9 @@ export type PlanetPosition = {
   sign: number;
   signSanskrit?: string;  // Add Sanskrit name for sign
   degree: number;
+  degreeInSign?: number;
   nakshatra?: number;
+  nakshatraPada?: number;
   isRetrograde?: boolean;
 };
 
@@ -27,6 +30,23 @@ export type KundaliChart = {
   planets: PlanetPosition[];
   housesList: number[];
   birthElement: string; // Add birth element
+  yogas: Yoga[]; // Add yogas
+  dashaPeriods: DashaPeriod[]; // Add dasha periods
+};
+
+export type Yoga = {
+  name: string;
+  sanskritName: string;
+  present: boolean;
+  description: string;
+};
+
+export type DashaPeriod = {
+  planet: string;
+  planetSanskrit: string;
+  startDate: Date;
+  endDate: Date;
+  years: number;
 };
 
 export const ZODIAC_SIGNS = [
@@ -150,13 +170,48 @@ export const PLANET_DIRECTION = {
   "VE": 4 // North (4th house)
 };
 
-// Simulated calculation for ascendant
+// Convert Gregorian to Julian Day Number (JDN) - advanced calculation
+export const gregorianToJulian = (date: Date, time: string): number => {
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+  
+  const timeArray = time.split(':');
+  const hour = parseInt(timeArray[0]);
+  const minute = parseInt(timeArray[1]);
+  const timeDecimal = hour + (minute / 60);
+  
+  // Julian Day calculation (Meeus algorithm)
+  let a, y, m;
+  
+  if (month <= 2) {
+    y = year - 1;
+    m = month + 12;
+  } else {
+    y = year;
+    m = month;
+  }
+  
+  a = Math.floor(y / 100);
+  const b = 2 - a + Math.floor(a / 4);
+  
+  const jd = Math.floor(365.25 * (y + 4716)) + 
+             Math.floor(30.6001 * (m + 1)) + 
+             day + b - 1524.5 + (timeDecimal / 24);
+  
+  return jd;
+};
+
+// Simulated calculation for ascendant with improved accuracy
 export const calculateAscendant = (birthData: BirthData): number => {
   // In a real application, this would involve complex astronomical calculations
   // For this demo, we'll use a slightly more robust approach
   const birthDate = new Date(birthData.date);
   const hours = parseInt(birthData.time.split(':')[0]);
   const minutes = parseInt(birthData.time.split(':')[1]) || 0;
+  
+  // Get Julian Day
+  const jd = gregorianToJulian(birthDate, birthData.time);
   
   // Simple formula with latitude and longitude effects (simplified)
   const dayOfYear = getDayOfYear(birthDate);
@@ -168,10 +223,15 @@ export const calculateAscendant = (birthData: BirthData): number => {
   
   // Calculate ascendant with more factors
   const latitudeFactor = Math.abs(birthData.latitude) / 90; // Simplified latitude effect
-  const ascendantRaw = Math.floor(((adjustedTime * 30 / 24) + dayOfYear * (1 + latitudeFactor * 0.1)) % 12);
+  const obliquity = 23.4393 - 0.0000004 * (jd - 2451545.0) / 36525; // Earth's axial tilt
+  const siderealTime = (100.46 + 0.985647 * (jd - 2451545.0) + birthData.longitude) % 360;
+  
+  // Add more astronomical factors
+  const ascendantFactor = (siderealTime + adjustedTime * 15) / 30;
+  const ascendantRaw = Math.floor(ascendantFactor % 12);
   
   // Ensure the result is between 1-12
-  return ascendantRaw === 0 ? 12 : ascendantRaw;
+  return ascendantRaw === 0 ? 12 : (ascendantRaw < 0 ? ascendantRaw + 12 : ascendantRaw);
 };
 
 // Helper for day of year
@@ -182,37 +242,47 @@ const getDayOfYear = (date: Date): number => {
   return Math.floor(diff / oneDay);
 };
 
-// Simulate planet positions
+// Simulate planet positions with improved accuracy
 export const calculatePlanetPositions = (birthData: BirthData): PlanetPosition[] => {
   // In a real application, this would use astronomical algorithms or an ephemeris API
   const birthDate = new Date(birthData.date);
-  const seed = birthDate.getTime() + birthData.latitude + birthData.longitude;
+  const jd = gregorianToJulian(birthDate, birthData.time);
   
-  return PLANETS.map(planet => {
-    // Use different algorithms for different planets to seem more accurate
-    const planetFactor = planet.id.charCodeAt(0) * 2.5;
-    const monthFactor = (birthDate.getMonth() + 1) * 3.7;
-    const yearFactor = birthDate.getFullYear() % 12;
-    const dayFactor = birthDate.getDate() / 30;
+  // Use Julian Day for more accurate calculation
+  const positions = PLANETS.map(planet => {
+    // Different orbital parameters for each planet
+    const orbitalPeriods: Record<string, number> = {
+      "SU": 365.25, // Earth around Sun
+      "MO": 27.32, // Moon around Earth
+      "ME": 87.97,
+      "VE": 224.7,
+      "MA": 686.98,
+      "JU": 4332.59,
+      "SA": 10759.22,
+      "RA": 6793.39, // Nodal cycle approximation
+      "KE": 6793.39  // Nodal cycle approximation
+    };
     
-    // Generate a pseudo-random sign based on various factors
-    let signValue = (planetFactor + monthFactor + yearFactor + dayFactor + seed) % 12;
-    signValue = Math.abs(Math.floor(signValue));
-    const sign = (signValue === 0) ? 12 : signValue;
+    // Get orbital period or default
+    const period = orbitalPeriods[planet.id] || 365.25;
     
-    // Generate degree (0-29)
-    const degSeed = (planet.id.charCodeAt(1) || 65) * birthDate.getDate();
-    const degree = Math.floor((degSeed + seed) % 30);
+    // Advanced mathematical model (simplified for demo)
+    // In a real implementation, this would use proper ephemeris calculations
+    const planetAngle = ((jd / period) * 360 + birthData.longitude / 15 * planet.id.charCodeAt(0)) % 360;
+    const sign = Math.floor(planetAngle / 30) + 1;
+    const degree = planetAngle % 30;
     
     // Calculate nakshatra (more accurately)
-    const totalDegree = (sign - 1) * 30 + degree;
+    const totalDegree = planetAngle;
     const nakshatra = Math.floor(totalDegree / (360 / 27)) + 1;
+    const nakshatraPada = Math.floor((totalDegree % (360 / 27)) / (360 / 108)) + 1;
     
-    // Retrograde status (with more variation)
-    const retroFactor = (planet.id.charCodeAt(0) + birthDate.getFullYear() + birthDate.getMonth());
+    // More accurate retrograde calculation
+    // Real planets have retrograde cycles, for demo we'll use a more complex formula
+    const retroFactor = Math.sin((jd / (period / 2)) * Math.PI) * (planet.id.charCodeAt(0) % 5);
     const isRetrograde = 
       ["ME", "VE", "MA", "JU", "SA"].includes(planet.id) && // Only these planets can be retrograde
-      ((retroFactor % 9) === 0 || (retroFactor % 11) === 0);
+      (retroFactor < -0.7); // Threshold for retrograde motion
     
     // Get sign Sanskrit name
     const signSanskrit = ZODIAC_SIGNS.find(z => z.id === sign)?.sanskrit || "";
@@ -222,11 +292,15 @@ export const calculatePlanetPositions = (birthData: BirthData): PlanetPosition[]
       name: planet.name,
       sign,
       signSanskrit,
-      degree,
+      degree: totalDegree % 360,
+      degreeInSign: degree,
       nakshatra,
+      nakshatraPada,
       isRetrograde
     };
   });
+  
+  return positions;
 };
 
 // Calculate house positions based on ascendant
@@ -291,6 +365,104 @@ export const getSignLord = (sign: number): string => {
   }
 };
 
+// Calculate Yoga presence
+export const calculateYogas = (planets: PlanetPosition[], houses: number[]): Yoga[] => {
+  const yogas: Yoga[] = [];
+  
+  // Example: Gajakesari Yoga (Jupiter in kendra from Moon)
+  const moon = planets.find(p => p.id === "MO");
+  const jupiter = planets.find(p => p.id === "JU");
+  
+  if (moon && jupiter) {
+    const moonSign = moon.sign;
+    const jupiterSign = jupiter.sign;
+    const kendras = [1, 4, 7, 10].map(k => ((moonSign + k - 1) % 12) + 1);
+    
+    yogas.push({
+      name: "Gajakesari Yoga",
+      sanskritName: "गजकेसरी योग",
+      present: kendras.includes(jupiterSign),
+      description: "आपकी कुंडली में गजकेसरी योग है, जो सफलता और समृद्धि का संकेत करता है"
+    });
+  }
+  
+  // Example: Budhaditya Yoga (Sun and Mercury conjunction)
+  const sun = planets.find(p => p.id === "SU");
+  const mercury = planets.find(p => p.id === "ME");
+  
+  if (sun && mercury) {
+    yogas.push({
+      name: "Budhaditya Yoga",
+      sanskritName: "बुधादित्य योग",
+      present: sun.sign === mercury.sign,
+      description: "आपकी कुंडली में बुधादित्य योग है जो बुद्धि और विद्या की प्राप्ति का कारक है"
+    });
+  }
+  
+  // Example: Chandra-Mangala Yoga (Moon and Mars conjunction)
+  const mars = planets.find(p => p.id === "MA");
+  
+  if (moon && mars) {
+    yogas.push({
+      name: "Chandra-Mangala Yoga",
+      sanskritName: "चंद्र-मंगल योग",
+      present: moon.sign === mars.sign,
+      description: "आपकी कुंडली में चंद्र-मंगल योग है जो साहस और उत्साह की प्राप्ति का कारक है"
+    });
+  }
+  
+  return yogas;
+};
+
+// Calculate Vimshottari Dasha periods
+export const calculateVimshottariDasha = (birthData: BirthData, moonPosition: PlanetPosition): DashaPeriod[] => {
+  if (!moonPosition.nakshatra) return [];
+  
+  // Get the lord of the birth nakshatra
+  const nakshatra = moonPosition.nakshatra;
+  const nakshatraRuler = NAKSHATRAS[nakshatra - 1]?.ruler || "JU";
+  
+  // Dasha sequence starting from birth nakshatra lord
+  const dashaSequence = ["KE", "VE", "SU", "MO", "MA", "RA", "JU", "SA", "ME"];
+  const startIndex = dashaSequence.indexOf(nakshatraRuler);
+  const sequence = [...dashaSequence.slice(startIndex), ...dashaSequence.slice(0, startIndex)];
+  
+  // Calculate Dasha periods
+  const dashaPeriods: DashaPeriod[] = [];
+  let currentDate = new Date(birthData.date);
+  
+  // Simplified: Calculate remaining portion of first dasha
+  // In reality, this depends on precise position within nakshatra
+  const portion = (moonPosition.degree % (360 / 27)) / (360 / 27);
+  const firstPeriodYears = DASHA_PERIODS[nakshatraRuler as keyof typeof DASHA_PERIODS] || 0;
+  const remainingYears = firstPeriodYears * (1 - portion);
+  
+  // Add all dasha periods
+  sequence.forEach((planetId, index) => {
+    const years = DASHA_PERIODS[planetId as keyof typeof DASHA_PERIODS] || 0;
+    const actualYears = index === 0 ? remainingYears : years;
+    
+    const startDate = new Date(currentDate);
+    const endDate = new Date(startDate);
+    endDate.setFullYear(endDate.getFullYear() + Math.floor(actualYears));
+    endDate.setMonth(endDate.getMonth() + Math.floor((actualYears % 1) * 12));
+    
+    const planetDetails = PLANETS.find(p => p.id === planetId);
+    
+    dashaPeriods.push({
+      planet: planetId,
+      planetSanskrit: planetDetails?.sanskrit || "",
+      startDate,
+      endDate,
+      years: actualYears
+    });
+    
+    currentDate = new Date(endDate);
+  });
+  
+  return dashaPeriods;
+};
+
 // Calculate the active Dasha (life period)
 export const calculateActiveDasha = (birthData: BirthData, moonPosition: PlanetPosition): string => {
   // In a real application, this would involve complex calculations
@@ -320,12 +492,20 @@ export const generateKundaliChart = (birthData: BirthData): KundaliChart => {
   const moonSign = moonPlanet?.sign || 1;
   const birthElement = ZODIAC_SIGNS.find(sign => sign.id === moonSign)?.element || "Unknown";
   
+  // Calculate yogas
+  const yogas = calculateYogas(planets, housesList);
+  
+  // Calculate dasha periods
+  const dashaPeriods = calculateVimshottariDasha(birthData, moonPlanet!);
+  
   return {
     ascendant,
     ascendantSanskrit,
     planets,
     housesList,
-    birthElement
+    birthElement,
+    yogas,
+    dashaPeriods
   };
 };
 
@@ -333,7 +513,7 @@ export const generateKundaliChart = (birthData: BirthData): KundaliChart => {
 export const calculateMoonNakshatra = (moonPosition: PlanetPosition): string => {
   if (!moonPosition.nakshatra) return "Unknown";
   const nakshatra = NAKSHATRAS[moonPosition.nakshatra - 1];
-  return nakshatra?.name || "Unknown";
+  return nakshatra?.sanskrit || "Unknown";
 };
 
 // Format birth details for display
@@ -356,4 +536,43 @@ export const getZodiacDetails = (signNumber: number) => {
 // Get planet details
 export const getPlanetDetails = (planetId: string) => {
   return PLANETS.find(planet => planet.id === planetId);
+};
+
+// Calculate and get current dasha
+export const getCurrentDasha = (dashaPeriods: DashaPeriod[]): DashaPeriod | undefined => {
+  const now = new Date();
+  return dashaPeriods.find(period => 
+    period.startDate <= now && period.endDate >= now
+  );
+};
+
+// Calculate if a planet is combust (too close to Sun)
+export const isPlanetCombust = (planet: PlanetPosition, sun: PlanetPosition): boolean => {
+  if (planet.sign !== sun.sign) return false;
+  
+  const planetDegree = planet.degreeInSign || 0;
+  const sunDegree = sun.degreeInSign || 0;
+  const difference = Math.abs(planetDegree - sunDegree);
+  
+  // Different combustion distances for different planets
+  const combustionDistances: Record<string, number> = {
+    "MO": 12,
+    "ME": 14,
+    "VE": 10,
+    "MA": 17,
+    "JU": 11,
+    "SA": 15
+  };
+  
+  return difference < (combustionDistances[planet.id] || 10);
+};
+
+// Convert degrees to DMS format
+export const degreesToDMS = (degrees: number): string => {
+  const d = Math.floor(degrees);
+  const mTemp = (degrees - d) * 60;
+  const m = Math.floor(mTemp);
+  const s = Math.floor((mTemp - m) * 60);
+  
+  return `${d}° ${m}' ${s}"`;
 };
