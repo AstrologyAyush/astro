@@ -1,3 +1,4 @@
+
 import { format } from 'date-fns';
 
 // Types for Kundali calculations
@@ -573,7 +574,7 @@ export const degreesToDMS = (degrees: number): string => {
   const m = Math.floor(mTemp);
   const s = Math.floor((mTemp - m) * 60);
   
-  return `${d}° ${m}' ${s"`;
+  return `${d}° ${m}' ${s}"`;
 };
 
 export interface ZodiacDetails {
@@ -584,3 +585,4 @@ export interface ZodiacDetails {
   symbol: string;
   ruler: string; // Added ruler property
 }
+
