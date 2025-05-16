@@ -15,9 +15,10 @@ import { Separator } from "@/components/ui/separator";
 interface DashaDisplayProps {
   moonPosition: PlanetPosition;
   birthDate: Date;
+  language?: 'hi' | 'en';
 }
 
-const DashaDisplay: React.FC<DashaDisplayProps> = ({ moonPosition, birthDate }) => {
+const DashaDisplay: React.FC<DashaDisplayProps> = ({ moonPosition, birthDate, language = 'hi' }) => {
   // Calculate dasha periods
   const birthData = {
     date: birthDate,
@@ -43,16 +44,23 @@ const DashaDisplay: React.FC<DashaDisplayProps> = ({ moonPosition, birthDate }) 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>विंशोत्तरी दशा</CardTitle>
-        <CardDescription>आपके जीवन की महादशा अवधियां</CardDescription>
+        <CardTitle>{language === 'hi' ? "विंशोत्तरी दशा" : "Vimshottari Dasha"}</CardTitle>
+        <CardDescription>
+          {language === 'hi' 
+            ? "आपके जीवन की महादशा अवधियां" 
+            : "Major planetary periods of your life"}
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
           <div className="bg-muted/30 p-3 rounded-md">
-            <h3 className="font-medium">जन्म नक्षत्र विवरण</h3>
+            <h3 className="font-medium">
+              {language === 'hi' ? "जन्म नक्षत्र विवरण" : "Birth Nakshatra Details"}
+            </h3>
             <p className="text-sm mt-1">
-              आपका जन्म <strong>{nakshatra?.sanskrit}</strong> नक्षत्र में हुआ है, 
-              जिसका स्वामी <strong>{lordPlanet?.sanskrit}</strong> ({lordPlanet?.name}) है।
+              {language === 'hi' 
+                ? `आपका जन्म ${nakshatra?.sanskrit} नक्षत्र में हुआ है, जिसका स्वामी ${lordPlanet?.sanskrit} (${lordPlanet?.name}) है।`
+                : `Your birth occurred in ${nakshatra?.name} (${nakshatra?.sanskrit}) nakshatra, ruled by ${lordPlanet?.name} (${lordPlanet?.sanskrit}).`}
             </p>
           </div>
           
@@ -60,14 +68,18 @@ const DashaDisplay: React.FC<DashaDisplayProps> = ({ moonPosition, birthDate }) 
           
           {currentDasha && (
             <div className="bg-primary/10 p-3 rounded-md">
-              <h3 className="font-medium">वर्तमान दशा</h3>
+              <h3 className="font-medium">
+                {language === 'hi' ? "वर्तमान दशा" : "Current Period"}
+              </h3>
               <div className="mt-2 flex items-center space-x-2">
                 <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground">
                   {getPlanetDetails(currentDasha.planet)?.symbol}
                 </div>
                 <div>
                   <div className="font-medium">
-                    {currentDasha.planetSanskrit} महादशा
+                    {language === 'hi'
+                      ? `${currentDasha.planetSanskrit} महादशा`
+                      : `${getPlanetDetails(currentDasha.planet)?.name} Mahadasha`}
                   </div>
                   <div className="text-xs text-muted-foreground">
                     {formatDate(currentDasha.startDate)} - {formatDate(currentDasha.endDate)}
@@ -77,7 +89,9 @@ const DashaDisplay: React.FC<DashaDisplayProps> = ({ moonPosition, birthDate }) 
             </div>
           )}
           
-          <h3 className="font-medium mt-4">आपकी महादशा श्रृंखला</h3>
+          <h3 className="font-medium mt-4">
+            {language === 'hi' ? "आपकी महादशा श्रृंखला" : "Your Mahadasha Sequence"}
+          </h3>
           
           <div className="space-y-4">
             {dashaPeriods.slice(0, 6).map((period: DashaPeriod, index) => {
@@ -97,11 +111,21 @@ const DashaDisplay: React.FC<DashaDisplayProps> = ({ moonPosition, birthDate }) 
                   </div>
                   <div className="flex-1">
                     <div className="flex justify-between">
-                      <span className="font-medium">{planet?.sanskrit} दशा</span>
-                      <span className="text-sm text-muted-foreground">{Math.round(period.years)} वर्ष</span>
+                      <span className="font-medium">
+                        {language === 'hi' 
+                          ? `${planet?.sanskrit} दशा` 
+                          : `${planet?.name} Period`}
+                      </span>
+                      <span className="text-sm text-muted-foreground">
+                        {language === 'hi' 
+                          ? `${Math.round(period.years)} वर्ष` 
+                          : `${Math.round(period.years)} years`}
+                      </span>
                     </div>
                     <div className="text-xs text-muted-foreground">
-                      {formatDate(period.startDate)} से {formatDate(period.endDate)} तक
+                      {language === 'hi' 
+                        ? `${formatDate(period.startDate)} से ${formatDate(period.endDate)} तक`
+                        : `${formatDate(period.startDate)} to ${formatDate(period.endDate)}`}
                     </div>
                   </div>
                 </div>
@@ -110,7 +134,11 @@ const DashaDisplay: React.FC<DashaDisplayProps> = ({ moonPosition, birthDate }) 
           </div>
           
           <div className="pt-2 text-xs text-muted-foreground bg-muted/20 p-2 rounded">
-            <p>नोट: विंशोत्तरी दशा वैदिक ज्योतिष में जीवन के विभिन्न चरणों का संकेत देती है। प्रत्येक ग्रह की दशा एक निश्चित अवधि तक चलती है और उस अवधि में उस ग्रह के गुण व प्रभाव जीवन में दिखाई देते हैं।</p>
+            <p>
+              {language === 'hi' 
+                ? "नोट: विंशोत्तरी दशा वैदिक ज्योतिष में जीवन के विभिन्न चरणों का संकेत देती है। प्रत्येक ग्रह की दशा एक निश्चित अवधि तक चलती है और उस अवधि में उस ग्रह के गुण व प्रभाव जीवन में दिखाई देते हैं।"
+                : "Note: Vimshottari Dasha indicates different phases of life in Vedic astrology. Each planet's period lasts for a specific duration, and during that time, the qualities and influences of that planet are visible in life."}
+            </p>
           </div>
         </div>
       </CardContent>
