@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -8,28 +7,29 @@ import { ArrowRight, Check, Star, Zap, Calendar, Users, Brain, ShieldCheck, Cloc
 import AppLogo from "@/components/AppLogo";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
-
 const LandingPage = () => {
   const navigate = useNavigate();
-  
+
   // Animation variants
   const fadeIn = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
+    hidden: {
+      opacity: 0,
+      y: 20
+    },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.6
+      }
+    }
   };
-  
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-background/90">
+  return <div className="min-h-screen bg-gradient-to-b from-background to-background/90">
       {/* Hero Section */}
       <section className="py-20 px-4">
         <div className="container mx-auto max-w-6xl">
           <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12">
-            <motion.div 
-              className="flex-1 space-y-6"
-              initial="hidden"
-              animate="visible"
-              variants={fadeIn}
-            >
+            <motion.div className="flex-1 space-y-6" initial="hidden" animate="visible" variants={fadeIn}>
               <div className="flex items-center gap-3 mb-6">
                 <AppLogo size="md" />
                 <h1 className="text-3xl font-bold gradient-heading">AyushAstro</h1>
@@ -42,7 +42,7 @@ const LandingPage = () => {
                 future-proof guidance. Decisions backed by destiny + data.
               </p>
               <div className="pt-4">
-                <Button size="lg" onClick={() => navigate('/')} className="group">
+                <Button size="lg" onClick={() => navigate('/')} className="group bg-red-600 hover:bg-red-500 rounded-2xl">
                   Get Your Free Astro Report in 60 Seconds
                   <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" />
                 </Button>
@@ -53,20 +53,19 @@ const LandingPage = () => {
                 </div>
               </div>
             </motion.div>
-            <motion.div 
-              className="flex-1"
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.8 }}
-            >
+            <motion.div className="flex-1" initial={{
+            opacity: 0,
+            scale: 0.9
+          }} animate={{
+            opacity: 1,
+            scale: 1
+          }} transition={{
+            duration: 0.8
+          }}>
               <div className="relative">
                 <div className="absolute -inset-0.5 bg-gradient-to-r from-primary to-orange-500 rounded-2xl blur opacity-30 animate-pulse-slow"></div>
                 <div className="relative bg-card rounded-xl overflow-hidden border shadow-xl">
-                  <img 
-                    src="https://images.unsplash.com/photo-1470813740244-df37b8c1edcb?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80" 
-                    alt="AyushAstro Dashboard" 
-                    className="w-full aspect-[4/3] object-cover object-center rounded-t-xl" 
-                  />
+                  <img src="https://images.unsplash.com/photo-1470813740244-df37b8c1edcb?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80" alt="AyushAstro Dashboard" className="w-full aspect-[4/3] object-cover object-center rounded-t-xl" />
                   <div className="p-4">
                     <h3 className="text-lg font-medium">Your Kundali Dashboard</h3>
                     <p className="text-sm text-muted-foreground">Dynamic insights based on your birth details</p>
@@ -81,26 +80,34 @@ const LandingPage = () => {
       {/* Pain + Belief Section */}
       <section className="py-16 px-4 bg-muted/30">
         <div className="container mx-auto max-w-6xl">
-          <motion.div 
-            className="text-center mb-12"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
+          <motion.div className="text-center mb-12" initial={{
+          opacity: 0,
+          y: 20
+        }} whileInView={{
+          opacity: 1,
+          y: 0
+        }} viewport={{
+          once: true
+        }} transition={{
+          duration: 0.6
+        }}>
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
               Most Astrology Feels Like Guesswork. <span className="gradient-heading">Ours Runs on Swiss Precision.</span>
             </h2>
           </motion.div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
-            <motion.div 
-              className="space-y-6"
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-            >
+            <motion.div className="space-y-6" initial={{
+            opacity: 0,
+            x: -20
+          }} whileInView={{
+            opacity: 1,
+            x: 0
+          }} viewport={{
+            once: true
+          }} transition={{
+            duration: 0.6
+          }}>
               <h3 className="text-xl font-semibold">The Pain</h3>
               <ul className="space-y-4">
                 <li className="flex gap-3">
@@ -118,13 +125,17 @@ const LandingPage = () => {
               </ul>
             </motion.div>
             
-            <motion.div 
-              className="space-y-6"
-              initial={{ opacity: 0, x: 20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-            >
+            <motion.div className="space-y-6" initial={{
+            opacity: 0,
+            x: 20
+          }} whileInView={{
+            opacity: 1,
+            x: 0
+          }} viewport={{
+            once: true
+          }} transition={{
+            duration: 0.6
+          }}>
               <h3 className="text-xl font-semibold">The Solution</h3>
               <p className="text-muted-foreground">
                 We built AyushAstro to bring logic to the cosmic. Powered by the world's most accurate ephemeris 
@@ -147,13 +158,15 @@ const LandingPage = () => {
       {/* Product Benefits Section */}
       <section className="py-20 px-4">
         <div className="container mx-auto max-w-6xl">
-          <motion.div 
-            className="text-center mb-12"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
+          <motion.div className="text-center mb-12" initial={{
+          opacity: 0
+        }} whileInView={{
+          opacity: 1
+        }} viewport={{
+          once: true
+        }} transition={{
+          duration: 0.6
+        }}>
             <h2 className="text-3xl md:text-4xl font-bold mb-2">
               One Platform. <span className="gradient-heading">Infinite Clarity.</span>
             </h2>
@@ -163,72 +176,64 @@ const LandingPage = () => {
           </motion.div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[
-              {
-                icon: <Star className="text-amber-500" />,
-                title: "Instant Kundali Decoder",
-                description: "Get 20+ chart layers including yogas, doshas, dashas"
-              },
-              {
-                icon: <Clock className="text-emerald-500" />,
-                title: "Decision Timing Engine",
-                description: "Know when to invest, marry, move, launch"
-              },
-              {
-                icon: <Calendar className="text-blue-500" />,
-                title: "Life Timeline View",
-                description: "See upcoming opportunities and threats month-by-month"
-              },
-              {
-                icon: <Brain className="text-purple-500" />,
-                title: "AI-Guided Remedies",
-                description: "Backed by Vedic logic, not superstition"
-              },
-              {
-                icon: <ShieldCheck className="text-rose-500" />,
-                title: "Shadbala Strength Scoring",
-                description: "See how strong your planetary support is right now"
-              },
-              {
-                icon: <Users className="text-cyan-500" />,
-                title: "Founder Forecast Circle",
-                description: "Exclusive invite to Vedic business timing cohort"
-              }
-            ].map((feature, index) => (
-              <motion.div
-                key={index}
-                className="bg-card border p-6 rounded-xl hover:shadow-lg transition-shadow"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: index * 0.1 }}
-              >
+            {[{
+            icon: <Star className="text-amber-500" />,
+            title: "Instant Kundali Decoder",
+            description: "Get 20+ chart layers including yogas, doshas, dashas"
+          }, {
+            icon: <Clock className="text-emerald-500" />,
+            title: "Decision Timing Engine",
+            description: "Know when to invest, marry, move, launch"
+          }, {
+            icon: <Calendar className="text-blue-500" />,
+            title: "Life Timeline View",
+            description: "See upcoming opportunities and threats month-by-month"
+          }, {
+            icon: <Brain className="text-purple-500" />,
+            title: "AI-Guided Remedies",
+            description: "Backed by Vedic logic, not superstition"
+          }, {
+            icon: <ShieldCheck className="text-rose-500" />,
+            title: "Shadbala Strength Scoring",
+            description: "See how strong your planetary support is right now"
+          }, {
+            icon: <Users className="text-cyan-500" />,
+            title: "Founder Forecast Circle",
+            description: "Exclusive invite to Vedic business timing cohort"
+          }].map((feature, index) => <motion.div key={index} className="bg-card border p-6 rounded-xl hover:shadow-lg transition-shadow" initial={{
+            opacity: 0,
+            y: 20
+          }} whileInView={{
+            opacity: 1,
+            y: 0
+          }} viewport={{
+            once: true
+          }} transition={{
+            duration: 0.4,
+            delay: index * 0.1
+          }}>
                 <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center mb-4">
                   {feature.icon}
                 </div>
                 <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
                 <p className="text-muted-foreground">{feature.description}</p>
-              </motion.div>
-            ))}
+              </motion.div>)}
           </div>
           
-          <motion.div 
-            className="mt-12 text-center"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
+          <motion.div className="mt-12 text-center" initial={{
+          opacity: 0
+        }} whileInView={{
+          opacity: 1
+        }} viewport={{
+          once: true
+        }} transition={{
+          duration: 0.6
+        }}>
             <p className="text-muted-foreground mb-4">
               <span className="font-semibold">Bonus:</span> Free monthly astro-business alerts + 
               exclusive invite to Founder Forecast Circle (Vedic business timing cohort)
             </p>
-            <Button 
-              size="lg" 
-              onClick={() => navigate('/')}
-              variant="outline" 
-              className="bg-gradient-to-r from-amber-500/10 to-orange-500/10 hover:from-amber-500/20 hover:to-orange-500/20 border-primary/30"
-            >
+            <Button size="lg" onClick={() => navigate('/')} variant="outline" className="bg-gradient-to-r from-amber-500/10 to-orange-500/10 hover:from-amber-500/20 hover:to-orange-500/20 border-primary/30">
               Unlock Your Cosmic Strategy
               <ArrowRight className="ml-2" />
             </Button>
@@ -239,12 +244,15 @@ const LandingPage = () => {
       {/* Emotional & Aspirational Section */}
       <section className="py-20 px-4 bg-muted/30">
         <div className="container mx-auto max-w-3xl text-center">
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
+          <motion.div initial={{
+          opacity: 0
+        }} whileInView={{
+          opacity: 1
+        }} viewport={{
+          once: true
+        }} transition={{
+          duration: 0.6
+        }}>
             <h2 className="text-3xl md:text-4xl font-bold mb-6">
               This Isn't About Prediction. <span className="gradient-heading">It's About Power.</span>
             </h2>
@@ -255,11 +263,7 @@ const LandingPage = () => {
             <p className="text-lg font-semibold mb-10">
               This is practical spirituality—de-coded, digitalized, decision-ready.
             </p>
-            <Button 
-              size="lg" 
-              onClick={() => navigate('/')} 
-              className="group"
-            >
+            <Button size="lg" onClick={() => navigate('/')} className="group">
               Try the Engine – First Report is Free
               <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" />
             </Button>
@@ -273,31 +277,36 @@ const LandingPage = () => {
       {/* Testimonials Section */}
       <section className="py-20 px-4">
         <div className="container mx-auto max-w-6xl">
-          <motion.div 
-            className="text-center mb-12"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
+          <motion.div className="text-center mb-12" initial={{
+          opacity: 0
+        }} whileInView={{
+          opacity: 1
+        }} viewport={{
+          once: true
+        }} transition={{
+          duration: 0.6
+        }}>
             <h2 className="text-3xl md:text-4xl font-bold">
               Used by <span className="gradient-heading">Founders, Healers & High Performers</span>
             </h2>
           </motion.div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-            >
+            <motion.div initial={{
+            opacity: 0,
+            x: -20
+          }} whileInView={{
+            opacity: 1,
+            x: 0
+          }} viewport={{
+            once: true
+          }} transition={{
+            duration: 0.6
+          }}>
               <Card>
                 <CardContent className="pt-6">
                   <div className="flex gap-4 mb-4">
-                    {[1, 2, 3, 4, 5].map(star => (
-                      <Star key={star} className="h-5 w-5 fill-amber-400 text-amber-400" />
-                    ))}
+                    {[1, 2, 3, 4, 5].map(star => <Star key={star} className="h-5 w-5 fill-amber-400 text-amber-400" />)}
                   </div>
                   <blockquote className="text-lg mb-6">
                     "Changed how I approach product launches. I align now with cosmic flow. My last 3 launches hit 2X projections."
@@ -313,18 +322,21 @@ const LandingPage = () => {
               </Card>
             </motion.div>
             
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-            >
+            <motion.div initial={{
+            opacity: 0,
+            x: 20
+          }} whileInView={{
+            opacity: 1,
+            x: 0
+          }} viewport={{
+            once: true
+          }} transition={{
+            duration: 0.6
+          }}>
               <Card>
                 <CardContent className="pt-6">
                   <div className="flex gap-4 mb-4">
-                    {[1, 2, 3, 4, 5].map(star => (
-                      <Star key={star} className="h-5 w-5 fill-amber-400 text-amber-400" />
-                    ))}
+                    {[1, 2, 3, 4, 5].map(star => <Star key={star} className="h-5 w-5 fill-amber-400 text-amber-400" />)}
                   </div>
                   <blockquote className="text-lg mb-6">
                     "I used to fear retrogrades. Now I leverage them. This system is Vedic science + startup logic in one."
@@ -341,13 +353,15 @@ const LandingPage = () => {
             </motion.div>
           </div>
           
-          <motion.div 
-            className="mt-12 text-center"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
+          <motion.div className="mt-12 text-center" initial={{
+          opacity: 0
+        }} whileInView={{
+          opacity: 1
+        }} viewport={{
+          once: true
+        }} transition={{
+          duration: 0.6
+        }}>
             <p className="text-muted-foreground">
               <span className="font-semibold">Trusted By:</span> Founders at 91Springboard | 
               Mentors at TiE | CXOs from GrowthStage Startups
@@ -359,25 +373,31 @@ const LandingPage = () => {
       {/* Offer & Scarcity Section */}
       <section className="py-20 px-4 bg-gradient-to-r from-primary/10 to-orange-500/10">
         <div className="container mx-auto max-w-4xl">
-          <motion.div 
-            className="text-center mb-12"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
+          <motion.div className="text-center mb-12" initial={{
+          opacity: 0
+        }} whileInView={{
+          opacity: 1
+        }} viewport={{
+          once: true
+        }} transition={{
+          duration: 0.6
+        }}>
             <h2 className="text-3xl md:text-4xl font-bold mb-2">
               Get Your Personalized Report <span className="gradient-heading">Before Planetary Positions Shift Again</span>
             </h2>
           </motion.div>
           
-          <motion.div 
-            className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
+          <motion.div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12" initial={{
+          opacity: 0,
+          y: 20
+        }} whileInView={{
+          opacity: 1,
+          y: 0
+        }} viewport={{
+          once: true
+        }} transition={{
+          duration: 0.6
+        }}>
             <div className="space-y-4">
               <div className="flex items-start gap-3">
                 <div className="text-primary mt-1"><Check /></div>
@@ -426,13 +446,15 @@ const LandingPage = () => {
             </div>
           </motion.div>
           
-          <motion.div 
-            className="text-center mb-12"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
+          <motion.div className="text-center mb-12" initial={{
+          opacity: 0
+        }} whileInView={{
+          opacity: 1
+        }} viewport={{
+          once: true
+        }} transition={{
+          duration: 0.6
+        }}>
             <div className="inline-block bg-card border rounded-lg p-4 mb-8">
               <p className="text-sm font-medium mb-1">OFFER EXPIRES IN:</p>
               <div className="flex gap-4 text-2xl font-bold">
@@ -442,11 +464,7 @@ const LandingPage = () => {
               </div>
             </div>
             
-            <Button 
-              size="lg" 
-              onClick={() => navigate('/')} 
-              className="group animate-pulse-slow"
-            >
+            <Button size="lg" onClick={() => navigate('/')} className="group animate-pulse-slow">
               Unlock My Vedic Report
               <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" />
             </Button>
@@ -457,12 +475,15 @@ const LandingPage = () => {
       {/* Risk Reversal + Ethics Section */}
       <section className="py-16 px-4">
         <div className="container mx-auto max-w-3xl text-center">
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
+          <motion.div initial={{
+          opacity: 0
+        }} whileInView={{
+          opacity: 1
+        }} viewport={{
+          once: true
+        }} transition={{
+          duration: 0.6
+        }}>
             <h2 className="text-2xl md:text-3xl font-bold mb-6">
               Built on Shastra. Enhanced by Code.
             </h2>
@@ -479,22 +500,27 @@ const LandingPage = () => {
       {/* FAQ Section */}
       <section className="py-16 px-4 bg-muted/30">
         <div className="container mx-auto max-w-3xl">
-          <motion.div 
-            className="text-center mb-12"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
+          <motion.div className="text-center mb-12" initial={{
+          opacity: 0
+        }} whileInView={{
+          opacity: 1
+        }} viewport={{
+          once: true
+        }} transition={{
+          duration: 0.6
+        }}>
             <h2 className="text-3xl font-bold">Frequently Asked Questions</h2>
           </motion.div>
           
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
+          <motion.div initial={{
+          opacity: 0
+        }} whileInView={{
+          opacity: 1
+        }} viewport={{
+          once: true
+        }} transition={{
+          duration: 0.6
+        }}>
             <Tabs defaultValue="q1" className="w-full">
               <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="q1">Basics</TabsTrigger>
@@ -530,22 +556,21 @@ const LandingPage = () => {
       {/* Final CTA Section */}
       <section className="py-16 px-4 bg-gradient-to-r from-primary/20 to-orange-500/20">
         <div className="container mx-auto max-w-3xl text-center">
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
+          <motion.div initial={{
+          opacity: 0
+        }} whileInView={{
+          opacity: 1
+        }} viewport={{
+          once: true
+        }} transition={{
+          duration: 0.6
+        }}>
             <h2 className="text-2xl md:text-3xl font-bold mb-6">
               Stop Guessing. Start Aligning.
               <span className="block mt-2 gradient-heading">AyushAstro gives you decoded Vedic insight on-demand.</span>
             </h2>
             
-            <Button 
-              size="lg" 
-              onClick={() => navigate('/')} 
-              className="group"
-            >
+            <Button size="lg" onClick={() => navigate('/')} className="group">
               Get Your Free Report – See What's Ahead
               <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" />
             </Button>
@@ -572,8 +597,6 @@ const LandingPage = () => {
           </div>
         </div>
       </footer>
-    </div>
-  );
+    </div>;
 };
-
 export default LandingPage;
