@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -9,12 +9,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from '@/hooks/use-toast';
 import AppLogo from '@/components/AppLogo';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import { Loader2 } from 'lucide-react';
 
 const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { login, register } = useAuth();
+  const { login, signup, isLoggedIn } = useAuth();
   
   // Login form state
   const [loginData, setLoginData] = useState({
@@ -24,11 +26,19 @@ const Login = () => {
   
   // Register form state
   const [registerData, setRegisterData] = useState({
-    name: '',
+    firstName: '',
+    lastName: '',
     email: '',
     password: '',
     confirmPassword: ''
   });
+
+  useEffect(() => {
+    // Redirect if user is already logged in
+    if (isLoggedIn) {
+      navigate('/dashboard');
+    }
+  }, [isLoggedIn, navigate]);
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,25 +46,10 @@ const Login = () => {
     
     try {
       if (await login(loginData.email, loginData.password)) {
-        toast({
-          title: "Login successful",
-          description: "You've been successfully logged in",
-        });
         navigate('/dashboard');
-      } else {
-        toast({
-          title: "Login failed",
-          description: "Invalid email or password",
-          variant: "destructive"
-        });
       }
     } catch (error) {
       console.error(error);
-      toast({
-        title: "Login error",
-        description: "An unexpected error occurred",
-        variant: "destructive"
-      });
     } finally {
       setIsLoading(false);
     }
@@ -74,18 +69,49 @@ const Login = () => {
         return;
       }
       
-      if (await register(registerData.name, registerData.email, registerData.password)) {
-        toast({
-          title: "Registration successful",
-          description: "Your account has been created",
-        });
+      if (await signup(
+        registerData.email, 
+        registerData.password,
+        registerData.firstName,
+        registerData.lastName
+      )) {
         navigate('/dashboard');
       }
     } catch (error) {
       console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleResetPassword = async () => {
+    if (!loginData.email) {
       toast({
-        title: "Registration error",
-        description: "An unexpected error occurred",
+        title: "Email required",
+        description: "Please enter your email to reset password",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    try {
+      setIsLoading(true);
+      const { error } = await supabase.auth.resetPasswordForEmail(loginData.email, {
+        redirectTo: window.location.origin + '/reset-password',
+      });
+      
+      if (error) {
+        throw error;
+      }
+      
+      toast({
+        title: "Password reset email sent",
+        description: "Check your email for the password reset link",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Password reset failed",
+        description: error.message || "An unexpected error occurred",
         variant: "destructive"
       });
     } finally {
@@ -123,9 +149,9 @@ const Login = () => {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
+                    <Label htmlFor="login-email">Email</Label>
                     <Input 
-                      id="email"
+                      id="login-email"
                       type="email"
                       placeholder="your@email.com"
                       value={loginData.email}
@@ -135,13 +161,20 @@ const Login = () => {
                   </div>
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <Label htmlFor="password">Password</Label>
-                      <Button variant="link" size="sm" className="text-sm p-0 h-auto">
+                      <Label htmlFor="login-password">Password</Label>
+                      <Button 
+                        type="button"
+                        variant="link" 
+                        size="sm" 
+                        className="text-sm p-0 h-auto"
+                        onClick={handleResetPassword}
+                        disabled={isLoading}
+                      >
                         Forgot password?
                       </Button>
                     </div>
                     <Input 
-                      id="password"
+                      id="login-password"
                       type="password"
                       placeholder="••••••••"
                       value={loginData.password}
@@ -152,7 +185,14 @@ const Login = () => {
                 </CardContent>
                 <CardFooter>
                   <Button type="submit" className="w-full" disabled={isLoading}>
-                    {isLoading ? "Logging in..." : "Login"}
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Logging in...
+                      </>
+                    ) : (
+                      "Login"
+                    )}
                   </Button>
                 </CardFooter>
               </form>
@@ -167,21 +207,34 @@ const Login = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">Full Name</Label>
-                    <Input 
-                      id="name"
-                      type="text"
-                      placeholder="John Doe"
-                      value={registerData.name}
-                      onChange={e => setRegisterData({...registerData, name: e.target.value})}
-                      required
-                    />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="firstName">First Name</Label>
+                      <Input 
+                        id="firstName"
+                        type="text"
+                        placeholder="John"
+                        value={registerData.firstName}
+                        onChange={e => setRegisterData({...registerData, firstName: e.target.value})}
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="lastName">Last Name</Label>
+                      <Input 
+                        id="lastName"
+                        type="text"
+                        placeholder="Doe"
+                        value={registerData.lastName}
+                        onChange={e => setRegisterData({...registerData, lastName: e.target.value})}
+                        required
+                      />
+                    </div>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
+                    <Label htmlFor="register-email">Email</Label>
                     <Input 
-                      id="email"
+                      id="register-email"
                       type="email"
                       placeholder="your@email.com"
                       value={registerData.email}
@@ -190,9 +243,9 @@ const Login = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="newPassword">Password</Label>
+                    <Label htmlFor="register-password">Password</Label>
                     <Input 
-                      id="newPassword"
+                      id="register-password"
                       type="password"
                       placeholder="••••••••"
                       value={registerData.password}
@@ -214,7 +267,14 @@ const Login = () => {
                 </CardContent>
                 <CardFooter>
                   <Button type="submit" className="w-full" disabled={isLoading}>
-                    {isLoading ? "Creating account..." : "Register"}
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Creating account...
+                      </>
+                    ) : (
+                      "Register"
+                    )}
                   </Button>
                 </CardFooter>
               </form>
