@@ -7,8 +7,14 @@ import { ArrowRight, Check, Star, Zap, Calendar, Users, Brain, ShieldCheck, Cloc
 import AppLogo from "@/components/AppLogo";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
+
 const LandingPage = () => {
   const navigate = useNavigate();
+
+  // Navigation function to ensure consistent redirection
+  const navigateToKundali = () => {
+    navigate('/kundali');
+  };
 
   // Animation variants
   const fadeIn = {
@@ -24,6 +30,7 @@ const LandingPage = () => {
       }
     }
   };
+  
   return <div className="min-h-screen bg-gradient-to-b from-background to-background/90">
       {/* Hero Section */}
       <section className="py-20 px-4">
@@ -42,7 +49,7 @@ const LandingPage = () => {
                 future-proof guidance. Decisions backed by destiny + data.
               </p>
               <div className="pt-4">
-                <Button size="lg" onClick={() => navigate('/')} className="group bg-red-600 hover:bg-red-500 rounded-2xl">
+                <Button size="lg" onClick={navigateToKundali} className="group bg-red-600 hover:bg-red-500 rounded-2xl">
                   Get Your Free Astro Report in 60 Seconds
                   <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" />
                 </Button>
@@ -53,6 +60,7 @@ const LandingPage = () => {
                 </div>
               </div>
             </motion.div>
+            
             <motion.div className="flex-1" initial={{
             opacity: 0,
             scale: 0.9
@@ -233,7 +241,7 @@ const LandingPage = () => {
               <span className="font-semibold">Bonus:</span> Free monthly astro-business alerts + 
               exclusive invite to Founder Forecast Circle (Vedic business timing cohort)
             </p>
-            <Button size="lg" onClick={() => navigate('/')} variant="outline" className="bg-gradient-to-r from-amber-500/10 to-orange-500/10 hover:from-amber-500/20 hover:to-orange-500/20 border-primary/30">
+            <Button size="lg" onClick={navigateToKundali} variant="outline" className="bg-gradient-to-r from-amber-500/10 to-orange-500/10 hover:from-amber-500/20 hover:to-orange-500/20 border-primary/30">
               Unlock Your Cosmic Strategy
               <ArrowRight className="ml-2" />
             </Button>
@@ -263,7 +271,7 @@ const LandingPage = () => {
             <p className="text-lg font-semibold mb-10">
               This is practical spirituality—de-coded, digitalized, decision-ready.
             </p>
-            <Button size="lg" onClick={() => navigate('/')} className="group">
+            <Button size="lg" onClick={navigateToKundali} className="group">
               Try the Engine – First Report is Free
               <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" />
             </Button>
@@ -464,7 +472,7 @@ const LandingPage = () => {
               </div>
             </div>
             
-            <Button size="lg" onClick={() => navigate('/')} className="group animate-pulse-slow">
+            <Button size="lg" onClick={navigateToKundali} className="group animate-pulse-slow">
               Unlock My Vedic Report
               <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" />
             </Button>
@@ -570,7 +578,7 @@ const LandingPage = () => {
               <span className="block mt-2 gradient-heading">AyushAstro gives you decoded Vedic insight on-demand.</span>
             </h2>
             
-            <Button size="lg" onClick={() => navigate('/')} className="group">
+            <Button size="lg" onClick={navigateToKundali} className="group">
               Get Your Free Report – See What's Ahead
               <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" />
             </Button>
