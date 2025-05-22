@@ -60,8 +60,11 @@ const VisualKundaliChart: React.FC<VisualKundaliChartProps> = ({ chart, language
     return colors[planetId] || 'bg-gray-100 text-gray-700';
   };
 
+  // Updated: Check if planet has a house property before filtering
   const getHousePlanets = (houseNumber: number) => {
-    return chart.planets.filter(planet => planet.house === houseNumber);
+    return chart.planets.filter(planet => 
+      'house' in planet && planet.house === houseNumber
+    );
   };
 
   const handleHouseClick = (houseNumber: number) => {
@@ -105,7 +108,8 @@ const VisualKundaliChart: React.FC<VisualKundaliChartProps> = ({ chart, language
           {Array.from({ length: 12 }, (_, i) => {
             const houseNumber = i + 1;
             const planets = getHousePlanets(houseNumber);
-            const zodiacSign = chart.housesList[i] || "Unknown";
+            // Fix: Convert the zodiac sign to string before using it
+            const zodiacSign = chart.housesList[i] ? String(chart.housesList[i]) : "Unknown";
             
             return (
               <motion.div
@@ -114,6 +118,7 @@ const VisualKundaliChart: React.FC<VisualKundaliChartProps> = ({ chart, language
                 whileHover={{ scale: 1.05 }}
                 onClick={() => handleHouseClick(houseNumber)}
               >
+                {/* Fix: Ensure zodiacSign is a string before using substring */}
                 <div className="zodiac-symbol mb-1">{zodiacSign.substring(0, 3)}</div>
                 <div className="text-xs font-medium mb-1">House {houseNumber}</div>
                 {planets.length > 0 && (
@@ -143,13 +148,13 @@ const VisualKundaliChart: React.FC<VisualKundaliChartProps> = ({ chart, language
           transition={{ duration: 0.3 }}
         >
           <h3 className="text-lg font-semibold mb-2">
-            House {activeHouse}: {chart.housesList[activeHouse - 1]}
+            House {activeHouse}: {chart.housesList[activeHouse - 1] ? String(chart.housesList[activeHouse - 1]) : "Unknown"}
           </h3>
           
           {chart.housesList[activeHouse - 1] && (
             <p className="text-sm text-muted-foreground mb-3">
               {language === 'hi' ? 'इस भाव का राशि:' : 'Sign for this house:'} 
-              <span className="font-medium"> {chart.housesList[activeHouse - 1]}</span>
+              <span className="font-medium"> {String(chart.housesList[activeHouse - 1])}</span>
             </p>
           )}
           
