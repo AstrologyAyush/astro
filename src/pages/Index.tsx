@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BirthData, generateKundaliChart, formatBirthDetails, KundaliChart as KundaliChartType, calculateMoonNakshatra } from '@/lib/kundaliUtils';
 import BirthDataForm from '@/components/BirthDataForm';
 import KundaliChart from '@/components/KundaliChart';
+import VisualKundaliChart from '@/components/VisualKundaliChart';
 import PlanetaryPositions from '@/components/PlanetaryPositions';
 import DashaDisplay from '@/components/DashaDisplay';
 import DetailedPredictions from '@/components/DetailedPredictions';
@@ -179,6 +180,9 @@ const Index = () => {
                 <Tabs defaultValue="chart" className="w-full">
                   <div className="flex justify-center mb-4 overflow-x-auto">
                     <TabsList>
+                      <TabsTrigger value="visual">
+                        {language === 'hi' ? "इंटरैक्टिव चार्ट" : "Interactive Chart"}
+                      </TabsTrigger>
                       <TabsTrigger value="chart">
                         {language === 'hi' ? "कुंडली चार्ट" : "Chart"}
                       </TabsTrigger>
@@ -193,6 +197,10 @@ const Index = () => {
                       </TabsTrigger>
                     </TabsList>
                   </div>
+                  
+                  <TabsContent value="visual" className="mx-auto max-w-xl">
+                    <VisualKundaliChart chart={kundaliData.chart} language={language} />
+                  </TabsContent>
                   
                   <TabsContent value="chart" className="mx-auto max-w-lg">
                     <KundaliChart chart={kundaliData.chart} language={language} />

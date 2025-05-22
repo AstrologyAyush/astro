@@ -129,31 +129,32 @@
   @apply text-xl font-bold;
 }
 
-/* Celestial background with slowly moving stars */
+/* Enhanced celestial background with multiple layers for depth */
 .celestial-background {
   @apply relative overflow-hidden;
   background-color: hsl(var(--background));
   background-image: 
-    radial-gradient(1px 1px at 25px 25px, hsl(var(--primary) / 20%) 100%, transparent),
-    radial-gradient(1px 1px at 50px 50px, hsl(var(--primary) / 10%) 100%, transparent),
-    radial-gradient(1px 1px at 100px 25px, hsl(var(--primary) / 15%) 100%, transparent),
-    radial-gradient(1px 1px at 125px 100px, hsl(var(--primary) / 5%) 100%, transparent);
-  background-size: 200px 200px;
+    radial-gradient(1.5px 1.5px at 50px 25px, hsl(var(--primary) / 20%) 100%, transparent),
+    radial-gradient(1px 1px at 100px 100px, hsl(var(--primary) / 15%) 100%, transparent),
+    radial-gradient(2px 2px at 200px 50px, hsl(var(--primary) / 18%) 100%, transparent),
+    radial-gradient(1.5px 1.5px at 300px 200px, hsl(40, 100%, 60%, 0.07) 100%, transparent),
+    radial-gradient(1px 1px at 400px 150px, hsl(330, 100%, 60%, 0.05) 100%, transparent);
+  background-size: 550px 550px;
   animation: celestial-movement 240s linear infinite;
 }
 
 @keyframes celestial-movement {
   0% { background-position: 0 0; }
-  100% { background-position: 200px 200px; }
+  100% { background-position: 550px 550px; }
 }
 
-/* Gradient heading */
+/* Enhanced gradient heading */
 .gradient-heading {
   @apply font-bold text-transparent bg-clip-text;
   background-image: linear-gradient(135deg, hsl(var(--primary)) 0%, #e27b45 100%);
 }
 
-/* Additional animations */
+/* Additional enhanced animations */
 @keyframes spin-slow {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
@@ -166,7 +167,7 @@
 
 @layer utilities {
   .animate-spin-slow {
-    animation: spin-slow 20s linear infinite;
+    animation: spin-slow 25s linear infinite;
   }
   
   .animate-pulse-slow {
@@ -176,11 +177,30 @@
   .animate-fade-in {
     animation: fadeIn 0.5s ease-in-out;
   }
+
+  .animate-float {
+    animation: float 5s ease-in-out infinite;
+  }
+  
+  .animate-glow {
+    animation: glow 2s ease-in-out infinite alternate;
+  }
 }
 
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+@keyframes glow {
+  from { box-shadow: 0 0 5px -5px hsla(var(--primary), 0.5); }
+  to { box-shadow: 0 0 15px -5px hsla(var(--primary), 0.8); }
 }
 
 /* Interactive hover effects for planet positions */
@@ -190,4 +210,41 @@
 
 .planet-card:hover .planet-icon {
   @apply scale-110 rotate-12 transition-all;
+}
+
+/* Animated chakra elements */
+.chakra-element {
+  @apply relative overflow-hidden rounded-full;
+}
+
+.chakra-element::after {
+  content: '';
+  @apply absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 transition-opacity duration-700;
+  animation: chakra-pulse 3s ease-in-out infinite;
+}
+
+@keyframes chakra-pulse {
+  0%, 100% { opacity: 0; transform: translateX(-100%); }
+  50% { opacity: 1; transform: translateX(100%); }
+}
+
+/* Interactive chart elements */
+.kundali-house {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.kundali-house:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 15px -5px hsla(var(--primary), 0.3);
+  z-index: 10;
+}
+
+/* Ancient scroll paper effect */
+.ancient-paper {
+  background-color: #f8f0e3;
+  background-image: 
+    linear-gradient(to right, rgba(255,210,0,0.1) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255,210,0,0.1) 1px, transparent 1px);
+  background-size: 20px 20px;
+  box-shadow: 0 0 5px rgba(0,0,0,0.1) inset;
 }

@@ -17,6 +17,9 @@ module.exports = {
       },
     },
     extend: {
+      fontFamily: {
+        sans: ['Poppins', 'sans-serif'],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -74,12 +77,27 @@ module.exports = {
           "0%, 100%": { opacity: 1 },
           "50%": { opacity: 0.7 },
         },
+        "float": {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-10px)" },
+        },
+        "glow": {
+          "0%": { boxShadow: "0 0 5px 0px rgba(124, 58, 237, 0.3)" },
+          "100%": { boxShadow: "0 0 20px 5px rgba(124, 58, 237, 0.6)" },
+        },
+        "fadeIn": {
+          from: { opacity: 0, transform: "translateY(10px)" },
+          to: { opacity: 1, transform: "translateY(0)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "spin-slow": "spin-slow 20s linear infinite",
         "pulse-slow": "pulse-slow 3s ease-in-out infinite",
+        "float": "float 6s ease-in-out infinite",
+        "glow": "glow 3s ease-in-out infinite alternate",
+        "fade-in": "fadeIn 0.5s ease-in-out",
       },
     },
   },
