@@ -8,6 +8,7 @@ import VisualKundaliChart from '@/components/VisualKundaliChart';
 import PlanetaryPositions from '@/components/PlanetaryPositions';
 import DashaDisplay from '@/components/DashaDisplay';
 import DetailedPredictions from '@/components/DetailedPredictions';
+import KundaliAIChat from '@/components/KundaliAIChat';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
