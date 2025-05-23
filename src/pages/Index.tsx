@@ -196,6 +196,9 @@ const Index = () => {
                       <TabsTrigger value="predictions">
                         {language === 'hi' ? "विस्तृत फलादेश" : "Predictions"}
                       </TabsTrigger>
+                      <TabsTrigger value="ai-chat">
+                        {language === 'hi' ? "AI ज्योतिषी" : "AI Astrologer"}
+                      </TabsTrigger>
                     </TabsList>
                   </div>
                   
@@ -223,6 +226,13 @@ const Index = () => {
                     <DetailedPredictions 
                       chart={kundaliData.chart}
                       birthData={kundaliData.birthData}
+                      language={language}
+                    />
+                  </TabsContent>
+                  
+                  <TabsContent value="ai-chat" className="mx-auto">
+                    <KundaliAIChat 
+                      kundaliData={kundaliData}
                       language={language}
                     />
                   </TabsContent>
