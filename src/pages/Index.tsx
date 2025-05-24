@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BirthData, generateKundaliChart, formatBirthDetails, KundaliChart as KundaliChartType, calculateMoonNakshatra } from '@/lib/kundaliUtils';
+import { calculateNumerologyProfile } from '@/lib/numerologyUtils';
 import BirthDataForm from '@/components/BirthDataForm';
 import KundaliChart from '@/components/KundaliChart';
 import VisualKundaliChart from '@/components/VisualKundaliChart';
@@ -9,6 +10,7 @@ import PlanetaryPositions from '@/components/PlanetaryPositions';
 import DashaDisplay from '@/components/DashaDisplay';
 import DetailedPredictions from '@/components/DetailedPredictions';
 import KundaliAIChat from '@/components/KundaliAIChat';
+import NumerologyCalculator from '@/components/NumerologyCalculator';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -196,6 +198,9 @@ const Index = () => {
                       <TabsTrigger value="predictions">
                         {language === 'hi' ? "विस्तृत फलादेश" : "Predictions"}
                       </TabsTrigger>
+                      <TabsTrigger value="numerology">
+                        {language === 'hi' ? "न्यूमेरोलॉजी" : "Numerology"}
+                      </TabsTrigger>
                       <TabsTrigger value="ai-chat">
                         {language === 'hi' ? "AI ज्योतिषी" : "AI Astrologer"}
                       </TabsTrigger>
@@ -230,10 +235,15 @@ const Index = () => {
                     />
                   </TabsContent>
                   
+                  <TabsContent value="numerology" className="mx-auto">
+                    <NumerologyCalculator language={language} />
+                  </TabsContent>
+                  
                   <TabsContent value="ai-chat" className="mx-auto">
                     <KundaliAIChat 
                       kundaliData={kundaliData}
                       language={language}
+                      numerologyData={calculateNumerologyProfile(kundaliData.birthData.fullName, kundaliData.birthData.date)}
                     />
                   </TabsContent>
                 </Tabs>

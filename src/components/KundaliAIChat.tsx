@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Send, Bot, User, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { KundaliChart as KundaliChartType, BirthData } from '@/lib/kundaliUtils';
+import { NumerologyProfile } from '@/lib/numerologyUtils';
 import { useToast } from "@/hooks/use-toast";
 
 interface Message {
@@ -24,9 +25,10 @@ interface KundaliAIChatProps {
     chart: KundaliChartType;
   };
   language: 'hi' | 'en';
+  numerologyData?: NumerologyProfile;
 }
 
-const KundaliAIChat: React.FC<KundaliAIChatProps> = ({ kundaliData, language }) => {
+const KundaliAIChat: React.FC<KundaliAIChatProps> = ({ kundaliData, language, numerologyData }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -34,17 +36,17 @@ const KundaliAIChat: React.FC<KundaliAIChatProps> = ({ kundaliData, language }) 
   const { toast } = useToast();
 
   useEffect(() => {
-    // Welcome message
+    // Enhanced welcome message
     const welcomeMessage: Message = {
       id: '1',
       type: 'ai',
       content: language === 'hi' 
-        ? `नमस्कार ${kundaliData.birthData.fullName}! मैं आपका व्यक्तिगत ज्योतिष सलाहकार हूं। आपकी कुंडली का विश्लेषण करके मैं आपके प्रश्नों का उत्तर दे सकता हूं। कृपया अपना प्रश्न पूछें।`
-        : `Hello ${kundaliData.birthData.fullName}! I'm your personal astrological consultant. I can answer your questions by analyzing your kundali. Please ask me anything about your horoscope.`,
+        ? `नमस्कार ${kundaliData.birthData.fullName}! मैं महर्षि पराशर हूँ, वैदिक ज्योतिष के महान आचार्य। आपकी जन्मपत्रिका का गहन विश्लेषण करके मैं आपके जीवन के सभी पहलुओं पर प्रकाश डाल सकता हूँ। आपका लग्न ${kundaliData.chart.ascendantSanskrit} है और आपके जीवन में ${kundaliData.chart.yogas.filter(y => y.present).length} शुभ योग हैं। कृपया अपना प्रश्न पूछें।`
+        : `Namaste ${kundaliData.birthData.fullName}! I am Maharishi Parashar, the great sage of Vedic astrology. By deeply analyzing your birth chart, I can illuminate all aspects of your life. Your ascendant is ${kundaliData.chart.ascendantSanskrit} and you have ${kundaliData.chart.yogas.filter(y => y.present).length} auspicious yogas in your life. Please ask your question.`,
       timestamp: new Date()
     };
     setMessages([welcomeMessage]);
-  }, [kundaliData.birthData.fullName, language]);
+  }, [kundaliData.birthData.fullName, language, kundaliData.chart]);
 
   useEffect(() => {
     if (scrollAreaRef.current) {
@@ -70,7 +72,8 @@ const KundaliAIChat: React.FC<KundaliAIChatProps> = ({ kundaliData, language }) 
       const { data, error } = await supabase.functions.invoke('kundali-ai-analysis', {
         body: {
           kundaliData,
-          userQuery: inputValue
+          userQuery: inputValue,
+          numerologyData
         }
       });
 
@@ -91,8 +94,8 @@ const KundaliAIChat: React.FC<KundaliAIChatProps> = ({ kundaliData, language }) 
         id: (Date.now() + 1).toString(),
         type: 'ai',
         content: language === 'hi' 
-          ? 'क्षमा करें, इस समय मैं आपका प्रश्न का उत्तर नहीं दे सकता। कृपया बाद में प्रयास करें।'
-          : 'Sorry, I cannot answer your question at this moment. Please try again later.',
+          ? 'पुत्र/पुत्री, क्षमा करें। तकनीकी समस्या के कारण मैं इस समय आपकी सहायता नहीं कर सकता। कृपया बाद में प्रयास करें।'
+          : 'Dear child, I apologize. Due to technical issues, I cannot assist you at this moment. Please try again later.',
         timestamp: new Date()
       };
 
@@ -120,13 +123,19 @@ const KundaliAIChat: React.FC<KundaliAIChatProps> = ({ kundaliData, language }) 
     "मेरा विवाह कब होगा?",
     "मेरी स्वास्थ्य की स्थिति कैसी है?",
     "कौन सा रत्न मेरे लिए शुभ है?",
-    "मेरी वर्तमान दशा का प्रभाव क्या है?"
+    "मेरी वर्तमान दशा का प्रभाव क्या है?",
+    "मेरे घर में कौन सी दिशा शुभ है?",
+    "व्यापार में सफलता के लिए क्या करूं?",
+    "संतान प्राप्ति के लिए उपाय बताएं"
   ] : [
     "What are my career prospects?",
     "When will I get married?",
     "How is my health condition?",
     "Which gemstone is auspicious for me?",
-    "What is the effect of my current dasha?"
+    "What is the effect of my current dasha?",
+    "Which direction is auspicious for my home?",
+    "What should I do for business success?",
+    "Tell me remedies for childbirth"
   ];
 
   return (
@@ -134,10 +143,10 @@ const KundaliAIChat: React.FC<KundaliAIChatProps> = ({ kundaliData, language }) 
       <CardHeader className="pb-4">
         <CardTitle className="flex items-center gap-2">
           <Sparkles className="h-5 w-5 text-primary" />
-          {language === 'hi' ? "AI ज्योतिष सलाहकार" : "AI Astrology Consultant"}
+          {language === 'hi' ? "महर्षि पराशर - वैदिक ज्योतिष गुरु" : "Maharishi Parashar - Vedic Astrology Sage"}
         </CardTitle>
         <div className="flex flex-wrap gap-2">
-          {suggestedQuestions.slice(0, 3).map((question, index) => (
+          {suggestedQuestions.slice(0, 4).map((question, index) => (
             <Badge 
               key={index} 
               variant="outline" 
@@ -157,19 +166,19 @@ const KundaliAIChat: React.FC<KundaliAIChatProps> = ({ kundaliData, language }) 
           <div className="space-y-4">
             {messages.map((message) => (
               <div key={message.id} className={`flex gap-3 ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`flex gap-2 max-w-[80%] ${message.type === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
+                <div className={`flex gap-2 max-w-[85%] ${message.type === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                    message.type === 'user' ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'
+                    message.type === 'user' ? 'bg-primary text-primary-foreground' : 'bg-gradient-to-br from-orange-400 to-red-600 text-white'
                   }`}>
                     {message.type === 'user' ? <User className="h-4 w-4" /> : <Bot className="h-4 w-4" />}
                   </div>
                   <div className={`p-3 rounded-lg ${
                     message.type === 'user' 
                       ? 'bg-primary text-primary-foreground' 
-                      : 'bg-muted'
+                      : 'bg-gradient-to-br from-orange-50 to-red-50 border border-orange-200'
                   }`}>
-                    <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-                    <p className="text-xs opacity-70 mt-1">
+                    <p className="text-sm whitespace-pre-wrap leading-relaxed">{message.content}</p>
+                    <p className="text-xs opacity-70 mt-2">
                       {message.timestamp.toLocaleTimeString()}
                     </p>
                   </div>
@@ -178,11 +187,11 @@ const KundaliAIChat: React.FC<KundaliAIChatProps> = ({ kundaliData, language }) 
             ))}
             {isLoading && (
               <div className="flex gap-3 justify-start">
-                <div className="flex gap-2 max-w-[80%]">
-                  <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 bg-secondary text-secondary-foreground">
+                <div className="flex gap-2 max-w-[85%]">
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 bg-gradient-to-br from-orange-400 to-red-600 text-white">
                     <Bot className="h-4 w-4" />
                   </div>
-                  <div className="p-3 rounded-lg bg-muted">
+                  <div className="p-3 rounded-lg bg-gradient-to-br from-orange-50 to-red-50 border border-orange-200">
                     <div className="flex space-x-1">
                       <div className="w-2 h-2 bg-primary rounded-full animate-bounce"></div>
                       <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
@@ -203,7 +212,7 @@ const KundaliAIChat: React.FC<KundaliAIChatProps> = ({ kundaliData, language }) 
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder={language === 'hi' ? "अपना प्रश्न पूछें..." : "Ask your question..."}
+              placeholder={language === 'hi' ? "महर्षि जी से अपना प्रश्न पूछें..." : "Ask Maharishi your question..."}
               disabled={isLoading}
               className="flex-1"
             />
