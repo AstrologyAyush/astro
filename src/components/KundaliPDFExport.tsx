@@ -131,8 +131,8 @@ const KundaliPDFExport: React.FC<KundaliPDFExportProps> = ({
         const planetData = [
           `${planet.name}`,
           `${planet.signSanskrit}`,
-          `${planet.degreeInSign.toFixed(1)}°`,
-          `${planet.nakshatra}`,
+          `${planet.degreeInSign?.toFixed(1)}°`,
+          `${planet.nakshatra || 'N/A'}`,
           `${houseNumber}`
         ];
 
@@ -146,7 +146,7 @@ const KundaliPDFExport: React.FC<KundaliPDFExportProps> = ({
       currentY += 10;
 
       // Active Yogas
-      const activeYogas = chart.yogas.filter(y => y.present);
+      const activeYogas = chart.yogas?.filter(y => y.present) || [];
       if (activeYogas.length > 0) {
         if (currentY > pageHeight - 50) {
           pdf.addPage();
@@ -271,12 +271,12 @@ const KundaliPDFExport: React.FC<KundaliPDFExportProps> = ({
       const disclaimerText = pdf.splitTextToSize(disclaimer, contentWidth);
       pdf.text(disclaimerText, margin, pageHeight - 20);
 
-      // Add page numbers
-      const pageCount = pdf.internal.getNumberOfPages();
-      for (let i = 1; i <= pageCount; i++) {
+      // Add page numbers using the correct method
+      const totalPages = pdf.internal.pages.length - 1; // Subtract 1 because pages array includes a null element at index 0
+      for (let i = 1; i <= totalPages; i++) {
         pdf.setPage(i);
         pdf.setFontSize(8);
-        pdf.text(`${language === 'hi' ? 'पृष्ठ' : 'Page'} ${i} ${language === 'hi' ? 'of' : 'of'} ${pageCount}`, pageWidth - margin, pageHeight - 10, { align: 'right' });
+        pdf.text(`${language === 'hi' ? 'पृष्ठ' : 'Page'} ${i} ${language === 'hi' ? 'of' : 'of'} ${totalPages}`, pageWidth - margin, pageHeight - 10, { align: 'right' });
       }
 
       // Save the PDF

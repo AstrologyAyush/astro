@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BirthData, generateKundaliChart, formatBirthDetails, KundaliChart as KundaliChartType, calculateMoonNakshatra } from '@/lib/kundaliUtils';
+import { calculateEnhancedPlanetPositions, calculateEnhancedAscendant, calculateEnhancedHouses, calculateEnhancedPlanetaryStrength } from '@/lib/enhancedKundaliUtils';
 import { calculateNumerologyProfile } from '@/lib/numerologyUtils';
 import BirthDataForm from '@/components/BirthDataForm';
 import KundaliChart from '@/components/KundaliChart';
@@ -29,7 +30,30 @@ const Index = () => {
 
   const handleGenerateKundali = (birthData: BirthData & { fullName: string }) => {
     try {
-      const chart = generateKundaliChart(birthData);
+      // Use enhanced calculations for more accurate kundali
+      const enhancedChart = generateKundaliChart(birthData);
+      
+      // Calculate enhanced planetary positions with Swiss Ephemeris principles
+      const enhancedPlanets = calculateEnhancedPlanetPositions(birthData);
+      
+      // Calculate enhanced ascendant
+      const enhancedAscendant = calculateEnhancedAscendant(birthData);
+      
+      // Calculate enhanced houses
+      const enhancedHouses = calculateEnhancedHouses(enhancedAscendant, birthData);
+      
+      // Add enhanced planetary strengths using Shadbala
+      const planetsWithStrength = enhancedPlanets.map(planet => ({
+        ...planet,
+        strength: calculateEnhancedPlanetaryStrength(planet, enhancedHouses, enhancedPlanets, birthData)
+      }));
+      
+      const chart = {
+        ...enhancedChart,
+        ascendant: enhancedAscendant,
+        planets: planetsWithStrength,
+        housesList: enhancedHouses
+      };
       
       setKundaliData({
         birthData,
@@ -37,8 +61,8 @@ const Index = () => {
       });
 
       toast({
-        title: language === 'hi' ? "कुंडली बन गई है" : "Kundali has been generated",
-        description: language === 'hi' ? "आपकी जन्मपत्रिका सफलतापूर्वक बनाई गई है।" : "Your birth chart has been successfully created.",
+        title: language === 'hi' ? "उन्नत कुंडली बन गई है" : "Enhanced Kundali has been generated",
+        description: language === 'hi' ? "आपकी जन्मपत्रिका उच्च गुणवत्ता की गणनाओं के साथ तैयार की गई है।" : "Your birth chart has been created with high-precision calculations.",
       });
     } catch (error) {
       toast({
@@ -71,8 +95,8 @@ const Index = () => {
           </h1>
           <p className="text-md md:text-lg text-muted-foreground">
             {language === 'hi' 
-              ? "अपनी जन्मपत्रिका में ब्रह्मांडीय प्रभावों को खोजें" 
-              : "Explore the cosmic influences in your birth chart"}
+              ? "उच्च-सटीक गणनाओं के साथ अपनी जन्मपत्रिका में ब्रह्मांडीय प्रभावों को खोजें" 
+              : "Explore cosmic influences with high-precision astronomical calculations"}
           </p>
         </header>
 
@@ -84,8 +108,8 @@ const Index = () => {
               </CardTitle>
               <CardDescription className="text-center">
                 {language === 'hi' 
-                  ? "सटीक कुंडली के लिए सही जानकारी प्रदान करें" 
-                  : "Provide accurate information for precise kundali"}
+                  ? "सटीक कुंडली के लिए सही जानकारी प्रदान करें - स्विस एफेमेरिस सिद्धांतों का उपयोग" 
+                  : "Provide accurate information for precise kundali using Swiss Ephemeris principles"}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -97,12 +121,12 @@ const Index = () => {
             <Card>
               <CardHeader>
                 <CardTitle className="text-2xl font-semibold text-center">
-                  {language === 'hi' ? "जन्म कुंडली" : "Birth Chart"}
+                  {language === 'hi' ? "उन्नत जन्म कुंडली" : "Enhanced Birth Chart"}
                 </CardTitle>
                 <CardDescription className="text-center">
                   {language === 'hi' 
-                    ? "वैदिक ज्योतिष अनुसार आपकी कुंडली का विश्लेषण" 
-                    : "Analysis of your chart according to Vedic astrology"}
+                    ? "उच्च-सटीक खगोलीय गणनाओं के साथ वैदिक ज्योतिष अनुसार विश्लेषण" 
+                    : "Vedic astrology analysis with high-precision astronomical calculations"}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -114,10 +138,10 @@ const Index = () => {
                     </p>
                   </div>
                   
-                  {/* Birth details summary */}
+                  {/* Enhanced birth details summary */}
                   <div className="bg-card/30 border rounded-lg p-4 my-4">
                     <h3 className="text-lg font-semibold mb-2">
-                      {language === 'hi' ? "जन्म विवरण सारांश" : "Birth Details Summary"}
+                      {language === 'hi' ? "उन्नत जन्म विवरण सारांश" : "Enhanced Birth Details Summary"}
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
                       <div>
@@ -284,8 +308,8 @@ const Index = () => {
         <footer className="mt-12 text-center text-sm text-muted-foreground">
           <p>
             {language === 'hi' 
-              ? "नोट: यह एप्लिकेशन शैक्षिक उद्देश्यों के लिए वैदिक ज्योतिष गणनाओं का एक सरलीकृत संस्करण प्रदान करती है।" 
-              : "Note: This application provides a simplified version of Vedic astrological calculations for educational purposes."}
+              ? "नोट: यह एप्लिकेशन स्विस एफेमेरिस सिद्धांतों के आधार पर उच्च-सटीक वैदिक ज्योतिष गणनाएं प्रदान करती है।" 
+              : "Note: This application provides high-precision Vedic astrological calculations based on Swiss Ephemeris principles."}
           </p>
           <p className="mt-1">
             {language === 'hi'
