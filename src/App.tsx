@@ -7,7 +7,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Index from "./pages/Index";
 import LandingPage from "./pages/LandingPage";
 import NotFound from "./pages/NotFound";
-import Login from "./pages/Login";
+import EnhancedAuth from "./components/EnhancedAuth";
 import Dashboard from "./pages/Dashboard";
 import ProfilePage from "./pages/ProfilePage";
 import AppLayout from "./components/AppLayout";
@@ -29,7 +29,7 @@ const App = () => (
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/profile" element={<ProfilePage />} />
             </Route>
-            <Route path="/login" element={<Login />} />
+            <Route path="/login" element={<EnhancedAuth />} />
             <Route path="/reset-password" element={
               <AppLayout>
                 <div className="container mx-auto py-8 px-4">
@@ -38,7 +38,6 @@ const App = () => (
                 </div>
               </AppLayout>
             } />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

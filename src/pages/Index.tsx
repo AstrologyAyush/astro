@@ -9,8 +9,10 @@ import VisualKundaliChart from '@/components/VisualKundaliChart';
 import PlanetaryPositions from '@/components/PlanetaryPositions';
 import DashaDisplay from '@/components/DashaDisplay';
 import DetailedPredictions from '@/components/DetailedPredictions';
-import KundaliAIChat from '@/components/KundaliAIChat';
 import NumerologyCalculator from '@/components/NumerologyCalculator';
+import FloatingChatbot from '@/components/FloatingChatbot';
+import KundaliPDFExport from '@/components/KundaliPDFExport';
+import CompatibilityChecker from '@/components/CompatibilityChecker';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -27,7 +29,6 @@ const Index = () => {
 
   const handleGenerateKundali = (birthData: BirthData & { fullName: string }) => {
     try {
-      // Generate the kundali chart
       const chart = generateKundaliChart(birthData);
       
       setKundaliData({
@@ -52,6 +53,8 @@ const Index = () => {
   const toggleLanguage = () => {
     setLanguage(prev => prev === 'hi' ? 'en' : 'hi');
   };
+
+  const numerologyData = kundaliData ? calculateNumerologyProfile(kundaliData.birthData.fullName, kundaliData.birthData.date) : undefined;
 
   return (
     <div className="min-h-screen bg-background celestial-background">
@@ -178,6 +181,16 @@ const Index = () => {
                       )}
                     </div>
                   </div>
+
+                  {/* PDF Export Button */}
+                  <div className="mt-4">
+                    <KundaliPDFExport 
+                      birthData={kundaliData.birthData}
+                      chart={kundaliData.chart}
+                      numerologyData={numerologyData}
+                      language={language}
+                    />
+                  </div>
                 </div>
             
                 <Tabs defaultValue="chart" className="w-full">
@@ -201,8 +214,8 @@ const Index = () => {
                       <TabsTrigger value="numerology">
                         {language === 'hi' ? "न्यूमेरोलॉजी" : "Numerology"}
                       </TabsTrigger>
-                      <TabsTrigger value="ai-chat">
-                        {language === 'hi' ? "AI ज्योतिषी" : "AI Astrologer"}
+                      <TabsTrigger value="compatibility">
+                        {language === 'hi' ? "संगतता जांच" : "Compatibility"}
                       </TabsTrigger>
                     </TabsList>
                   </div>
@@ -239,11 +252,11 @@ const Index = () => {
                     <NumerologyCalculator language={language} />
                   </TabsContent>
                   
-                  <TabsContent value="ai-chat" className="mx-auto">
-                    <KundaliAIChat 
-                      kundaliData={kundaliData}
+                  <TabsContent value="compatibility" className="mx-auto">
+                    <CompatibilityChecker 
                       language={language}
-                      numerologyData={calculateNumerologyProfile(kundaliData.birthData.fullName, kundaliData.birthData.date)}
+                      currentProfile={numerologyData}
+                      currentName={kundaliData.birthData.fullName}
                     />
                   </TabsContent>
                 </Tabs>
@@ -261,6 +274,12 @@ const Index = () => {
             </div>
           </div>
         )}
+
+        {/* Floating Chatbot */}
+        <FloatingChatbot 
+          kundaliData={kundaliData}
+          numerologyData={numerologyData}
+        />
         
         <footer className="mt-12 text-center text-sm text-muted-foreground">
           <p>
