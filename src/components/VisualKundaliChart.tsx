@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { KundaliChart as KundaliChartType } from '@/lib/kundaliUtils';
 import { motion } from 'framer-motion';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface VisualKundaliChartProps {
   chart: KundaliChartType;
@@ -11,6 +12,7 @@ interface VisualKundaliChartProps {
 const VisualKundaliChart: React.FC<VisualKundaliChartProps> = ({ chart, language }) => {
   const [activeHouse, setActiveHouse] = useState<number | null>(null);
   const [showDetails, setShowDetails] = useState(false);
+  const isMobile = useIsMobile();
   
   const getZodiacColor = (sign: string) => {
     const colors = {
@@ -32,15 +34,7 @@ const VisualKundaliChart: React.FC<VisualKundaliChartProps> = ({ chart, language
 
   const getPlanetSymbol = (planetId: string) => {
     const symbols: Record<string, string> = {
-      SU: '☉', // Sun
-      MO: '☽', // Moon
-      MA: '♂', // Mars
-      ME: '☿', // Mercury
-      JU: '♃', // Jupiter
-      VE: '♀', // Venus
-      SA: '♄', // Saturn
-      RA: '☊', // Rahu
-      KE: '☋', // Ketu
+      SU: '☉', MO: '☽', MA: '♂', ME: '☿', JU: '♃', VE: '♀', SA: '♄', RA: '☊', KE: '☋',
     };
     return symbols[planetId] || planetId;
   };
@@ -60,7 +54,6 @@ const VisualKundaliChart: React.FC<VisualKundaliChartProps> = ({ chart, language
     return colors[planetId] || 'bg-gray-100 text-gray-700';
   };
 
-  // Updated: Check if planet has a house property before filtering
   const getHousePlanets = (houseNumber: number) => {
     return chart.planets.filter(planet => 
       'house' in planet && planet.house === houseNumber
@@ -73,14 +66,14 @@ const VisualKundaliChart: React.FC<VisualKundaliChartProps> = ({ chart, language
   };
 
   return (
-    <div className="space-y-6">
-      <div className="kundali-chart">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="kundali-chart relative">
         <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-primary/5 rounded-md"></div>
         
         {/* Interactive visualization overlay */}
         <div className="absolute inset-0 flex items-center justify-center">
           <motion.div 
-            className="h-48 w-48 md:h-64 md:w-64 rounded-full chakra-element"
+            className={`${isMobile ? 'h-32 w-32' : 'h-48 w-48 md:h-64 md:w-64'} rounded-full chakra-element`}
             style={{ 
               background: 'radial-gradient(circle at center, rgba(251,191,36,0.1) 0%, rgba(147,51,234,0.05) 70%, transparent 100%)' 
             }}
@@ -97,7 +90,7 @@ const VisualKundaliChart: React.FC<VisualKundaliChartProps> = ({ chart, language
               transition={{ duration: 180, repeat: Infinity, ease: "linear" }}
             >
               <div className="absolute top-0 left-1/2 -translate-x-1/2 transform -translate-y-1/2">
-                <div className="h-4 w-4 bg-primary rounded-full"></div>
+                <div className={`${isMobile ? 'h-3 w-3' : 'h-4 w-4'} bg-primary rounded-full`}></div>
               </div>
             </motion.div>
           )}
@@ -108,30 +101,36 @@ const VisualKundaliChart: React.FC<VisualKundaliChartProps> = ({ chart, language
           {Array.from({ length: 12 }, (_, i) => {
             const houseNumber = i + 1;
             const planets = getHousePlanets(houseNumber);
-            // Fix: Convert the zodiac sign to string before using it
             const zodiacSign = chart.housesList[i] ? String(chart.housesList[i]) : "Unknown";
             
             return (
               <motion.div
                 key={houseNumber}
-                className={`kundali-house kundali-house-${houseNumber} ${getZodiacColor(zodiacSign)} ${activeHouse === houseNumber ? 'ring-2 ring-primary' : ''}`}
-                whileHover={{ scale: 1.05 }}
+                className={`kundali-house kundali-house-${houseNumber} ${getZodiacColor(zodiacSign)} ${activeHouse === houseNumber ? 'ring-2 ring-primary' : ''} cursor-pointer min-h-[60px] sm:min-h-[80px]`}
+                whileHover={{ scale: isMobile ? 1.02 : 1.05 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={() => handleHouseClick(houseNumber)}
               >
-                {/* Fix: Ensure zodiacSign is a string before using substring */}
-                <div className="zodiac-symbol mb-1">{zodiacSign.substring(0, 3)}</div>
-                <div className="text-xs font-medium mb-1">House {houseNumber}</div>
+                <div className={`zodiac-symbol mb-1 ${isMobile ? 'text-sm' : 'text-base'}`}>
+                  {zodiacSign.substring(0, 3)}
+                </div>
+                <div className={`font-medium mb-1 ${isMobile ? 'text-xs' : 'text-xs'}`}>
+                  H{houseNumber}
+                </div>
                 {planets.length > 0 && (
                   <div className="flex flex-wrap justify-center gap-1">
-                    {planets.map(planet => (
+                    {planets.slice(0, isMobile ? 2 : 4).map(planet => (
                       <div
                         key={planet.id}
-                        className={`planet-symbol ${getPlanetColor(planet.id)}`}
+                        className={`planet-symbol ${getPlanetColor(planet.id)} ${isMobile ? 'text-xs px-1' : 'text-xs px-1'}`}
                         title={planet.name}
                       >
                         {getPlanetSymbol(planet.id)}
                       </div>
                     ))}
+                    {planets.length > (isMobile ? 2 : 4) && (
+                      <div className="text-xs text-muted-foreground">+{planets.length - (isMobile ? 2 : 4)}</div>
+                    )}
                   </div>
                 )}
               </motion.div>
@@ -142,17 +141,17 @@ const VisualKundaliChart: React.FC<VisualKundaliChartProps> = ({ chart, language
 
       {showDetails && activeHouse !== null && (
         <motion.div
-          className="p-4 bg-card border rounded-lg mt-4"
+          className="p-3 sm:p-4 bg-card border rounded-lg mt-4"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
         >
-          <h3 className="text-lg font-semibold mb-2">
+          <h3 className="text-base sm:text-lg font-semibold mb-2">
             House {activeHouse}: {chart.housesList[activeHouse - 1] ? String(chart.housesList[activeHouse - 1]) : "Unknown"}
           </h3>
           
           {chart.housesList[activeHouse - 1] && (
-            <p className="text-sm text-muted-foreground mb-3">
+            <p className="text-xs sm:text-sm text-muted-foreground mb-3">
               {language === 'hi' ? 'इस भाव का राशि:' : 'Sign for this house:'} 
               <span className="font-medium"> {String(chart.housesList[activeHouse - 1])}</span>
             </p>
@@ -160,15 +159,22 @@ const VisualKundaliChart: React.FC<VisualKundaliChartProps> = ({ chart, language
           
           {getHousePlanets(activeHouse).length > 0 ? (
             <div>
-              <h4 className="font-medium text-sm mb-2">{language === 'hi' ? 'उपस्थित ग्रह:' : 'Planets Present:'}</h4>
-              <div className="grid grid-cols-2 gap-2">
+              <h4 className="font-medium text-xs sm:text-sm mb-2">
+                {language === 'hi' ? 'उपस्थित ग्रह:' : 'Planets Present:'}
+              </h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {getHousePlanets(activeHouse).map(planet => (
                   <div key={planet.id} className={`p-2 rounded-md ${getPlanetColor(planet.id)}`}>
                     <div className="flex items-center gap-2">
-                      <div className="text-lg">{getPlanetSymbol(planet.id)}</div>
+                      <div className="text-base sm:text-lg">{getPlanetSymbol(planet.id)}</div>
                       <div>
-                        <div className="font-medium text-sm">{planet.name}</div>
+                        <div className="font-medium text-xs sm:text-sm">{planet.name}</div>
                         <div className="text-xs">{planet.sign}</div>
+                        {planet.degreeInSign && (
+                          <div className="text-xs text-muted-foreground">
+                            {planet.degreeInSign.toFixed(1)}°
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -176,14 +182,16 @@ const VisualKundaliChart: React.FC<VisualKundaliChartProps> = ({ chart, language
               </div>
             </div>
           ) : (
-            <p className="text-sm text-muted-foreground">
+            <p className="text-xs sm:text-sm text-muted-foreground">
               {language === 'hi' ? 'इस भाव में कोई ग्रह उपस्थित नहीं है।' : 'No planets present in this house.'}
             </p>
           )}
           
           <div className="mt-4 pt-3 border-t">
-            <h4 className="font-medium text-sm mb-1">{language === 'hi' ? 'भाव का अर्थ:' : 'House Meaning:'}</h4>
-            <p className="text-sm text-muted-foreground">
+            <h4 className="font-medium text-xs sm:text-sm mb-1">
+              {language === 'hi' ? 'भाव का अर्थ:' : 'House Meaning:'}
+            </h4>
+            <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
               {language === 'hi' 
                 ? getHouseMeaningHindi(activeHouse)
                 : getHouseMeaningEnglish(activeHouse)}
@@ -214,7 +222,6 @@ const getHouseMeaningEnglish = (houseNumber: number): string => {
   return houseMeanings[houseNumber - 1] || "Meaning not available.";
 };
 
-// House meanings in Hindi
 const getHouseMeaningHindi = (houseNumber: number): string => {
   const houseMeanings = [
     "स्वयं, व्यक्तित्व, शारीरिक शरीर और नई शुरुआत।",

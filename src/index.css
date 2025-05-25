@@ -87,16 +87,36 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-size: 16px; /* Better base font size for mobile */
+  }
+  
+  /* Improved touch targets for mobile */
+  button, [role="button"], input, select, textarea {
+    min-height: 44px; /* Apple's recommended minimum touch target */
+  }
+  
+  /* Better text scaling */
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
   }
 }
 
-/* Kundali Chart Styling */
+/* Enhanced Kundali Chart Styling */
 .kundali-chart {
-  @apply relative border aspect-square rounded-md p-2 bg-card shadow-inner overflow-hidden;
+  @apply relative border aspect-square rounded-md p-2 sm:p-3 md:p-4 bg-card shadow-inner overflow-hidden;
+  min-height: 320px;
+}
+
+@media (max-width: 640px) {
+  .kundali-chart {
+    min-height: 280px;
+    @apply p-1;
+  }
 }
 
 .kundali-grid {
-  @apply grid grid-cols-4 grid-rows-4 h-full w-full;
+  @apply grid grid-cols-4 grid-rows-4 h-full w-full gap-px sm:gap-0.5;
   grid-template-areas: 
     "house-9 house-10 house-11 house-12"
     "house-8 center-top center-right house-1"
@@ -105,7 +125,15 @@
 }
 
 .kundali-house {
-  @apply border border-dashed border-border/60 p-2 flex flex-col items-center justify-center text-center transition-all hover:bg-muted/30;
+  @apply border border-dashed border-border/60 p-1 sm:p-2 flex flex-col items-center justify-center text-center transition-all hover:bg-muted/30;
+  min-height: 60px;
+}
+
+@media (max-width: 640px) {
+  .kundali-house {
+    min-height: 50px;
+    @apply p-0.5 text-xs;
+  }
 }
 
 .kundali-house-1 { grid-area: house-1; @apply rounded-tr-md; }
@@ -125,44 +153,61 @@
   @apply text-xs rounded px-1 my-0.5;
 }
 
-.zodiac-symbol {
-  @apply text-xl font-bold;
+@media (max-width: 640px) {
+  .planet-symbol {
+    @apply text-xs px-0.5 my-0.5;
+  }
 }
 
-/* Enhanced celestial background with multiple layers for depth */
+.zodiac-symbol {
+  @apply text-lg sm:text-xl font-bold;
+}
+
+@media (max-width: 640px) {
+  .zodiac-symbol {
+    @apply text-sm;
+  }
+}
+
+/* Enhanced celestial background with better mobile performance */
 .celestial-background {
   @apply relative overflow-hidden;
   background-color: hsl(var(--background));
   background-image: 
     radial-gradient(1.5px 1.5px at 50px 25px, hsl(var(--primary) / 20%) 100%, transparent),
     radial-gradient(1px 1px at 100px 100px, hsl(var(--primary) / 15%) 100%, transparent),
-    radial-gradient(2px 2px at 200px 50px, hsl(var(--primary) / 18%) 100%, transparent),
-    radial-gradient(1.5px 1.5px at 300px 200px, hsl(40, 100%, 60%, 0.07) 100%, transparent),
-    radial-gradient(1px 1px at 400px 150px, hsl(330, 100%, 60%, 0.05) 100%, transparent);
-  background-size: 550px 550px;
+    radial-gradient(2px 2px at 200px 50px, hsl(var(--primary) / 18%) 100%, transparent);
+  background-size: 400px 400px;
   animation: celestial-movement 240s linear infinite;
+}
+
+@media (max-width: 640px) {
+  .celestial-background {
+    background-size: 200px 200px;
+    animation-duration: 120s; /* Faster animation on mobile for better performance */
+  }
 }
 
 @keyframes celestial-movement {
   0% { background-position: 0 0; }
-  100% { background-position: 550px 550px; }
+  100% { background-position: 400px 400px; }
 }
 
-/* Enhanced gradient heading */
+/* Enhanced gradient heading with better mobile contrast */
 .gradient-heading {
   @apply font-bold text-transparent bg-clip-text;
   background-image: linear-gradient(135deg, hsl(var(--primary)) 0%, #e27b45 100%);
 }
 
-/* Additional enhanced animations */
-@keyframes spin-slow {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-@keyframes pulse-slow {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
+/* Mobile-optimized animations */
+@media (prefers-reduced-motion: reduce) {
+  .animate-spin-slow,
+  .animate-pulse-slow,
+  .animate-float,
+  .animate-glow,
+  .celestial-background {
+    animation: none;
+  }
 }
 
 @layer utilities {
@@ -185,6 +230,15 @@
   .animate-glow {
     animation: glow 2s ease-in-out infinite alternate;
   }
+  
+  /* Mobile-specific utilities */
+  .touch-manipulation {
+    touch-action: manipulation;
+  }
+  
+  .scroll-smooth {
+    scroll-behavior: smooth;
+  }
 }
 
 @keyframes fadeIn {
@@ -205,7 +259,7 @@
 
 /* Interactive hover effects for planet positions */
 .planet-card {
-  @apply transition-all duration-300 hover:scale-[1.02] cursor-pointer;
+  @apply transition-all duration-300 hover:scale-[1.02] cursor-pointer touch-manipulation;
 }
 
 .planet-card:hover .planet-icon {
@@ -228,7 +282,7 @@
   50% { opacity: 1; transform: translateX(100%); }
 }
 
-/* Interactive chart elements */
+/* Interactive chart elements with better mobile support */
 .kundali-house {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
@@ -239,6 +293,12 @@
   z-index: 10;
 }
 
+@media (max-width: 640px) {
+  .kundali-house:hover {
+    transform: scale(1.02); /* Reduced scaling on mobile */
+  }
+}
+
 /* Ancient scroll paper effect */
 .ancient-paper {
   background-color: #f8f0e3;
@@ -247,4 +307,38 @@
     linear-gradient(to bottom, rgba(255,210,0,0.1) 1px, transparent 1px);
   background-size: 20px 20px;
   box-shadow: 0 0 5px rgba(0,0,0,0.1) inset;
+}
+
+/* Responsive text utilities */
+@layer utilities {
+  .text-responsive-xs { @apply text-xs sm:text-sm; }
+  .text-responsive-sm { @apply text-sm sm:text-base; }
+  .text-responsive-base { @apply text-base sm:text-lg; }
+  .text-responsive-lg { @apply text-lg sm:text-xl; }
+  .text-responsive-xl { @apply text-xl sm:text-2xl; }
+  .text-responsive-2xl { @apply text-2xl sm:text-3xl; }
+  .text-responsive-3xl { @apply text-3xl sm:text-4xl; }
+}
+
+/* Better mobile spacing */
+@layer utilities {
+  .space-y-responsive > :not([hidden]) ~ :not([hidden]) {
+    @apply space-y-2 sm:space-y-4;
+  }
+  
+  .gap-responsive {
+    @apply gap-2 sm:gap-4;
+  }
+  
+  .p-responsive {
+    @apply p-2 sm:p-4;
+  }
+  
+  .px-responsive {
+    @apply px-2 sm:px-4;
+  }
+  
+  .py-responsive {
+    @apply py-2 sm:py-4;
+  }
 }
