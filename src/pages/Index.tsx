@@ -131,7 +131,7 @@ const Index = () => {
             variant="outline" 
             size={isMobile ? "sm" : "default"}
             onClick={toggleLanguage} 
-            className="rounded-full min-h-[40px]" 
+            className="rounded-full min-h-[44px]" 
             title={language === 'hi' ? 'Switch to English' : 'हिंदी में बदलें'}
           >
             <Languages className="h-4 w-4 mr-2" />
@@ -290,27 +290,27 @@ const Index = () => {
                 <Tabs defaultValue="chart" className="w-full mt-6">
                   <div className="flex justify-center mb-4">
                     <TabsList className={`grid w-full ${isMobile ? 'grid-cols-3' : 'grid-cols-7'} max-w-4xl`}>
-                      <TabsTrigger value="visual" className="text-xs sm:text-sm">
+                      <TabsTrigger value="visual" className="text-xs sm:text-sm min-h-[44px]">
                         {language === 'hi' ? "इंटरैक्टिव" : "Interactive"}
                       </TabsTrigger>
-                      <TabsTrigger value="chart" className="text-xs sm:text-sm">
+                      <TabsTrigger value="chart" className="text-xs sm:text-sm min-h-[44px]">
                         {language === 'hi' ? "चार्ट" : "Chart"}
                       </TabsTrigger>
-                      <TabsTrigger value="planets" className="text-xs sm:text-sm">
+                      <TabsTrigger value="planets" className="text-xs sm:text-sm min-h-[44px]">
                         {language === 'hi' ? "ग्रह" : "Planets"}
                       </TabsTrigger>
                       {!isMobile && (
                         <>
-                          <TabsTrigger value="dashas" className="text-xs sm:text-sm">
+                          <TabsTrigger value="dashas" className="text-xs sm:text-sm min-h-[44px]">
                             {language === 'hi' ? "दशाएँ" : "Dashas"}
                           </TabsTrigger>
-                          <TabsTrigger value="predictions" className="text-xs sm:text-sm">
+                          <TabsTrigger value="predictions" className="text-xs sm:text-sm min-h-[44px]">
                             {language === 'hi' ? "फलादेश" : "Predictions"}
                           </TabsTrigger>
-                          <TabsTrigger value="numerology" className="text-xs sm:text-sm">
+                          <TabsTrigger value="numerology" className="text-xs sm:text-sm min-h-[44px]">
                             {language === 'hi' ? "अंकज्योतिष" : "Numerology"}
                           </TabsTrigger>
-                          <TabsTrigger value="compatibility" className="text-xs sm:text-sm">
+                          <TabsTrigger value="compatibility" className="text-xs sm:text-sm min-h-[44px]">
                             {language === 'hi' ? "संगतता" : "Compatibility"}
                           </TabsTrigger>
                         </>
@@ -322,16 +322,16 @@ const Index = () => {
                   {isMobile && (
                     <div className="flex justify-center mb-4">
                       <TabsList className="grid w-full grid-cols-4 max-w-4xl">
-                        <TabsTrigger value="dashas" className="text-xs">
+                        <TabsTrigger value="dashas" className="text-xs min-h-[44px]">
                           {language === 'hi' ? "दशाएँ" : "Dashas"}
                         </TabsTrigger>
-                        <TabsTrigger value="predictions" className="text-xs">
+                        <TabsTrigger value="predictions" className="text-xs min-h-[44px]">
                           {language === 'hi' ? "फलादेश" : "Predictions"}
                         </TabsTrigger>
-                        <TabsTrigger value="numerology" className="text-xs">
+                        <TabsTrigger value="numerology" className="text-xs min-h-[44px]">
                           {language === 'hi' ? "अंकज्योतिष" : "Numerology"}
                         </TabsTrigger>
-                        <TabsTrigger value="compatibility" className="text-xs">
+                        <TabsTrigger value="compatibility" className="text-xs min-h-[44px]">
                           {language === 'hi' ? "संगतता" : "Compatibility"}
                         </TabsTrigger>
                       </TabsList>
@@ -383,7 +383,7 @@ const Index = () => {
             
             <div className="text-center mt-6">
               <Button 
-                className="text-primary hover:underline" 
+                className="text-primary hover:underline min-h-[44px]" 
                 onClick={() => setKundaliData(null)}
                 variant="link"
                 size={isMobile ? "sm" : "default"}

@@ -55,8 +55,8 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       <header className="border-b bg-background/50 backdrop-blur-sm sticky top-0 z-10">
         <div className="container mx-auto flex items-center justify-between h-16 px-4">
           <div className="flex items-center gap-3" onClick={() => navigate('/')} role="button">
-            <AppLogo size="sm" />
-            <h1 className="text-xl font-bold gradient-heading">AyushAstro</h1>
+            <AppLogo size="lg" />
+            <h1 className="text-xl font-bold gradient-heading">Ayu</h1>
           </div>
           
           {/* Desktop Navigation */}
@@ -117,8 +117,8 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
               <SheetContent side="right" className="w-[80%] sm:w-[350px]">
                 <div className="flex flex-col h-full py-6">
                   <div className="flex items-center gap-3 mb-8">
-                    <AppLogo size="sm" />
-                    <h2 className="text-xl font-bold gradient-heading">AyushAstro</h2>
+                    <AppLogo size="lg" />
+                    <h2 className="text-xl font-bold gradient-heading">Ayu</h2>
                   </div>
                   
                   {isLoggedIn && (
@@ -235,8 +235,8 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         <div className="container mx-auto">
           <div className="flex flex-wrap justify-between items-center">
             <div className="flex items-center gap-3">
-              <AppLogo size="sm" />
-              <span className="font-semibold">AyushAstro</span>
+              <AppLogo size="md" />
+              <span className="font-semibold">Ayu</span>
             </div>
             <div className="text-sm text-muted-foreground">
               Ancient wisdom meets modern technology
