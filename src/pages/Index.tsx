@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BirthData, generateKundaliChart, formatBirthDetails, KundaliChart as KundaliChartType, calculateMoonNakshatra } from '@/lib/kundaliUtils';
@@ -26,7 +25,7 @@ const Index = () => {
     birthData: BirthData & { fullName: string };
     chart: KundaliChartType;
   } | null>(null);
-  const [language, setLanguage] = useState<'hi' | 'en'>('en'); // Default to English
+  const [language, setLanguage] = useState<'hi' | 'en'>('en');
   const { toast } = useToast();
   const isMobile = useIsMobile();
 
@@ -92,7 +91,7 @@ const Index = () => {
         icon: <Star className="h-5 w-5" />,
         title: language === 'hi' ? 'व्यक्तित्व विश्लेषण' : 'Personality Analysis',
         content: language === 'hi' 
-          ? `आपका लग्न ${chart.ascendantSanskrit} है जो आपके व्यक्तित्व को दर्शाता है। यह आपको ${chart.ascendant === 'Aries' ? 'साहसी और नेतृत्व की गुणवत्ता' : 'अनूठे गुण'} प्रदान करता है।`
+          ? `आपका लग्न ${chart.ascendantSanskrit || chart.ascendant} है जो आपके व्यक्तित्व को दर्शाता है। यह आपको ${chart.ascendant === 'Aries' ? 'साहसी और नेतृत्व की गुणवत्ता' : 'अनूठे गुण'} प्रदान करता है।`
           : `Your ascendant is ${chart.ascendant} which shapes your personality and approach to life. This gives you ${chart.ascendant === 'Aries' ? 'leadership qualities and courage' : 'unique characteristics'} that define how others perceive you.`
       },
       {
@@ -141,7 +140,7 @@ const Index = () => {
         
         <header className="text-center mb-6 sm:mb-8">
           <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-2 gradient-heading">
-            {language === 'hi' ? "कुंडली एक्सप्लोरर" : "Kundali Explorer"}
+            {language === 'hi' ? "आयु एक्सप्लोरर" : "Ayu Explorer"}
           </h1>
           <p className="text-sm sm:text-base md:text-lg text-muted-foreground px-4 max-w-4xl mx-auto">
             {language === 'hi' 
