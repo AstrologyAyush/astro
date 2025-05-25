@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BirthData, generateKundaliChart, formatBirthDetails, KundaliChart as KundaliChartType, calculateMoonNakshatra } from '@/lib/kundaliUtils';
@@ -13,12 +14,14 @@ import NumerologyCalculator from '@/components/NumerologyCalculator';
 import FloatingChatbot from '@/components/FloatingChatbot';
 import KundaliPDFExport from '@/components/KundaliPDFExport';
 import CompatibilityChecker from '@/components/CompatibilityChecker';
+import RelationshipKarmaAnalysis from '@/components/RelationshipKarmaAnalysis';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Languages, Star, TrendingUp, Calendar, Heart, Briefcase, Home, Zap } from "lucide-react";
+import { ZODIAC_SIGNS } from '@/lib/kundaliUtils';
 
 const Index = () => {
   const [kundaliData, setKundaliData] = useState<{
@@ -86,13 +89,17 @@ const Index = () => {
     if (!kundaliData) return null;
 
     const { chart } = kundaliData;
+    
+    // Get ascendant sign name for proper comparison
+    const ascendantSignName = ZODIAC_SIGNS.find(sign => sign.id === chart.ascendant)?.name || '';
+    
     const sections = [
       {
         icon: <Star className="h-5 w-5" />,
         title: language === 'hi' ? 'व्यक्तित्व विश्लेषण' : 'Personality Analysis',
         content: language === 'hi' 
-          ? `आपका लग्न ${chart.ascendantSanskrit || chart.ascendant} है जो आपके व्यक्तित्व को दर्शाता है। यह आपको ${chart.ascendant === 'Aries' ? 'साहसी और नेतृत्व की गुणवत्ता' : 'अनूठे गुण'} प्रदान करता है।`
-          : `Your ascendant is ${chart.ascendant} which shapes your personality and approach to life. This gives you ${chart.ascendant === 'Aries' ? 'leadership qualities and courage' : 'unique characteristics'} that define how others perceive you.`
+          ? `आपका लग्न ${chart.ascendantSanskrit || ascendantSignName} है जो आपके व्यक्तित्व को दर्शाता है। यह आपको ${ascendantSignName === 'Aries' ? 'साहसी और नेतृत्व की गुणवत्ता' : 'अनूठे गुण'} प्रदान करता है।`
+          : `Your ascendant is ${ascendantSignName} which shapes your personality and approach to life. This gives you ${ascendantSignName === 'Aries' ? 'leadership qualities and courage' : 'unique characteristics'} that define how others perceive you.`
       },
       {
         icon: <Briefcase className="h-5 w-5" />,
@@ -288,7 +295,7 @@ const Index = () => {
                 {/* Responsive Tabs */}
                 <Tabs defaultValue="chart" className="w-full mt-6">
                   <div className="flex justify-center mb-4">
-                    <TabsList className={`grid w-full ${isMobile ? 'grid-cols-3' : 'grid-cols-7'} max-w-4xl`}>
+                    <TabsList className={`grid w-full ${isMobile ? 'grid-cols-3' : 'grid-cols-8'} max-w-5xl`}>
                       <TabsTrigger value="visual" className="text-xs sm:text-sm min-h-[44px]">
                         {language === 'hi' ? "इंटरैक्टिव" : "Interactive"}
                       </TabsTrigger>
@@ -306,6 +313,9 @@ const Index = () => {
                           <TabsTrigger value="predictions" className="text-xs sm:text-sm min-h-[44px]">
                             {language === 'hi' ? "फलादेश" : "Predictions"}
                           </TabsTrigger>
+                          <TabsTrigger value="karma" className="text-xs sm:text-sm min-h-[44px]">
+                            {language === 'hi' ? "कर्म पैटर्न" : "Karma"}
+                          </TabsTrigger>
                           <TabsTrigger value="numerology" className="text-xs sm:text-sm min-h-[44px]">
                             {language === 'hi' ? "अंकज्योतिष" : "Numerology"}
                           </TabsTrigger>
@@ -320,12 +330,15 @@ const Index = () => {
                   {/* Mobile additional tabs */}
                   {isMobile && (
                     <div className="flex justify-center mb-4">
-                      <TabsList className="grid w-full grid-cols-4 max-w-4xl">
+                      <TabsList className="grid w-full grid-cols-5 max-w-5xl">
                         <TabsTrigger value="dashas" className="text-xs min-h-[44px]">
                           {language === 'hi' ? "दशाएँ" : "Dashas"}
                         </TabsTrigger>
                         <TabsTrigger value="predictions" className="text-xs min-h-[44px]">
                           {language === 'hi' ? "फलादेश" : "Predictions"}
+                        </TabsTrigger>
+                        <TabsTrigger value="karma" className="text-xs min-h-[44px]">
+                          {language === 'hi' ? "कर्म" : "Karma"}
                         </TabsTrigger>
                         <TabsTrigger value="numerology" className="text-xs min-h-[44px]">
                           {language === 'hi' ? "अंकज्योतिष" : "Numerology"}
@@ -359,6 +372,14 @@ const Index = () => {
                   
                   <TabsContent value="predictions" className="mx-auto">
                     <DetailedPredictions 
+                      chart={kundaliData.chart}
+                      birthData={kundaliData.birthData}
+                      language={language}
+                    />
+                  </TabsContent>
+                  
+                  <TabsContent value="karma" className="mx-auto">
+                    <RelationshipKarmaAnalysis 
                       chart={kundaliData.chart}
                       birthData={kundaliData.birthData}
                       language={language}
