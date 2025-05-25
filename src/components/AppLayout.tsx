@@ -53,39 +53,41 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   return (
     <div className="min-h-screen bg-background celestial-background">
       <header className="border-b bg-background/50 backdrop-blur-sm sticky top-0 z-10">
-        <div className="container mx-auto flex items-center justify-between h-16 px-4">
-          <div className="flex items-center gap-3" onClick={() => navigate('/')} role="button">
-            <AppLogo size="lg" />
-            <h1 className="text-xl font-bold gradient-heading">Ayu</h1>
+        <div className="container mx-auto flex items-center justify-between h-14 sm:h-16 px-3 sm:px-4">
+          <div className="flex items-center gap-2 sm:gap-3" onClick={() => navigate('/')} role="button">
+            <AppLogo size="md" />
+            <h1 className="text-lg sm:text-xl font-bold gradient-heading">Ayu</h1>
           </div>
           
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-6">
-            <Button variant="ghost" size="sm" onClick={() => navigate('/')}>
+          <div className="hidden md:flex items-center space-x-4 lg:space-x-6">
+            <Button variant="ghost" size="sm" onClick={() => navigate('/')} className="min-h-[40px]">
               <Home className="h-4 w-4 mr-2" /> Home
             </Button>
-            <Button variant="ghost" size="sm" onClick={() => navigate('/kundali')}>
+            <Button variant="ghost" size="sm" onClick={() => navigate('/kundali')} className="min-h-[40px]">
               <BookOpen className="h-4 w-4 mr-2" /> Kundali
             </Button>
           </div>
           
           <div className="flex items-center gap-2">
             {!isLoggedIn ? (
-              <Button variant="outline" size="sm" onClick={() => navigate('/login')}>
-                <User className="h-4 w-4 mr-2" />
-                Login
+              <Button variant="outline" size="sm" onClick={() => navigate('/login')} className="min-h-[40px] text-xs sm:text-sm">
+                <User className="h-4 w-4 mr-1 sm:mr-2" />
+                <span className="hidden xs:inline">Login</span>
               </Button>
             ) : (
               <div className="flex items-center gap-2">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="sm" className="hidden md:flex">
-                      <Avatar className="h-6 w-6 mr-2">
+                    <Button variant="outline" size="sm" className="hidden md:flex min-h-[40px]">
+                      <Avatar className="h-5 w-5 sm:h-6 sm:w-6 mr-2">
                         <AvatarImage src={user.profile?.profile_image || undefined} />
-                        <AvatarFallback>{getInitials()}</AvatarFallback>
+                        <AvatarFallback className="text-xs">{getInitials()}</AvatarFallback>
                       </Avatar>
-                      {user.profile?.first_name || user.email?.split('@')[0]}
-                      <ChevronDown className="ml-2 h-4 w-4" />
+                      <span className="text-xs sm:text-sm truncate max-w-24">
+                        {user.profile?.first_name || user.email?.split('@')[0]}
+                      </span>
+                      <ChevronDown className="ml-1 sm:ml-2 h-3 w-3 sm:h-4 sm:w-4" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
@@ -110,30 +112,30 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
             {/* Mobile menu button */}
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="md:hidden">
+                <Button variant="ghost" size="icon" className="md:hidden min-h-[40px] min-w-[40px]">
                   <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-[80%] sm:w-[350px]">
+              <SheetContent side="right" className="w-[85%] max-w-[350px]">
                 <div className="flex flex-col h-full py-6">
                   <div className="flex items-center gap-3 mb-8">
-                    <AppLogo size="lg" />
+                    <AppLogo size="md" />
                     <h2 className="text-xl font-bold gradient-heading">Ayu</h2>
                   </div>
                   
                   {isLoggedIn && (
-                    <div className="flex items-center space-x-3 mb-6 p-4 bg-primary/10 rounded-lg">
-                      <Avatar>
+                    <div className="flex items-center space-x-3 mb-6 p-3 sm:p-4 bg-primary/10 rounded-lg">
+                      <Avatar className="h-10 w-10">
                         <AvatarImage src={user.profile?.profile_image || undefined} />
-                        <AvatarFallback>{getInitials()}</AvatarFallback>
+                        <AvatarFallback className="text-sm">{getInitials()}</AvatarFallback>
                       </Avatar>
-                      <div>
-                        <p className="font-medium">
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-sm truncate">
                           {user.profile?.first_name 
                             ? `${user.profile.first_name} ${user.profile.last_name || ''}` 
                             : user.email?.split('@')[0]}
                         </p>
-                        <p className="text-sm text-muted-foreground">{user.email}</p>
+                        <p className="text-xs text-muted-foreground truncate">{user.email}</p>
                       </div>
                     </div>
                   )}
@@ -141,7 +143,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                   <nav className="space-y-2">
                     <Button 
                       variant="ghost" 
-                      className="w-full justify-start" 
+                      className="w-full justify-start min-h-[44px]" 
                       onClick={() => { 
                         navigate('/');
                         setMobileMenuOpen(false);
@@ -152,7 +154,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                     </Button>
                     <Button 
                       variant="ghost" 
-                      className="w-full justify-start" 
+                      className="w-full justify-start min-h-[44px]" 
                       onClick={() => { 
                         navigate('/kundali');
                         setMobileMenuOpen(false);
@@ -166,7 +168,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                       <>
                         <Button 
                           variant="ghost" 
-                          className="w-full justify-start" 
+                          className="w-full justify-start min-h-[44px]" 
                           onClick={() => { 
                             navigate('/dashboard');
                             setMobileMenuOpen(false);
@@ -177,7 +179,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                         </Button>
                         <Button 
                           variant="ghost" 
-                          className="w-full justify-start" 
+                          className="w-full justify-start min-h-[44px]" 
                           onClick={() => { 
                             navigate('/profile');
                             setMobileMenuOpen(false);
@@ -188,7 +190,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                         </Button>
                         <Button 
                           variant="ghost" 
-                          className="w-full justify-start text-destructive" 
+                          className="w-full justify-start text-destructive min-h-[44px]" 
                           onClick={() => { 
                             handleLogout();
                             setMobileMenuOpen(false);
@@ -201,7 +203,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                     ) : (
                       <Button 
                         variant="default" 
-                        className="w-full" 
+                        className="w-full min-h-[44px]" 
                         onClick={() => { 
                           navigate('/login');
                           setMobileMenuOpen(false);
@@ -214,7 +216,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                   </nav>
                   
                   <div className="mt-auto">
-                    <Button variant="ghost" className="w-full justify-start">
+                    <Button variant="ghost" className="w-full justify-start min-h-[44px]">
                       <Languages className="mr-3 h-5 w-5" />
                       Change Language
                     </Button>
@@ -226,19 +228,19 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         </div>
       </header>
       
-      <main className="container mx-auto py-6 px-4">
+      <main className="container mx-auto py-4 sm:py-6 px-3 sm:px-4">
         <Outlet />
         {children}
       </main>
       
-      <footer className="py-8 px-4 border-t bg-background/50">
+      <footer className="py-6 sm:py-8 px-3 sm:px-4 border-t bg-background/50">
         <div className="container mx-auto">
-          <div className="flex flex-wrap justify-between items-center">
+          <div className="flex flex-col sm:flex-row flex-wrap justify-between items-center gap-4">
             <div className="flex items-center gap-3">
-              <AppLogo size="md" />
-              <span className="font-semibold">Ayu</span>
+              <AppLogo size="sm" />
+              <span className="font-semibold text-sm sm:text-base">Ayu</span>
             </div>
-            <div className="text-sm text-muted-foreground">
+            <div className="text-xs sm:text-sm text-muted-foreground text-center sm:text-right">
               Ancient wisdom meets modern technology
             </div>
           </div>

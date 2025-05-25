@@ -1,3 +1,4 @@
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   darkMode: ["class"],
@@ -12,12 +13,15 @@ module.exports = {
       center: true,
       padding: {
         DEFAULT: "1rem",
+        xs: "1rem",
         sm: "1.5rem",
-        lg: "2rem",
-        xl: "2.5rem",
-        "2xl": "3rem",
+        md: "2rem",
+        lg: "2.5rem",
+        xl: "3rem",
+        "2xl": "3.5rem",
       },
       screens: {
+        xs: "480px",
         sm: "640px",
         md: "768px",
         lg: "1024px",
@@ -26,12 +30,12 @@ module.exports = {
       },
     },
     screens: {
-      xs: "475px",
+      xs: "480px",
       sm: "640px",
       md: "768px",
       lg: "1024px",
       xl: "1280px",
-      "2xl": "1536px",
+      "2xl": "1400px",
     },
     extend: {
       fontFamily: {

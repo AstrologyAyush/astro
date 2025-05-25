@@ -1,12 +1,14 @@
 
 import * as React from "react"
 
+// Updated with multiple breakpoints for more fluid responsiveness
 const BREAKPOINTS = {
-  xs: 475,
+  xs: 480,
   sm: 640,
   md: 768,
   lg: 1024,
   xl: 1280,
+  "2xl": 1400
 } as const;
 
 export function useIsMobile() {
@@ -25,22 +27,29 @@ export function useIsMobile() {
   return !!isMobile
 }
 
+// New hook for more granular responsive design
 export function useBreakpoint() {
-  const [breakpoint, setBreakpoint] = React.useState<keyof typeof BREAKPOINTS | null>(null);
+  const [breakpoint, setBreakpoint] = React.useState<keyof typeof BREAKPOINTS | 'xxs' | null>(null);
 
   React.useEffect(() => {
-    const updateBreakpoint = () => {
+    const determineBreakpoint = () => {
       const width = window.innerWidth;
-      if (width >= BREAKPOINTS.xl) setBreakpoint('xl');
-      else if (width >= BREAKPOINTS.lg) setBreakpoint('lg');
-      else if (width >= BREAKPOINTS.md) setBreakpoint('md');
-      else if (width >= BREAKPOINTS.sm) setBreakpoint('sm');
-      else setBreakpoint('xs');
+      if (width < BREAKPOINTS.xs) return 'xxs';
+      if (width < BREAKPOINTS.sm) return 'xs';
+      if (width < BREAKPOINTS.md) return 'sm';
+      if (width < BREAKPOINTS.lg) return 'md';
+      if (width < BREAKPOINTS.xl) return 'lg';
+      if (width < BREAKPOINTS["2xl"]) return 'xl';
+      return '2xl';
     };
 
-    updateBreakpoint();
-    window.addEventListener('resize', updateBreakpoint);
-    return () => window.removeEventListener('resize', updateBreakpoint);
+    const handleResize = () => {
+      setBreakpoint(determineBreakpoint());
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   return breakpoint;
