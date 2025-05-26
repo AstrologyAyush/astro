@@ -5,10 +5,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { KundaliChart, BirthData } from '@/lib/kundaliUtils';
-import { analyzeRelationshipKarma, analyzeSynastryKarma, KarmaPattern, RelationshipKarmaAnalysis as KarmaAnalysisType } from '@/lib/relationshipKarmaUtils';
-import { Heart, Zap, Clock, Star, AlertCircle, CheckCircle2, TrendingUp, Users } from "lucide-react";
+import { analyzeRelationshipKarma, KarmaPattern, RelationshipKarmaAnalysis as KarmaAnalysisType } from '@/lib/relationshipKarmaUtils';
+import { Heart, Zap, Clock, Star, AlertCircle, CheckCircle2, TrendingUp, Users, Target, Award } from "lucide-react";
 
 interface RelationshipKarmaAnalysisProps {
   chart: KundaliChart;
@@ -27,8 +26,7 @@ const RelationshipKarmaAnalysis: React.FC<RelationshipKarmaAnalysisProps> = ({
   const performKarmaAnalysis = async () => {
     setIsAnalyzing(true);
     try {
-      // Simulate processing delay for better UX
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await new Promise(resolve => setTimeout(resolve, 2000));
       const karmaAnalysis = analyzeRelationshipKarma(chart, birthData, language);
       setAnalysis(karmaAnalysis);
     } catch (error) {
@@ -118,21 +116,31 @@ const RelationshipKarmaAnalysis: React.FC<RelationshipKarmaAnalysisProps> = ({
 
   return (
     <div className="w-full space-y-6">
-      {/* Overview Card */}
-      <Card>
+      {/* Enhanced Overview Card */}
+      <Card className="border-2 border-primary/20">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Heart className="h-6 w-6 text-primary" />
-            {language === 'hi' ? "कर्मिक पैटर्न सारांश" : "Karmic Pattern Overview"}
+            {language === 'hi' ? "कर्मिक पैटर्न विश्लेषण रिपोर्ट" : "Karmic Pattern Analysis Report"}
           </CardTitle>
           <CardDescription>
             {language === 'hi' 
-              ? "आपके जीवन में संबंधों के मुख्य कर्मिक प्रभाव"
-              : "Main karmic influences in your relationships"}
+              ? `${birthData.fullName || 'आपके'} जीवन में संबंधों के मुख्य कर्मिक प्रभाव`
+              : `Main karmic influences in ${birthData.fullName || 'your'} relationships`}
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <CardContent className="space-y-6">
+          {/* Summary Section */}
+          <div className="bg-gradient-to-r from-primary/5 to-primary/10 p-4 rounded-lg">
+            <h3 className="font-semibold mb-2 flex items-center gap-2">
+              <Award className="h-5 w-5 text-primary" />
+              {language === 'hi' ? "मुख्य निष्कर्ष" : "Key Findings"}
+            </h3>
+            <p className="text-sm text-muted-foreground">{analysis.summary}</p>
+          </div>
+
+          {/* Stats Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
             <div className="text-center p-3 bg-muted/20 rounded-lg">
               <div className="text-2xl font-bold text-primary mb-1">
                 {analysis.patterns.length}
@@ -147,6 +155,14 @@ const RelationshipKarmaAnalysis: React.FC<RelationshipKarmaAnalysisProps> = ({
               </div>
               <div className="text-xs text-muted-foreground">
                 {language === 'hi' ? "कर्मिक तीव्रता" : "Karmic Intensity"}
+              </div>
+            </div>
+            <div className="text-center p-3 bg-muted/20 rounded-lg">
+              <div className="text-2xl font-bold text-primary mb-1">
+                {analysis.strengthScore}%
+              </div>
+              <div className="text-xs text-muted-foreground">
+                {language === 'hi' ? "शक्ति स्कोर" : "Strength Score"}
               </div>
             </div>
             <div className="text-center p-3 bg-muted/20 rounded-lg">
@@ -166,58 +182,65 @@ const RelationshipKarmaAnalysis: React.FC<RelationshipKarmaAnalysisProps> = ({
             </div>
           </div>
           
+          {/* Progress Bar */}
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
               <span>{language === 'hi' ? "समग्र कर्मिक तीव्रता" : "Overall Karmic Intensity"}</span>
               <span>{getIntensityLabel(analysis.overallKarmicIntensity)}</span>
             </div>
-            <Progress value={analysis.overallKarmicIntensity * 10} className="h-2" />
+            <Progress value={analysis.overallKarmicIntensity * 10} className="h-3" />
           </div>
         </CardContent>
       </Card>
 
-      {/* Karma Patterns */}
+      {/* Detailed Karma Patterns */}
       <Card>
         <CardHeader>
           <CardTitle>
-            {language === 'hi' ? "विस्तृत कर्म पैटर्न" : "Detailed Karma Patterns"}
+            {language === 'hi' ? "विस्तृत कर्म पैटर्न विश्लेषण" : "Detailed Karma Pattern Analysis"}
           </CardTitle>
           <CardDescription>
             {language === 'hi'
-              ? "आपकी कुंडली में मिले कर्मिक संकेत और उनके प्रभाव"
-              : "Karmic indicators found in your chart and their effects"}
+              ? "आपकी कुंडली में मिले कर्मिक संकेत और उनके गहरे अर्थ"
+              : "Karmic indicators found in your chart and their deeper meanings"}
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
+          <div className="space-y-6">
             {analysis.patterns.map((pattern, index) => (
-              <Card key={index} className="p-4">
-                <div className="space-y-3">
+              <Card key={index} className="p-4 border-l-4 border-l-primary">
+                <div className="space-y-4">
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-2">
                       {getKarmaTypeIcon(pattern.type)}
-                      <h4 className="font-semibold text-sm">{pattern.pattern}</h4>
+                      <h4 className="font-semibold text-base">{pattern.pattern}</h4>
                     </div>
                     <Badge 
                       variant="outline" 
                       className={`text-xs ${getIntensityColor(pattern.intensity)}`}
                     >
-                      {getIntensityLabel(pattern.intensity)}
+                      {getIntensityLabel(pattern.intensity)} ({pattern.intensity}/10)
                     </Badge>
                   </div>
                   
-                  <div className="text-sm space-y-2">
-                    <p className="text-muted-foreground">{pattern.summary}</p>
-                    
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                      {pattern.houseInvolved && (
+                  <div className="bg-muted/10 p-3 rounded-lg">
+                    <p className="text-sm leading-relaxed">{pattern.summary}</p>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                    {pattern.houseInvolved && (
+                      <div className="flex items-center gap-2">
+                        <Target className="h-4 w-4 text-muted-foreground" />
                         <div>
                           <span className="font-medium">
                             {language === 'hi' ? "संबंधित भाव: " : "House Involved: "}
                           </span>
                           <span className="text-muted-foreground">{pattern.houseInvolved}</span>
                         </div>
-                      )}
+                      </div>
+                    )}
+                    <div className="flex items-center gap-2">
+                      <Star className="h-4 w-4 text-muted-foreground" />
                       <div>
                         <span className="font-medium">
                           {language === 'hi' ? "ग्रह: " : "Planets: "}
@@ -227,15 +250,44 @@ const RelationshipKarmaAnalysis: React.FC<RelationshipKarmaAnalysisProps> = ({
                         </span>
                       </div>
                     </div>
-                    
-                    <Separator className="my-2" />
-                    
-                    <div className="bg-muted/10 p-2 rounded text-xs">
-                      <span className="font-medium">
-                        {language === 'hi' ? "परिणाम: " : "Outcome: "}
-                      </span>
-                      <span className="text-muted-foreground">{pattern.outcome}</span>
+                    {pattern.timing && (
+                      <div className="flex items-center gap-2 sm:col-span-2">
+                        <Clock className="h-4 w-4 text-muted-foreground" />
+                        <div>
+                          <span className="font-medium">
+                            {language === 'hi' ? "समय: " : "Timing: "}
+                          </span>
+                          <span className="text-muted-foreground">{pattern.timing}</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <Separator className="my-3" />
+                  
+                  <div className="space-y-3">
+                    <div className="bg-green-50 border border-green-200 p-3 rounded-lg">
+                      <h5 className="font-medium text-sm text-green-800 mb-1">
+                        {language === 'hi' ? "संभावित परिणाम:" : "Potential Outcome:"}
+                      </h5>
+                      <p className="text-xs text-green-700">{pattern.outcome}</p>
                     </div>
+                    
+                    {pattern.remedies && pattern.remedies.length > 0 && (
+                      <div className="bg-blue-50 border border-blue-200 p-3 rounded-lg">
+                        <h5 className="font-medium text-sm text-blue-800 mb-2">
+                          {language === 'hi' ? "सुझावित उपाय:" : "Suggested Remedies:"}
+                        </h5>
+                        <ul className="text-xs text-blue-700 space-y-1">
+                          {pattern.remedies.map((remedy, idx) => (
+                            <li key={idx} className="flex items-start gap-2">
+                              <CheckCircle2 className="h-3 w-3 mt-0.5 flex-shrink-0" />
+                              <span>{remedy}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
                   </div>
                 </div>
               </Card>
@@ -249,18 +301,18 @@ const RelationshipKarmaAnalysis: React.FC<RelationshipKarmaAnalysisProps> = ({
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <TrendingUp className="h-5 w-5" />
-            {language === 'hi' ? "कर्म सुधार सुझाव" : "Karmic Healing Recommendations"}
+            {language === 'hi' ? "कर्म सुधार के लिए मार्गदर्शन" : "Guidance for Karmic Healing"}
           </CardTitle>
           <CardDescription>
             {language === 'hi'
-              ? "कर्मिक पैटर्न को संतुलित करने के लिए उपाय"
-              : "Remedies to balance and heal karmic patterns"}
+              ? "कर्मिक पैटर्न को संतुलित करने और आध्यात्मिक विकास के लिए सुझाव"
+              : "Suggestions for balancing karmic patterns and spiritual growth"}
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {analysis.recommendations.map((recommendation, index) => (
-              <div key={index} className="flex items-start gap-2 text-sm">
+              <div key={index} className="flex items-start gap-2 text-sm p-3 bg-muted/10 rounded-lg">
                 <CheckCircle2 className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
                 <span>{recommendation}</span>
               </div>
@@ -269,19 +321,19 @@ const RelationshipKarmaAnalysis: React.FC<RelationshipKarmaAnalysisProps> = ({
           
           <Separator className="my-4" />
           
-          <div className="bg-primary/5 p-4 rounded-lg space-y-2">
+          <div className="bg-primary/5 p-4 rounded-lg space-y-3">
             <h4 className="font-semibold text-sm flex items-center gap-2">
               <Clock className="h-4 w-4" />
-              {language === 'hi' ? "समयावधि" : "Timing"}
+              {language === 'hi' ? "कर्मिक चक्र की समयावधि" : "Karmic Cycle Timeline"}
             </h4>
-            <div className="text-xs space-y-1">
-              <div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+              <div className="bg-white/50 p-2 rounded">
                 <span className="font-medium">
                   {language === 'hi' ? "सक्रियता: " : "Activation: "}
                 </span>
                 <span className="text-muted-foreground">{analysis.timing.activation}</span>
               </div>
-              <div>
+              <div className="bg-white/50 p-2 rounded">
                 <span className="font-medium">
                   {language === 'hi' ? "समाधान: " : "Resolution: "}
                 </span>
@@ -296,10 +348,16 @@ const RelationshipKarmaAnalysis: React.FC<RelationshipKarmaAnalysisProps> = ({
       <Card className="bg-muted/10">
         <CardContent className="pt-6">
           <div className="text-center text-xs text-muted-foreground space-y-2">
+            <p className="flex items-center justify-center gap-2">
+              <Star className="h-4 w-4" />
+              {language === 'hi'
+                ? "यह विश्लेषण प्राचीन वैदिक ज्योतिष और कर्म सिद्धांतों पर आधारित है।"
+                : "This analysis is based on ancient Vedic astrological principles and karmic doctrines."}
+            </p>
             <p>
               {language === 'hi'
-                ? "यह विश्लेषण प्राचीन वैदिक ज्योतिष और कर्म सिद्धांतों पर आधारित है। व्यक्तिगत मार्गदर्शन के लिए अनुभवी ज्योतिषी से सलाह लें।"
-                : "This analysis is based on ancient Vedic astrological principles and karmic doctrines. Consult an experienced astrologer for personalized guidance."}
+                ? "व्यक्तिगत मार्गदर्शन के लिए अनुभवी ज्योतिषी से सलाह लें।"
+                : "Consult an experienced astrologer for personalized guidance."}
             </p>
           </div>
         </CardContent>

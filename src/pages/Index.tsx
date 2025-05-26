@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BirthData, generateKundaliChart, formatBirthDetails, KundaliChart as KundaliChartType, calculateMoonNakshatra } from '@/lib/kundaliUtils';
@@ -163,7 +162,7 @@ const Index = () => {
                 <CardTitle className="text-xl sm:text-2xl font-semibold text-center">
                   {language === 'hi' ? "अपना जन्म विवरण दर्ज करें" : "Enter Your Birth Details"}
                 </CardTitle>
-                <CardDescription className="text-center text-sm sm:text-base">
+                <CardDescription className="text-center text-sm:text-base">
                   {language === 'hi' 
                     ? "सटीक कुंडली के लिए सही जानकारी प्रदान करें - स्विस एफेमेरिस सिद्धांतों का उपयोग" 
                     : "Provide accurate information for precise kundali using Swiss Ephemeris principles"}
@@ -182,7 +181,7 @@ const Index = () => {
                 <CardTitle className="text-xl sm:text-2xl font-semibold text-center">
                   {language === 'hi' ? "उन्नत जन्म कुंडली" : "Enhanced Birth Chart"}
                 </CardTitle>
-                <CardDescription className="text-center text-sm sm:text-base">
+                <CardDescription className="text-center text-sm:text-base">
                   {language === 'hi' 
                     ? "उच्च-सटीक खगोलीय गणनाओं के साथ वैदिक ज्योतिष अनुसार विश्लेषण" 
                     : "Vedic astrology analysis with high-precision astronomical calculations"}
@@ -192,7 +191,7 @@ const Index = () => {
                 <div className="space-y-4">
                   <div className="text-center">
                     <h2 className="text-lg sm:text-xl font-medium">{kundaliData.birthData.fullName}</h2>
-                    <p className="text-muted-foreground text-sm sm:text-base">
+                    <p className="text-muted-foreground text-sm:text-base">
                       {formatBirthDetails(kundaliData.birthData)}
                     </p>
                   </div>
@@ -209,7 +208,7 @@ const Index = () => {
                         </span>
                         {kundaliData.chart.ascendant && (
                           <Badge variant="outline" className="text-xs">
-                            {kundaliData.chart.housesList.find((_, i) => i === 0) || "Unknown"} 
+                            {ZODIAC_SIGNS.find(sign => sign.id === kundaliData.chart.ascendant)?.name || "Unknown"} 
                             {language === 'hi' && ` (${kundaliData.chart.ascendantSanskrit})`}
                           </Badge>
                         )}
@@ -221,7 +220,7 @@ const Index = () => {
                         <Badge variant="outline" className="text-xs">
                           {language === 'hi' 
                             ? kundaliData.chart.planets.find(p => p.id === "MO")?.signSanskrit 
-                            : kundaliData.chart.planets.find(p => p.id === "MO")?.sign || "Unknown"}
+                            : ZODIAC_SIGNS.find(sign => sign.id === (kundaliData.chart.planets.find(p => p.id === "MO")?.sign || 0))?.name || "Unknown"}
                         </Badge>
                       </div>
                       <div className="flex flex-wrap items-center gap-1">
@@ -239,7 +238,7 @@ const Index = () => {
                         <Badge variant="outline" className="text-xs">
                           {language === 'hi' 
                             ? kundaliData.chart.planets.find(p => p.id === "SU")?.signSanskrit 
-                            : kundaliData.chart.planets.find(p => p.id === "SU")?.sign || "Unknown"}
+                            : ZODIAC_SIGNS.find(sign => sign.id === (kundaliData.chart.planets.find(p => p.id === "SU")?.sign || 0))?.name || "Unknown"}
                         </Badge>
                       </div>
                       <div className="flex flex-wrap items-center gap-1">
