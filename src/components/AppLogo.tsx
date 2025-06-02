@@ -8,18 +8,18 @@ interface AppLogoProps {
 
 const AppLogo: React.FC<AppLogoProps> = ({ size = 'md', className = '' }) => {
   const sizeClasses = {
-    sm: 'w-12 h-12',
-    md: 'w-20 h-20',
-    lg: 'w-28 h-28',
-    xl: 'w-32 h-32'
+    sm: 'w-8 h-8',
+    md: 'w-12 h-12',
+    lg: 'w-16 h-16',
+    xl: 'w-20 h-20'
   };
 
   return (
     <div className={`${sizeClasses[size]} ${className} relative`}>
       <img 
-        src="/lovable-uploads/ef953165-84e1-467d-b535-1c9bb7d356ff.png" 
+        src="/lovable-uploads/13651911-1a85-4796-bf23-b9ff50004e14.png" 
         alt="Ayu Logo"
-        className="w-full h-full object-contain"
+        className="w-full h-full object-contain rounded-lg"
       />
     </div>
   );
