@@ -9,78 +9,7 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      profiles: {
-        Row: {
-          birth_date: string | null
-          created_at: string | null
-          first_name: string | null
-          id: string
-          last_name: string | null
-          profile_image: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          birth_date?: string | null
-          created_at?: string | null
-          first_name?: string | null
-          id: string
-          last_name?: string | null
-          profile_image?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          birth_date?: string | null
-          created_at?: string | null
-          first_name?: string | null
-          id?: string
-          last_name?: string | null
-          profile_image?: string | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      saved_kundalis: {
-        Row: {
-          birth_date: string
-          birth_place: string
-          birth_time: string
-          created_at: string | null
-          id: string
-          latitude: number
-          longitude: number
-          name: string
-          timezone: string
-          updated_at: string | null
-          user_id: string
-        }
-        Insert: {
-          birth_date: string
-          birth_place: string
-          birth_time: string
-          created_at?: string | null
-          id?: string
-          latitude: number
-          longitude: number
-          name: string
-          timezone: string
-          updated_at?: string | null
-          user_id: string
-        }
-        Update: {
-          birth_date?: string
-          birth_place?: string
-          birth_time?: string
-          created_at?: string | null
-          id?: string
-          latitude?: number
-          longitude?: number
-          name?: string
-          timezone?: string
-          updated_at?: string | null
-          user_id?: string
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Views: {
       [_ in never]: never
