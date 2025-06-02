@@ -5,17 +5,20 @@ import { PlanetPosition, getPlanetDetails, getZodiacDetails, degreesToDMS, calcu
 import { Badge } from "@/components/ui/badge";
 
 interface PlanetaryPositionsProps {
-  planets: PlanetPosition[];
+  planets: PlanetPosition[] | Record<string, PlanetPosition>;
   language?: 'hi' | 'en';
 }
 
 const PlanetaryPositions: React.FC<PlanetaryPositionsProps> = ({ planets, language = 'hi' }) => {
+  // Convert planets to array if it's an object
+  const planetsArray = Array.isArray(planets) ? planets : Object.values(planets);
+  
   // Get sun position for combustion calculation
-  const sun = planets.find(p => p.id === "SU");
+  const sun = planetsArray.find(p => p.id === "SU");
   
   // Get planet in sorted order (traditional sequence)
   const planetSequence = ["SU", "MO", "MA", "ME", "JU", "VE", "SA", "RA", "KE"];
-  const sortedPlanets = [...planets].sort((a, b) => {
+  const sortedPlanets = [...planetsArray].sort((a, b) => {
     return planetSequence.indexOf(a.id) - planetSequence.indexOf(b.id);
   });
   
