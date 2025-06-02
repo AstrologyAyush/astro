@@ -48,7 +48,7 @@ const formSchema = z.object({
     required_error: "देशांतर आवश्यक है।",
     invalid_type_error: "देशांतर एक संख्या होनी चाहिए।",
   }).min(-180).max(180),
-  timezone: z.string(),
+  timezone: z.number(),
 });
 
 interface BirthDataFormProps {
@@ -57,24 +57,23 @@ interface BirthDataFormProps {
   language?: 'hi' | 'en';
 }
 
-// ... keep existing code (CITIES_DATA constant)
-
-const CITIES_DATA: {[key: string]: {lat: number, lng: number, tz: string}} = {
-  "delhi": { lat: 28.6139, lng: 77.2090, tz: "Asia/Kolkata" },
-  "mumbai": { lat: 19.0760, lng: 72.8777, tz: "Asia/Kolkata" },
-  "kolkata": { lat: 22.5726, lng: 88.3639, tz: "Asia/Kolkata" },
-  "chennai": { lat: 13.0827, lng: 80.2707, tz: "Asia/Kolkata" },
-  "bengaluru": { lat: 12.9716, lng: 77.5946, tz: "Asia/Kolkata" },
-  "hyderabad": { lat: 17.3850, lng: 78.4867, tz: "Asia/Kolkata" },
-  "ahmedabad": { lat: 23.0225, lng: 72.5714, tz: "Asia/Kolkata" },
-  "pune": { lat: 18.5204, lng: 73.8567, tz: "Asia/Kolkata" },
-  "jaipur": { lat: 26.9124, lng: 75.7873, tz: "Asia/Kolkata" },
-  "lucknow": { lat: 26.8467, lng: 80.9462, tz: "Asia/Kolkata" },
-  "kanpur": { lat: 26.4499, lng: 80.3319, tz: "Asia/Kolkata" },
-  "nagpur": { lat: 21.1458, lng: 79.0882, tz: "Asia/Kolkata" },
-  "indore": { lat: 22.7196, lng: 75.8577, tz: "Asia/Kolkata" },
-  "bhopal": { lat: 23.2599, lng: 77.4126, tz: "Asia/Kolkata" },
-  "patna": { lat: 25.5941, lng: 85.1376, tz: "Asia/Kolkata" },
+// Cities data with coordinates
+const CITIES_DATA: {[key: string]: {lat: number, lng: number, tz: number}} = {
+  "delhi": { lat: 28.6139, lng: 77.2090, tz: 5.5 },
+  "mumbai": { lat: 19.0760, lng: 72.8777, tz: 5.5 },
+  "kolkata": { lat: 22.5726, lng: 88.3639, tz: 5.5 },
+  "chennai": { lat: 13.0827, lng: 80.2707, tz: 5.5 },
+  "bengaluru": { lat: 12.9716, lng: 77.5946, tz: 5.5 },
+  "hyderabad": { lat: 17.3850, lng: 78.4867, tz: 5.5 },
+  "ahmedabad": { lat: 23.0225, lng: 72.5714, tz: 5.5 },
+  "pune": { lat: 18.5204, lng: 73.8567, tz: 5.5 },
+  "jaipur": { lat: 26.9124, lng: 75.7873, tz: 5.5 },
+  "lucknow": { lat: 26.8467, lng: 80.9462, tz: 5.5 },
+  "kanpur": { lat: 26.4499, lng: 80.3319, tz: 5.5 },
+  "nagpur": { lat: 21.1458, lng: 79.0882, tz: 5.5 },
+  "indore": { lat: 22.7196, lng: 75.8577, tz: 5.5 },
+  "bhopal": { lat: 23.2599, lng: 77.4126, tz: 5.5 },
+  "patna": { lat: 25.5941, lng: 85.1376, tz: 5.5 },
 };
 
 const BirthDataForm: React.FC<BirthDataFormProps> = ({ onSubmit, loading = false, language = 'en' }) => {
@@ -94,14 +93,14 @@ const BirthDataForm: React.FC<BirthDataFormProps> = ({ onSubmit, loading = false
       birthPlace: "",
       latitude: 0,
       longitude: 0,
-      timezone: "Asia/Kolkata",
+      timezone: 5.5,
     },
   });
 
   function handleFormSubmit(values: z.infer<typeof formSchema>) {
     const birthData: BirthData & { fullName: string } = {
       fullName: values.fullName,
-      date: values.birthDate,
+      date: values.birthDate.toISOString().split('T')[0], // Convert Date to string
       time: values.birthTime,
       place: values.birthPlace,
       latitude: values.latitude,
@@ -148,12 +147,12 @@ const BirthDataForm: React.FC<BirthDataFormProps> = ({ onSubmit, loading = false
           if (place.includes("india") || place.includes("bharat") || place.includes("भारत")) {
             form.setValue("latitude", 20.5937);
             form.setValue("longitude", 78.9629);
-            form.setValue("timezone", "Asia/Kolkata");
+            form.setValue("timezone", 5.5);
           } else {
             // Default to Delhi
             form.setValue("latitude", 28.6139);
             form.setValue("longitude", 77.2090);
-            form.setValue("timezone", "Asia/Kolkata");
+            form.setValue("timezone", 5.5);
           }
           
           toast({
@@ -388,8 +387,8 @@ const BirthDataForm: React.FC<BirthDataFormProps> = ({ onSubmit, loading = false
             <FormItem>
               <FormLabel>समय क्षेत्र</FormLabel>
               <Select
-                onValueChange={field.onChange}
-                defaultValue={field.value}
+                onValueChange={(value) => field.onChange(parseFloat(value))}
+                defaultValue={field.value.toString()}
               >
                 <FormControl>
                   <SelectTrigger>
@@ -397,11 +396,11 @@ const BirthDataForm: React.FC<BirthDataFormProps> = ({ onSubmit, loading = false
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="Asia/Kolkata">भारतीय मानक समय (IST)</SelectItem>
-                  <SelectItem value="America/New_York">अमेरिकी पूर्वी समय</SelectItem>
-                  <SelectItem value="Europe/London">ग्रीनविच मानक समय (GMT/UTC)</SelectItem>
-                  <SelectItem value="Asia/Dubai">खाड़ी मानक समय (GST)</SelectItem>
-                  <SelectItem value="Asia/Tokyo">जापान मानक समय (JST)</SelectItem>
+                  <SelectItem value="5.5">भारतीय मानक समय (IST)</SelectItem>
+                  <SelectItem value="-5">अमेरिकी पूर्वी समय</SelectItem>
+                  <SelectItem value="0">ग्रीनविच मानक समय (GMT/UTC)</SelectItem>
+                  <SelectItem value="4">खाड़ी मानक समय (GST)</SelectItem>
+                  <SelectItem value="9">जापान मानक समय (JST)</SelectItem>
                 </SelectContent>
               </Select>
               <FormDescription>

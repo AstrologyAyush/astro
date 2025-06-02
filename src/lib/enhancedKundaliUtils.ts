@@ -1,3 +1,4 @@
+
 /**
  * Enhanced Kundali Utilities for Vedic Astrology
  * Implements high-accuracy calculations using Swiss Ephemeris principles
@@ -153,7 +154,12 @@ export const calculateEnhancedPlanetPositions = (birthData: BirthData): PlanetPo
       degreeInSign,
       nakshatra,
       nakshatraPada,
-      isRetrograde
+      isRetrograde,
+      longitude,
+      rashi: sign,
+      rashiName: ZODIAC_SIGNS.find(z => z.id === sign)?.name || "",
+      house: sign,
+      nakshatraName: NAKSHATRAS.find(n => n.id === nakshatra)?.name || ""
     };
   });
   
@@ -320,10 +326,11 @@ const getPlanetLongitudeAtJD = (planetId: string, jd: number): number => {
 };
 
 // Helper function for Julian Day calculation
-const gregorianToJulian = (date: Date, time: string): number => {
-  const year = date.getFullYear();
-  const month = date.getMonth() + 1;
-  const day = date.getDate();
+const gregorianToJulian = (date: Date | string, time: string): number => {
+  const dateObj = typeof date === 'string' ? new Date(date) : date;
+  const year = dateObj.getFullYear();
+  const month = dateObj.getMonth() + 1;
+  const day = dateObj.getDate();
   
   const timeArray = time.split(':');
   const hour = parseInt(timeArray[0]);
@@ -493,12 +500,31 @@ const calculateDrikScore = (planet: PlanetPosition, allPlanets: PlanetPosition[]
   return Math.max(0, Math.min(100, aspectScore));
 };
 
+// Compatibility interface
+interface CompatibilityResult {
+  overallScore: number;
+  emotionalCompatibility: number;
+  intellectualCompatibility: number;
+  physicalCompatibility: number;
+  spiritualCompatibility: number;
+  challenges: string[];
+  strengths: string[];
+  advice: string;
+}
+
+function calculateSignCompatibility(sign1: number, sign2: number): number {
+  // Basic sign compatibility calculation
+  const distance = Math.abs(sign1 - sign2);
+  let score = 100 - (distance * 5);
+  return Math.max(0, score);
+}
+
 export function calculateCompatibility(person1Planets: PlanetPosition[], person2Planets: PlanetPosition[]): CompatibilityResult {
   // Find Moon and Venus positions for both people
-  const person1Moon = person1Planets.find(p => p.id === 'moon');
-  const person1Venus = person1Planets.find(p => p.id === 'venus');
-  const person2Moon = person2Planets.find(p => p.id === 'moon');
-  const person2Venus = person2Planets.find(p => p.id === 'venus');
+  const person1Moon = person1Planets.find(p => p.id === 'MO');
+  const person1Venus = person1Planets.find(p => p.id === 'VE');
+  const person2Moon = person2Planets.find(p => p.id === 'MO');
+  const person2Venus = person2Planets.find(p => p.id === 'VE');
   
   if (!person1Moon || !person1Venus || !person2Moon || !person2Venus) {
     return {
@@ -514,8 +540,8 @@ export function calculateCompatibility(person1Planets: PlanetPosition[], person2
   }
   
   // Calculate sign compatibility
-  const moonSignCompatibility = calculateSignCompatibility(person1Moon.rashi, person2Moon.rashi);
-  const venusSignCompatibility = calculateSignCompatibility(person1Venus.rashi, person2Venus.rashi);
+  const moonSignCompatibility = calculateSignCompatibility(person1Moon.sign, person2Moon.sign);
+  const venusSignCompatibility = calculateSignCompatibility(person1Venus.sign, person2Venus.sign);
   
   // Calculate physical compatibility
   const physicalCompatibility = calculatePhysicalCompatibility(person1Planets, person2Planets);

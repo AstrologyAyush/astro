@@ -1,3 +1,4 @@
+
 import { BirthData, PlanetPosition, KundaliChart, generateKundaliChart } from './kundaliUtils';
 
 // Personality Archetypes
@@ -41,6 +42,118 @@ interface SpiritualGuidance {
   dharma: string;
   karma: string;
   purpose: string;
+}
+
+// Archetype definitions
+export const ARCHETYPES = {
+  Rebel: {
+    keywords: ['rebel', 'freedom', 'break', 'change', 'fight', 'against'],
+    traits: ['Independent', 'Revolutionary', 'Challenging'],
+    description: 'The Rebel seeks freedom and challenges the status quo'
+  },
+  Sage: {
+    keywords: ['wisdom', 'knowledge', 'learn', 'understand', 'truth'],
+    traits: ['Wise', 'Knowledgeable', 'Seeking truth'],
+    description: 'The Sage seeks wisdom and understanding'
+  },
+  Warrior: {
+    keywords: ['fight', 'courage', 'battle', 'strength', 'protect'],
+    traits: ['Courageous', 'Strong', 'Protective'],
+    description: 'The Warrior faces challenges with courage'
+  },
+  Monk: {
+    keywords: ['peace', 'spiritual', 'meditation', 'harmony', 'inner'],
+    traits: ['Peaceful', 'Spiritual', 'Introspective'],
+    description: 'The Monk seeks inner peace and spiritual growth'
+  },
+  King: {
+    keywords: ['lead', 'authority', 'control', 'power', 'rule'],
+    traits: ['Leadership', 'Authority', 'Responsible'],
+    description: 'The King takes charge and leads others'
+  },
+  Magician: {
+    keywords: ['create', 'transform', 'magic', 'change', 'manifest'],
+    traits: ['Creative', 'Transformative', 'Innovative'],
+    description: 'The Magician transforms and creates new realities'
+  },
+  Survivor: {
+    keywords: ['survive', 'adapt', 'endure', 'overcome', 'resilient'],
+    traits: ['Resilient', 'Adaptable', 'Strong-willed'],
+    description: 'The Survivor adapts and overcomes challenges'
+  },
+  Empath: {
+    keywords: ['feel', 'understand', 'care', 'help', 'emotional'],
+    traits: ['Empathetic', 'Caring', 'Understanding'],
+    description: 'The Empath feels deeply and cares for others'
+  }
+};
+
+// Detect archetype from text answer
+export function detectArchetypeFromAnswer(answer: string): { type: string; score: number } {
+  const lowercaseAnswer = answer.toLowerCase();
+  const scores: Record<string, number> = {};
+  
+  // Calculate scores for each archetype
+  Object.entries(ARCHETYPES).forEach(([archetype, data]) => {
+    let score = 0;
+    data.keywords.forEach(keyword => {
+      if (lowercaseAnswer.includes(keyword)) {
+        score += 1;
+      }
+    });
+    scores[archetype] = score;
+  });
+  
+  // Find the highest scoring archetype
+  const topArchetype = Object.entries(scores).reduce((a, b) => 
+    scores[a[0]] > scores[b[0]] ? a : b
+  )[0];
+  
+  return {
+    type: topArchetype,
+    score: Math.min(scores[topArchetype] * 2, 10) // Scale to 0-10
+  };
+}
+
+// Match archetype to kundali
+export function matchArchetypeToKundali(archetype: string, kundali: any) {
+  // Simple matching logic based on dominant planets
+  const planets = Array.isArray(kundali.planets) ? kundali.planets : Object.values(kundali.planets);
+  
+  // Find dominant planet
+  const dominantPlanet = planets.reduce((prev: any, current: any) => 
+    (prev.longitude > current.longitude) ? prev : current
+  );
+  
+  // Archetype to planet mapping
+  const archetypeMapping: Record<string, string[]> = {
+    Rebel: ['RA', 'MA', 'UR'], // Rahu, Mars, Uranus
+    Sage: ['JU', 'ME'], // Jupiter, Mercury
+    Warrior: ['MA', 'SU'], // Mars, Sun
+    Monk: ['MO', 'KE', 'SA'], // Moon, Ketu, Saturn
+    King: ['SU', 'JU'], // Sun, Jupiter
+    Magician: ['ME', 'VE', 'RA'], // Mercury, Venus, Rahu
+    Survivor: ['SA', 'MA'], // Saturn, Mars
+    Empath: ['MO', 'VE'] // Moon, Venus
+  };
+  
+  const expectedPlanets = archetypeMapping[archetype] || [];
+  const matches = expectedPlanets.includes(dominantPlanet.id || dominantPlanet.name);
+  
+  const score = matches ? 8 : 5; // High score if matched, moderate otherwise
+  const matchLevel = score >= 7 ? 'High' : score >= 5 ? 'Medium' : 'Low';
+  
+  return {
+    archetype: dominantPlanet.name || dominantPlanet.id,
+    score,
+    matchLevel,
+    recommendation: matches 
+      ? `Your psychological archetype aligns well with your astrological profile.`
+      : `Consider exploring the qualities of ${archetype} to balance your nature.`,
+    reasons: matches 
+      ? [`Your dominant planet supports ${archetype} qualities`]
+      : [`Your chart suggests different qualities than ${archetype}`]
+  };
 }
 
 function generatePersonalityProfile(planets: PlanetPosition[]): ArchetypeProfile {
@@ -134,8 +247,8 @@ function calculateCompatibility(person1Planets: PlanetPosition[], person2Planets
   }
   
   // Calculate sign compatibility
-  const moonSignCompatibility = calculateSignCompatibility(person1Moon.rashi, person2Moon.rashi);
-  const venusSignCompatibility = calculateSignCompatibility(person1Venus.rashi, person2Venus.rashi);
+  const moonSignCompatibility = calculateSignCompatibility(person1Moon.sign, person2Moon.sign);
+  const venusSignCompatibility = calculateSignCompatibility(person1Venus.sign, person2Venus.sign);
   
   // Combine scores
   const overallScore = Math.round((moonSignCompatibility + venusSignCompatibility) / 2);
