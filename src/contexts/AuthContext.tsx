@@ -47,44 +47,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const { toast } = useToast();
 
-  // Fetch user profile from Supabase
+  // Temporarily disable database operations since no tables are set up
   const fetchProfile = async (userId: string) => {
     try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .single();
-
-      if (error) {
-        console.error('Error fetching profile:', error);
-        return null;
-      }
-
-      if (data) {
-        setProfile(data as Profile);
-        return data as Profile;
-      }
+      // TODO: Implement when profiles table is created
+      // For now, return null
+      console.log('Profile fetching disabled - no tables configured');
+      return null;
     } catch (error) {
       console.error('Error fetching profile:', error);
     }
     return null;
   };
 
-  // Fetch saved charts for a user
+  // Temporarily disable database operations since no tables are set up
   const fetchSavedCharts = async (userId: string) => {
     try {
-      const { data, error } = await supabase
-        .from('saved_kundalis')
-        .select('*')
-        .eq('user_id', userId);
-
-      if (error) {
-        console.error('Error fetching saved charts:', error);
-        return [];
-      }
-
-      return data || [];
+      // TODO: Implement when saved_kundalis table is created
+      // For now, return empty array
+      console.log('Saved charts fetching disabled - no tables configured');
+      return [];
     } catch (error) {
       console.error('Error fetching saved charts:', error);
     }
@@ -248,17 +230,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!user) return false;
     
     try {
-      const { error } = await supabase
-        .from('profiles')
-        .update(updates)
-        .eq('id', user.id);
-
-      if (error) {
-        console.error('Error updating profile:', error);
-        return false;
-      }
-
-      // Update the local profile state
+      // TODO: Implement when profiles table is created
+      console.log('Profile update disabled - no tables configured');
+      
+      // For now, just update local state
       const updatedProfile = { ...profile, ...updates } as Profile;
       setProfile(updatedProfile);
       setUser(prev => prev ? { ...prev, profile: updatedProfile } : null);

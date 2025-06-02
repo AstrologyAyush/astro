@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -54,7 +53,11 @@ const formSchema = z.object({
 
 interface BirthDataFormProps {
   onSubmit: (data: BirthData & { fullName: string }) => void;
+  loading?: boolean;
+  language?: 'hi' | 'en';
 }
+
+// ... keep existing code (CITIES_DATA constant)
 
 const CITIES_DATA: {[key: string]: {lat: number, lng: number, tz: string}} = {
   "delhi": { lat: 28.6139, lng: 77.2090, tz: "Asia/Kolkata" },
@@ -74,7 +77,7 @@ const CITIES_DATA: {[key: string]: {lat: number, lng: number, tz: string}} = {
   "patna": { lat: 25.5941, lng: 85.1376, tz: "Asia/Kolkata" },
 };
 
-const BirthDataForm: React.FC<BirthDataFormProps> = ({ onSubmit }) => {
+const BirthDataForm: React.FC<BirthDataFormProps> = ({ onSubmit, loading = false, language = 'en' }) => {
   const [locationStatus, setLocationStatus] = useState<{
     loading: boolean;
     error?: string;
@@ -409,7 +412,9 @@ const BirthDataForm: React.FC<BirthDataFormProps> = ({ onSubmit }) => {
           )}
         />
         
-        <Button type="submit" className="w-full">कुंडली बनाएँ</Button>
+        <Button type="submit" className="w-full" disabled={loading}>
+          {loading ? "कुंडली बनाई जा रही है..." : "कुंडली बनाएँ"}
+        </Button>
       </form>
     </Form>
   );

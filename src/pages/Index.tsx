@@ -140,7 +140,7 @@ const Index = () => {
             {kundali ? (
               <div className="space-y-4">
                 <KundaliChart 
-                  kundaliData={kundali} 
+                  chart={kundali} 
                   language={language}
                 />
                 <PlanetaryPositions 

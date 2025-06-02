@@ -9,7 +9,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { format } from 'date-fns';
 import { Eye, Download, Trash2, Plus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
 
 interface KundaliItem {
   id: string;
@@ -42,18 +41,12 @@ const Dashboard = () => {
   const fetchSavedKundalis = async () => {
     try {
       setIsLoadingKundalis(true);
-      const { data, error } = await supabase
-        .from('saved_kundalis')
-        .select('*')
-        .order('created_at', { ascending: false });
       
-      if (error) {
-        throw error;
-      }
+      // TODO: Implement when saved_kundalis table is created
+      // For now, return empty array
+      console.log('Saved kundalis fetching disabled - no tables configured');
+      setSavedKundalis([]);
       
-      if (data) {
-        setSavedKundalis(data as KundaliItem[]);
-      }
     } catch (error: any) {
       console.error('Error fetching kundalis:', error);
       toast({
@@ -71,12 +64,9 @@ const Dashboard = () => {
     
     try {
       setIsDeleting(true);
-      const { error } = await supabase
-        .from('saved_kundalis')
-        .delete()
-        .eq('id', id);
       
-      if (error) throw error;
+      // TODO: Implement when saved_kundalis table is created
+      console.log('Kundali delete disabled - no tables configured');
       
       // Update local state
       setSavedKundalis(prev => prev.filter(item => item.id !== id));
