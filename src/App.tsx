@@ -17,8 +17,8 @@ function App() {
     <Router>
       <AppLayout language={language} onLanguageToggle={toggleLanguage}>
         <Routes>
-          <Route path="/landing" element={<LandingPage />} />
-          <Route path="/" element={<Index />} />
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/kundali" element={<Index />} />
         </Routes>
       </AppLayout>
       <Toaster />

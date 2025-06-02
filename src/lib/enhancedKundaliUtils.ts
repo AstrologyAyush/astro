@@ -1,4 +1,3 @@
-
 /**
  * Enhanced Kundali Utilities for Vedic Astrology
  * Implements high-accuracy calculations using Swiss Ephemeris principles
@@ -12,7 +11,7 @@ export const calculateSiderealTime = (jd: number, longitude: number): number => 
   const t = (jd - 2451545.0) / 36525.0;
   
   // Greenwich Mean Sidereal Time (GMST) in degrees
-  let gmst = 280.46061837 + 360.98564736629 * (jd - 2451545.0) + 
+  let gmst = 280.46061837 + 36000.76983 * (jd - 2451545.0) + 
              0.000387933 * t * t - t * t * t / 38710000.0;
   
   // Nutation correction for more accuracy
@@ -493,3 +492,76 @@ const calculateDrikScore = (planet: PlanetPosition, allPlanets: PlanetPosition[]
   
   return Math.max(0, Math.min(100, aspectScore));
 };
+
+export function calculateCompatibility(person1Planets: PlanetPosition[], person2Planets: PlanetPosition[]): CompatibilityResult {
+  // Find Moon and Venus positions for both people
+  const person1Moon = person1Planets.find(p => p.id === 'moon');
+  const person1Venus = person1Planets.find(p => p.id === 'venus');
+  const person2Moon = person2Planets.find(p => p.id === 'moon');
+  const person2Venus = person2Planets.find(p => p.id === 'venus');
+  
+  if (!person1Moon || !person1Venus || !person2Moon || !person2Venus) {
+    return {
+      overallScore: 50,
+      emotionalCompatibility: 50,
+      intellectualCompatibility: 50,
+      physicalCompatibility: 50,
+      spiritualCompatibility: 50,
+      challenges: ['Incomplete birth data'],
+      strengths: ['Basic compatibility can be assessed'],
+      advice: 'Please ensure complete birth details for accurate compatibility analysis.'
+    };
+  }
+  
+  // Calculate sign compatibility
+  const moonSignCompatibility = calculateSignCompatibility(person1Moon.rashi, person2Moon.rashi);
+  const venusSignCompatibility = calculateSignCompatibility(person1Venus.rashi, person2Venus.rashi);
+  
+  // Calculate physical compatibility
+  const physicalCompatibility = calculatePhysicalCompatibility(person1Planets, person2Planets);
+  
+  // Calculate spiritual compatibility
+  const spiritualCompatibility = calculateSpiritualCompatibility(person1Planets, person2Planets);
+  
+  // Generate challenges
+  const challenges = generateCompatibilityChallenges(person1Planets, person2Planets);
+  
+  // Generate strengths
+  const strengths = generateCompatibilityStrengths(person1Planets, person2Planets);
+  
+  // Generate advice
+  const advice = generateCompatibilityAdvice(person1Planets, person2Planets);
+  
+  return {
+    overallScore: Math.round((moonSignCompatibility + venusSignCompatibility) / 2),
+    emotionalCompatibility: moonSignCompatibility,
+    intellectualCompatibility: venusSignCompatibility,
+    physicalCompatibility,
+    spiritualCompatibility,
+    challenges,
+    strengths,
+    advice
+  };
+}
+
+function calculatePhysicalCompatibility(person1Planets: PlanetPosition[], person2Planets: PlanetPosition[]): number {
+  // Basic physical compatibility calculation
+  return 75; // Placeholder
+}
+
+function calculateSpiritualCompatibility(person1Planets: PlanetPosition[], person2Planets: PlanetPosition[]): number {
+  // Basic spiritual compatibility calculation
+  return 80; // Placeholder
+}
+
+function generateCompatibilityChallenges(person1Planets: PlanetPosition[], person2Planets: PlanetPosition[]): string[] {
+  return ['Communication differences may arise', 'Different approaches to finances'];
+}
+
+function generateCompatibilityStrengths(person1Planets: PlanetPosition[], person2Planets: PlanetPosition[]): string[] {
+  return ['Strong emotional connection', 'Shared values and goals'];
+}
+
+function generateCompatibilityAdvice(person1Planets: PlanetPosition[], person2Planets: PlanetPosition[]): string {
+  return 'Focus on open communication and mutual understanding to strengthen your relationship.';
+}

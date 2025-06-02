@@ -15,7 +15,7 @@ interface AppLayoutProps {
 const AppLayout: React.FC<AppLayoutProps> = ({ children, language, onLanguageToggle }) => {
   const location = useLocation();
   const isMobile = useIsMobile();
-  const isLandingPage = location.pathname === '/landing';
+  const isLandingPage = location.pathname === '/';
 
   return (
     <div className="min-h-screen bg-background">
@@ -54,7 +54,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, language, onLanguageTog
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => window.location.href = '/landing'}
+            onClick={() => window.location.href = '/'}
             className="flex flex-col gap-0.5 h-12 py-1 rounded-lg"
           >
             <Home className="h-4 w-4" />
@@ -64,7 +64,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, language, onLanguageTog
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => window.location.href = '/'}
+            onClick={() => window.location.href = '/kundali'}
             className="flex flex-col gap-0.5 h-12 py-1 rounded-lg"
           >
             <Star className="h-4 w-4" />

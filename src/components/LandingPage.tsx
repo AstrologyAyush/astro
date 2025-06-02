@@ -139,7 +139,7 @@ const LandingPage: React.FC = () => {
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Button 
-                onClick={() => navigate('/')} 
+                onClick={() => navigate('/kundali')} 
                 size={isMobile ? "lg" : "lg"}
                 className="min-h-[52px] px-8 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary text-lg font-semibold"
               >
@@ -271,7 +271,7 @@ const LandingPage: React.FC = () => {
           </p>
           
           <Button 
-            onClick={() => navigate('/')}
+            onClick={() => navigate('/kundali')}
             size="lg"
             className="min-h-[56px] px-12 text-lg bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary"
           >

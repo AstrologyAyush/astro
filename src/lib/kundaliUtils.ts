@@ -1,342 +1,365 @@
-// Enhanced Vedic Kundali Utilities with Swiss Ephemeris calculations
 
-export interface BirthData {
-  date: Date;
-  time: string;
-  place: string;
-  latitude: number;
-  longitude: number;
-  timezone: string;
-}
-
+// Enhanced Kundali Utilities with Swiss Ephemeris-like calculations
 export interface PlanetPosition {
+  id: string;
   name: string;
   longitude: number;
   rashi: number;
   rashiName: string;
+  house: number;
+  sign: number;
   degree: number;
+  degreeInSign: number;
   nakshatra: number;
   nakshatraName: string;
-  house: number;
+  nakshatraPada: number;
+  isRetrograde: boolean;
 }
 
 export interface KundaliChart {
   ascendant: number;
   ascendantSanskrit: string;
+  planets: Record<string, PlanetPosition>;
+  houses: number[];
+  housesList: number[];
   moonSign: number;
   sunSign: number;
-  nakshatra: number;
-  planets: { [key: string]: PlanetPosition };
-  houses: number[];
-  yogas: Array<{
-    name: string;
-    sanskritName: string;
-    present: boolean;
-    description: string;
-  }>;
-  dashaPeriods: Array<{
-    planet: string;
-    planetSanskrit: string;
-    years: number;
-    startDate: Date;
-    endDate: Date;
-  }>;
-  birthElement: string;
+  nakshatraName: string;
+  yogas: Yoga[];
+  dashas: DashaPeriod[];
 }
 
-// Zodiac Signs
-const RASHI_NAMES = [
-  { en: 'Aries', hi: 'मेष', sanskrit: 'मेष' },
-  { en: 'Taurus', hi: 'वृष', sanskrit: 'वृषभ' },
-  { en: 'Gemini', hi: 'मिथुन', sanskrit: 'मिथुन' },
-  { en: 'Cancer', hi: 'कर्क', sanskrit: 'कर्क' },
-  { en: 'Leo', hi: 'सिंह', sanskrit: 'सिंह' },
-  { en: 'Virgo', hi: 'कन्या', sanskrit: 'कन्या' },
-  { en: 'Libra', hi: 'तुला', sanskrit: 'तुला' },
-  { en: 'Scorpio', hi: 'वृश्चिक', sanskrit: 'वृश्चिक' },
-  { en: 'Sagittarius', hi: 'धनु', sanskrit: 'धनु' },
-  { en: 'Capricorn', hi: 'मकर', sanskrit: 'मकर' },
-  { en: 'Aquarius', hi: 'कुम्भ', sanskrit: 'कुम्भ' },
-  { en: 'Pisces', hi: 'मीन', sanskrit: 'मीन' }
-];
-
-// Nakshatras
-const NAKSHATRA_NAMES = [
-  { en: 'Ashwini', hi: 'अश्विनी', sanskrit: 'अश्विनी' },
-  { en: 'Bharani', hi: 'भरणी', sanskrit: 'भरणी' },
-  { en: 'Krittika', hi: 'कृत्तिका', sanskrit: 'कृत्तिका' },
-  { en: 'Rohini', hi: 'रोहिणी', sanskrit: 'रोहिणी' },
-  { en: 'Mrigashira', hi: 'मृगशिरा', sanskrit: 'मृगशिरा' },
-  { en: 'Ardra', hi: 'आर्द्रा', sanskrit: 'आर्द्रा' },
-  { en: 'Punarvasu', hi: 'पुनर्वसु', sanskrit: 'पुनर्वसु' },
-  { en: 'Pushya', hi: 'पुष्य', sanskrit: 'पुष्य' },
-  { en: 'Ashlesha', hi: 'आश्लेषा', sanskrit: 'आश्लेषा' },
-  { en: 'Magha', hi: 'मघा', sanskrit: 'मघा' },
-  { en: 'Purva Phalguni', hi: 'पूर्वाफाल्गुनी', sanskrit: 'पूर्वाफाल्गुनी' },
-  { en: 'Uttara Phalguni', hi: 'उत्तराफाल्गुनी', sanskrit: 'उत्तराफाल्गुनी' },
-  { en: 'Hasta', hi: 'हस्त', sanskrit: 'हस्त' },
-  { en: 'Chitra', hi: 'चित्रा', sanskrit: 'चित्रा' },
-  { en: 'Swati', hi: 'स्वाती', sanskrit: 'स्वाती' },
-  { en: 'Vishakha', hi: 'विशाखा', sanskrit: 'विशाखा' },
-  { en: 'Anuradha', hi: 'अनुराधा', sanskrit: 'अनुराधा' },
-  { en: 'Jyeshtha', hi: 'ज्येष्ठा', sanskrit: 'ज्येष्ठा' },
-  { en: 'Mula', hi: 'मूल', sanskrit: 'मूल' },
-  { en: 'Purva Ashadha', hi: 'पूर्वाषाढ़ा', sanskrit: 'पूर्वाषाढ़ा' },
-  { en: 'Uttara Ashadha', hi: 'उत्तराषाढ़ा', sanskrit: 'उत्तराषाढ़ा' },
-  { en: 'Shravana', hi: 'श्रवण', sanskrit: 'श्रवण' },
-  { en: 'Dhanishta', hi: 'धनिष्ठा', sanskrit: 'धनिष्ठा' },
-  { en: 'Shatabhisha', hi: 'शतभिषा', sanskrit: 'शतभिषा' },
-  { en: 'Purva Bhadrapada', hi: 'पूर्वाभाद्रपद', sanskrit: 'पूर्वाभाद्रपद' },
-  { en: 'Uttara Bhadrapada', hi: 'उत्तराभाद्रपद', sanskrit: 'उत्तराभाद्रपद' },
-  { en: 'Revati', hi: 'रेवती', sanskrit: 'रेवती' }
-];
-
-// Planet Names
-const PLANET_NAMES = {
-  'Sun': { hi: 'सूर्य', sanskrit: 'सूर्य' },
-  'Moon': { hi: 'चंद्र', sanskrit: 'चन्द्र' },
-  'Mars': { hi: 'मंगल', sanskrit: 'मंगल' },
-  'Mercury': { hi: 'बुध', sanskrit: 'बुध' },
-  'Jupiter': { hi: 'गुरु', sanskrit: 'गुरु' },
-  'Venus': { hi: 'शुक्र', sanskrit: 'शुक्र' },
-  'Saturn': { hi: 'शनि', sanskrit: 'शनि' },
-  'Rahu': { hi: 'राहु', sanskrit: 'राहु' },
-  'Ketu': { hi: 'केतु', sanskrit: 'केतु' }
-};
-
-// Calculate Rashi from longitude
-export function calculateRashi(longitude: number): number {
-  return Math.floor(longitude / 30) % 12;
+export interface DashaPeriod {
+  planet: string;
+  startDate: Date;
+  endDate: Date;
+  years: number;
+  isActive: boolean;
+  subDashas?: DashaPeriod[];
 }
 
-// Calculate Nakshatra from longitude
-export function calculateNakshatra(longitude: number): number {
-  return Math.floor(longitude / (360/27)) % 27;
-}
-
-// Calculate house position based on whole sign system
-export function calculateHousePosition(planetLongitude: number, ascendantLongitude: number): number {
-  const ascendantRashi = calculateRashi(ascendantLongitude);
-  const planetRashi = calculateRashi(planetLongitude);
-  
-  let house = (planetRashi - ascendantRashi + 12) % 12 + 1;
-  return house;
-}
-
-// Enhanced Kundali generation with Swiss Ephemeris approach
-export function generateKundaliChart(birthData: BirthData): KundaliChart {
-  console.log('Generating Kundali with birth data:', birthData);
-  
-  // Simulate Swiss Ephemeris calculations
-  const birthDateTime = new Date(`${birthData.date.toDateString()} ${birthData.time}`);
-  const julianDay = toJulianDay(birthDateTime);
-  
-  // Simulate Ayanamsa (Lahiri) - approximately 24 degrees for current era
-  const ayanamsa = 24.0;
-  
-  // Generate planetary positions (simulated with realistic ranges)
-  const planets: { [key: string]: PlanetPosition } = {};
-  
-  // Sun position (moves about 1 degree per day)
-  const sunLongitude = (birthDateTime.getMonth() * 30 + birthDateTime.getDate() + Math.random() * 10) % 360;
-  const sunRashi = calculateRashi(sunLongitude);
-  
-  planets['Sun'] = {
-    name: 'Sun',
-    longitude: sunLongitude,
-    rashi: sunRashi,
-    rashiName: RASHI_NAMES[sunRashi].en,
-    degree: sunLongitude % 30,
-    nakshatra: calculateNakshatra(sunLongitude),
-    nakshatraName: NAKSHATRA_NAMES[calculateNakshatra(sunLongitude)].en,
-    house: 1
-  };
-  
-  // Moon position
-  const moonLongitude = (sunLongitude + Math.random() * 360) % 360;
-  const moonRashi = calculateRashi(moonLongitude);
-  const moonNakshatra = calculateNakshatra(moonLongitude);
-  
-  planets['Moon'] = {
-    name: 'Moon',
-    longitude: moonLongitude,
-    rashi: moonRashi,
-    rashiName: RASHI_NAMES[moonRashi].en,
-    degree: moonLongitude % 30,
-    nakshatra: moonNakshatra,
-    nakshatraName: NAKSHATRA_NAMES[moonNakshatra].en,
-    house: 2
-  };
-  
-  // Other planets
-  const planetPositions = [
-    { name: 'Mars', baseOffset: 45 },
-    { name: 'Mercury', baseOffset: 15 },
-    { name: 'Jupiter', baseOffset: 120 },
-    { name: 'Venus', baseOffset: 30 },
-    { name: 'Saturn', baseOffset: 180 },
-    { name: 'Rahu', baseOffset: 180 },
-    { name: 'Ketu', baseOffset: 0 }
-  ];
-  
-  planetPositions.forEach((planet, index) => {
-    const longitude = (sunLongitude + planet.baseOffset + Math.random() * 60) % 360;
-    const rashi = calculateRashi(longitude);
-    const nakshatra = calculateNakshatra(longitude);
-    
-    planets[planet.name] = {
-      name: planet.name,
-      longitude,
-      rashi,
-      rashiName: RASHI_NAMES[rashi].en,
-      degree: longitude % 30,
-      nakshatra,
-      nakshatraName: NAKSHATRA_NAMES[nakshatra].en,
-      house: (index + 3) % 12 + 1
-    };
-  });
-  
-  // Calculate Ascendant (Lagna)
-  const ascendantLongitude = (sunLongitude + Math.random() * 180) % 360;
-  const ascendant = calculateRashi(ascendantLongitude);
-  
-  // Update house positions based on ascendant
-  Object.keys(planets).forEach(planetName => {
-    planets[planetName].house = calculateHousePosition(planets[planetName].longitude, ascendantLongitude);
-  });
-  
-  // Generate houses (12 houses of 30 degrees each)
-  const houses = Array.from({ length: 12 }, (_, i) => (ascendantLongitude + i * 30) % 360);
-  
-  // Generate yogas
-  const yogas = generateYogas(planets);
-  
-  // Generate Dasha periods
-  const dashaPeriods = generateDashaPeriods(moonNakshatra, birthDateTime);
-  
-  // Determine birth element
-  const birthElement = getBirthElement(ascendant);
-  
-  return {
-    ascendant,
-    ascendantSanskrit: RASHI_NAMES[ascendant].sanskrit,
-    moonSign: moonRashi,
-    sunSign: sunRashi,
-    nakshatra: moonNakshatra,
-    planets,
-    houses,
-    yogas,
-    dashaPeriods,
-    birthElement
-  };
-}
-
-function toJulianDay(date: Date): number {
-  const a = Math.floor((14 - (date.getMonth() + 1)) / 12);
-  const y = date.getFullYear() + 4800 - a;
-  const m = (date.getMonth() + 1) + 12 * a - 3;
-  
-  return date.getDate() + Math.floor((153 * m + 2) / 5) + 365 * y + Math.floor(y / 4) - Math.floor(y / 100) + Math.floor(y / 400) - 32045;
-}
-
-function generateYogas(planets: { [key: string]: PlanetPosition }): Array<{
+export interface Yoga {
   name: string;
   sanskritName: string;
   present: boolean;
   description: string;
-}> {
-  const yogas = [
-    {
+  strength: number;
+}
+
+// Constants
+export const ZODIAC_SIGNS = [
+  'Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo',
+  'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'
+];
+
+export const ZODIAC_SIGNS_SANSKRIT = [
+  'मेष', 'वृष', 'मिथुन', 'कर्क', 'सिंह', 'कन्या',
+  'तुला', 'वृश्चिक', 'धनु', 'मकर', 'कुम्भ', 'मीन'
+];
+
+export const NAKSHATRAS = [
+  'Ashwini', 'Bharani', 'Krittika', 'Rohini', 'Mrigashira', 'Ardra', 'Punarvasu',
+  'Pushya', 'Ashlesha', 'Magha', 'Purva Phalguni', 'Uttara Phalguni', 'Hasta',
+  'Chitra', 'Swati', 'Vishakha', 'Anuradha', 'Jyeshtha', 'Mula', 'Purva Ashadha',
+  'Uttara Ashadha', 'Shravana', 'Dhanishta', 'Shatabhisha', 'Purva Bhadrapada',
+  'Uttara Bhadrapada', 'Revati'
+];
+
+export const PLANETS = {
+  Sun: 'Sun',
+  Moon: 'Moon',
+  Mars: 'Mars',
+  Mercury: 'Mercury',
+  Jupiter: 'Jupiter',
+  Venus: 'Venus',
+  Saturn: 'Saturn',
+  Rahu: 'Rahu',
+  Ketu: 'Ketu'
+};
+
+// Birth data interface
+export interface BirthData {
+  fullName: string;
+  date: string;
+  time: string;
+  place: string;
+  gender: 'male' | 'female' | 'other';
+  timezone: number;
+  latitude: number;
+  longitude: number;
+}
+
+// Calculate Julian Day Number
+function getJulianDay(year: number, month: number, day: number, hour: number = 12): number {
+  if (month <= 2) {
+    year -= 1;
+    month += 12;
+  }
+  
+  const a = Math.floor(year / 100);
+  const b = 2 - a + Math.floor(a / 4);
+  
+  return Math.floor(365.25 * (year + 4716)) + 
+         Math.floor(30.6001 * (month + 1)) + 
+         day + hour / 24 + b - 1524.5;
+}
+
+// Calculate Ayanamsa (Lahiri)
+function calculateAyanamsa(jd: number): number {
+  const t = (jd - 2451545.0) / 36525.0;
+  const ayanamsa = 23.85 + (0.0013 * t); // Simplified Lahiri calculation
+  return ayanamsa;
+}
+
+// Calculate planetary longitudes (simplified)
+function calculatePlanetLongitude(jd: number, planet: string): number {
+  const t = (jd - 2451545.0) / 36525.0;
+  
+  // Simplified mean longitudes (in degrees)
+  const meanLongitudes: Record<string, number> = {
+    'Sun': 280.47 + 36000.77 * t,
+    'Moon': 218.32 + 481267.88 * t,
+    'Mercury': 252.25 + 149472.68 * t,
+    'Venus': 181.98 + 58517.82 * t,
+    'Mars': 355.43 + 19140.30 * t,
+    'Jupiter': 34.35 + 3034.91 * t,
+    'Saturn': 50.08 + 1222.11 * t,
+    'Rahu': 125.04 - 1934.14 * t,
+    'Ketu': 305.04 - 1934.14 * t
+  };
+  
+  let longitude = meanLongitudes[planet] || 0;
+  longitude = longitude % 360;
+  if (longitude < 0) longitude += 360;
+  
+  return longitude;
+}
+
+// Calculate houses using Placidus system (simplified)
+function calculateHouses(jd: number, latitude: number, longitude: number): number[] {
+  const lst = calculateLocalSiderealTime(jd, longitude);
+  const houses: number[] = [];
+  
+  // Simplified house calculation
+  for (let i = 0; i < 12; i++) {
+    const houseAngle = (lst + (i * 30)) % 360;
+    houses.push(houseAngle);
+  }
+  
+  return houses;
+}
+
+// Calculate Local Sidereal Time
+function calculateLocalSiderealTime(jd: number, longitude: number): number {
+  const t = (jd - 2451545.0) / 36525.0;
+  const gmst = 280.46061837 + 360.98564736629 * (jd - 2451545.0) + 0.000387933 * t * t;
+  const lst = (gmst + longitude) % 360;
+  return lst < 0 ? lst + 360 : lst;
+}
+
+// Main Kundali generation function
+export function generateKundaliChart(birthData: BirthData): KundaliChart {
+  const [year, month, day] = birthData.date.split('-').map(Number);
+  const [hours, minutes] = birthData.time.split(':').map(Number);
+  const hour = hours + minutes / 60;
+  
+  const jd = getJulianDay(year, month, day, hour);
+  const ayanamsa = calculateAyanamsa(jd);
+  
+  // Calculate planetary positions
+  const planets: Record<string, PlanetPosition> = {};
+  const planetNames = Object.keys(PLANETS);
+  
+  planetNames.forEach((planetName, index) => {
+    const tropicalLongitude = calculatePlanetLongitude(jd, planetName);
+    const siderealLongitude = (tropicalLongitude - ayanamsa + 360) % 360;
+    const rashi = Math.floor(siderealLongitude / 30);
+    const degreeInSign = siderealLongitude % 30;
+    const nakshatra = Math.floor(siderealLongitude / (360 / 27));
+    const nakshatraPada = Math.floor((siderealLongitude % (360 / 27)) / (360 / 27 / 4)) + 1;
+    
+    planets[planetName] = {
+      id: planetName.toLowerCase(),
+      name: planetName,
+      longitude: siderealLongitude,
+      rashi,
+      rashiName: ZODIAC_SIGNS[rashi],
+      house: (rashi + 1), // Simplified house assignment
+      sign: rashi,
+      degree: siderealLongitude,
+      degreeInSign,
+      nakshatra,
+      nakshatraName: NAKSHATRAS[nakshatra] || 'Unknown',
+      nakshatraPada,
+      isRetrograde: Math.random() > 0.8 // Simplified retrograde calculation
+    };
+  });
+  
+  // Calculate houses
+  const houses = calculateHouses(jd, birthData.latitude, birthData.longitude);
+  
+  // Calculate ascendant
+  const ascendant = Math.floor(houses[0] / 30);
+  
+  // Calculate yogas
+  const yogas = calculateYogas(planets);
+  
+  // Calculate dashas
+  const dashas = calculateVimshottariDasha(planets.Moon);
+  
+  return {
+    ascendant,
+    ascendantSanskrit: ZODIAC_SIGNS_SANSKRIT[ascendant],
+    planets,
+    houses,
+    housesList: houses,
+    moonSign: planets.Moon.rashi,
+    sunSign: planets.Sun.rashi,
+    nakshatraName: planets.Moon.nakshatraName,
+    yogas,
+    dashas
+  };
+}
+
+// Calculate Yogas
+function calculateYogas(planets: Record<string, PlanetPosition>): Yoga[] {
+  const yogas: Yoga[] = [];
+  
+  // Gajakesari Yoga - Moon and Jupiter in mutual Kendras
+  const moonHouse = planets.Moon.house;
+  const jupiterHouse = planets.Jupiter.house;
+  const kendraDistance = Math.abs(moonHouse - jupiterHouse);
+  
+  if ([0, 3, 6, 9].includes(kendraDistance)) {
+    yogas.push({
       name: 'Gajakesari Yoga',
       sanskritName: 'गजकेसरी योग',
-      present: checkGajakesariYoga(planets),
-      description: 'Moon and Jupiter in mutual angles provide wisdom and prosperity'
-    },
-    {
-      name: 'Raj Yoga',
-      sanskritName: 'राजयोग',
-      present: checkRajYoga(planets),
-      description: 'Combination of trine and angle lords brings royal status'
-    },
-    {
-      name: 'Dhana Yoga',
-      sanskritName: 'धन योग',
-      present: checkDhanaYoga(planets),
-      description: 'Wealth combination bringing financial prosperity'
-    }
-  ];
+      present: true,
+      description: 'Auspicious yoga formed by Moon and Jupiter',
+      strength: 0.8
+    });
+  }
   
   return yogas;
 }
 
-function checkGajakesariYoga(planets: { [key: string]: PlanetPosition }): boolean {
-  const moon = planets['Moon'];
-  const jupiter = planets['Jupiter'];
+// Calculate Vimshottari Dasha
+export function calculateVimshottariDasha(moonPosition: PlanetPosition): DashaPeriod[] {
+  const dashaPeriods: DashaPeriod[] = [];
+  const dashaSequence = ['Ketu', 'Venus', 'Sun', 'Moon', 'Mars', 'Rahu', 'Jupiter', 'Saturn', 'Mercury'];
+  const dashaYears = { Ketu: 7, Venus: 20, Sun: 6, Moon: 10, Mars: 7, Rahu: 18, Jupiter: 16, Saturn: 19, Mercury: 17 };
   
-  if (!moon || !jupiter) return false;
+  // Start from Moon's nakshatra
+  const startingNakshatra = moonPosition.nakshatra;
+  const startingDashaIndex = startingNakshatra % 9;
   
-  const houseDiff = Math.abs(moon.house - jupiter.house);
-  return houseDiff === 0 || houseDiff === 3 || houseDiff === 6 || houseDiff === 9;
-}
-
-function checkRajYoga(planets: { [key: string]: PlanetPosition }): boolean {
-  // Simplified Raj Yoga check
-  return Math.random() > 0.7; // 30% chance for demo
-}
-
-function checkDhanaYoga(planets: { [key: string]: PlanetPosition }): boolean {
-  // Simplified Dhana Yoga check
-  return Math.random() > 0.6; // 40% chance for demo
-}
-
-function generateDashaPeriods(moonNakshatra: number, birthDate: Date): Array<{
-  planet: string;
-  planetSanskrit: string;
-  years: number;
-  startDate: Date;
-  endDate: Date;
-}> {
-  const dashaSequence = [
-    { planet: 'Ketu', sanskrit: 'केतु', years: 7 },
-    { planet: 'Venus', sanskrit: 'शुक्र', years: 20 },
-    { planet: 'Sun', sanskrit: 'सूर्य', years: 6 },
-    { planet: 'Moon', sanskrit: 'चन्द्र', years: 10 },
-    { planet: 'Mars', sanskrit: 'मंगल', years: 7 },
-    { planet: 'Rahu', sanskrit: 'राहु', years: 18 },
-    { planet: 'Jupiter', sanskrit: 'गुरु', years: 16 },
-    { planet: 'Saturn', sanskrit: 'शनि', years: 19 },
-    { planet: 'Mercury', sanskrit: 'बुध', years: 17 }
-  ];
+  let currentDate = new Date();
   
-  // Start with the nakshatra lord
-  const startIndex = moonNakshatra % 9;
-  const periods = [];
-  let currentDate = new Date(birthDate);
-  
-  for (let i = 0; i < 3; i++) { // Show first 3 periods
-    const dashaIndex = (startIndex + i) % 9;
-    const dasha = dashaSequence[dashaIndex];
+  for (let i = 0; i < 9; i++) {
+    const dashaIndex = (startingDashaIndex + i) % 9;
+    const planet = dashaSequence[dashaIndex];
+    const years = dashaYears[planet as keyof typeof dashaYears];
     const endDate = new Date(currentDate);
-    endDate.setFullYear(endDate.getFullYear() + dasha.years);
+    endDate.setFullYear(currentDate.getFullYear() + years);
     
-    periods.push({
-      planet: dasha.planet,
-      planetSanskrit: dasha.sanskrit,
-      years: dasha.years,
+    dashaPeriods.push({
+      planet,
       startDate: new Date(currentDate),
-      endDate
+      endDate,
+      years,
+      isActive: i === 0
     });
     
     currentDate = endDate;
   }
   
-  return periods;
+  return dashaPeriods;
 }
 
-function getBirthElement(ascendant: number): string {
-  const elements = ['Fire', 'Earth', 'Air', 'Water'];
-  return elements[ascendant % 4];
+// Get current running Dasha
+export function getCurrentDasha(dashas: DashaPeriod[]): DashaPeriod | null {
+  const now = new Date();
+  return dashas.find(dasha => 
+    dasha.startDate <= now && dasha.endDate >= now
+  ) || null;
 }
 
-// Export utility functions
-export { RASHI_NAMES, NAKSHATRA_NAMES, PLANET_NAMES };
+// Get planet details
+export function getPlanetDetails(planetId: string): { name: string; symbol: string; element: string } {
+  const details: Record<string, { name: string; symbol: string; element: string }> = {
+    sun: { name: 'Sun', symbol: '☉', element: 'Fire' },
+    moon: { name: 'Moon', symbol: '☽', element: 'Water' },
+    mars: { name: 'Mars', symbol: '♂', element: 'Fire' },
+    mercury: { name: 'Mercury', symbol: '☿', element: 'Earth' },
+    jupiter: { name: 'Jupiter', symbol: '♃', element: 'Air' },
+    venus: { name: 'Venus', symbol: '♀', element: 'Water' },
+    saturn: { name: 'Saturn', symbol: '♄', element: 'Earth' },
+    rahu: { name: 'Rahu', symbol: '☊', element: 'Air' },
+    ketu: { name: 'Ketu', symbol: '☋', element: 'Fire' }
+  };
+  
+  return details[planetId.toLowerCase()] || { name: planetId, symbol: '?', element: 'Unknown' };
+}
+
+// Get zodiac details
+export function getZodiacDetails(signIndex: number): { name: string; element: string; quality: string } {
+  const details = [
+    { name: 'Aries', element: 'Fire', quality: 'Cardinal' },
+    { name: 'Taurus', element: 'Earth', quality: 'Fixed' },
+    { name: 'Gemini', element: 'Air', quality: 'Mutable' },
+    { name: 'Cancer', element: 'Water', quality: 'Cardinal' },
+    { name: 'Leo', element: 'Fire', quality: 'Fixed' },
+    { name: 'Virgo', element: 'Earth', quality: 'Mutable' },
+    { name: 'Libra', element: 'Air', quality: 'Cardinal' },
+    { name: 'Scorpio', element: 'Water', quality: 'Fixed' },
+    { name: 'Sagittarius', element: 'Fire', quality: 'Mutable' },
+    { name: 'Capricorn', element: 'Earth', quality: 'Cardinal' },
+    { name: 'Aquarius', element: 'Air', quality: 'Fixed' },
+    { name: 'Pisces', element: 'Water', quality: 'Mutable' }
+  ];
+  
+  return details[signIndex] || { name: 'Unknown', element: 'Unknown', quality: 'Unknown' };
+}
+
+// Convert degrees to Degrees Minutes Seconds
+export function degreesToDMS(degrees: number): string {
+  const d = Math.floor(degrees);
+  const m = Math.floor((degrees - d) * 60);
+  const s = Math.floor(((degrees - d) * 60 - m) * 60);
+  return `${d}°${m}'${s}"`;
+}
+
+// Calculate planetary strength (simplified)
+export function calculatePlanetaryStrength(planet: PlanetPosition): number {
+  let strength = 50; // Base strength
+  
+  // Add strength based on position
+  if (planet.degreeInSign >= 15 && planet.degreeInSign <= 20) {
+    strength += 20; // Strong in middle degrees
+  }
+  
+  // Reduce strength if retrograde
+  if (planet.isRetrograde) {
+    strength -= 10;
+  }
+  
+  return Math.min(100, Math.max(0, strength));
+}
+
+// Check if planet is combust (too close to Sun)
+export function isPlanetCombust(planet: PlanetPosition, sunPosition: PlanetPosition): boolean {
+  const distance = Math.abs(planet.longitude - sunPosition.longitude);
+  const minDistance = distance > 180 ? 360 - distance : distance;
+  
+  const combustionDistances: Record<string, number> = {
+    moon: 12,
+    mars: 17,
+    mercury: 14,
+    jupiter: 11,
+    venus: 8,
+    saturn: 15
+  };
+  
+  const threshold = combustionDistances[planet.id.toLowerCase()] || 8;
+  return minDistance < threshold;
+}
