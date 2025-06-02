@@ -3,17 +3,17 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface KundaliChartProps {
-  chart?: any;
+  kundaliData?: any;
   language?: 'hi' | 'en';
 }
 
-const KundaliChart: React.FC<KundaliChartProps> = ({ chart, language = 'en' }) => {
-  // Early return with loading state if chart is not available
-  if (!chart) {
+const KundaliChart: React.FC<KundaliChartProps> = ({ kundaliData, language = 'en' }) => {
+  // Early return with loading state if kundaliData is not available
+  if (!kundaliData) {
     return (
-      <Card>
+      <Card className="border-orange-200">
         <CardHeader>
-          <CardTitle>
+          <CardTitle className="text-orange-800">
             {language === 'hi' ? 'कुंडली चार्ट' : 'Kundali Chart'}
           </CardTitle>
         </CardHeader>
@@ -32,12 +32,17 @@ const KundaliChart: React.FC<KundaliChartProps> = ({ chart, language = 'en' }) =
   }
 
   // Safely destructure with defaults
+  const chart = kundaliData.chart || {};
   const { 
-    ascendant = 0, 
-    houses = [], 
+    ascendant = 0,
     planets = {},
-    birthData = {}
+    houses = [],
+    ascendantSanskrit = '',
+    moonSign = 0,
+    sunSign = 0
   } = chart;
+
+  const birthData = kundaliData.birthData || {};
 
   // Zodiac signs in Hindi and English
   const zodiacSigns = {
@@ -48,26 +53,12 @@ const KundaliChart: React.FC<KundaliChartProps> = ({ chart, language = 'en' }) =
   // Planet names in Hindi and English
   const planetNames = {
     hi: {
-      Sun: 'सूर्य',
-      Moon: 'चंद्र',
-      Mars: 'मंगल',
-      Mercury: 'बुध',
-      Jupiter: 'गुरु',
-      Venus: 'शुक्र',
-      Saturn: 'शनि',
-      Rahu: 'राहु',
-      Ketu: 'केतु'
+      Sun: 'सूर्य', Moon: 'चंद्र', Mars: 'मंगल', Mercury: 'बुध',
+      Jupiter: 'गुरु', Venus: 'शुक्र', Saturn: 'शनि', Rahu: 'राहु', Ketu: 'केतु'
     },
     en: {
-      Sun: 'Sun',
-      Moon: 'Moon',
-      Mars: 'Mars',
-      Mercury: 'Mercury',
-      Jupiter: 'Jupiter',
-      Venus: 'Venus',
-      Saturn: 'Saturn',
-      Rahu: 'Rahu',
-      Ketu: 'Ketu'
+      Sun: 'Sun', Moon: 'Moon', Mars: 'Mars', Mercury: 'Mercury',
+      Jupiter: 'Jupiter', Venus: 'Venus', Saturn: 'Saturn', Rahu: 'Rahu', Ketu: 'Ketu'
     }
   };
 
@@ -95,55 +86,78 @@ const KundaliChart: React.FC<KundaliChartProps> = ({ chart, language = 'en' }) =
   const houseData = generateHouseData();
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>
+    <Card className="border-orange-200">
+      <CardHeader className="bg-gradient-to-r from-orange-100 to-red-100">
+        <CardTitle className="text-orange-800">
           {language === 'hi' ? 'कुंडली चार्ट' : 'Kundali Chart'}
         </CardTitle>
-        {birthData.name && (
-          <p className="text-sm text-muted-foreground">
-            {language === 'hi' ? 'नाम: ' : 'Name: '}{birthData.name}
+        {birthData.fullName && (
+          <p className="text-sm text-orange-600">
+            {language === 'hi' ? 'नाम: ' : 'Name: '}{birthData.fullName}
           </p>
         )}
       </CardHeader>
       <CardContent>
-        <div className="kundali-chart">
-          <div className="kundali-grid">
-            {houseData.map((house, index) => (
-              <div
-                key={index}
-                className={`kundali-house kundali-house-${house.number}`}
-              >
-                <div className="house-number text-xs font-bold">
-                  {house.number}
-                </div>
-                <div className="zodiac-symbol text-xs">
-                  {house.sign}
-                </div>
-                <div className="planets">
-                  {house.planets.map((planet, planetIndex) => (
-                    <span key={planetIndex} className="planet-symbol">
-                      {planet}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            ))}
-            
-            {/* Center area */}
-            <div className="center-area col-span-2 row-span-2 flex flex-col items-center justify-center text-center">
-              <div className="text-xs font-semibold">
-                {language === 'hi' ? 'लग्न' : 'Ascendant'}
-              </div>
-              <div className="text-sm">
-                {zodiacSigns[language][ascendant] || zodiacSigns[language][0]}
-              </div>
+        {/* Display calculated information prominently */}
+        <div className="mb-6 p-4 bg-gradient-to-r from-orange-50 to-red-50 rounded-lg border border-orange-200">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
+            <div>
+              <h4 className="font-semibold text-orange-800 text-sm">
+                {language === 'hi' ? 'लग्न (Ascendant)' : 'Ascendant (Lagna)'}
+              </h4>
+              <p className="text-orange-600 font-medium">
+                {ascendantSanskrit || zodiacSigns[language][ascendant] || zodiacSigns[language][0]}
+              </p>
+            </div>
+            <div>
+              <h4 className="font-semibold text-orange-800 text-sm">
+                {language === 'hi' ? 'चंद्र राशि' : 'Moon Sign'}
+              </h4>
+              <p className="text-orange-600 font-medium">
+                {kundaliData.moonRashi || zodiacSigns[language][moonSign]}
+              </p>
+            </div>
+            <div>
+              <h4 className="font-semibold text-orange-800 text-sm">
+                {language === 'hi' ? 'सूर्य राशि' : 'Sun Sign'}
+              </h4>
+              <p className="text-orange-600 font-medium">
+                {kundaliData.sunRashi || zodiacSigns[language][sunSign]}
+              </p>
             </div>
           </div>
         </div>
 
+        <div className="kundali-chart">
+          <div className="grid grid-cols-4 gap-1 max-w-md mx-auto">
+            {/* Kundali grid layout */}
+            {houseData.map((house, index) => (
+              <div
+                key={index}
+                className={`aspect-square border border-orange-300 p-1 text-center bg-white hover:bg-orange-50 transition-colors ${
+                  house.number === 1 ? 'bg-orange-100 font-bold' : ''
+                }`}
+              >
+                <div className="text-xs font-bold text-orange-800 mb-1">
+                  {house.number}
+                </div>
+                <div className="text-xs text-gray-600 mb-1">
+                  {house.sign}
+                </div>
+                <div className="text-xs">
+                  {house.planets.map((planet, planetIndex) => (
+                    <div key={planetIndex} className="text-orange-600 font-medium">
+                      {planet}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
         {/* Additional chart information */}
-        <div className="mt-4 text-sm text-muted-foreground">
+        <div className="mt-6 text-sm text-gray-600 text-center">
           <p>
             {language === 'hi' 
               ? 'यह आपकी वैदिक कुंडली का चार्ट है। प्रत्येक घर में ग्रह और राशि दिखाई गई है।'

@@ -2,40 +2,43 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
-const geminiApiKey = Deno.env.get('GOOGLE_GEMINI_API_KEY');
+const geminiApiKey = 'AIzaSyBiODM0zHMcR3fctu99wBKGWnfkDRyF3uU';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// House meanings for detailed analysis
-const HOUSE_MEANINGS = {
-  1: { meaning: "Self, Body, Personality", hindi: "स्वयं, शरीर, व्यक्तित्व" },
-  2: { meaning: "Wealth, Family, Speech", hindi: "धन, परिवार, वाणी" },
-  3: { meaning: "Siblings, Courage, Efforts", hindi: "भाई-बहन, साहस, प्रयास" },
-  4: { meaning: "Mother, Home, Emotions", hindi: "माता, घर, भावनाएं" },
-  5: { meaning: "Children, Education", hindi: "संतान, शिक्षा" },
-  6: { meaning: "Enemies, Illness, Debt", hindi: "शत्रु, रोग, ऋण" },
-  7: { meaning: "Marriage, Partnerships", hindi: "विवाह, साझेदारी" },
-  8: { meaning: "Sudden Gains/Loss, Death", hindi: "अचानक लाभ/हानि, मृत्यु" },
-  9: { meaning: "Luck, Religion, Father", hindi: "भाग्य, धर्म, पिता" },
-  10: { meaning: "Career, Fame, Status", hindi: "करियर, प्रसिद्धि, स्थिति" },
-  11: { meaning: "Gains, Networking, Wishes", hindi: "लाभ, नेटवर्किंग, इच्छाएं" },
-  12: { meaning: "Loss, Isolation, Foreign", hindi: "हानि, एकांत, विदेश" }
-};
+// Enhanced Vedic calculations
+function calculateRashi(longitude: number): number {
+  return Math.floor(longitude / 30) % 12;
+}
 
-const PLANETS_DETAILED = {
-  "SU": { name: "Sun", hindi: "सूर्य", nature: "Soul, Father, Authority, Government" },
-  "MO": { name: "Moon", hindi: "चंद्र", nature: "Mind, Mother, Emotions, Public" },
-  "MA": { name: "Mars", hindi: "मंगल", nature: "Energy, Brothers, Property, Courage" },
-  "ME": { name: "Mercury", hindi: "बुध", nature: "Intelligence, Communication, Business" },
-  "JU": { name: "Jupiter", hindi: "गुरु", nature: "Wisdom, Teacher, Spirituality, Children" },
-  "VE": { name: "Venus", hindi: "शुक्र", nature: "Love, Beauty, Arts, Luxury, Wife" },
-  "SA": { name: "Saturn", hindi: "शनि", nature: "Discipline, Hard Work, Delays, Karma" },
-  "RA": { name: "Rahu", hindi: "राहु", nature: "Materialism, Foreign, Technology, Illusion" },
-  "KE": { name: "Ketu", hindi: "केतु", nature: "Spirituality, Past Life, Detachment" }
-};
+function calculateNakshatra(longitude: number): number {
+  return Math.floor(longitude / (360/27)) % 27;
+}
+
+function getRashiName(rashiIndex: number): string {
+  const rashiNames = [
+    'Aries (मेष)', 'Taurus (वृष)', 'Gemini (मिथुन)', 'Cancer (कर्क)',
+    'Leo (सिंह)', 'Virgo (कन्या)', 'Libra (तुला)', 'Scorpio (वृश्चिक)', 
+    'Sagittarius (धनु)', 'Capricorn (मकर)', 'Aquarius (कुम्भ)', 'Pisces (मीन)'
+  ];
+  return rashiNames[rashiIndex] || 'Unknown';
+}
+
+function getNakshatraName(nakshatraIndex: number): string {
+  const nakshatraNames = [
+    'Ashwini (अश्विनी)', 'Bharani (भरणी)', 'Krittika (कृत्तिका)', 'Rohini (रोहिणी)',
+    'Mrigashira (मृगशिरा)', 'Ardra (आर्द्रा)', 'Punarvasu (पुनर्वसु)', 'Pushya (पुष्य)',
+    'Ashlesha (आश्लेषा)', 'Magha (मघा)', 'Purva Phalguni (पूर्वाफाल्गुनी)', 'Uttara Phalguni (उत्तराफाल्गुनी)',
+    'Hasta (हस्त)', 'Chitra (चित्रा)', 'Swati (स्वाती)', 'Vishakha (विशाखा)',
+    'Anuradha (अनुराधा)', 'Jyeshtha (ज्येष्ठा)', 'Mula (मूल)', 'Purva Ashadha (पूर्वाषाढ़ा)',
+    'Uttara Ashadha (उत्तराषाढ़ा)', 'Shravana (श्रवण)', 'Dhanishta (धनिष्ठा)', 'Shatabhisha (शतभिषा)',
+    'Purva Bhadrapada (पूर्वाभाद्रपद)', 'Uttara Bhadrapada (उत्तराभाद्रपद)', 'Revati (रेवती)'
+  ];
+  return nakshatraNames[nakshatraIndex] || 'Unknown';
+}
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -47,66 +50,45 @@ serve(async (req) => {
     
     console.log('Received kundali analysis request:', { kundaliData, userQuery, numerologyData });
 
-    // Create detailed house analysis
-    const houseAnalysis = kundaliData.chart.planets.map((planet: any) => {
-      const houseNumber = kundaliData.chart.housesList.findIndex((sign: number) => sign === planet.sign) + 1;
-      const houseMeaning = HOUSE_MEANINGS[houseNumber as keyof typeof HOUSE_MEANINGS];
-      const planetDetails = PLANETS_DETAILED[planet.id as keyof typeof PLANETS_DETAILED];
+    // Enhanced analysis with proper Vedic calculations
+    let detailedAnalysis = '';
+    
+    if (kundaliData?.planets) {
+      // Calculate Moon and Sun rashi properly
+      const moonPlanet = Object.values(kundaliData.planets).find((p: any) => p.name === 'Moon' || p.name === 'MO');
+      const sunPlanet = Object.values(kundaliData.planets).find((p: any) => p.name === 'Sun' || p.name === 'SU');
       
-      return `${planetDetails.hindi} (${planetDetails.name}) in ${houseNumber}${getOrdinalSuffix(houseNumber)} House (${houseMeaning.hindi} - ${houseMeaning.meaning}): ${planetDetails.nature}`;
-    }).join('\n');
+      if (moonPlanet && typeof moonPlanet.longitude === 'number') {
+        const moonRashi = calculateRashi(moonPlanet.longitude);
+        const moonNakshatra = calculateNakshatra(moonPlanet.longitude);
+        detailedAnalysis += `Moon Rashi: ${getRashiName(moonRashi)}\n`;
+        detailedAnalysis += `Moon Nakshatra: ${getNakshatraName(moonNakshatra)}\n`;
+      }
+      
+      if (sunPlanet && typeof sunPlanet.longitude === 'number') {
+        const sunRashi = calculateRashi(sunPlanet.longitude);
+        detailedAnalysis += `Sun Rashi: ${getRashiName(sunRashi)}\n`;
+      }
+    }
 
-    // Enhanced prompt with comprehensive Vedic knowledge
-    const prompt = `You are Maharishi Parashar, the ancient Vedic sage and author of Brihat Parashar Hora Shastra, one of the most authoritative texts on Vedic astrology. You possess complete knowledge of all classical Vedic astrological texts including:
-
-- Brihat Parashar Hora Shastra
-- Brihat Jataka by Varahamihira  
-- Saravali by Kalyanvarma
-- Phaladeepika by Mantreswara
-- Jataka Parijata
-- Hora Sara
-- And all classical Vedic texts
-
-You understand the deepest principles of:
-- Graha (Planets) and their Karakatvas (Significations)
-- Bhava (Houses) and their meanings
-- Rashi (Signs) and their characteristics  
-- Nakshatra (Lunar Mansions) and their deities
-- Yoga formations and their results
-- Dasha systems (Vimshottari, Ashtottari, etc.)
-- Gochar (Transits) effects
-- Ashtakavarga system
-- Divisional charts (Vargas)
-- Remedial measures (Upayas)
+    const prompt = `You are Maharishi Parashar, the ancient Vedic sage and master of Jyotish Shastra. You possess complete knowledge of all classical Vedic astrological texts and the deepest understanding of planetary influences.
 
 Birth Chart Analysis:
-Name: ${kundaliData.birthData.fullName}
-Birth Details: ${kundaliData.birthData.date}, ${kundaliData.birthData.time}, ${kundaliData.birthData.place}
+Name: ${kundaliData?.birthData?.fullName || 'Child'}
+Birth Details: ${kundaliData?.birthData?.date}, ${kundaliData?.birthData?.time}, ${kundaliData?.birthData?.place}
 
-LAGNA (Ascendant): ${kundaliData.chart.ascendantSanskrit} (${kundaliData.chart.ascendant}th sign)
-Birth Element: ${kundaliData.chart.birthElement}
+DETAILED PLANETARY ANALYSIS:
+${detailedAnalysis}
 
-DETAILED PLANETARY POSITIONS AND HOUSE ANALYSIS:
-${houseAnalysis}
+Ascendant: ${kundaliData?.chart?.ascendantSanskrit || 'Not available'}
+${kundaliData?.chart?.yogas ? `Active Yogas: ${kundaliData.chart.yogas.filter((y: any) => y.present).map((yoga: any) => yoga.sanskritName || yoga.name).join(', ')}` : ''}
 
-ACTIVE YOGAS:
-${kundaliData.chart.yogas.filter((y: any) => y.present).map((yoga: any) => 
-  `${yoga.sanskritName} (${yoga.name}): ${yoga.description}`
-).join('\n')}
-
-CURRENT DASHA PERIODS:
-${kundaliData.chart.dashaPeriods.slice(0, 3).map((dasha: any) => 
-  `${dasha.planetSanskrit} (${dasha.planet}) Mahadasha: ${dasha.years} years`
-).join('\n')}
-
-${numerologyData ? `
-NUMEROLOGY PROFILE:
+${numerologyData ? `NUMEROLOGY PROFILE:
 Life Path Number: ${numerologyData.lifePath}
 Expression Number: ${numerologyData.expression}  
 Soul Urge Number: ${numerologyData.soulUrge}
 Personality Number: ${numerologyData.personality}
-Personal Year: ${numerologyData.personalYear}
-` : ''}
+Personal Year: ${numerologyData.personalYear}` : ''}
 
 USER'S QUERY: "${userQuery}"
 
@@ -114,15 +96,12 @@ As Maharishi Parashar, provide a comprehensive analysis responding to the user's
 
 1. Direct answer to their specific question
 2. Relevant planetary influences from their chart
-3. House-based analysis where applicable
-4. Yoga formations affecting their query
-5. Current Dasha period effects
-6. ${numerologyData ? 'Integration of numerological insights' : ''}
-7. Timing predictions based on transits
-8. Practical remedial measures (mantras, gemstones, charity, etc.)
-9. Spiritual guidance from Vedic wisdom
+3. Current Dasha period effects if applicable
+4. ${numerologyData ? 'Integration of numerological insights' : ''}
+5. Practical remedial measures (mantras, gemstones, charity, etc.)
+6. Spiritual guidance from Vedic wisdom
 
-Respond in both Hindi and English, using classical Vedic terminology. Be compassionate yet truthful, providing hope while being realistic about karmic patterns. Structure your response as a traditional Vedic consultation would be given.
+Respond in both Hindi and English, using classical Vedic terminology. Be compassionate yet truthful, providing hope while being realistic about karmic patterns.
 
 Begin with "पुत्र/पुत्री" (Son/Daughter) and maintain the respectful, wise tone of an ancient sage sharing divine knowledge.`;
 
@@ -190,13 +169,3 @@ Begin with "पुत्र/पुत्री" (Son/Daughter) and maintain the 
     });
   }
 });
-
-// Helper function for ordinal numbers
-function getOrdinalSuffix(num: number): string {
-  const j = num % 10;
-  const k = num % 100;
-  if (j === 1 && k !== 11) return "st";
-  if (j === 2 && k !== 12) return "nd";
-  if (j === 3 && k !== 13) return "rd";
-  return "th";
-}
