@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { KundaliChart, BirthData, getPlanetDetails, getZodiacDetails } from '@/lib/kundaliUtils';
@@ -12,21 +11,22 @@ interface DetailedPredictionsProps {
 }
 
 const DetailedPredictions: React.FC<DetailedPredictionsProps> = ({ chart, birthData, language }) => {
-  // Get key planetary positions
-  const sun = chart.planets.find(p => p.id === "SU");
-  const moon = chart.planets.find(p => p.id === "MO");
+  // Get key planetary positions from the planets array
+  const planets = Array.isArray(chart.planets) ? chart.planets : Object.values(chart.planets);
+  const sun = planets.find(p => p.id === "SU");
+  const moon = planets.find(p => p.id === "MO");
   const ascendantSign = chart.ascendant;
-  const mars = chart.planets.find(p => p.id === "MA");
-  const venus = chart.planets.find(p => p.id === "VE");
-  const jupiter = chart.planets.find(p => p.id === "JU");
-  const saturn = chart.planets.find(p => p.id === "SA");
-  const mercury = chart.planets.find(p => p.id === "ME");
-  const rahu = chart.planets.find(p => p.id === "RA");
-  const ketu = chart.planets.find(p => p.id === "KE");
+  const mars = planets.find(p => p.id === "MA");
+  const venus = planets.find(p => p.id === "VE");
+  const jupiter = planets.find(p => p.id === "JU");
+  const saturn = planets.find(p => p.id === "SA");
+  const mercury = planets.find(p => p.id === "ME");
+  const rahu = planets.find(p => p.id === "RA");
+  const ketu = planets.find(p => p.id === "KE");
   
   // Get house positions for important planets
   const getHousePosition = (planetSign: number) => {
-    return chart.housesList.findIndex(sign => sign === planetSign) + 1;
+    return chart.housesList ? chart.housesList.findIndex(sign => sign === planetSign) + 1 : 0;
   };
   
   const sunHouse = sun ? getHousePosition(sun.sign) : 0;
@@ -34,12 +34,12 @@ const DetailedPredictions: React.FC<DetailedPredictionsProps> = ({ chart, birthD
   const marsHouse = mars ? getHousePosition(mars.sign) : 0;
   
   // Calculate aspects and relationships between planets
-  const planetsInKendra = chart.planets.filter(p => {
+  const planetsInKendra = planets.filter(p => {
     const house = getHousePosition(p.sign);
     return [1, 4, 7, 10].includes(house);
   });
   
-  const planetsInTrikona = chart.planets.filter(p => {
+  const planetsInTrikona = planets.filter(p => {
     const house = getHousePosition(p.sign);
     return [1, 5, 9].includes(house);
   });
@@ -113,7 +113,7 @@ const DetailedPredictions: React.FC<DetailedPredictionsProps> = ({ chart, birthD
   
   const generateCareerPrediction = () => {
     // Based on 10th house and its lord, sun position
-    const tenthHouseSign = chart.housesList[9];
+    const tenthHouseSign = chart.housesList ? chart.housesList[9] : 1;
     const tenthLordId = getZodiacDetails(tenthHouseSign)?.ruler || "SU";
     const tenthLord = getPlanetDetails(tenthLordId);
     

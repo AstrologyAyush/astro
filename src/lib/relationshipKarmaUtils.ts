@@ -1,298 +1,288 @@
+import { KundaliChart, PlanetPosition, getPlanetDetails, getZodiacDetails } from './kundaliUtils';
 
-import { PlanetPosition, KundaliChart, BirthData, NAKSHATRAS } from './kundaliUtils';
+interface KarmaPattern {
+  name: string;
+  description: string;
+  intensity: number;
+  remedies: string[];
+}
 
-export interface KarmaPattern {
-  pattern: string;
-  type: 'Romantic Karma' | 'Emotional Karma' | 'Karmic Debt' | 'Past Life Connection' | 'Destined Union' | 'Soul Contract';
-  summary: string;
-  intensity: number; // 1-10 scale
-  houseInvolved?: string;
-  outcome: string;
-  active: boolean;
-  planetsConcerned: string[];
-  timing?: string;
-  remedies?: string[];
+interface RelationshipKarma {
+  pastLifeConnection: string;
+  karmaType: 'positive' | 'negative' | 'neutral';
+  lessons: string[];
+  challenges: string[];
+  opportunities: string[];
+  remedies: string[];
+  intensity: number;
+}
+
+interface SoulMateIndicators {
+  isPresent: boolean;
+  strength: number;
+  indicators: string[];
+  description: string;
 }
 
 export interface RelationshipKarmaAnalysis {
-  patterns: KarmaPattern[];
-  overallKarmicIntensity: number;
-  dominantKarmaType: string;
+  compatibility: number;
+  soulMateIndicators: SoulMateIndicators;
+  karmaPatterns: KarmaPattern[];
+  relationshipKarma: RelationshipKarma;
   recommendations: string[];
-  timing: {
-    activation: string;
-    resolution: string;
-  };
-  summary: string;
-  strengthScore: number;
 }
 
-// Calculate angle difference between two planets (considering circular degrees)
-const calculateAngleDifference = (angle1: number, angle2: number): number => {
-  const diff = Math.abs(angle1 - angle2);
-  return Math.min(diff, 360 - diff);
-};
-
-// Check if planet is in specific house
-const getPlanetHouse = (planet: PlanetPosition, houses: number[]): number => {
-  return houses.findIndex(sign => sign === planet.sign) + 1;
-};
-
-// Check Saturn aspects (3rd, 7th, 10th from planet)
-const checkSaturnAspect = (saturn: PlanetPosition, target: PlanetPosition): boolean => {
-  const saturnSign = saturn.sign;
-  const targetSign = target.sign;
+// Calculate relationship karma between two charts
+export function calculateRelationshipKarma(
+  chart1: KundaliChart, 
+  chart2: KundaliChart
+): RelationshipKarmaAnalysis {
+  // Convert planets to arrays if needed
+  const planets1 = Array.isArray(chart1.planets) ? chart1.planets : Object.values(chart1.planets);
+  const planets2 = Array.isArray(chart2.planets) ? chart2.planets : Object.values(chart2.planets);
   
-  // Saturn aspects 3rd, 7th, and 10th from its position
-  const aspectSigns = [
-    ((saturnSign + 2) % 12) + 1, // 3rd house
-    ((saturnSign + 6) % 12) + 1, // 7th house
-    ((saturnSign + 9) % 12) + 1  // 10th house
-  ];
+  // Find specific planets
+  const venus1 = planets1.find(p => p.id === "VE");
+  const mars1 = planets1.find(p => p.id === "MA");
+  const moon1 = planets1.find(p => p.id === "MO");
+  const sun1 = planets1.find(p => p.id === "SU");
+  const jupiter1 = planets1.find(p => p.id === "JU");
+  const rahu1 = planets1.find(p => p.id === "RA");
+  const ketu1 = planets1.find(p => p.id === "KE");
   
-  return aspectSigns.includes(targetSign);
-};
-
-// Get 7th lord based on ascendant
-const get7thLord = (ascendant: number): string => {
-  const seventhHouse = ((ascendant + 5) % 12) + 1;
+  const venus2 = planets2.find(p => p.id === "VE");
+  const mars2 = planets2.find(p => p.id === "MA");
+  const moon2 = planets2.find(p => p.id === "MO");
+  const sun2 = planets2.find(p => p.id === "SU");
+  const jupiter2 = planets2.find(p => p.id === "JU");
+  const rahu2 = planets2.find(p => p.id === "RA");
+  const ketu2 = planets2.find(p => p.id === "KE");
   
-  // Map signs to their lords
-  const signLords: Record<number, string> = {
-    1: "MA", 2: "VE", 3: "ME", 4: "MO", 5: "SU", 6: "ME",
-    7: "VE", 8: "MA", 9: "JU", 10: "SA", 11: "SA", 12: "JU"
+  // Calculate basic compatibility
+  let compatibility = 50; // Base compatibility
+  
+  // Moon sign compatibility
+  if (moon1 && moon2) {
+    const moonDistance = Math.abs(moon1.rashi - moon2.rashi);
+    if ([0, 4, 8].includes(moonDistance)) {
+      compatibility += 20; // Same element
+    } else if ([1, 5, 9].includes(moonDistance)) {
+      compatibility += 10; // Friendly signs
+    }
+  }
+  
+  // Venus-Mars compatibility
+  if (venus1 && mars2) {
+    const venusMarsDist = Math.abs(venus1.rashi - mars2.rashi);
+    if ([0, 1, 11].includes(venusMarsDist)) {
+      compatibility += 15;
+    }
+  }
+  
+  if (venus2 && mars1) {
+    const marsVenusDist = Math.abs(mars1.rashi - venus2.rashi);
+    if ([0, 1, 11].includes(marsVenusDist)) {
+      compatibility += 15;
+    }
+  }
+  
+  // Soul mate indicators
+  const soulMateIndicators = calculateSoulMateIndicators(planets1, planets2);
+  
+  // Karma patterns
+  const karmaPatterns = calculateKarmaPatterns(planets1, planets2);
+  
+  // Relationship karma
+  const relationshipKarma = calculateRelationshipKarmaDetails(planets1, planets2);
+  
+  // Generate recommendations
+  const recommendations = generateRecommendations(compatibility, soulMateIndicators, karmaPatterns);
+  
+  return {
+    compatibility: Math.min(100, Math.max(0, compatibility)),
+    soulMateIndicators,
+    karmaPatterns,
+    relationshipKarma,
+    recommendations
   };
-  
-  return signLords[seventhHouse] || "SU";
-};
+}
 
-// Check if planet is in dusthana houses (6, 8, 12)
-const isInDusthana = (planet: PlanetPosition, houses: number[]): boolean => {
-  const house = getPlanetHouse(planet, houses);
-  return [6, 8, 12].includes(house);
-};
-
-// Check Kala Sarpa Yoga
-const checkKalaSarpaYoga = (planets: PlanetPosition[]): boolean => {
-  const rahu = planets.find(p => p.id === "RA");
-  const ketu = planets.find(p => p.id === "KE");
+function calculateSoulMateIndicators(planets1: PlanetPosition[], planets2: PlanetPosition[]): SoulMateIndicators {
+  const indicators: string[] = [];
+  let strength = 0;
   
-  if (!rahu || !ketu) return false;
+  // Find nodes (Rahu/Ketu) connections
+  const rahu1 = planets1.find(p => p.id === "RA");
+  const ketu1 = planets1.find(p => p.id === "KE");
+  const rahu2 = planets2.find(p => p.id === "RA");
+  const ketu2 = planets2.find(p => p.id === "KE");
   
-  const otherPlanets = planets.filter(p => p.id !== "RA" && p.id !== "KE");
-  const rahuDegree = rahu.degree;
-  const ketuDegree = ketu.degree;
-  
-  let minDegree = Math.min(rahuDegree, ketuDegree);
-  let maxDegree = Math.max(rahuDegree, ketuDegree);
-  
-  if (maxDegree - minDegree > 180) {
-    [minDegree, maxDegree] = [maxDegree, 360 + minDegree];
+  if (rahu1 && ketu2 && Math.abs(rahu1.rashi - ketu2.rashi) <= 1) {
+    indicators.push("North Node - South Node connection");
+    strength += 30;
   }
   
-  return otherPlanets.every(planet => {
-    const degree = planet.degree;
-    return (degree >= minDegree && degree <= maxDegree) ||
-           (maxDegree > 360 && (degree >= minDegree - 360 || degree <= maxDegree - 360));
-  });
-};
+  if (ketu1 && rahu2 && Math.abs(ketu1.rashi - rahu2.rashi) <= 1) {
+    indicators.push("South Node - North Node connection");
+    strength += 30;
+  }
+  
+  // Venus-Jupiter connections
+  const venus1 = planets1.find(p => p.id === "VE");
+  const jupiter2 = planets2.find(p => p.id === "JU");
+  const venus2 = planets2.find(p => p.id === "VE");
+  const jupiter1 = planets1.find(p => p.id === "JU");
+  
+  if (venus1 && jupiter2 && Math.abs(venus1.rashi - jupiter2.rashi) <= 1) {
+    indicators.push("Venus-Jupiter blessing");
+    strength += 25;
+  }
+  
+  if (venus2 && jupiter1 && Math.abs(venus2.rashi - jupiter1.rashi) <= 1) {
+    indicators.push("Jupiter-Venus harmony");
+    strength += 25;
+  }
+  
+  return {
+    isPresent: strength > 30,
+    strength: Math.min(100, strength),
+    indicators,
+    description: strength > 50 ? "Strong soul mate connection" : 
+                strength > 30 ? "Possible soul mate indicators" : 
+                "Limited soul mate indicators"
+  };
+}
 
-export const analyzeRelationshipKarma = (
-  chart: KundaliChart, 
-  birthData: BirthData,
-  language: 'hi' | 'en' = 'en'
-): RelationshipKarmaAnalysis => {
+function calculateKarmaPatterns(planets1: PlanetPosition[], planets2: PlanetPosition[]): KarmaPattern[] {
   const patterns: KarmaPattern[] = [];
-  const planets = chart.planets;
-  const houses = chart.housesList;
   
-  // Find key planets
-  const venus = planets.find(p => p.id === "VE");
-  const ketu = planets.find(p => p.id === "KE");
-  const rahu = planets.find(p => p.id === "RA");
-  const moon = planets.find(p => p.id === "MO");
-  const saturn = planets.find(p => p.id === "SA");
-  const mars = planets.find(p => p.id === "MA");
-  const sun = planets.find(p => p.id === "SU");
+  // Saturn connections (karmic lessons)
+  const saturn1 = planets1.find(p => p.id === "SA");
+  const saturn2 = planets2.find(p => p.id === "SA");
   
-  // 1. Venus + Ketu Conjunction (Strong karma indicator)
-  if (venus && ketu) {
-    const angleDiff = calculateAngleDifference(venus.degree, ketu.degree);
-    if (angleDiff <= 10) {
+  if (saturn1 && saturn2) {
+    const saturnDistance = Math.abs(saturn1.rashi - saturn2.rashi);
+    if (saturnDistance <= 2) {
       patterns.push({
-        pattern: language === 'hi' ? "शुक्र-केतु युति (अत्यधिक महत्वपूर्ण)" : "Venus-Ketu Conjunction (Highly Significant)",
-        type: 'Romantic Karma',
-        summary: language === 'hi' 
-          ? "पूर्व जन्म का अधूरा प्रेम। यह योग दिखाता है कि आपका पिछले जन्म में कोई गहरा प्रेम अधूरा रह गया था। इस जन्म में अचानक मिलना और बिछुड़ना हो सकता है।"
-          : "Unfinished love from past life. This powerful combination indicates a deep romantic connection left incomplete in previous incarnation. Sudden meetings and separations are likely in this lifetime.",
-        intensity: 9,
-        houseInvolved: `${getPlanetHouse(venus, houses)}${language === 'hi' ? 'वां भाव' : 'th house'}`,
-        outcome: language === 'hi'
-          ? "पुनर्मिलन अवश्यंभावी है, लेकिन भावनात्मक तैयारी आवश्यक है। धैर्य और समझ से स्थायी संबंध संभव।"
-          : "Reunion is inevitable, but emotional preparation is essential. With patience and understanding, lasting relationships are possible.",
-        active: true,
-        planetsConcerned: ["VE", "KE"],
-        timing: language === 'hi' ? "वीनस या केतु की दशा में सक्रिय" : "Active during Venus or Ketu periods",
-        remedies: language === 'hi' 
-          ? ["शुक्रवार को सफेद फूल चढ़ाएं", "केतु मंत्र का जाप करें", "दान-पुण्य करें"]
-          : ["Offer white flowers on Fridays", "Chant Ketu mantras", "Practice charity and spiritual giving"]
+        name: "Saturn Karma Pattern",
+        description: "Shared life lessons and responsibilities",
+        intensity: 80,
+        remedies: ["Practice patience and understanding", "Focus on long-term commitment"]
       });
     }
   }
   
-  // 2. Rahu in 7th House (Destined partnership)
-  if (rahu) {
-    const rahuHouse = getPlanetHouse(rahu, houses);
-    if (rahuHouse === 7) {
-      patterns.push({
-        pattern: language === 'hi' ? "राहु सप्तम भाव में (नियति का साझीदार)" : "Rahu in 7th House (Destined Partnership)",
-        type: 'Destined Union',
-        summary: language === 'hi'
-          ? "यह योग दर्शाता है कि आपका विवाह या मुख्य साझीदारी पूर्ण रूप से नियति द्वारा निर्धारित है। साझीदार विदेशी, अलग जाति या अनूठे व्यक्तित्व का हो सकता है।"
-          : "This placement indicates your marriage or primary partnership is completely destined by fate. Partner may be foreign, from different caste, or have unique personality traits.",
-        intensity: 9,
-        houseInvolved: language === 'hi' ? "सप्तम भाव (साझेदारी और विवाह)" : "7th house (partnerships and marriage)",
-        outcome: language === 'hi'
-          ? "तीव्र आकर्षण और गहरा बंधन, लेकिन चुनौतियों का सामना करना पड़ेगा। अंततः रूपांतरकारी संबंध।"
-          : "Intense attraction and deep bond, but challenges must be faced. Ultimately transformative relationship.",
-        active: true,
-        planetsConcerned: ["RA"],
-        timing: language === 'hi' ? "राहु की महादशा में विशेष रूप से सक्रिय" : "Especially active during Rahu major period"
-      });
-    }
-  }
+  // Rahu-Ketu karma
+  const rahu1 = planets1.find(p => p.id === "RA");
+  const ketu1 = planets1.find(p => p.id === "KE");
+  const rahu2 = planets2.find(p => p.id === "RA");
+  const ketu2 = planets2.find(p => p.id === "KE");
   
-  // 3. Moon Conjunct Saturn (Emotional karma)
-  if (moon && saturn) {
-    const angleDiff = calculateAngleDifference(moon.degree, saturn.degree);
-    if (angleDiff <= 10) {
-      patterns.push({
-        pattern: language === 'hi' ? "चंद्र-शनि युति (भावनात्मक कर्म)" : "Moon-Saturn Conjunction (Emotional Karma)",
-        type: 'Emotional Karma',
-        summary: language === 'hi'
-          ? "पूर्व जन्म में भावनात्मक उपेक्षा या देखभाल का कर्जा। आपने किसी की भावनाओं को आघात पहुंचाया था या स्वयं आघात सहा था।"
-          : "Past life emotional neglect or caregiving debt. You either hurt someone emotionally or suffered emotional trauma that needs healing.",
-        intensity: 7,
-        houseInvolved: `${getPlanetHouse(moon, houses)}${language === 'hi' ? 'वां भाव' : 'th house'}`,
-        outcome: language === 'hi'
-          ? "धैर्य और गहरी समझ से भावनात्मक मुक्ति संभव। मातृत्व या संरक्षण के माध्यम से उपचार।"
-          : "Emotional healing possible through patience and deep understanding. Recovery through nurturing or protective care.",
-        active: true,
-        planetsConcerned: ["MO", "SA"],
-        timing: language === 'hi' ? "चंद्र या शनि की दशा में प्रभावी" : "Effective during Moon or Saturn periods"
-      });
-    }
-  }
-  
-  // Add default pattern if no significant patterns found
-  if (patterns.length === 0) {
+  if (rahu1 && rahu2 && Math.abs(rahu1.rashi - rahu2.rashi) <= 1) {
     patterns.push({
-      pattern: language === 'hi' ? "सामान्य कर्मिक प्रभाव" : "General Karmic Influence",
-      type: 'Past Life Connection',
-      summary: language === 'hi'
-        ? "आपकी कुंडली में सामान्य कर्मिक प्रभाव हैं। संबंधों में धैर्य और समझ की आवश्यकता है।"
-        : "Your chart shows general karmic influences. Relationships require patience and understanding.",
-      intensity: 5,
-      houseInvolved: language === 'hi' ? "सामान्य प्रभाव" : "General influence",
-      outcome: language === 'hi'
-        ? "सकारात्मक दृष्टिकोण और अच्छे कर्मों से बेहतर संबंध संभव।"
-        : "Better relationships possible through positive attitude and good deeds.",
-      active: true,
-      planetsConcerned: ["SU"],
-      timing: language === 'hi' ? "जीवनभर प्रभावशाली" : "Influential throughout life"
+      name: "Desire Karma",
+      description: "Shared material and worldly desires",
+      intensity: 70,
+      remedies: ["Practice spiritual detachment", "Focus on higher purposes"]
     });
   }
   
-  // Generate overall analysis with safe defaults
-  const totalIntensity = patterns.reduce((sum, pattern) => sum + pattern.intensity, 0);
-  const overallKarmicIntensity = patterns.length > 0 ? Math.min(Math.round(totalIntensity / patterns.length), 10) : 5;
-  
-  const typeCount: Record<string, number> = {};
-  patterns.forEach(pattern => {
-    typeCount[pattern.type] = (typeCount[pattern.type] || 0) + 1;
-  });
-  
-  const dominantKarmaType = Object.keys(typeCount).length > 0 
-    ? Object.entries(typeCount).reduce((a, b) => typeCount[a[0]] > typeCount[b[0]] ? a : b)[0]
-    : 'Past Life Connection';
-  
-  // Calculate strength score
-  const strengthScore = patterns.length > 0 
-    ? Math.round((patterns.filter(p => p.intensity >= 7).length / patterns.length) * 100)
-    : 50;
-  
-  // Generate comprehensive recommendations
-  const recommendations = language === 'hi' ? [
-    "प्रतिदिन ध्यान और आत्म-चिंतन का अभ्यास करें",
-    "संबंधों में धैर्य, समझ और क्षमा का भाव रखें",
-    "पूर्व जन्म के कर्मों को स्वीकार करें और उनसे सीखें",
-    "आध्यात्मिक गुरु या सलाहकार से मार्गदर्शन लें",
-    "नियमित पूजा-पाठ और मंत्र जाप करें",
-    "दान-पुण्य और सेवा कार्यों में भाग लें",
-    "ज्योतिषीय उपाय और रत्न धारण करें",
-    "संबंधों में सच्चाई और पारदर्शिता बनाए रखें"
-  ] : [
-    "Practice daily meditation and self-reflection",
-    "Cultivate patience, understanding and forgiveness in relationships",
-    "Accept and learn from past-life karmas",
-    "Seek guidance from spiritual mentors or counselors",
-    "Engage in regular worship and mantra chanting",
-    "Participate in charity and service activities",
-    "Follow astrological remedies and wear appropriate gems",
-    "Maintain honesty and transparency in relationships"
-  ];
-  
-  // Generate summary
-  const summary = language === 'hi' 
-    ? `आपकी कुंडली में ${patterns.length} मुख्य कर्मिक पैटर्न मिले हैं। आपकी समग्र कर्मिक तीव्रता ${overallKarmicIntensity}/10 है।`
-    : `Your chart reveals ${patterns.length} major karmic patterns. Your overall karmic intensity is ${overallKarmicIntensity}/10.`;
-  
-  return {
-    patterns: patterns.filter(p => p.active),
-    overallKarmicIntensity,
-    dominantKarmaType,
-    recommendations,
-    timing: {
-      activation: language === 'hi' ? "वर्तमान दशा काल में सक्रिय हो रहे हैं" : "Activating during current dasha periods",
-      resolution: language === 'hi' ? "आध्यात्मिक साधना और कर्म सुधार से मुक्ति संभव" : "Resolution possible through spiritual practice and karmic healing"
-    },
-    summary,
-    strengthScore
-  };
-};
+  return patterns;
+}
 
-// Synastry analysis for two charts (for compatibility)
-export const analyzeSynastryKarma = (
-  chart1: KundaliChart,
-  chart2: KundaliChart,
-  language: 'hi' | 'en' = 'en'
-): KarmaPattern[] => {
-  const synastryPatterns: KarmaPattern[] = [];
+function calculateRelationshipKarmaDetails(planets1: PlanetPosition[], planets2: PlanetPosition[]): RelationshipKarma {
+  // Find key planets
+  const rahu1 = planets1.find(p => p.id === "RA");
+  const ketu1 = planets1.find(p => p.id === "KE");
+  const venus1 = planets1.find(p => p.id === "VE");
+  const mars1 = planets1.find(p => p.id === "MA");
   
-  // Check Moon-Venus overlay
-  const moon1 = chart1.planets.find(p => p.id === "MO");
-  const venus2 = chart2.planets.find(p => p.id === "VE");
+  const rahu2 = planets2.find(p => p.id === "RA");
+  const ketu2 = planets2.find(p => p.id === "KE");
+  const venus2 = planets2.find(p => p.id === "VE");
+  const mars2 = planets2.find(p => p.id === "MA");
   
-  if (moon1 && venus2) {
-    const house = chart2.housesList.findIndex(sign => sign === moon1.sign) + 1;
-    if (house === 7) {
-      synastryPatterns.push({
-        pattern: language === 'hi' ? "चंद्र-शुक्र आवरण (आत्मिक बंधन)" : "Moon-Venus Overlay (Soul Bond)",
-        type: 'Past Life Connection',
-        summary: language === 'hi'
-          ? "प्राकृतिक भावनात्मक बंधन, पूर्व जन्म की स्मृति सक्रिय। आप दोनों के बीच गहरा आत्मिक संबंध है।"
-          : "Natural emotional bond, past-life memory activated. Deep soul connection between both of you.",
-        intensity: 8,
-        houseInvolved: language === 'hi' ? "सप्तम भाव (साझेदारी)" : "7th house (partnerships)",
-        outcome: language === 'hi'
-          ? "गहरा भावनात्मक संबंध और स्वाभाविक समझ। एक-दूसरे की भावनाओं को बिना कहे समझना।"
-          : "Deep emotional connection and natural understanding. Intuitive understanding of each other's feelings.",
-        active: true,
-        planetsConcerned: ["MO", "VE"],
-        timing: language === 'hi' ? "तत्काल पहचान, आजीवन बंधन" : "Immediate recognition, lifelong bond"
-      });
-    }
+  let karmaType: 'positive' | 'negative' | 'neutral' = 'neutral';
+  let intensity = 50;
+  
+  // Determine karma type based on nodal connections
+  if (rahu1 && ketu2 && Math.abs(rahu1.rashi - ketu2.rashi) <= 1) {
+    karmaType = 'positive';
+    intensity += 30;
   }
   
-  return synastryPatterns;
+  if (ketu1 && rahu2 && Math.abs(ketu1.rashi - rahu2.rashi) <= 1) {
+    karmaType = 'positive';
+    intensity += 30;
+  }
+  
+  return {
+    pastLifeConnection: karmaType === 'positive' ? 
+      "Strong past life connection with unfinished positive karma" :
+      "Past life connection with lessons to learn",
+    karmaType,
+    lessons: [
+      "Learning to balance individual desires with partnership needs",
+      "Developing unconditional love and acceptance",
+      "Understanding the nature of attachment and detachment"
+    ],
+    challenges: [
+      "Overcoming past life patterns",
+      "Balancing karma from previous incarnations",
+      "Learning to forgive and let go"
+    ],
+    opportunities: [
+      "Spiritual growth through relationship",
+      "Healing past life wounds",
+      "Creating positive karma for future lives"
+    ],
+    remedies: [
+      "Practice meditation together",
+      "Perform charitable acts as a couple",
+      "Study spiritual texts and teachings"
+    ],
+    intensity: Math.min(100, Math.max(0, intensity))
+  };
+}
+
+function generateRecommendations(
+  compatibility: number, 
+  soulMate: SoulMateIndicators, 
+  patterns: KarmaPattern[]
+): string[] {
+  const recommendations: string[] = [];
+  
+  if (compatibility > 70) {
+    recommendations.push("This is a highly compatible relationship with strong potential for long-term happiness");
+  } else if (compatibility > 50) {
+    recommendations.push("Good compatibility with some areas needing attention and understanding");
+  } else {
+    recommendations.push("Challenging relationship that requires significant effort and commitment from both partners");
+  }
+  
+  if (soulMate.isPresent) {
+    recommendations.push("Strong soul mate indicators suggest a deep spiritual connection");
+    recommendations.push("Focus on spiritual growth and higher purposes together");
+  }
+  
+  if (patterns.length > 0) {
+    recommendations.push("Karmic patterns indicate important life lessons to be learned together");
+    recommendations.push("Practice patience and understanding during challenging times");
+  }
+  
+  recommendations.push("Regular spiritual practices and open communication will strengthen the bond");
+  
+  return recommendations;
+}
+
+// Helper function to get planet by ID
+function getPlanetById(planets: PlanetPosition[], id: string): PlanetPosition | undefined {
+  return planets.find(p => p.id === id);
+}
+
+// Export additional utility functions
+export {
+  calculateSoulMateIndicators,
+  calculateKarmaPatterns,
+  calculateRelationshipKarmaDetails
 };

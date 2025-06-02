@@ -21,12 +21,13 @@ interface DashaDisplayProps {
 const DashaDisplay: React.FC<DashaDisplayProps> = ({ moonPosition, birthDate, language = 'hi' }) => {
   // Calculate dasha periods
   const birthData = {
+    fullName: "", // Add required fullName property
     date: birthDate,
     time: "12:00", // Default time since we only have date
     place: "",
     latitude: 0,
     longitude: 0,
-    timezone: "",
+    timezone: 5.5, // Convert string to number
   };
   
   const dashaPeriods = calculateVimshottariDasha(birthData, moonPosition);
@@ -59,8 +60,8 @@ const DashaDisplay: React.FC<DashaDisplayProps> = ({ moonPosition, birthDate, la
             </h3>
             <p className="text-sm mt-1">
               {language === 'hi' 
-                ? `आपका जन्म ${nakshatra?.sanskrit} नक्षत्र में हुआ है, जिसका स्वामी ${lordPlanet?.sanskrit} (${lordPlanet?.name}) है।`
-                : `Your birth occurred in ${nakshatra?.name} (${nakshatra?.sanskrit}) nakshatra, ruled by ${lordPlanet?.name} (${lordPlanet?.sanskrit}).`}
+                ? `आपका जन्म ${nakshatra?.sanskrit} नक्षत्र में हुआ है, जिसका स्वामी ${lordPlanet?.sanskrit || lordPlanet?.name} है।`
+                : `Your birth occurred in ${nakshatra?.name} (${nakshatra?.sanskrit}) nakshatra, ruled by ${lordPlanet?.name}.`}
             </p>
           </div>
           
@@ -78,7 +79,7 @@ const DashaDisplay: React.FC<DashaDisplayProps> = ({ moonPosition, birthDate, la
                 <div>
                   <div className="font-medium">
                     {language === 'hi'
-                      ? `${currentDasha.planetSanskrit} महादशा`
+                      ? `${currentDasha.planetSanskrit || getPlanetDetails(currentDasha.planet)?.sanskrit || getPlanetDetails(currentDasha.planet)?.name} महादशा`
                       : `${getPlanetDetails(currentDasha.planet)?.name} Mahadasha`}
                   </div>
                   <div className="text-xs text-muted-foreground">
@@ -113,7 +114,7 @@ const DashaDisplay: React.FC<DashaDisplayProps> = ({ moonPosition, birthDate, la
                     <div className="flex justify-between">
                       <span className="font-medium">
                         {language === 'hi' 
-                          ? `${planet?.sanskrit} दशा` 
+                          ? `${planet?.sanskrit || planet?.name} दशा` 
                           : `${planet?.name} Period`}
                       </span>
                       <span className="text-sm text-muted-foreground">
