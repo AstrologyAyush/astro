@@ -13,36 +13,6 @@ import { Input } from "@/components/ui/input";
 import { BirthData } from "@/lib/kundaliUtils";
 import { useToast } from "@/hooks/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-const formSchema = z.object({
-  fullName: z.string().min(2, {
-    message: "नाम कम से कम 2 अक्षर का होना चाहिए।"
-  }),
-  birthDate: z.date({
-    required_error: "जन्म तिथि आवश्यक है।"
-  }),
-  birthTime: z.string().min(5, {
-    message: "जन्म समय HH:MM प्रारूप में होना चाहिए।"
-  }),
-  birthPlace: z.string().min(2, {
-    message: "कृपया एक वैध जन्म स्थान दर्ज करें।"
-  }),
-  latitude: z.number({
-    required_error: "अक्षांश आवश्यक है।",
-    invalid_type_error: "अक्षांश एक संख्या होनी चाहिए।"
-  }).min(-90).max(90),
-  longitude: z.number({
-    required_error: "देशांतर आवश्यक है।",
-    invalid_type_error: "देशांतर एक संख्या होनी चाहिए।"
-  }).min(-180).max(180),
-  timezone: z.number()
-});
-interface BirthDataFormProps {
-  onSubmit: (data: BirthData & {
-    fullName: string;
-  }) => void;
-  loading?: boolean;
-  language?: 'hi' | 'en';
-}
 
 // Cities data with coordinates
 const CITIES_DATA: {
@@ -128,6 +98,37 @@ const CITIES_DATA: {
     tz: 5.5
   }
 };
+const formSchema = z.object({
+  fullName: z.string().min(2, {
+    message: "नाम कम से कम 2 अक्षर का होना चाहिए।"
+  }),
+  birthDate: z.date({
+    required_error: "जन्म तिथि आवश्यक है।"
+  }),
+  birthTime: z.string().min(5, {
+    message: "जन्म समय HH:MM प्रारूप में होना चाहिए।"
+  }),
+  birthPlace: z.string().min(2, {
+    message: "कृपया एक वैध जन्म स्थान दर्ज करें।"
+  }),
+  latitude: z.number({
+    required_error: "अक्षांश आवश्यक है।",
+    invalid_type_error: "अक्षांश एक संख्या होनी चाहिए।"
+  }).min(-90).max(90),
+  longitude: z.number({
+    required_error: "देशांतर आवश्यक है।",
+    invalid_type_error: "देशांतर एक संख्या होनी चाहिए।"
+  }).min(-180).max(180),
+  timezone: z.number()
+});
+interface BirthDataFormProps {
+  onSubmit: (data: BirthData & {
+    fullName: string;
+  }) => void;
+  loading?: boolean;
+  language?: 'hi' | 'en';
+}
+
 const BirthDataForm: React.FC<BirthDataFormProps> = ({
   onSubmit,
   loading = false,
@@ -247,11 +248,15 @@ const BirthDataForm: React.FC<BirthDataFormProps> = ({
       });
     }
   };
-  return <Form {...form}>
+  return (
+    <Form {...form}>
       <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-6">
-        <FormField control={form.control} name="fullName" render={({
-        field
-      }) => <FormItem>
+        {/* Full Name Field */}
+        <FormField
+          control={form.control}
+          name="fullName"
+          render={({ field }) => (
+            <FormItem>
               <FormLabel>पूरा नाम</FormLabel>
               <FormControl>
                 <div className="relative">
@@ -263,66 +268,154 @@ const BirthDataForm: React.FC<BirthDataFormProps> = ({
                 आपका नाम जैसा आधिकारिक दस्तावेजों में दिखाई देता है।
               </FormDescription>
               <FormMessage />
-            </FormItem>} />
+            </FormItem>
+          )}
+        />
         
         <div className="grid gap-4 sm:grid-cols-2">
-          <FormField control={form.control} name="birthDate" render={({
-          field
-        }) => <FormItem className="flex flex-col">
+          {/* Enhanced Birth Date Field with Better Visibility */}
+          <FormField
+            control={form.control}
+            name="birthDate"
+            render={({ field }) => (
+              <FormItem className="flex flex-col">
                 <FormLabel>जन्म तिथि</FormLabel>
                 <Popover>
                   <PopoverTrigger asChild>
                     <FormControl>
-                      <Button variant={"outline"} className={cn("w-full pl-3 text-left font-normal flex items-center", !field.value && "text-muted-foreground")}>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "w-full pl-3 text-left font-normal flex items-center",
+                          !field.value && "text-muted-foreground"
+                        )}
+                      >
                         <Calendar className="mr-2 h-4 w-4 opacity-70" />
-                        {field.value ? format(field.value, "dd MMMM yyyy") : <span>तिथि चुनें</span>}
+                        {field.value ? (
+                          format(field.value, "dd MMMM yyyy")
+                        ) : (
+                          <span>तिथि चुनें</span>
+                        )}
                       </Button>
                     </FormControl>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
-                    <CalendarComponent mode="single" selected={field.value} onSelect={field.onChange} disabled={date => date > new Date() || date < new Date("1900-01-01")} initialFocus showOutsideDays captionLayout="dropdown-buttons" fromYear={1900} toYear={2025} className="bg-neutral-950" />
+                    <CalendarComponent
+                      mode="single"
+                      selected={field.value}
+                      onSelect={field.onChange}
+                      disabled={(date) =>
+                        date > new Date() || date < new Date("1900-01-01")
+                      }
+                      initialFocus
+                      showOutsideDays
+                      captionLayout="dropdown-buttons"
+                      fromYear={1900}
+                      toYear={2025}
+                      className="bg-background border-none shadow-none"
+                      classNames={{
+                        months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
+                        month: "space-y-4",
+                        caption: "flex justify-center pt-1 relative items-center",
+                        caption_label: "text-sm font-medium text-foreground",
+                        caption_dropdowns: "flex justify-center gap-1",
+                        dropdown: "bg-background border border-border rounded-md px-3 py-1 text-sm text-foreground font-medium",
+                        dropdown_month: "bg-background border border-border rounded-md px-3 py-1 text-sm text-foreground font-medium min-w-[120px]",
+                        dropdown_year: "bg-background border border-border rounded-md px-3 py-1 text-sm text-foreground font-medium min-w-[80px]",
+                        nav: "space-x-1 flex items-center",
+                        nav_button: cn(
+                          "inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors",
+                          "hover:bg-accent hover:text-accent-foreground h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100"
+                        ),
+                        nav_button_previous: "absolute left-1",
+                        nav_button_next: "absolute right-1",
+                        table: "w-full border-collapse space-y-1",
+                        head_row: "flex",
+                        head_cell: "text-muted-foreground rounded-md w-9 font-normal text-[0.8rem]",
+                        row: "flex w-full mt-2",
+                        cell: "h-9 w-9 text-center text-sm p-0 relative [&:has([aria-selected].day-range-end)]:rounded-r-md [&:has([aria-selected].day-outside)]:bg-accent/50 [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
+                        day: cn(
+                          "inline-flex items-center justify-center rounded-md text-sm font-normal ring-offset-background transition-colors",
+                          "hover:bg-accent hover:text-accent-foreground h-9 w-9 p-0 font-normal aria-selected:opacity-100"
+                        ),
+                        day_range_end: "day-range-end",
+                        day_selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
+                        day_today: "bg-accent text-accent-foreground",
+                        day_outside: "day-outside text-muted-foreground opacity-50 aria-selected:bg-accent/50 aria-selected:text-muted-foreground aria-selected:opacity-30",
+                        day_disabled: "text-muted-foreground opacity-50",
+                        day_range_middle: "aria-selected:bg-accent aria-selected:text-accent-foreground",
+                        day_hidden: "invisible",
+                      }}
+                    />
                   </PopoverContent>
                 </Popover>
                 <FormDescription>
                   सटीक गणना के लिए आपकी जन्म तिथि महत्वपूर्ण है।
                 </FormDescription>
                 <FormMessage />
-              </FormItem>} />
+              </FormItem>
+            )}
+          />
           
-          <FormField control={form.control} name="birthTime" render={({
-          field
-        }) => <FormItem>
+          {/* Birth Time Field */}
+          <FormField
+            control={form.control}
+            name="birthTime"
+            render={({ field }) => (
+              <FormItem>
                 <FormLabel>जन्म समय (24-घंटे प्रारूप)</FormLabel>
                 <FormControl>
                   <div className="relative">
                     <Clock className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input type="time" placeholder="HH:MM" className="pl-8" {...field} />
+                    <Input
+                      type="time"
+                      placeholder="HH:MM"
+                      className="pl-8"
+                      {...field}
+                    />
                   </div>
                 </FormControl>
                 <FormDescription>
                   सटीक कुंडली गणना के लिए यथासंभव सटीक समय दर्ज करें।
                 </FormDescription>
                 <FormMessage />
-              </FormItem>} />
+              </FormItem>
+            )}
+          />
         </div>
         
-        <FormField control={form.control} name="birthPlace" render={({
-        field
-      }) => <FormItem>
+        {/* Birth Place Field */}
+        <FormField
+          control={form.control}
+          name="birthPlace"
+          render={({ field }) => (
+            <FormItem>
               <FormLabel>जन्म स्थान</FormLabel>
               <FormControl>
                 <div className="flex">
                   <div className="relative flex-grow">
                     <MapPin className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input placeholder="शहर, राज्य, देश" {...field} className="rounded-r-none pl-8" />
+                    <Input
+                      placeholder="शहर, राज्य, देश"
+                      {...field}
+                      className="rounded-r-none pl-8"
+                    />
                   </div>
-                  <Button type="button" variant="secondary" className="rounded-l-none flex items-center gap-1" onClick={getGeolocation} disabled={locationStatus.loading}>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    className="rounded-l-none flex items-center gap-1"
+                    onClick={getGeolocation}
+                    disabled={locationStatus.loading}
+                  >
                     {locationStatus.loading ? "खोज रहा है..." : "पता करें"}
                     <MapPin className="h-4 w-4 ml-1" />
                   </Button>
                 </div>
               </FormControl>
-              {locationStatus.error && <p className="text-sm text-red-500">{locationStatus.error}</p>}
+              {locationStatus.error && (
+                <p className="text-sm text-red-500">{locationStatus.error}</p>
+              )}
               <FormDescription>
                 अपना जन्म स्थान दर्ज करें, और हम इसके निर्देशांक ढूंढने का प्रयास करेंगे।
               </FormDescription>
@@ -331,40 +424,75 @@ const BirthDataForm: React.FC<BirthDataFormProps> = ({
               <div className="mt-2">
                 <p className="text-sm mb-2">भारत के प्रमुख शहर:</p>
                 <div className="flex flex-wrap gap-2">
-                  {Object.keys(CITIES_DATA).slice(0, 6).map(city => <Button key={city} type="button" variant="outline" size="sm" onClick={() => handleQuickCitySelect(city.charAt(0).toUpperCase() + city.slice(1))} className="text-xs">
+                  {Object.keys(CITIES_DATA).slice(0, 6).map((city) => (
+                    <Button
+                      key={city}
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleQuickCitySelect(city.charAt(0).toUpperCase() + city.slice(1))}
+                      className="text-xs"
+                    >
                       {city.charAt(0).toUpperCase() + city.slice(1)}
-                    </Button>)}
+                    </Button>
+                  ))}
                 </div>
               </div>
-            </FormItem>} />
+            </FormItem>
+          )}
+        />
         
+        {/* Latitude and Longitude Fields */}
         <div className="grid grid-cols-2 gap-4">
-          <FormField control={form.control} name="latitude" render={({
-          field
-        }) => <FormItem>
+          <FormField
+            control={form.control}
+            name="latitude"
+            render={({ field }) => (
+              <FormItem>
                 <FormLabel>अक्षांश</FormLabel>
                 <FormControl>
-                  <Input type="number" step="0.0001" placeholder="उदा. 28.6139" {...field} onChange={e => field.onChange(parseFloat(e.target.value) || 0)} />
+                  <Input
+                    type="number"
+                    step="0.0001"
+                    placeholder="उदा. 28.6139"
+                    {...field}
+                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                  />
                 </FormControl>
                 <FormMessage />
-              </FormItem>} />
+              </FormItem>
+            )}
+          />
           
-          <FormField control={form.control} name="longitude" render={({
-          field
-        }) => <FormItem>
+          <FormField
+            control={form.control}
+            name="longitude"
+            render={({ field }) => (
+              <FormItem>
                 <FormLabel>देशांतर</FormLabel>
                 <FormControl>
-                  <Input type="number" step="0.0001" placeholder="उदा. 77.2090" {...field} onChange={e => field.onChange(parseFloat(e.target.value) || 0)} />
+                  <Input
+                    type="number"
+                    step="0.0001"
+                    placeholder="उदा. 77.2090"
+                    {...field}
+                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                  />
                 </FormControl>
                 <FormMessage />
-              </FormItem>} />
+              </FormItem>
+            )}
+          />
         </div>
         
-        <FormField control={form.control} name="timezone" render={({
-        field
-      }) => <FormItem>
+        {/* Timezone Field */}
+        <FormField
+          control={form.control}
+          name="timezone"
+          render={({ field }) => (
+            <FormItem>
               <FormLabel>समय क्षेत्र</FormLabel>
-              <Select onValueChange={value => field.onChange(parseFloat(value))} defaultValue={field.value.toString()}>
+              <Select onValueChange={(value) => field.onChange(parseFloat(value))} defaultValue={field.value.toString()}>
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="समय क्षेत्र चुनें" />
@@ -382,12 +510,16 @@ const BirthDataForm: React.FC<BirthDataFormProps> = ({
                 आपका समय क्षेत्र स्वचालित रूप से पता चला है लेकिन आवश्यकतानुसार समायोजित कर सकते हैं।
               </FormDescription>
               <FormMessage />
-            </FormItem>} />
+            </FormItem>
+          )}
+        />
         
         <Button type="submit" className="w-full" disabled={loading}>
           {loading ? "कुंडली बनाई जा रही है..." : "कुंडली बनाएँ"}
         </Button>
       </form>
-    </Form>;
+    </Form>
+  );
 };
+
 export default BirthDataForm;
