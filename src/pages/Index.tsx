@@ -9,7 +9,7 @@ import BirthDataForm from '@/components/BirthDataForm';
 import EnhancedKundaliChart from '@/components/EnhancedKundaliChart';
 import PlanetaryPositions from '@/components/PlanetaryPositions';
 import FloatingChatbot from '@/components/FloatingChatbot';
-import { generateKundali } from '@/lib/enhancedAstronomicalEngine';
+import { generateDetailedKundali } from '@/lib/enhancedAstronomicalEngine';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 
@@ -40,7 +40,7 @@ const Index = () => {
   const handleFormSubmit = async (data: BirthData) => {
     setIsGenerating(true);
     try {
-      const result = await generateKundali(data);
+      const result = await generateDetailedKundali(data);
       setBirthData(data);
       setKundaliData(result);
       setStep('result');
@@ -245,7 +245,7 @@ const Index = () => {
           </CardHeader>
           <CardContent>
             <EnhancedKundaliChart 
-              kundaliData={kundaliData} 
+              chart={kundaliData} 
               language={settings.language}
             />
           </CardContent>

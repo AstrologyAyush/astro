@@ -1,186 +1,122 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Session, User } from '@supabase/supabase-js';
-import { useToast } from '@/hooks/use-toast';
+import { User } from '@supabase/supabase-js';
 
-interface Profile {
-  id: string;
-  first_name: string;
-  last_name: string;
-  birth_date?: string;
-  profile_image?: string;
-  created_at: string;
-}
-
-interface UserSettings {
+export interface UserSettings {
+  language: 'hi' | 'en';
   theme: 'light' | 'dark' | 'system';
-  language: 'en' | 'hi';
   notifications: boolean;
 }
 
-interface SavedKundali {
+export interface UserProfile {
   id: string;
-  name: string;
-  birth_data: any;
-  chart_data: any;
-  created_at: string;
-}
-
-interface UserWithProfile extends User {
-  profile?: Profile;
-  settings?: UserSettings;
-  savedKundalis?: SavedKundali[];
+  email: string;
+  firstName?: string;
+  lastName?: string;
+  settings: UserSettings;
+  savedCharts: any[];
 }
 
 interface AuthContextType {
-  user: UserWithProfile | null;
-  profile: Profile | null;
-  settings: UserSettings;
-  savedKundalis: SavedKundali[];
-  session: Session | null;
+  user: User | null;
+  userProfile: UserProfile | null;
   isLoggedIn: boolean;
-  isLoading: boolean;
+  settings: UserSettings;
   login: (email: string, password: string) => Promise<boolean>;
   signup: (email: string, password: string, firstName: string, lastName: string) => Promise<boolean>;
   logout: () => Promise<void>;
-  updateProfile: (updates: Partial<Profile>) => Promise<boolean>;
-  updateSettings: (updates: Partial<UserSettings>) => Promise<void>;
+  updateSettings: (newSettings: Partial<UserSettings>) => Promise<void>;
   saveKundali: (name: string, birthData: any, chartData: any) => Promise<boolean>;
-  deleteKundali: (id: string) => Promise<boolean>;
+  getSavedCharts: () => any[];
 }
 
 const defaultSettings: UserSettings = {
+  language: 'hi',
   theme: 'dark',
-  language: 'en',
-  notifications: true
+  notifications: true,
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const useAuth = (): AuthContextType => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-};
-
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<UserWithProfile | null>(null);
-  const [profile, setProfile] = useState<Profile | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [settings, setSettings] = useState<UserSettings>(defaultSettings);
-  const [savedKundalis, setSavedKundalis] = useState<SavedKundali[]>([]);
-  const [session, setSession] = useState<Session | null>(null);
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const { toast } = useToast();
 
   useEffect(() => {
-    // Load settings from localStorage
-    const savedSettings = localStorage.getItem('ayush-astro-settings');
-    if (savedSettings) {
-      setSettings({ ...defaultSettings, ...JSON.parse(savedSettings) });
-    }
-
-    // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, currentSession) => {
-        setSession(currentSession);
-        
-        const currentUser = currentSession?.user || null;
-        setUser(currentUser as UserWithProfile | null);
-        setIsLoggedIn(!!currentUser);
-
-        if (currentUser) {
-          // Simulate profile and kundali loading (since no tables exist)
-          setTimeout(() => {
-            const mockProfile: Profile = {
-              id: currentUser.id,
-              first_name: currentUser.user_metadata?.first_name || 'User',
-              last_name: currentUser.user_metadata?.last_name || '',
-              birth_date: currentUser.user_metadata?.birth_date,
-              profile_image: currentUser.user_metadata?.profile_image,
-              created_at: currentUser.created_at
-            };
-            
-            setProfile(mockProfile);
-            setUser(prev => prev ? { ...prev, profile: mockProfile } : null);
-            
-            // Load saved kundalis from localStorage for now
-            const savedKundalisKey = `saved-kundalis-${currentUser.id}`;
-            const userKundalis = localStorage.getItem(savedKundalisKey);
-            if (userKundalis) {
-              setSavedKundalis(JSON.parse(userKundalis));
-            }
-          }, 0);
-        } else {
-          setProfile(null);
-          setSavedKundalis([]);
-        }
-        
-        setIsLoading(false);
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      if (session?.user) {
+        loadUserProfile(session.user);
       }
-    );
+    });
 
-    // Check for existing session
-    supabase.auth.getSession().then(({ data: { session: initialSession } }) => {
-      setSession(initialSession);
-      
-      const initialUser = initialSession?.user || null;
-      setUser(initialUser as UserWithProfile | null);
-      setIsLoggedIn(!!initialUser);
-
-      if (!initialUser) {
-        setIsLoading(false);
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      setUser(session?.user ?? null);
+      if (session?.user) {
+        await loadUserProfile(session.user);
+      } else {
+        setUserProfile(null);
+        setSettings(defaultSettings);
       }
     });
 
     return () => subscription.unsubscribe();
   }, []);
 
-  const login = async (email: string, password: string): Promise<boolean> => {
+  const loadUserProfile = async (user: User) => {
     try {
-      setIsLoading(true);
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password
-      });
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
 
       if (error) {
-        toast({
-          title: "Login failed",
-          description: error.message,
-          variant: "destructive"
-        });
-        return false;
+        console.error('Error loading user profile:', error);
+        return;
       }
 
-      toast({
-        title: "Welcome back!",
-        description: "You've been successfully logged in",
-      });
-      return true;
-    } catch (error: any) {
-      toast({
-        title: "Login error",
-        description: error.message || "An unexpected error occurred",
-        variant: "destructive"
-      });
-      return false;
-    } finally {
-      setIsLoading(false);
+      const profile: UserProfile = {
+        id: user.id,
+        email: user.email!,
+        firstName: data?.first_name,
+        lastName: data?.last_name,
+        settings: data?.settings || defaultSettings,
+        savedCharts: data?.saved_charts || [],
+      };
+
+      setUserProfile(profile);
+      setSettings(profile.settings);
+    } catch (error) {
+      console.error('Error loading user profile:', error);
     }
   };
 
-  const signup = async (
-    email: string, 
-    password: string, 
-    firstName: string, 
-    lastName: string
-  ): Promise<boolean> => {
+  const login = async (email: string, password: string): Promise<boolean> => {
     try {
-      setIsLoading(true);
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        console.error('Login error:', error);
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      console.error('Login error:', error);
+      return false;
+    }
+  };
+
+  const signup = async (email: string, password: string, firstName: string, lastName: string): Promise<boolean> => {
+    try {
       const { error } = await supabase.auth.signUp({
         email,
         password,
@@ -189,32 +125,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             first_name: firstName,
             last_name: lastName,
           },
-        }
+        },
       });
 
       if (error) {
-        toast({
-          title: "Registration failed",
-          description: error.message,
-          variant: "destructive"
-        });
+        console.error('Signup error:', error);
         return false;
       }
 
-      toast({
-        title: "Account created!",
-        description: "Please check your email to verify your account",
-      });
       return true;
-    } catch (error: any) {
-      toast({
-        title: "Registration error",
-        description: error.message || "An unexpected error occurred",
-        variant: "destructive"
-      });
+    } catch (error) {
+      console.error('Signup error:', error);
       return false;
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -222,150 +144,91 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       await supabase.auth.signOut();
       setUser(null);
-      setProfile(null);
-      setSession(null);
-      setIsLoggedIn(false);
-      setSavedKundalis([]);
-      toast({
-        title: "Logged out",
-        description: "You've been successfully logged out",
-      });
+      setUserProfile(null);
+      setSettings(defaultSettings);
     } catch (error) {
-      console.error('Logout failed', error);
+      console.error('Logout error:', error);
     }
   };
 
-  const updateProfile = async (updates: Partial<Profile>): Promise<boolean> => {
-    if (!user) return false;
-    
-    try {
-      const updatedProfile = { ...profile, ...updates } as Profile;
-      setProfile(updatedProfile);
-      setUser(prev => prev ? { ...prev, profile: updatedProfile } : null);
-      
-      toast({
-        title: "Profile updated",
-        description: "Your profile has been successfully updated",
-      });
-      return true;
-    } catch (error) {
-      toast({
-        title: "Update failed",
-        description: "There was an error updating your profile",
-        variant: "destructive"
-      });
-      return false;
-    }
-  };
+  const updateSettings = async (newSettings: Partial<UserSettings>): Promise<void> => {
+    const updatedSettings = { ...settings, ...newSettings };
+    setSettings(updatedSettings);
 
-  const updateSettings = async (updates: Partial<UserSettings>): Promise<void> => {
-    const newSettings = { ...settings, ...updates };
-    setSettings(newSettings);
-    localStorage.setItem('ayush-astro-settings', JSON.stringify(newSettings));
-    
-    // Apply theme immediately
-    if (updates.theme) {
-      const root = document.documentElement;
-      if (updates.theme === 'dark') {
-        root.classList.add('dark');
-      } else if (updates.theme === 'light') {
-        root.classList.remove('dark');
-      } else {
-        // System theme
-        const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        if (systemDark) {
-          root.classList.add('dark');
+    if (user && userProfile) {
+      try {
+        const { error } = await supabase
+          .from('profiles')
+          .update({ settings: updatedSettings })
+          .eq('id', user.id);
+
+        if (error) {
+          console.error('Error updating settings:', error);
         } else {
-          root.classList.remove('dark');
+          setUserProfile({ ...userProfile, settings: updatedSettings });
         }
+      } catch (error) {
+        console.error('Error updating settings:', error);
       }
     }
   };
 
   const saveKundali = async (name: string, birthData: any, chartData: any): Promise<boolean> => {
-    if (!user) return false;
-    
+    if (!user || !userProfile) return false;
+
     try {
-      const newKundali: SavedKundali = {
+      const newChart = {
         id: Date.now().toString(),
         name,
-        birth_data: birthData,
-        chart_data: chartData,
-        created_at: new Date().toISOString()
+        birthData,
+        chartData,
+        createdAt: new Date().toISOString(),
       };
-      
-      const updatedKundalis = [...savedKundalis, newKundali];
-      setSavedKundalis(updatedKundalis);
-      
-      // Save to localStorage for now
-      const savedKundalisKey = `saved-kundalis-${user.id}`;
-      localStorage.setItem(savedKundalisKey, JSON.stringify(updatedKundalis));
-      
-      toast({
-        title: "Kundali saved",
-        description: `${name} has been saved to your collection`,
-      });
+
+      const updatedCharts = [...userProfile.savedCharts, newChart];
+
+      const { error } = await supabase
+        .from('profiles')
+        .update({ saved_charts: updatedCharts })
+        .eq('id', user.id);
+
+      if (error) {
+        console.error('Error saving kundali:', error);
+        return false;
+      }
+
+      setUserProfile({ ...userProfile, savedCharts: updatedCharts });
       return true;
     } catch (error) {
-      toast({
-        title: "Save failed",
-        description: "There was an error saving your kundali",
-        variant: "destructive"
-      });
+      console.error('Error saving kundali:', error);
       return false;
     }
   };
 
-  const deleteKundali = async (id: string): Promise<boolean> => {
-    if (!user) return false;
-    
-    try {
-      const updatedKundalis = savedKundalis.filter(k => k.id !== id);
-      setSavedKundalis(updatedKundalis);
-      
-      const savedKundalisKey = `saved-kundalis-${user.id}`;
-      localStorage.setItem(savedKundalisKey, JSON.stringify(updatedKundalis));
-      
-      toast({
-        title: "Kundali deleted",
-        description: "The kundali has been removed from your collection",
-      });
-      return true;
-    } catch (error) {
-      toast({
-        title: "Delete failed",
-        description: "There was an error deleting the kundali",
-        variant: "destructive"
-      });
-      return false;
-    }
+  const getSavedCharts = (): any[] => {
+    return userProfile?.savedCharts || [];
   };
 
-  // Apply initial theme
-  useEffect(() => {
-    updateSettings({ theme: settings.theme });
-  }, []);
+  const value: AuthContextType = {
+    user,
+    userProfile,
+    isLoggedIn: !!user,
+    settings,
+    login,
+    signup,
+    logout,
+    updateSettings,
+    saveKundali,
+    getSavedCharts,
+  };
 
-  return (
-    <AuthContext.Provider
-      value={{
-        user,
-        profile,
-        settings,
-        savedKundalis,
-        session,
-        isLoggedIn,
-        isLoading,
-        login,
-        signup,
-        logout,
-        updateProfile,
-        updateSettings,
-        saveKundali,
-        deleteKundali
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+};
+
+export const useAuth = (): AuthContextType => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
 };

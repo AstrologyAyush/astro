@@ -139,10 +139,10 @@ const KundaliAIChat: React.FC<KundaliAIChatProps> = ({ kundaliData, language, nu
   ];
 
   return (
-    <Card className="h-[600px] flex flex-col">
+    <Card className="h-[600px] flex flex-col bg-gray-900 border-gray-800">
       <CardHeader className="pb-4">
-        <CardTitle className="flex items-center gap-2">
-          <Sparkles className="h-5 w-5 text-primary" />
+        <CardTitle className="flex items-center gap-2 text-white">
+          <Sparkles className="h-5 w-5 text-orange-400" />
           {language === 'hi' ? "महर्षि पराशर - वैदिक ज्योतिष गुरु" : "Maharishi Parashar - Vedic Astrology Sage"}
         </CardTitle>
         <div className="flex flex-wrap gap-2">
@@ -150,7 +150,7 @@ const KundaliAIChat: React.FC<KundaliAIChatProps> = ({ kundaliData, language, nu
             <Badge 
               key={index} 
               variant="outline" 
-              className="cursor-pointer hover:bg-primary/10 text-xs"
+              className="cursor-pointer hover:bg-orange-500/20 text-xs border-gray-600 text-gray-300 hover:text-white"
               onClick={() => setInputValue(question)}
             >
               {question}
@@ -159,7 +159,7 @@ const KundaliAIChat: React.FC<KundaliAIChatProps> = ({ kundaliData, language, nu
         </div>
       </CardHeader>
       
-      <Separator />
+      <Separator className="bg-gray-700" />
       
       <CardContent className="flex-1 flex flex-col p-0">
         <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
@@ -168,17 +168,17 @@ const KundaliAIChat: React.FC<KundaliAIChatProps> = ({ kundaliData, language, nu
               <div key={message.id} className={`flex gap-3 ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}>
                 <div className={`flex gap-2 max-w-[85%] ${message.type === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                    message.type === 'user' ? 'bg-primary text-primary-foreground' : 'bg-gradient-to-br from-orange-400 to-red-600 text-white'
+                    message.type === 'user' ? 'bg-blue-600 text-white' : 'bg-gradient-to-br from-orange-400 to-red-600 text-white'
                   }`}>
                     {message.type === 'user' ? <User className="h-4 w-4" /> : <Bot className="h-4 w-4" />}
                   </div>
                   <div className={`p-3 rounded-lg ${
                     message.type === 'user' 
-                      ? 'bg-primary text-primary-foreground' 
-                      : 'bg-gradient-to-br from-orange-50 to-red-50 border border-orange-200'
+                      ? 'bg-blue-600 text-white' 
+                      : 'bg-gradient-to-br from-orange-500 to-red-600 text-white shadow-lg'
                   }`}>
-                    <p className="text-sm whitespace-pre-wrap leading-relaxed">{message.content}</p>
-                    <p className="text-xs opacity-70 mt-2">
+                    <p className="text-sm whitespace-pre-wrap leading-relaxed font-medium">{message.content}</p>
+                    <p className="text-xs opacity-80 mt-2">
                       {message.timestamp.toLocaleTimeString()}
                     </p>
                   </div>
@@ -191,11 +191,11 @@ const KundaliAIChat: React.FC<KundaliAIChatProps> = ({ kundaliData, language, nu
                   <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 bg-gradient-to-br from-orange-400 to-red-600 text-white">
                     <Bot className="h-4 w-4" />
                   </div>
-                  <div className="p-3 rounded-lg bg-gradient-to-br from-orange-50 to-red-50 border border-orange-200">
+                  <div className="p-3 rounded-lg bg-gradient-to-br from-orange-500 to-red-600 text-white">
                     <div className="flex space-x-1">
-                      <div className="w-2 h-2 bg-primary rounded-full animate-bounce"></div>
-                      <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                      <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                      <div className="w-2 h-2 bg-white rounded-full animate-bounce"></div>
+                      <div className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                      <div className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
                     </div>
                   </div>
                 </div>
@@ -204,7 +204,7 @@ const KundaliAIChat: React.FC<KundaliAIChatProps> = ({ kundaliData, language, nu
           </div>
         </ScrollArea>
         
-        <Separator />
+        <Separator className="bg-gray-700" />
         
         <div className="p-4">
           <div className="flex gap-2">
@@ -214,12 +214,13 @@ const KundaliAIChat: React.FC<KundaliAIChatProps> = ({ kundaliData, language, nu
               onKeyPress={handleKeyPress}
               placeholder={language === 'hi' ? "महर्षि जी से अपना प्रश्न पूछें..." : "Ask Maharishi your question..."}
               disabled={isLoading}
-              className="flex-1"
+              className="flex-1 bg-gray-800 border-gray-600 text-white placeholder-gray-400"
             />
             <Button 
               onClick={handleSendMessage}
               disabled={!inputValue.trim() || isLoading}
               size="icon"
+              className="bg-orange-500 hover:bg-orange-600"
             >
               <Send className="h-4 w-4" />
             </Button>
