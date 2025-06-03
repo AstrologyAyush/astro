@@ -3,15 +3,15 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Star, Users, Calendar, Brain } from "lucide-react";
+import { Star, Calendar, Brain, Sparkles, Moon, Sun } from "lucide-react";
 import BirthDataForm from '@/components/BirthDataForm';
-import KundaliChart from '@/components/KundaliChart';
 import PlanetaryPositions from '@/components/PlanetaryPositions';
+import EnhancedKundaliChart from '@/components/EnhancedKundaliChart';
 import ArchetypeAnalysis from '@/components/ArchetypeAnalysis';
 import EnhancedDailyHoroscope from '@/components/EnhancedDailyHoroscope';
 import FloatingChatbot from '@/components/FloatingChatbot';
 import { generateEnhancedKundali } from '@/lib/enhancedKundaliEngine';
-import { generateKundaliChart } from '@/lib/kundaliUtils';
+import { generateEnhancedKundaliChart } from '@/lib/enhancedAstronomicalEngine';
 import { toast } from "sonner";
 
 const Index = () => {
@@ -25,22 +25,20 @@ const Index = () => {
     try {
       console.log('Processing birth data:', birthData);
       
-      // Generate enhanced kundali with personality features
+      // Generate enhanced kundali with sophisticated calculations
+      const enhancedChart = generateEnhancedKundaliChart(birthData);
       const enhancedKundali = generateEnhancedKundali(birthData);
-      console.log('Enhanced kundali generated:', enhancedKundali);
       
-      // Generate traditional kundali chart with proper calculations
-      const traditionalKundali = generateKundaliChart(birthData);
-      console.log('Traditional kundali generated:', traditionalKundali);
+      console.log('Enhanced kundali generated:', enhancedChart);
       
       const combinedKundali = {
         ...enhancedKundali,
-        chart: traditionalKundali,
+        chart: enhancedChart,
+        enhancedChart,
         birthData,
-        // Add calculated rashi information
-        moonRashi: traditionalKundali.planets?.Moon?.rashiName || 'Not calculated',
-        sunRashi: traditionalKundali.planets?.Sun?.rashiName || 'Not calculated',
-        nakshatraName: traditionalKundali.planets?.Moon?.nakshatraName || 'Not calculated'
+        moonRashi: enhancedChart.planets?.MO?.rashiName || 'Not calculated',
+        sunRashi: enhancedChart.planets?.SU?.rashiName || 'Not calculated',
+        nakshatraName: enhancedChart.planets?.MO?.nakshatraName || 'Not calculated'
       };
       
       console.log('Combined kundali:', combinedKundali);
@@ -49,11 +47,11 @@ const Index = () => {
       
       toast.success(
         language === 'hi' 
-          ? `आपकी कुंडली तैयार! चंद्र राशि: ${combinedKundali.moonRashi}, सूर्य राशि: ${combinedKundali.sunRashi}` 
-          : `Kundali generated! Moon Sign: ${combinedKundali.moonRashi}, Sun Sign: ${combinedKundali.sunRashi}`
+          ? `✨ आपकी उन्नत कुंडली तैयार! चंद्र राशि: ${combinedKundali.moonRashi}` 
+          : `✨ Enhanced Kundali generated! Moon Sign: ${combinedKundali.moonRashi}`
       );
     } catch (error) {
-      console.error('Error generating Kundali:', error);
+      console.error('Error generating Enhanced Kundali:', error);
       toast.error(
         language === 'hi' 
           ? 'कुंडली बनाने में त्रुटि हुई है। कृपया पुनः प्रयास करें।' 
@@ -74,37 +72,52 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-orange-50 to-white">
-      {/* Mobile-First Hero Section */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-orange-100 via-red-50 to-orange-50">
-        <div className="container mx-auto px-4 py-8">
-          <div className="text-center space-y-4">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-200 to-red-200 rounded-full text-sm border border-orange-300">
-              <Star className="h-4 w-4 text-orange-600" />
-              <span className="text-orange-800 font-medium">
-                {language === 'hi' ? 'AI संचालित वैदिक ज्योतिष' : 'AI-Powered Vedic Astrology'}
+    <div className="min-h-screen bg-background">
+      {/* Enhanced Hero Section */}
+      <div className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-orange-500/10 via-background to-background"></div>
+        <div className="relative container mx-auto px-4 py-12">
+          <div className="text-center space-y-6 max-w-4xl mx-auto">
+            <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-orange-500/10 border border-orange-500/20">
+              <Sparkles className="h-5 w-5 text-orange-400 animate-pulse" />
+              <span className="text-orange-300 font-medium">
+                {language === 'hi' ? 'उन्नत AI संचालित वैदिक ज्योतिष' : 'Advanced AI-Powered Vedic Astrology'}
               </span>
             </div>
             
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
-              {language === 'hi' ? 'आपकी डिजिटल कुंडली' : 'Your Digital Kundali'}
+            <h1 className="text-4xl md:text-6xl font-bold tracking-tight">
+              <span className="gradient-text">
+                {language === 'hi' ? 'आपकी डिजिटल कुंडली' : 'Your Digital Kundali'}
+              </span>
             </h1>
             
-            <p className="text-sm text-gray-600 max-w-md mx-auto">
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
               {language === 'hi' 
-                ? 'उन्नत गणना और व्यक्तित्व विश्लेषण के साथ अपना भविष्य जानें'
-                : 'Discover your destiny with advanced calculations and personality analysis'
+                ? 'स्विस एफेमेरिस गणना और षड्बल विश्लेषण के साथ अपना भविष्य जानें। उन्नत ज्योतिषीय इंजन द्वारा संचालित।'
+                : 'Discover your destiny with Swiss Ephemeris calculations and Shadbala analysis. Powered by advanced astrological engine.'
               }
             </p>
 
-            <Button
-              onClick={toggleLanguage}
-              variant="outline"
-              size="sm"
-              className="border-orange-200 text-orange-700 hover:bg-orange-100"
-            >
-              {language === 'hi' ? 'English' : 'हिंदी'}
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <Button
+                onClick={toggleLanguage}
+                variant="outline"
+                className="astro-button-outline"
+              >
+                {language === 'hi' ? (
+                  <>English <span className="ml-2">🌍</span></>
+                ) : (
+                  <>हिंदी <span className="ml-2">🇮🇳</span></>
+                )}
+              </Button>
+              
+              {!kundali && (
+                <div className="text-sm text-muted-foreground flex items-center gap-2">
+                  <Star className="h-4 w-4 text-orange-400" />
+                  {language === 'hi' ? 'निःशुल्क विस्तृत विश्लेषण' : 'Free Detailed Analysis'}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -112,35 +125,56 @@ const Index = () => {
       {/* Main Content */}
       <div className="container mx-auto px-4 pb-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          {/* Mobile Tab List */}
-          <TabsList className="grid w-full grid-cols-4 mb-6 bg-white border border-orange-200">
-            <TabsTrigger value="create" className="text-xs data-[state=active]:bg-orange-100 data-[state=active]:text-orange-700">
-              <Star className="h-3 w-3 mr-1" />
+          {/* Enhanced Tab List */}
+          <TabsList className="grid w-full grid-cols-4 mb-8 bg-card/50 backdrop-blur-sm border border-border/50 rounded-2xl p-2">
+            <TabsTrigger 
+              value="create" 
+              className="data-[state=active]:bg-orange-500/20 data-[state=active]:text-orange-300 rounded-xl transition-all duration-200"
+            >
+              <Star className="h-4 w-4 mr-2" />
               {language === 'hi' ? 'बनाएं' : 'Create'}
             </TabsTrigger>
-            <TabsTrigger value="chart" disabled={!kundali} className="text-xs data-[state=active]:bg-orange-100 data-[state=active]:text-orange-700">
-              <Calendar className="h-3 w-3 mr-1" />
+            <TabsTrigger 
+              value="chart" 
+              disabled={!kundali} 
+              className="data-[state=active]:bg-orange-500/20 data-[state=active]:text-orange-300 rounded-xl transition-all duration-200"
+            >
+              <Calendar className="h-4 w-4 mr-2" />
               {language === 'hi' ? 'चार्ट' : 'Chart'}
             </TabsTrigger>
-            <TabsTrigger value="personality" disabled={!kundali} className="text-xs data-[state=active]:bg-orange-100 data-[state=active]:text-orange-700">
-              <Brain className="h-3 w-3 mr-1" />
-              {language === 'hi' ? 'व्यक्तित्व' : 'Type'}
+            <TabsTrigger 
+              value="personality" 
+              disabled={!kundali} 
+              className="data-[state=active]:bg-orange-500/20 data-[state=active]:text-orange-300 rounded-xl transition-all duration-200"
+            >
+              <Brain className="h-4 w-4 mr-2" />
+              {language === 'hi' ? 'व्यक्तित्व' : 'Analysis'}
             </TabsTrigger>
-            <TabsTrigger value="horoscope" disabled={!kundali} className="text-xs data-[state=active]:bg-orange-100 data-[state=active]:text-orange-700">
-              <Users className="h-3 w-3 mr-1" />
+            <TabsTrigger 
+              value="horoscope" 
+              disabled={!kundali} 
+              className="data-[state=active]:bg-orange-500/20 data-[state=active]:text-orange-300 rounded-xl transition-all duration-200"
+            >
+              <Moon className="h-4 w-4 mr-2" />
               {language === 'hi' ? 'राशिफल' : 'Daily'}
             </TabsTrigger>
           </TabsList>
 
           {/* Create Kundali Tab */}
           <TabsContent value="create" className="mt-0">
-            <Card className="border-orange-200 shadow-lg">
-              <CardHeader className="bg-gradient-to-r from-orange-100 to-red-100">
-                <CardTitle className="text-lg text-center text-orange-800">
+            <Card className="astro-card max-w-2xl mx-auto">
+              <CardHeader className="text-center">
+                <CardTitle className="text-2xl font-bold gradient-text">
                   {language === 'hi' ? 'जन्म विवरण दर्ज करें' : 'Enter Birth Details'}
                 </CardTitle>
+                <p className="text-muted-foreground">
+                  {language === 'hi' 
+                    ? 'सटीक गणना के लिए सभी विवरण आवश्यक हैं'
+                    : 'All details required for accurate calculations'
+                  }
+                </p>
               </CardHeader>
-              <CardContent className="p-6">
+              <CardContent className="p-8">
                 <BirthDataForm 
                   onSubmit={handleBirthDataSubmit}
                   loading={loading}
@@ -151,8 +185,9 @@ const Index = () => {
                   <Button 
                     variant="outline" 
                     onClick={resetKundali}
-                    className="w-full mt-4 border-orange-200 text-orange-700 hover:bg-orange-50"
+                    className="w-full mt-6 astro-button-outline"
                   >
+                    <Sparkles className="h-4 w-4 mr-2" />
                     {language === 'hi' ? 'नई कुंडली बनाएं' : 'Create New Kundali'}
                   </Button>
                 )}
@@ -160,43 +195,62 @@ const Index = () => {
             </Card>
           </TabsContent>
 
-          {/* Kundali Chart Tab */}
+          {/* Enhanced Chart Tab */}
           <TabsContent value="chart" className="mt-0">
             {kundali ? (
-              <div className="space-y-4">
-                {/* Display calculated Rashi information prominently */}
-                <Card className="border-orange-200 bg-gradient-to-r from-orange-50 to-red-50">
-                  <CardContent className="p-4">
-                    <div className="grid grid-cols-2 gap-4 text-center">
-                      <div>
-                        <h3 className="font-bold text-orange-800">{language === 'hi' ? 'चंद्र राशि' : 'Moon Sign'}</h3>
-                        <p className="text-lg text-orange-600">{kundali.moonRashi}</p>
-                      </div>
-                      <div>
-                        <h3 className="font-bold text-orange-800">{language === 'hi' ? 'सूर्य राशि' : 'Sun Sign'}</h3>
-                        <p className="text-lg text-orange-600">{kundali.sunRashi}</p>
-                      </div>
-                    </div>
-                    <div className="mt-2 text-center">
-                      <h3 className="font-bold text-orange-800">{language === 'hi' ? 'नक्षत्र' : 'Nakshatra'}</h3>
-                      <p className="text-lg text-orange-600">{kundali.nakshatraName}</p>
-                    </div>
-                  </CardContent>
-                </Card>
+              <div className="space-y-8">
+                {/* Key Information Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <Card className="astro-card">
+                    <CardContent className="p-6 text-center">
+                      <Moon className="h-8 w-8 mx-auto mb-3 text-blue-400" />
+                      <h3 className="font-bold text-blue-400 mb-2">
+                        {language === 'hi' ? 'चंद्र राशि' : 'Moon Sign'}
+                      </h3>
+                      <p className="text-xl font-semibold">{kundali.moonRashi}</p>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card className="astro-card">
+                    <CardContent className="p-6 text-center">
+                      <Sun className="h-8 w-8 mx-auto mb-3 text-yellow-400" />
+                      <h3 className="font-bold text-yellow-400 mb-2">
+                        {language === 'hi' ? 'सूर्य राशि' : 'Sun Sign'}
+                      </h3>
+                      <p className="text-xl font-semibold">{kundali.sunRashi}</p>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card className="astro-card">
+                    <CardContent className="p-6 text-center">
+                      <Star className="h-8 w-8 mx-auto mb-3 text-orange-400" />
+                      <h3 className="font-bold text-orange-400 mb-2">
+                        {language === 'hi' ? 'लग्न' : 'Ascendant'}
+                      </h3>
+                      <p className="text-xl font-semibold">{kundali.enhancedChart?.ascendant || 'N/A'}</p>
+                    </CardContent>
+                  </Card>
+                </div>
 
-                <KundaliChart 
-                  kundaliData={kundali} 
-                  language={language}
-                />
+                {/* Enhanced Kundali Chart */}
+                {kundali.enhancedChart && (
+                  <EnhancedKundaliChart 
+                    chart={kundali.enhancedChart} 
+                    language={language}
+                  />
+                )}
+
+                {/* Planetary Positions */}
                 <PlanetaryPositions 
-                  planets={kundali.chart?.planets || {}} 
+                  planets={kundali.enhancedChart?.planets || kundali.chart?.planets || {}} 
                   language={language}
                 />
               </div>
             ) : (
-              <Card className="border-orange-200">
-                <CardContent className="p-8 text-center">
-                  <p className="text-muted-foreground">
+              <Card className="astro-card">
+                <CardContent className="p-12 text-center">
+                  <Star className="h-16 w-16 mx-auto mb-4 text-muted-foreground animate-pulse" />
+                  <p className="text-lg text-muted-foreground">
                     {language === 'hi' 
                       ? 'पहले अपनी जन्म जानकारी दर्ज करें'
                       : 'Please enter your birth details first'
@@ -215,9 +269,10 @@ const Index = () => {
                 language={language}
               />
             ) : (
-              <Card className="border-orange-200">
-                <CardContent className="p-8 text-center">
-                  <p className="text-muted-foreground">
+              <Card className="astro-card">
+                <CardContent className="p-12 text-center">
+                  <Brain className="h-16 w-16 mx-auto mb-4 text-muted-foreground animate-pulse" />
+                  <p className="text-lg text-muted-foreground">
                     {language === 'hi' 
                       ? 'पहले अपनी कुंडली बनाएं'
                       : 'Please create your Kundali first'
@@ -236,9 +291,10 @@ const Index = () => {
                 language={language}
               />
             ) : (
-              <Card className="border-orange-200">
-                <CardContent className="p-8 text-center">
-                  <p className="text-muted-foreground">
+              <Card className="astro-card">
+                <CardContent className="p-12 text-center">
+                  <Moon className="h-16 w-16 mx-auto mb-4 text-muted-foreground animate-pulse" />
+                  <p className="text-lg text-muted-foreground">
                     {language === 'hi' 
                       ? 'पहले अपनी कुंडली बनाएं'
                       : 'Please create your Kundali first'
@@ -251,7 +307,7 @@ const Index = () => {
         </Tabs>
       </div>
 
-      {/* Floating AI Chatbot */}
+      {/* Enhanced Floating AI Chatbot */}
       <FloatingChatbot kundaliData={kundali} />
     </div>
   );

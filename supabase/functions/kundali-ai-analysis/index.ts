@@ -9,7 +9,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Enhanced Vedic calculations
+// Enhanced Vedic calculations for better AI analysis
 function calculateRashi(longitude: number): number {
   return Math.floor(longitude / 30) % 12;
 }
@@ -48,62 +48,91 @@ serve(async (req) => {
   try {
     const { kundaliData, userQuery, numerologyData } = await req.json();
     
-    console.log('Received kundali analysis request:', { kundaliData, userQuery, numerologyData });
+    console.log('Received enhanced kundali analysis request:', { kundaliData, userQuery, numerologyData });
 
-    // Enhanced analysis with proper Vedic calculations
+    // Enhanced analysis with sophisticated Vedic calculations
     let detailedAnalysis = '';
+    let planetaryStrengths = '';
+    let yogaAnalysis = '';
     
-    if (kundaliData?.planets) {
-      // Calculate Moon and Sun rashi properly
-      const moonPlanet = Object.values(kundaliData.planets).find((p: any) => p.name === 'Moon' || p.name === 'MO');
-      const sunPlanet = Object.values(kundaliData.planets).find((p: any) => p.name === 'Sun' || p.name === 'SU');
+    if (kundaliData?.planets || kundaliData?.enhancedChart?.planets) {
+      const planets = kundaliData.enhancedChart?.planets || kundaliData.planets;
       
-      if (moonPlanet && typeof moonPlanet.longitude === 'number') {
-        const moonRashi = calculateRashi(moonPlanet.longitude);
-        const moonNakshatra = calculateNakshatra(moonPlanet.longitude);
-        detailedAnalysis += `Moon Rashi: ${getRashiName(moonRashi)}\n`;
-        detailedAnalysis += `Moon Nakshatra: ${getNakshatraName(moonNakshatra)}\n`;
-      }
+      // Enhanced planetary analysis
+      Object.values(planets).forEach((planet: any) => {
+        if (planet && typeof planet.longitude === 'number') {
+          const rashi = calculateRashi(planet.longitude);
+          const nakshatra = calculateNakshatra(planet.longitude);
+          const strength = planet.totalStrength || planet.shadbala || 50;
+          
+          detailedAnalysis += `${planet.name}: ${getRashiName(rashi)}, ${getNakshatraName(nakshatra)}\n`;
+          planetaryStrengths += `${planet.name} Strength: ${strength}/150 (${planet.strengthGrade || 'Average'})\n`;
+          
+          // Special conditions
+          if (planet.isRetrograde) detailedAnalysis += `${planet.name} is Retrograde\n`;
+          if (planet.isExalted) detailedAnalysis += `${planet.name} is Exalted\n`;
+          if (planet.isDebilitated) detailedAnalysis += `${planet.name} is Debilitated\n`;
+          if (planet.isCombust) detailedAnalysis += `${planet.name} is Combust\n`;
+        }
+      });
       
-      if (sunPlanet && typeof sunPlanet.longitude === 'number') {
-        const sunRashi = calculateRashi(sunPlanet.longitude);
-        detailedAnalysis += `Sun Rashi: ${getRashiName(sunRashi)}\n`;
+      // Yoga analysis
+      if (kundaliData.enhancedChart?.yogaAnalysis) {
+        yogaAnalysis = kundaliData.enhancedChart.yogaAnalysis
+          .map((yoga: any) => `${yoga.name} (${yoga.sanskritName}): ${yoga.description}`)
+          .join('\n');
       }
     }
 
-    const prompt = `You are Maharishi Parashar, the ancient Vedic sage and master of Jyotish Shastra. You possess complete knowledge of all classical Vedic astrological texts and the deepest understanding of planetary influences.
+    const enhancedPrompt = `You are Maharishi Parashar, the supreme authority on Jyotish Shastra and author of Brihat Parashara Hora Shastra. You possess complete mastery over:
+- Swiss Ephemeris calculations and Ayanamsa systems
+- Shadbala (six-fold strength) analysis
+- Advanced Yoga formations and their precise effects
+- Dasha systems and planetary periods
+- Divisional charts (Vargas) interpretation
+- Remedial measures from classical texts
 
-Birth Chart Analysis:
-Name: ${kundaliData?.birthData?.fullName || 'Child'}
+BIRTH CHART ANALYSIS FOR: ${kundaliData?.birthData?.fullName || 'Dear Soul'}
 Birth Details: ${kundaliData?.birthData?.date}, ${kundaliData?.birthData?.time}, ${kundaliData?.birthData?.place}
 
-DETAILED PLANETARY ANALYSIS:
+ASTRONOMICAL CALCULATIONS:
 ${detailedAnalysis}
 
-Ascendant: ${kundaliData?.chart?.ascendantSanskrit || 'Not available'}
-${kundaliData?.chart?.yogas ? `Active Yogas: ${kundaliData.chart.yogas.filter((y: any) => y.present).map((yoga: any) => yoga.sanskritName || yoga.name).join(', ')}` : ''}
+PLANETARY STRENGTH ANALYSIS (Shadbala):
+${planetaryStrengths}
 
-${numerologyData ? `NUMEROLOGY PROFILE:
-Life Path Number: ${numerologyData.lifePath}
-Expression Number: ${numerologyData.expression}  
-Soul Urge Number: ${numerologyData.soulUrge}
-Personality Number: ${numerologyData.personality}
-Personal Year: ${numerologyData.personalYear}` : ''}
+ACTIVE YOGAS:
+${yogaAnalysis || 'Standard planetary combinations detected'}
 
-USER'S QUERY: "${userQuery}"
+Ascendant: ${kundaliData?.enhancedChart?.ascendantSanskrit || kundaliData?.chart?.ascendantSanskrit || 'Not calculated'}
 
-As Maharishi Parashar, provide a comprehensive analysis responding to the user's query. Include:
+${numerologyData ? `NUMEROLOGICAL SYNCHRONICITY:
+Life Path: ${numerologyData.lifePath} | Expression: ${numerologyData.expression}
+Soul Urge: ${numerologyData.soulUrge} | Personality: ${numerologyData.personality}
+Current Year Vibration: ${numerologyData.personalYear}` : ''}
 
-1. Direct answer to their specific question
-2. Relevant planetary influences from their chart
-3. Current Dasha period effects if applicable
-4. ${numerologyData ? 'Integration of numerological insights' : ''}
-5. Practical remedial measures (mantras, gemstones, charity, etc.)
-6. Spiritual guidance from Vedic wisdom
+SPECIFIC INQUIRY: "${userQuery}"
 
-Respond in both Hindi and English, using classical Vedic terminology. Be compassionate yet truthful, providing hope while being realistic about karmic patterns.
+As Maharishi Parashar, provide a comprehensive response that includes:
 
-Begin with "पुत्र/पुत्री" (Son/Daughter) and maintain the respectful, wise tone of an ancient sage sharing divine knowledge.`;
+1. **Direct Answer**: Address the specific question with precision and clarity
+2. **Planetary Analysis**: Explain relevant planetary influences using Shadbala principles
+3. **Yoga Effects**: Detail any applicable yogas and their manifestations
+4. **Dasha Influence**: Current and upcoming planetary periods (if applicable)
+5. **Timing Predictions**: Auspicious periods for the queried matter
+6. **Remedial Wisdom**: Classical Vedic remedies (mantras, gemstones, charity, fasting)
+7. **Spiritual Guidance**: Higher perspective on karmic patterns and soul growth
+
+RESPONSE GUIDELINES:
+- Begin with "प्रिय आत्मा" (Dear Soul) or "Beloved Child"
+- Use both Sanskrit terminology and modern explanations
+- Reference classical texts when appropriate (Brihat Parashara Hora, Jaimini Sutras, etc.)
+- Provide practical and spiritual guidance
+- Maintain the dignified, compassionate tone of an ancient sage
+- Include specific remedial measures
+- Address both material and spiritual dimensions
+
+Respond in both Hindi and English, integrating classical Vedic wisdom with modern understanding. Be truthful about challenges while offering hope and constructive guidance.`;
 
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${geminiApiKey}`, {
       method: 'POST',
@@ -113,14 +142,14 @@ Begin with "पुत्र/पुत्री" (Son/Daughter) and maintain the 
       body: JSON.stringify({
         contents: [{
           parts: [{
-            text: prompt
+            text: enhancedPrompt
           }]
         }],
         generationConfig: {
           temperature: 0.8,
           topK: 40,
           topP: 0.95,
-          maxOutputTokens: 3000,
+          maxOutputTokens: 4000,
         },
         safetySettings: [
           {
@@ -150,19 +179,19 @@ Begin with "पुत्र/पुत्री" (Son/Daughter) and maintain the 
     }
 
     const data = await response.json();
-    console.log('Gemini API response:', data);
+    console.log('Enhanced Gemini API response:', data);
 
     const analysis = data.candidates?.[0]?.content?.parts?.[0]?.text || 
-      'पुत्र/पुत्री, इस समय मैं आपके प्रश्न का उत्तर नहीं दे सकता। कृपया बाद में प्रयास करें। / Dear child, I cannot answer your question at this moment. Please try again later.';
+      'प्रिय आत्मा, इस समय तकनीकी कारणों से मैं आपके प्रश्न का पूर्ण उत्तर नहीं दे सकता। कृपया पुनः प्रयास करें। / Dear Soul, due to technical reasons, I cannot provide a complete answer at this moment. Please try again.';
 
     return new Response(JSON.stringify({ analysis }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error) {
-    console.error('Error in kundali-ai-analysis function:', error);
+    console.error('Error in enhanced kundali-ai-analysis function:', error);
     return new Response(JSON.stringify({ 
       error: error.message,
-      analysis: 'पुत्र/पुत्री, क्षमा करें। तकनीकी समस्या के कारण मैं इस समय आपकी सहायता नहीं कर सकता। कृपया बाद में पुनः प्रयास करें। / Dear child, I apologize. Due to technical issues, I cannot assist you at this moment. Please try again later.' 
+      analysis: 'प्रिय आत्मा, क्षमा करें। उन्नत तकनीकी विश्लेषण में समस्या के कारण मैं इस समय आपकी सहायता नहीं कर सकता। कृपया बाद में पुनः प्रयास करें। / Dear Soul, I apologize. Due to advanced technical analysis issues, I cannot assist you at this moment. Please try again later.' 
     }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
