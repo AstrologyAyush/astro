@@ -1,66 +1,121 @@
+
 import React from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { Languages, Star, Home, Menu } from "lucide-react";
-import { useIsMobile } from '@/hooks/use-mobile';
+import { Star, Home, User, Settings } from "lucide-react";
+import { useAuth } from '@/contexts/AuthContext';
 import AppLogo from './AppLogo';
+
 interface AppLayoutProps {
   children: React.ReactNode;
   language: 'hi' | 'en';
-  onLanguageToggle: () => void;
 }
-const AppLayout: React.FC<AppLayoutProps> = ({
-  children,
-  language,
-  onLanguageToggle
-}) => {
+
+const AppLayout: React.FC<AppLayoutProps> = ({ children, language }) => {
   const location = useLocation();
-  const isMobile = useIsMobile();
+  const navigate = useNavigate();
+  const { isLoggedIn, settings, updateSettings } = useAuth();
+  
   const isLandingPage = location.pathname === '/';
-  return <div className="min-h-screen bg-background">
-      {/* Mobile-First Header */}
-      <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
-        <div className="container mx-auto px-3 h-14 flex items-center justify-between">
-          {/* Logo - Mobile Optimized */}
-          <div className="flex items-center gap-2">
-            <AppLogo size="sm" />
-            <span className="font-bold text-base gradient-heading">Ayu Explorer</span>
-          </div>
+  const isLoginPage = location.pathname === '/login';
+  const isProfilePage = location.pathname === '/profile';
 
-          {/* Mobile Actions */}
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={onLanguageToggle} className="h-8 px-2 rounded-full text-xs">
-              <Languages className="h-3 w-3 mr-1" />
-              {language === 'hi' ? 'EN' : 'हिं'}
-            </Button>
-          </div>
-        </div>
-      </header>
+  const toggleLanguage = () => {
+    updateSettings({ language: language === 'hi' ? 'en' : 'hi' });
+  };
 
-      {/* Main Content - Mobile First */}
-      <main className="flex-1 pb-16">
+  const getTranslation = (en: string, hi: string) => {
+    return language === 'hi' ? hi : en;
+  };
+
+  return (
+    <div className="min-h-screen bg-background text-foreground">
+      {/* Header - only show on landing page */}
+      {isLandingPage && (
+        <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
+          <div className="container mx-auto px-3 h-14 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <AppLogo size="sm" />
+              <span className="font-bold text-base gradient-heading">AyushAstro</span>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={toggleLanguage} 
+                className="h-8 px-2 rounded-full text-xs"
+              >
+                {language === 'hi' ? 'EN' : 'हिं'}
+              </Button>
+              {!isLoggedIn && (
+                <Button 
+                  variant="default" 
+                  size="sm" 
+                  onClick={() => navigate('/login')}
+                  className="h-8 px-3 rounded-full text-xs bg-orange-500 hover:bg-orange-600"
+                >
+                  {getTranslation('Login', 'लॉगिन')}
+                </Button>
+              )}
+            </div>
+          </div>
+        </header>
+      )}
+
+      {/* Main Content */}
+      <main className={`flex-1 ${!isLoginPage && !isProfilePage ? 'pb-16' : ''}`}>
         {children}
       </main>
 
-      {/* Mobile Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-background border-t z-40 safe-area-pb">
-        <div className="grid grid-cols-3 gap-1 p-1">
-          <Button variant="ghost" size="sm" onClick={() => window.location.href = '/'} className="flex flex-col gap-0.5 h-12 py-1 rounded-lg">
-            <Home className="h-4 w-4" />
-            <span className="text-xs">{language === 'hi' ? 'होम' : 'Home'}</span>
-          </Button>
-          
-          <Button variant="ghost" size="sm" onClick={() => window.location.href = '/kundali'} className="flex flex-col gap-0.5 h-12 py-1 rounded-lg bg-slate-950 hover:bg-slate-800">
-            <Star className="h-4 w-4" />
-            <span className="text-xs">{language === 'hi' ? 'कुंडली' : 'Kundali'}</span>
-          </Button>
-          
-          <Button variant="ghost" size="sm" onClick={onLanguageToggle} className="flex flex-col gap-0.5 h-12 py-1 rounded-lg">
-            <Languages className="h-4 w-4" />
-            <span className="text-xs">{language === 'hi' ? 'भाषा' : 'Lang'}</span>
-          </Button>
-        </div>
-      </nav>
-    </div>;
+      {/* Mobile Bottom Navigation - hide on login and profile pages */}
+      {!isLoginPage && !isProfilePage && (
+        <nav className="fixed bottom-0 left-0 right-0 bg-background border-t z-40 safe-area-pb">
+          <div className="grid grid-cols-4 gap-1 p-1">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => navigate('/')} 
+              className={`flex flex-col gap-0.5 h-12 py-1 rounded-lg ${location.pathname === '/' ? 'bg-orange-500/20 text-orange-400' : ''}`}
+            >
+              <Home className="h-4 w-4" />
+              <span className="text-xs">{getTranslation('Home', 'होम')}</span>
+            </Button>
+            
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => navigate('/kundali')} 
+              className={`flex flex-col gap-0.5 h-12 py-1 rounded-lg ${location.pathname === '/kundali' ? 'bg-orange-500/20 text-orange-400' : ''}`}
+            >
+              <Star className="h-4 w-4" />
+              <span className="text-xs">{getTranslation('Kundali', 'कुंडली')}</span>
+            </Button>
+            
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => navigate(isLoggedIn ? '/profile' : '/login')} 
+              className={`flex flex-col gap-0.5 h-12 py-1 rounded-lg ${location.pathname === '/profile' ? 'bg-orange-500/20 text-orange-400' : ''}`}
+            >
+              <User className="h-4 w-4" />
+              <span className="text-xs">{getTranslation('Profile', 'प्रोफ़ाइल')}</span>
+            </Button>
+            
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={toggleLanguage} 
+              className="flex flex-col gap-0.5 h-12 py-1 rounded-lg"
+            >
+              <Settings className="h-4 w-4" />
+              <span className="text-xs">{getTranslation('Lang', 'भाषा')}</span>
+            </Button>
+          </div>
+        </nav>
+      )}
+    </div>
+  );
 };
+
 export default AppLayout;

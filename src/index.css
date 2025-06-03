@@ -7,33 +7,48 @@
 
 @layer base {
   :root {
-    --background: 220 13% 9%;
-    --foreground: 220 9% 95%;
-    --card: 220 13% 12%;
-    --card-foreground: 220 9% 95%;
-    --popover: 220 13% 12%;
-    --popover-foreground: 220 9% 95%;
+    --background: 0 0% 100%;
+    --foreground: 0 0% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 3.9%;
     --primary: 25 95% 53%;
-    --primary-foreground: 220 13% 9%;
-    --secondary: 220 13% 15%;
-    --secondary-foreground: 220 9% 95%;
-    --muted: 220 13% 15%;
-    --muted-foreground: 220 9% 60%;
-    --accent: 220 13% 18%;
-    --accent-foreground: 220 9% 95%;
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 220 9% 95%;
-    --border: 220 13% 18%;
-    --input: 220 13% 18%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 96.1%;
+    --secondary-foreground: 0 0% 9%;
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
+    --accent: 0 0% 96.1%;
+    --accent-foreground: 0 0% 9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
     --ring: 25 95% 53%;
-    --radius: 12px;
-    
-    /* Custom astrology colors */
-    --astro-orange: 25 95% 53%;
-    --astro-orange-dark: 20 90% 45%;
-    --astro-blue: 210 100% 60%;
-    --astro-purple: 270 100% 70%;
-    --astro-gold: 45 100% 60%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 0 0% 0%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 6%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 6%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 25 95% 53%;
+    --primary-foreground: 0 0% 0%;
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+    --accent: 0 0% 14.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 25 95% 53%;
   }
 }
 
@@ -60,46 +75,53 @@
       font-size: 16px;
     }
   }
-  
-  /* Scrollbar styling */
-  ::-webkit-scrollbar {
-    width: 6px;
-  }
-  
-  ::-webkit-scrollbar-track {
-    @apply bg-muted;
-  }
-  
-  ::-webkit-scrollbar-thumb {
-    @apply bg-muted-foreground/30 rounded-full;
-  }
-  
-  ::-webkit-scrollbar-thumb:hover {
-    @apply bg-muted-foreground/50;
-  }
 }
 
-/* Astrology-specific components */
-.astro-gradient {
-  background: linear-gradient(135deg, hsl(var(--astro-orange)) 0%, hsl(var(--astro-orange-dark)) 100%);
+/* Dark theme by default */
+html {
+  @apply dark;
 }
 
-.astro-card {
-  @apply bg-card/50 backdrop-blur-sm border border-border/50 rounded-2xl overflow-hidden;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+/* Gradient text */
+.gradient-heading {
+  background: linear-gradient(135deg, hsl(var(--primary)) 0%, #f97316 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
-.astro-button {
-  @apply bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-medium px-6 py-3 rounded-full transition-all duration-200 shadow-lg hover:shadow-xl;
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
 }
 
-.astro-button-outline {
-  @apply border border-orange-500/30 bg-orange-500/10 hover:bg-orange-500/20 text-orange-400 hover:text-orange-300 font-medium px-6 py-3 rounded-full transition-all duration-200;
+::-webkit-scrollbar-track {
+  @apply bg-muted;
 }
 
-/* Kundali Chart styling */
+::-webkit-scrollbar-thumb {
+  @apply bg-muted-foreground/30 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-muted-foreground/50;
+}
+
+/* Calendar styling for dark theme */
+.rdp {
+  --rdp-cell-size: 40px;
+  --rdp-accent-color: hsl(25 95% 53%);
+  --rdp-background-color: hsl(0 0% 6%);
+}
+
+/* Mobile-first responsive design */
+.safe-area-pb {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Kundali chart styling */
 .kundali-chart {
-  @apply relative rounded-2xl p-6 astro-card aspect-square max-w-md mx-auto;
+  @apply relative rounded-2xl p-6 aspect-square max-w-md mx-auto;
   background: linear-gradient(135deg, 
     rgba(251, 146, 60, 0.1) 0%, 
     rgba(251, 146, 60, 0.05) 50%,
@@ -113,7 +135,7 @@
 }
 
 .kundali-house:hover {
-  @apply border-orange-500/40 shadow-lg;
+  @apply border-orange-500/40;
   transform: scale(1.02);
 }
 
@@ -127,6 +149,7 @@
   margin: 1px;
 }
 
+/* Planet-specific colors */
 .planet-symbol-sun { @apply bg-yellow-500/20 text-yellow-300 border-yellow-500/30; }
 .planet-symbol-moon { @apply bg-blue-500/20 text-blue-300 border-blue-500/30; }
 .planet-symbol-mars { @apply bg-red-500/20 text-red-300 border-red-500/30; }
@@ -137,31 +160,12 @@
 .planet-symbol-rahu { @apply bg-orange-500/20 text-orange-300 border-orange-500/30; }
 .planet-symbol-ketu { @apply bg-orange-500/20 text-orange-300 border-orange-500/30; }
 
-/* Status indicators */
-.status-excellent { @apply text-emerald-400; }
-.status-good { @apply text-green-400; }
-.status-average { @apply text-yellow-400; }
-.status-weak { @apply text-orange-400; }
-.status-very-weak { @apply text-red-400; }
-
-/* Animations */
-@keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-5px); }
-}
-
-@keyframes glow {
-  0%, 100% { box-shadow: 0 0 20px rgba(251, 146, 60, 0.3); }
-  50% { box-shadow: 0 0 30px rgba(251, 146, 60, 0.5); }
-}
-
-.animate-float {
-  animation: float 3s ease-in-out infinite;
-}
-
-.animate-glow {
-  animation: glow 2s ease-in-out infinite alternate;
-}
+/* Strength indicators */
+.strength-excellent { @apply text-emerald-400; }
+.strength-good { @apply text-green-400; }
+.strength-average { @apply text-yellow-400; }
+.strength-weak { @apply text-orange-400; }
+.strength-very-weak { @apply text-red-400; }
 
 /* Mobile optimizations */
 @media (max-width: 640px) {
@@ -180,92 +184,21 @@
   }
 }
 
-/* Enhanced glassmorphism effect */
-.glass-card {
-  background: rgba(30, 30, 30, 0.7);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(251, 146, 60, 0.1);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+/* Animations */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-5px); }
 }
 
-/* Custom gradient text */
-.gradient-text {
-  background: linear-gradient(135deg, hsl(var(--astro-orange)) 0%, hsl(var(--astro-gold)) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+@keyframes glow {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
 }
 
-/* Navigation styles */
-.nav-item {
-  @apply relative px-4 py-2 rounded-full transition-all duration-200;
+.animate-float {
+  animation: float 3s ease-in-out infinite;
 }
 
-.nav-item.active {
-  @apply bg-orange-500/20 text-orange-400;
-}
-
-.nav-item:hover {
-  @apply bg-orange-500/10 text-orange-300;
-}
-
-/* Form styles */
-.astro-input {
-  @apply bg-background/50 border border-border/50 rounded-xl px-4 py-3 text-foreground placeholder:text-muted-foreground focus:border-orange-500/50 focus:ring-2 focus:ring-orange-500/20 transition-all duration-200;
-}
-
-.astro-select {
-  @apply bg-background/50 border border-border/50 rounded-xl px-4 py-3 text-foreground focus:border-orange-500/50 focus:ring-2 focus:ring-orange-500/20 transition-all duration-200;
-}
-
-/* Loading animations */
-.loading-dots {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.loading-dots span {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: hsl(var(--astro-orange));
-  animation: loading-bounce 1.4s ease-in-out infinite both;
-}
-
-.loading-dots span:nth-child(1) { animation-delay: -0.32s; }
-.loading-dots span:nth-child(2) { animation-delay: -0.16s; }
-
-@keyframes loading-bounce {
-  0%, 80%, 100% { transform: scale(0); }
-  40% { transform: scale(1); }
-}
-
-/* Enhanced planetary positions table */
-.planetary-table {
-  @apply w-full border-collapse;
-}
-
-.planetary-table th {
-  @apply bg-muted/30 text-left p-3 text-sm font-semibold text-muted-foreground border-b border-border/50;
-}
-
-.planetary-table td {
-  @apply p-3 text-sm border-b border-border/30 transition-colors duration-200;
-}
-
-.planetary-table tr:hover {
-  @apply bg-orange-500/5;
-}
-
-/* Responsive grid for analysis cards */
-.analysis-grid {
-  @apply grid gap-4;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-}
-
-@media (max-width: 640px) {
-  .analysis-grid {
-    grid-template-columns: 1fr;
-  }
+.animate-glow {
+  animation: glow 2s ease-in-out infinite alternate;
 }

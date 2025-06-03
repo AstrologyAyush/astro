@@ -10,16 +10,34 @@ interface Profile {
   last_name: string;
   birth_date?: string;
   profile_image?: string;
+  created_at: string;
+}
+
+interface UserSettings {
+  theme: 'light' | 'dark' | 'system';
+  language: 'en' | 'hi';
+  notifications: boolean;
+}
+
+interface SavedKundali {
+  id: string;
+  name: string;
+  birth_data: any;
+  chart_data: any;
+  created_at: string;
 }
 
 interface UserWithProfile extends User {
   profile?: Profile;
-  savedCharts?: any[];
+  settings?: UserSettings;
+  savedKundalis?: SavedKundali[];
 }
 
 interface AuthContextType {
   user: UserWithProfile | null;
   profile: Profile | null;
+  settings: UserSettings;
+  savedKundalis: SavedKundali[];
   session: Session | null;
   isLoggedIn: boolean;
   isLoading: boolean;
@@ -27,7 +45,16 @@ interface AuthContextType {
   signup: (email: string, password: string, firstName: string, lastName: string) => Promise<boolean>;
   logout: () => Promise<void>;
   updateProfile: (updates: Partial<Profile>) => Promise<boolean>;
+  updateSettings: (updates: Partial<UserSettings>) => Promise<void>;
+  saveKundali: (name: string, birthData: any, chartData: any) => Promise<boolean>;
+  deleteKundali: (id: string) => Promise<boolean>;
 }
+
+const defaultSettings: UserSettings = {
+  theme: 'dark',
+  language: 'en',
+  notifications: true
+};
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -42,39 +69,19 @@ export const useAuth = (): AuthContextType => {
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<UserWithProfile | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [settings, setSettings] = useState<UserSettings>(defaultSettings);
+  const [savedKundalis, setSavedKundalis] = useState<SavedKundali[]>([]);
   const [session, setSession] = useState<Session | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const { toast } = useToast();
 
-  // Temporarily disable database operations since no tables are set up
-  const fetchProfile = async (userId: string) => {
-    try {
-      // TODO: Implement when profiles table is created
-      // For now, return null
-      console.log('Profile fetching disabled - no tables configured');
-      return null;
-    } catch (error) {
-      console.error('Error fetching profile:', error);
-    }
-    return null;
-  };
-
-  // Temporarily disable database operations since no tables are set up
-  const fetchSavedCharts = async (userId: string) => {
-    try {
-      // TODO: Implement when saved_kundalis table is created
-      // For now, return empty array
-      console.log('Saved charts fetching disabled - no tables configured');
-      return [];
-    } catch (error) {
-      console.error('Error fetching saved charts:', error);
-    }
-    return [];
-  };
-
   useEffect(() => {
-    setIsLoading(true);
+    // Load settings from localStorage
+    const savedSettings = localStorage.getItem('ayush-astro-settings');
+    if (savedSettings) {
+      setSettings({ ...defaultSettings, ...JSON.parse(savedSettings) });
+    }
 
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -86,19 +93,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsLoggedIn(!!currentUser);
 
         if (currentUser) {
-          setTimeout(async () => {
-            const userProfile = await fetchProfile(currentUser.id);
-            const savedCharts = await fetchSavedCharts(currentUser.id);
+          // Simulate profile and kundali loading (since no tables exist)
+          setTimeout(() => {
+            const mockProfile: Profile = {
+              id: currentUser.id,
+              first_name: currentUser.user_metadata?.first_name || 'User',
+              last_name: currentUser.user_metadata?.last_name || '',
+              birth_date: currentUser.user_metadata?.birth_date,
+              profile_image: currentUser.user_metadata?.profile_image,
+              created_at: currentUser.created_at
+            };
             
-            setUser(prev => prev ? {
-              ...prev,
-              profile: userProfile || undefined,
-              savedCharts: savedCharts || []
-            } : null);
+            setProfile(mockProfile);
+            setUser(prev => prev ? { ...prev, profile: mockProfile } : null);
+            
+            // Load saved kundalis from localStorage for now
+            const savedKundalisKey = `saved-kundalis-${currentUser.id}`;
+            const userKundalis = localStorage.getItem(savedKundalisKey);
+            if (userKundalis) {
+              setSavedKundalis(JSON.parse(userKundalis));
+            }
           }, 0);
         } else {
           setProfile(null);
+          setSavedKundalis([]);
         }
+        
+        setIsLoading(false);
       }
     );
 
@@ -110,26 +131,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(initialUser as UserWithProfile | null);
       setIsLoggedIn(!!initialUser);
 
-      if (initialUser) {
-        fetchProfile(initialUser.id).then(userProfile => {
-          fetchSavedCharts(initialUser.id).then(savedCharts => {
-            setUser(prev => prev ? {
-              ...prev,
-              profile: userProfile || undefined,
-              savedCharts: savedCharts || []
-            } : null);
-          });
-        }).finally(() => {
-          setIsLoading(false);
-        });
-      } else {
+      if (!initialUser) {
         setIsLoading(false);
       }
     });
 
-    return () => {
-      subscription.unsubscribe();
-    };
+    return () => subscription.unsubscribe();
   }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
@@ -150,12 +157,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       toast({
-        title: "Login successful",
+        title: "Welcome back!",
         description: "You've been successfully logged in",
       });
       return true;
     } catch (error: any) {
-      console.error('Login failed', error);
       toast({
         title: "Login error",
         description: error.message || "An unexpected error occurred",
@@ -175,7 +181,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   ): Promise<boolean> => {
     try {
       setIsLoading(true);
-      const { error, data } = await supabase.auth.signUp({
+      const { error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -196,12 +202,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       toast({
-        title: "Registration successful",
-        description: "Your account has been created",
+        title: "Account created!",
+        description: "Please check your email to verify your account",
       });
       return true;
     } catch (error: any) {
-      console.error('Registration failed', error);
       toast({
         title: "Registration error",
         description: error.message || "An unexpected error occurred",
@@ -220,7 +225,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setProfile(null);
       setSession(null);
       setIsLoggedIn(false);
-      localStorage.removeItem('ayushAstroUser');
+      setSavedKundalis([]);
+      toast({
+        title: "Logged out",
+        description: "You've been successfully logged out",
+      });
     } catch (error) {
       console.error('Logout failed', error);
     }
@@ -230,33 +239,130 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!user) return false;
     
     try {
-      // TODO: Implement when profiles table is created
-      console.log('Profile update disabled - no tables configured');
-      
-      // For now, just update local state
       const updatedProfile = { ...profile, ...updates } as Profile;
       setProfile(updatedProfile);
       setUser(prev => prev ? { ...prev, profile: updatedProfile } : null);
       
+      toast({
+        title: "Profile updated",
+        description: "Your profile has been successfully updated",
+      });
       return true;
     } catch (error) {
-      console.error('Error updating profile:', error);
+      toast({
+        title: "Update failed",
+        description: "There was an error updating your profile",
+        variant: "destructive"
+      });
       return false;
     }
   };
+
+  const updateSettings = async (updates: Partial<UserSettings>): Promise<void> => {
+    const newSettings = { ...settings, ...updates };
+    setSettings(newSettings);
+    localStorage.setItem('ayush-astro-settings', JSON.stringify(newSettings));
+    
+    // Apply theme immediately
+    if (updates.theme) {
+      const root = document.documentElement;
+      if (updates.theme === 'dark') {
+        root.classList.add('dark');
+      } else if (updates.theme === 'light') {
+        root.classList.remove('dark');
+      } else {
+        // System theme
+        const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (systemDark) {
+          root.classList.add('dark');
+        } else {
+          root.classList.remove('dark');
+        }
+      }
+    }
+  };
+
+  const saveKundali = async (name: string, birthData: any, chartData: any): Promise<boolean> => {
+    if (!user) return false;
+    
+    try {
+      const newKundali: SavedKundali = {
+        id: Date.now().toString(),
+        name,
+        birth_data: birthData,
+        chart_data: chartData,
+        created_at: new Date().toISOString()
+      };
+      
+      const updatedKundalis = [...savedKundalis, newKundali];
+      setSavedKundalis(updatedKundalis);
+      
+      // Save to localStorage for now
+      const savedKundalisKey = `saved-kundalis-${user.id}`;
+      localStorage.setItem(savedKundalisKey, JSON.stringify(updatedKundalis));
+      
+      toast({
+        title: "Kundali saved",
+        description: `${name} has been saved to your collection`,
+      });
+      return true;
+    } catch (error) {
+      toast({
+        title: "Save failed",
+        description: "There was an error saving your kundali",
+        variant: "destructive"
+      });
+      return false;
+    }
+  };
+
+  const deleteKundali = async (id: string): Promise<boolean> => {
+    if (!user) return false;
+    
+    try {
+      const updatedKundalis = savedKundalis.filter(k => k.id !== id);
+      setSavedKundalis(updatedKundalis);
+      
+      const savedKundalisKey = `saved-kundalis-${user.id}`;
+      localStorage.setItem(savedKundalisKey, JSON.stringify(updatedKundalis));
+      
+      toast({
+        title: "Kundali deleted",
+        description: "The kundali has been removed from your collection",
+      });
+      return true;
+    } catch (error) {
+      toast({
+        title: "Delete failed",
+        description: "There was an error deleting the kundali",
+        variant: "destructive"
+      });
+      return false;
+    }
+  };
+
+  // Apply initial theme
+  useEffect(() => {
+    updateSettings({ theme: settings.theme });
+  }, []);
 
   return (
     <AuthContext.Provider
       value={{
         user,
         profile,
+        settings,
+        savedKundalis,
         session,
         isLoggedIn,
         isLoading,
         login,
         signup,
         logout,
-        updateProfile
+        updateProfile,
+        updateSettings,
+        saveKundali,
+        deleteKundali
       }}
     >
       {children}

@@ -1,524 +1,253 @@
-import React, { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { Calendar, MapPin, Clock, User } from "lucide-react";
+
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { CalendarIcon, MapPin, Clock, User, Sparkles } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { Calendar as CalendarComponent } from "@/components/ui/calendar";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Input } from "@/components/ui/input";
-import { BirthData } from "@/lib/kundaliUtils";
-import { useToast } from "@/hooks/use-toast";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-// Cities data with coordinates
-const CITIES_DATA: {
-  [key: string]: {
-    lat: number;
-    lng: number;
-    tz: number;
-  };
-} = {
-  "delhi": {
-    lat: 28.6139,
-    lng: 77.2090,
-    tz: 5.5
-  },
-  "mumbai": {
-    lat: 19.0760,
-    lng: 72.8777,
-    tz: 5.5
-  },
-  "kolkata": {
-    lat: 22.5726,
-    lng: 88.3639,
-    tz: 5.5
-  },
-  "chennai": {
-    lat: 13.0827,
-    lng: 80.2707,
-    tz: 5.5
-  },
-  "bengaluru": {
-    lat: 12.9716,
-    lng: 77.5946,
-    tz: 5.5
-  },
-  "hyderabad": {
-    lat: 17.3850,
-    lng: 78.4867,
-    tz: 5.5
-  },
-  "ahmedabad": {
-    lat: 23.0225,
-    lng: 72.5714,
-    tz: 5.5
-  },
-  "pune": {
-    lat: 18.5204,
-    lng: 73.8567,
-    tz: 5.5
-  },
-  "jaipur": {
-    lat: 26.9124,
-    lng: 75.7873,
-    tz: 5.5
-  },
-  "lucknow": {
-    lat: 26.8467,
-    lng: 80.9462,
-    tz: 5.5
-  },
-  "kanpur": {
-    lat: 26.4499,
-    lng: 80.3319,
-    tz: 5.5
-  },
-  "nagpur": {
-    lat: 21.1458,
-    lng: 79.0882,
-    tz: 5.5
-  },
-  "indore": {
-    lat: 22.7196,
-    lng: 75.8577,
-    tz: 5.5
-  },
-  "bhopal": {
-    lat: 23.2599,
-    lng: 77.4126,
-    tz: 5.5
-  },
-  "patna": {
-    lat: 25.5941,
-    lng: 85.1376,
-    tz: 5.5
-  }
-};
-const formSchema = z.object({
-  fullName: z.string().min(2, {
-    message: "नाम कम से कम 2 अक्षर का होना चाहिए।"
-  }),
-  birthDate: z.date({
-    required_error: "जन्म तिथि आवश्यक है।"
-  }),
-  birthTime: z.string().min(5, {
-    message: "जन्म समय HH:MM प्रारूप में होना चाहिए।"
-  }),
-  birthPlace: z.string().min(2, {
-    message: "कृपया एक वैध जन्म स्थान दर्ज करें।"
-  }),
-  latitude: z.number({
-    required_error: "अक्षांश आवश्यक है।",
-    invalid_type_error: "अक्षांश एक संख्या होनी चाहिए।"
-  }).min(-90).max(90),
-  longitude: z.number({
-    required_error: "देशांतर आवश्यक है।",
-    invalid_type_error: "देशांतर एक संख्या होनी चाहिए।"
-  }).min(-180).max(180),
-  timezone: z.number()
-});
-interface BirthDataFormProps {
-  onSubmit: (data: BirthData & {
-    fullName: string;
-  }) => void;
-  loading?: boolean;
-  language?: 'hi' | 'en';
+interface BirthData {
+  name: string;
+  dateOfBirth: Date;
+  timeOfBirth: string;
+  placeOfBirth: string;
+  latitude: number;
+  longitude: number;
 }
 
-const BirthDataForm: React.FC<BirthDataFormProps> = ({
-  onSubmit,
-  loading = false,
-  language = 'en'
-}) => {
-  const [locationStatus, setLocationStatus] = useState<{
-    loading: boolean;
-    error?: string;
-  }>({
-    loading: false
-  });
-  const {
-    toast
-  } = useToast();
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      fullName: "",
-      birthDate: new Date(),
-      birthTime: "12:00",
-      birthPlace: "",
-      latitude: 0,
-      longitude: 0,
-      timezone: 5.5
-    }
-  });
-  function handleFormSubmit(values: z.infer<typeof formSchema>) {
-    const birthData: BirthData & {
-      fullName: string;
-    } = {
-      fullName: values.fullName,
-      date: values.birthDate.toISOString().split('T')[0],
-      // Convert Date to string
-      time: values.birthTime,
-      place: values.birthPlace,
-      latitude: values.latitude,
-      longitude: values.longitude,
-      timezone: values.timezone
-    };
-    onSubmit(birthData);
-  }
+interface BirthDataFormProps {
+  onSubmit: (data: BirthData) => void;
+  isLoading?: boolean;
+  language: 'en' | 'hi';
+}
 
-  // Get geolocation for birth place
-  const getGeolocation = async () => {
-    const place = form.getValues("birthPlace").trim().toLowerCase();
-    if (!place) {
-      toast({
-        title: "त्रुटि",
-        description: "कृपया पहले जन्म स्थान दर्ज करें",
-        variant: "destructive"
-      });
-      return;
-    }
-    setLocationStatus({
-      loading: true
-    });
+const BirthDataForm: React.FC<BirthDataFormProps> = ({ onSubmit, isLoading = false, language }) => {
+  const [formData, setFormData] = useState({
+    name: '',
+    dateOfBirth: undefined as Date | undefined,
+    timeOfBirth: '',
+    placeOfBirth: '',
+  });
+  const [coordinates, setCoordinates] = useState({ latitude: 0, longitude: 0 });
+
+  const getTranslation = (en: string, hi: string) => {
+    return language === 'hi' ? hi : en;
+  };
+
+  const handleLocationSearch = async (place: string) => {
     try {
-      // Check in our predefined cities first
-      const cityMatch = Object.keys(CITIES_DATA).find(city => place.includes(city) || city.includes(place));
-      if (cityMatch) {
-        const {
-          lat,
-          lng,
-          tz
-        } = CITIES_DATA[cityMatch];
-        form.setValue("latitude", lat);
-        form.setValue("longitude", lng);
-        form.setValue("timezone", tz);
-        toast({
-          title: "स्थान मिल गया",
-          description: `${place} के लिए निर्देशांक सेट किए गए`
+      // Mock coordinates for common Indian cities
+      const cityCoordinates: { [key: string]: { lat: number; lon: number } } = {
+        'delhi': { lat: 28.6139, lon: 77.2090 },
+        'mumbai': { lat: 19.0760, lon: 72.8777 },
+        'bangalore': { lat: 12.9716, lon: 77.5946 },
+        'chennai': { lat: 13.0827, lon: 80.2707 },
+        'kolkata': { lat: 22.5726, lon: 88.3639 },
+        'hyderabad': { lat: 17.3850, lon: 78.4867 },
+        'pune': { lat: 18.5204, lon: 73.8567 },
+        'ahmedabad': { lat: 23.0225, lon: 72.5714 },
+        'jaipur': { lat: 26.9124, lon: 75.7873 },
+        'lucknow': { lat: 26.8467, lon: 80.9462 }
+      };
+
+      const city = place.toLowerCase();
+      if (cityCoordinates[city]) {
+        setCoordinates({
+          latitude: cityCoordinates[city].lat,
+          longitude: cityCoordinates[city].lon
         });
       } else {
-        // Simulate API call with a small delay
-        setTimeout(() => {
-          // If not found in our database, estimate based on country/region
-          if (place.includes("india") || place.includes("bharat") || place.includes("भारत")) {
-            form.setValue("latitude", 20.5937);
-            form.setValue("longitude", 78.9629);
-            form.setValue("timezone", 5.5);
-          } else {
-            // Default to Delhi
-            form.setValue("latitude", 28.6139);
-            form.setValue("longitude", 77.2090);
-            form.setValue("timezone", 5.5);
-          }
-          toast({
-            title: "अनुमानित स्थान",
-            description: "अनुमानित निर्देशांक का उपयोग कर रहे हैं। कृपया सत्यापित करें।"
-          });
-        }, 800);
+        // Default to Delhi if city not found
+        setCoordinates({ latitude: 28.6139, longitude: 77.2090 });
       }
     } catch (error) {
-      toast({
-        title: "त्रुटि",
-        description: "स्थान नहीं मिला। कृपया निर्देशांक मैन्युअली दर्ज करें।",
-        variant: "destructive"
-      });
-    } finally {
-      setLocationStatus({
-        loading: false
-      });
+      console.error('Error fetching coordinates:', error);
+      setCoordinates({ latitude: 28.6139, longitude: 77.2090 });
     }
   };
 
-  // Quick city selection
-  const handleQuickCitySelect = (cityName: string) => {
-    const city = CITIES_DATA[cityName.toLowerCase()];
-    if (city) {
-      form.setValue("birthPlace", cityName);
-      form.setValue("latitude", city.lat);
-      form.setValue("longitude", city.lng);
-      form.setValue("timezone", city.tz);
-      toast({
-        title: "स्थान चुना गया",
-        description: `${cityName} के लिए निर्देशांक सेट किए गए`
-      });
+  useEffect(() => {
+    if (formData.placeOfBirth) {
+      handleLocationSearch(formData.placeOfBirth);
     }
+  }, [formData.placeOfBirth]);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.dateOfBirth || !formData.timeOfBirth || !formData.placeOfBirth) {
+      return;
+    }
+
+    onSubmit({
+      name: formData.name || 'Unknown',
+      dateOfBirth: formData.dateOfBirth,
+      timeOfBirth: formData.timeOfBirth,
+      placeOfBirth: formData.placeOfBirth,
+      latitude: coordinates.latitude,
+      longitude: coordinates.longitude,
+    });
   };
+
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-6">
-        {/* Full Name Field */}
-        <FormField
-          control={form.control}
-          name="fullName"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>पूरा नाम</FormLabel>
-              <FormControl>
-                <div className="relative">
-                  <User className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                  <Input placeholder="अपना पूरा नाम दर्ज करें" className="pl-8" {...field} />
-                </div>
-              </FormControl>
-              <FormDescription>
-                आपका नाम जैसा आधिकारिक दस्तावेजों में दिखाई देता है।
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        
-        <div className="grid gap-4 sm:grid-cols-2">
-          {/* Enhanced Birth Date Field with Better Visibility */}
-          <FormField
-            control={form.control}
-            name="birthDate"
-            render={({ field }) => (
-              <FormItem className="flex flex-col">
-                <FormLabel>जन्म तिथि</FormLabel>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <FormControl>
-                      <Button
-                        variant={"outline"}
-                        className={cn(
-                          "w-full pl-3 text-left font-normal flex items-center",
-                          !field.value && "text-muted-foreground"
-                        )}
-                      >
-                        <Calendar className="mr-2 h-4 w-4 opacity-70" />
-                        {field.value ? (
-                          format(field.value, "dd MMMM yyyy")
-                        ) : (
-                          <span>तिथि चुनें</span>
-                        )}
-                      </Button>
-                    </FormControl>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <CalendarComponent
-                      mode="single"
-                      selected={field.value}
-                      onSelect={field.onChange}
-                      disabled={(date) =>
-                        date > new Date() || date < new Date("1900-01-01")
-                      }
-                      initialFocus
-                      showOutsideDays
-                      captionLayout="dropdown-buttons"
-                      fromYear={1900}
-                      toYear={2025}
-                      className="bg-background border-none shadow-none"
-                      classNames={{
-                        months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
-                        month: "space-y-4",
-                        caption: "flex justify-center pt-1 relative items-center",
-                        caption_label: "text-sm font-medium text-foreground",
-                        caption_dropdowns: "flex justify-center gap-1",
-                        dropdown: "bg-background border border-border rounded-md px-3 py-1 text-sm text-foreground font-medium",
-                        dropdown_month: "bg-background border border-border rounded-md px-3 py-1 text-sm text-foreground font-medium min-w-[120px]",
-                        dropdown_year: "bg-background border border-border rounded-md px-3 py-1 text-sm text-foreground font-medium min-w-[80px]",
-                        nav: "space-x-1 flex items-center",
-                        nav_button: cn(
-                          "inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors",
-                          "hover:bg-accent hover:text-accent-foreground h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100"
-                        ),
-                        nav_button_previous: "absolute left-1",
-                        nav_button_next: "absolute right-1",
-                        table: "w-full border-collapse space-y-1",
-                        head_row: "flex",
-                        head_cell: "text-muted-foreground rounded-md w-9 font-normal text-[0.8rem]",
-                        row: "flex w-full mt-2",
-                        cell: "h-9 w-9 text-center text-sm p-0 relative [&:has([aria-selected].day-range-end)]:rounded-r-md [&:has([aria-selected].day-outside)]:bg-accent/50 [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
-                        day: cn(
-                          "inline-flex items-center justify-center rounded-md text-sm font-normal ring-offset-background transition-colors",
-                          "hover:bg-accent hover:text-accent-foreground h-9 w-9 p-0 font-normal aria-selected:opacity-100"
-                        ),
-                        day_range_end: "day-range-end",
-                        day_selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
-                        day_today: "bg-accent text-accent-foreground",
-                        day_outside: "day-outside text-muted-foreground opacity-50 aria-selected:bg-accent/50 aria-selected:text-muted-foreground aria-selected:opacity-30",
-                        day_disabled: "text-muted-foreground opacity-50",
-                        day_range_middle: "aria-selected:bg-accent aria-selected:text-accent-foreground",
-                        day_hidden: "invisible",
-                      }}
-                    />
-                  </PopoverContent>
-                </Popover>
-                <FormDescription>
-                  सटीक गणना के लिए आपकी जन्म तिथि महत्वपूर्ण है।
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          
-          {/* Birth Time Field */}
-          <FormField
-            control={form.control}
-            name="birthTime"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>जन्म समय (24-घंटे प्रारूप)</FormLabel>
-                <FormControl>
-                  <div className="relative">
-                    <Clock className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      type="time"
-                      placeholder="HH:MM"
-                      className="pl-8"
-                      {...field}
-                    />
-                  </div>
-                </FormControl>
-                <FormDescription>
-                  सटीक कुंडली गणना के लिए यथासंभव सटीक समय दर्ज करें।
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="text-center space-y-2">
+        <div className="flex justify-center">
+          <div className="p-3 bg-gradient-to-br from-orange-400 to-red-600 rounded-full">
+            <Sparkles className="h-6 w-6 text-white" />
+          </div>
         </div>
-        
-        {/* Birth Place Field */}
-        <FormField
-          control={form.control}
-          name="birthPlace"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>जन्म स्थान</FormLabel>
-              <FormControl>
-                <div className="flex">
-                  <div className="relative flex-grow">
-                    <MapPin className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      placeholder="शहर, राज्य, देश"
-                      {...field}
-                      className="rounded-r-none pl-8"
-                    />
-                  </div>
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    className="rounded-l-none flex items-center gap-1"
-                    onClick={getGeolocation}
-                    disabled={locationStatus.loading}
-                  >
-                    {locationStatus.loading ? "खोज रहा है..." : "पता करें"}
-                    <MapPin className="h-4 w-4 ml-1" />
-                  </Button>
-                </div>
-              </FormControl>
-              {locationStatus.error && (
-                <p className="text-sm text-red-500">{locationStatus.error}</p>
-              )}
-              <FormDescription>
-                अपना जन्म स्थान दर्ज करें, और हम इसके निर्देशांक ढूंढने का प्रयास करेंगे।
-              </FormDescription>
-              <FormMessage />
-              
-              <div className="mt-2">
-                <p className="text-sm mb-2">भारत के प्रमुख शहर:</p>
-                <div className="flex flex-wrap gap-2">
-                  {Object.keys(CITIES_DATA).slice(0, 6).map((city) => (
-                    <Button
-                      key={city}
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleQuickCitySelect(city.charAt(0).toUpperCase() + city.slice(1))}
-                      className="text-xs"
-                    >
-                      {city.charAt(0).toUpperCase() + city.slice(1)}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-            </FormItem>
-          )}
-        />
-        
-        {/* Latitude and Longitude Fields */}
-        <div className="grid grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="latitude"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>अक्षांश</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    step="0.0001"
-                    placeholder="उदा. 28.6139"
-                    {...field}
-                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
+        <h2 className="text-xl font-semibold text-white">
+          {getTranslation('Enter Birth Details', 'जन्म विवरण दर्ज करें')}
+        </h2>
+        <p className="text-gray-400 text-sm">
+          {getTranslation('Provide accurate information for precise calculations', 'सटीक गणना के लिए सही जानकारी दें')}
+        </p>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Name */}
+        <Card className="bg-gray-900 border-gray-800">
+          <CardContent className="p-4 space-y-3">
+            <Label htmlFor="name" className="text-white flex items-center gap-2">
+              <User className="h-4 w-4 text-gray-400" />
+              {getTranslation('Full Name', 'पूरा नाम')}
+            </Label>
+            <Input
+              id="name"
+              type="text"
+              placeholder={getTranslation('Enter your full name', 'अपना पूरा नाम दर्ज करें')}
+              value={formData.name}
+              onChange={(e) => setFormData({...formData, name: e.target.value})}
+              className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500"
+            />
+          </CardContent>
+        </Card>
+
+        {/* Date of Birth */}
+        <Card className="bg-gray-900 border-gray-800">
+          <CardContent className="p-4 space-y-3">
+            <Label className="text-white flex items-center gap-2">
+              <CalendarIcon className="h-4 w-4 text-gray-400" />
+              {getTranslation('Date of Birth', 'जन्म तिथि')}
+            </Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "w-full justify-start text-left font-normal bg-gray-800 border-gray-700 text-white hover:bg-gray-700",
+                    !formData.dateOfBirth && "text-gray-500"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4 text-gray-400" />
+                  {formData.dateOfBirth ? (
+                    format(formData.dateOfBirth, "PPP")
+                  ) : (
+                    <span>{getTranslation('Pick a date', 'तारीख चुनें')}</span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0 bg-gray-800 border-gray-700" align="start">
+                <Calendar
+                  mode="single"
+                  selected={formData.dateOfBirth}
+                  onSelect={(date) => setFormData({...formData, dateOfBirth: date})}
+                  disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
+                  initialFocus
+                  className="bg-gray-800 text-white"
+                  classNames={{
+                    months: "text-white",
+                    month: "text-white",
+                    caption: "text-white",
+                    caption_label: "text-white font-medium",
+                    nav: "text-white",
+                    nav_button: "text-white hover:bg-gray-700 hover:text-white border-0",
+                    nav_button_previous: "text-white hover:bg-gray-700",
+                    nav_button_next: "text-white hover:bg-gray-700",
+                    table: "text-white",
+                    head_row: "text-gray-400",
+                    head_cell: "text-gray-400 font-medium",
+                    row: "text-white",
+                    cell: "text-white",
+                    day: "text-white hover:bg-gray-700 hover:text-white aria-selected:bg-orange-500 aria-selected:text-white",
+                    day_today: "bg-gray-700 text-white",
+                    day_selected: "bg-orange-500 text-white hover:bg-orange-600",
+                    day_disabled: "text-gray-600",
+                    day_outside: "text-gray-600",
+                  }}
+                />
+              </PopoverContent>
+            </Popover>
+          </CardContent>
+        </Card>
+
+        {/* Time of Birth */}
+        <Card className="bg-gray-900 border-gray-800">
+          <CardContent className="p-4 space-y-3">
+            <Label htmlFor="time" className="text-white flex items-center gap-2">
+              <Clock className="h-4 w-4 text-gray-400" />
+              {getTranslation('Time of Birth', 'जन्म समय')}
+            </Label>
+            <Input
+              id="time"
+              type="time"
+              value={formData.timeOfBirth}
+              onChange={(e) => setFormData({...formData, timeOfBirth: e.target.value})}
+              className="bg-gray-800 border-gray-700 text-white [&::-webkit-calendar-picker-indicator]:invert"
+              required
+            />
+            <p className="text-xs text-gray-500">
+              {getTranslation('Use 24-hour format (e.g., 14:30)', '24-घंटे प्रारूप का उपयोग करें (जैसे 14:30)')}
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Place of Birth */}
+        <Card className="bg-gray-900 border-gray-800">
+          <CardContent className="p-4 space-y-3">
+            <Label htmlFor="place" className="text-white flex items-center gap-2">
+              <MapPin className="h-4 w-4 text-gray-400" />
+              {getTranslation('Place of Birth', 'जन्म स्थान')}
+            </Label>
+            <Input
+              id="place"
+              type="text"
+              placeholder={getTranslation('Enter city name', 'शहर का नाम दर्ज करें')}
+              value={formData.placeOfBirth}
+              onChange={(e) => setFormData({...formData, placeOfBirth: e.target.value})}
+              className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500"
+              required
+            />
+            {coordinates.latitude && coordinates.longitude && (
+              <p className="text-xs text-gray-500">
+                {getTranslation('Coordinates:', 'निर्देशांक:')} {coordinates.latitude.toFixed(2)}, {coordinates.longitude.toFixed(2)}
+              </p>
             )}
-          />
-          
-          <FormField
-            control={form.control}
-            name="longitude"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>देशांतर</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    step="0.0001"
-                    placeholder="उदा. 77.2090"
-                    {...field}
-                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-        
-        {/* Timezone Field */}
-        <FormField
-          control={form.control}
-          name="timezone"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>समय क्षेत्र</FormLabel>
-              <Select onValueChange={(value) => field.onChange(parseFloat(value))} defaultValue={field.value.toString()}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="समय क्षेत्र चुनें" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="5.5">भारतीय मानक समय (IST)</SelectItem>
-                  <SelectItem value="-5">अमेरिकी पूर्वी समय</SelectItem>
-                  <SelectItem value="0">ग्रीनविच मानक समय (GMT/UTC)</SelectItem>
-                  <SelectItem value="4">खाड़ी मानक समय (GST)</SelectItem>
-                  <SelectItem value="9">जापान मानक समय (JST)</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormDescription>
-                आपका समय क्षेत्र स्वचालित रूप से पता चला है लेकिन आवश्यकतानुसार समायोजित कर सकते हैं।
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
+          </CardContent>
+        </Card>
+
+        {/* Submit Button */}
+        <Button 
+          type="submit" 
+          className="w-full bg-orange-500 hover:bg-orange-600 text-white font-medium py-3"
+          disabled={isLoading || !formData.dateOfBirth || !formData.timeOfBirth || !formData.placeOfBirth}
+        >
+          {isLoading ? (
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              {getTranslation('Generating...', 'तैयार कर रहे...')}
+            </div>
+          ) : (
+            getTranslation('Generate Kundali', 'कुंडली बनाएं')
           )}
-        />
-        
-        <Button type="submit" className="w-full" disabled={loading}>
-          {loading ? "कुंडली बनाई जा रही है..." : "कुंडली बनाएँ"}
         </Button>
       </form>
-    </Form>
+    </div>
   );
 };
 
