@@ -110,7 +110,7 @@ const DetailedKundaliDisplay: React.FC<DetailedKundaliDisplayProps> = ({ kundali
                 <div className="flex justify-between items-center">
                   <span className="text-gray-700">Active Yogas:</span>
                   <Badge className="bg-green-100 text-green-800">
-                    {kundaliData.yogas.filter(y => y.present).length}
+                    {kundaliData.yogas.filter(y => y.isPresent).length}
                   </Badge>
                 </div>
                 <div className="flex justify-between items-center">
