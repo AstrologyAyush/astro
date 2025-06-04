@@ -150,7 +150,7 @@ const Dashboard = () => {
                   <CardHeader>
                     <CardTitle className="text-lg">{kundali.name}</CardTitle>
                     <CardDescription>
-                      Created on {format(new Date(kundali.createdAt || kundali.created_at), 'PP')}
+                      Created on {format(new Date(kundali.created_at), 'PP')}
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-2">
