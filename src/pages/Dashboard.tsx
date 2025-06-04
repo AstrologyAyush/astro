@@ -19,7 +19,7 @@ interface KundaliItem {
 }
 
 const Dashboard = () => {
-  const { user, isLoggedIn, isLoading } = useAuth();
+  const { user, userProfile, isLoggedIn, isLoading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [savedKundalis, setSavedKundalis] = useState<KundaliItem[]>([]);
@@ -42,10 +42,9 @@ const Dashboard = () => {
     try {
       setIsLoadingKundalis(true);
       
-      // TODO: Implement when saved_kundalis table is created
-      // For now, return empty array
-      console.log('Saved kundalis fetching disabled - no tables configured');
-      setSavedKundalis([]);
+      // For now, use the saved charts from the profile
+      const charts = userProfile?.savedCharts || [];
+      setSavedKundalis(charts);
       
     } catch (error: any) {
       console.error('Error fetching kundalis:', error);
@@ -64,9 +63,6 @@ const Dashboard = () => {
     
     try {
       setIsDeleting(true);
-      
-      // TODO: Implement when saved_kundalis table is created
-      console.log('Kundali delete disabled - no tables configured');
       
       // Update local state
       setSavedKundalis(prev => prev.filter(item => item.id !== id));
@@ -108,7 +104,7 @@ const Dashboard = () => {
       <div>
         <h1 className="text-3xl font-bold mb-2 gradient-heading">Your Dashboard</h1>
         <p className="text-muted-foreground">
-          Welcome back, {user.profile?.first_name || user.email?.split('@')[0]}! Manage your astrological charts and insights.
+          Welcome back, {userProfile?.firstName || user.email?.split('@')[0]}! Manage your astrological charts and insights.
         </p>
       </div>
 
@@ -154,19 +150,15 @@ const Dashboard = () => {
                   <CardHeader>
                     <CardTitle className="text-lg">{kundali.name}</CardTitle>
                     <CardDescription>
-                      Created on {format(new Date(kundali.created_at), 'PP')}
+                      Created on {format(new Date(kundali.createdAt || kundali.created_at), 'PP')}
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-2">
                     <div>
-                      <span className="text-sm font-medium">Born: </span>
+                      <span className="text-sm font-medium">Chart Details: </span>
                       <span className="text-sm text-muted-foreground">
-                        {format(new Date(kundali.birth_date), 'PP')}
+                        Vedic Birth Chart
                       </span>
-                    </div>
-                    <div>
-                      <span className="text-sm font-medium">Place: </span>
-                      <span className="text-sm text-muted-foreground">{kundali.birth_place}</span>
                     </div>
                   </CardContent>
                   <CardFooter className="gap-2 flex-wrap">
@@ -213,8 +205,8 @@ const Dashboard = () => {
                 <div>
                   <p className="text-sm font-medium">Name</p>
                   <p className="text-muted-foreground">
-                    {user.profile?.first_name && user.profile?.last_name 
-                      ? `${user.profile.first_name} ${user.profile.last_name}` 
+                    {userProfile?.firstName && userProfile?.lastName 
+                      ? `${userProfile.firstName} ${userProfile.lastName}` 
                       : 'Not set'}
                   </p>
                 </div>

@@ -41,7 +41,8 @@ const Index = () => {
     try {
       // Convert the data to the format expected by generateDetailedKundali
       const formattedData = {
-        name: data.name,
+        fullName: data.name,
+        place: data.placeOfBirth,
         date: data.dateOfBirth,
         time: data.timeOfBirth,
         latitude: data.latitude,

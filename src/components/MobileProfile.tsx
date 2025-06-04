@@ -16,9 +16,9 @@ const MobileProfile = () => {
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [profileData, setProfileData] = useState({
-    first_name: profile?.first_name || '',
-    last_name: profile?.last_name || '',
-    birth_date: profile?.birth_date || ''
+    firstName: profile?.firstName || '',
+    lastName: profile?.lastName || '',
+    birthDate: profile?.birthDate || ''
   });
 
   const handleLogout = async () => {
@@ -87,11 +87,11 @@ const MobileProfile = () => {
           <CardContent className="space-y-4">
             <div className="flex items-center gap-4">
               <div className="h-16 w-16 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold text-xl">
-                {profile?.first_name?.charAt(0) || 'U'}
+                {profile?.firstName?.charAt(0) || 'U'}
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-white">
-                  {profile?.first_name} {profile?.last_name}
+                  {profile?.firstName} {profile?.lastName}
                 </h3>
                 <p className="text-gray-400">{user?.email}</p>
               </div>
@@ -103,16 +103,16 @@ const MobileProfile = () => {
                   <div>
                     <Label className="text-white">First Name</Label>
                     <Input
-                      value={profileData.first_name}
-                      onChange={(e) => setProfileData({...profileData, first_name: e.target.value})}
+                      value={profileData.firstName}
+                      onChange={(e) => setProfileData({...profileData, firstName: e.target.value})}
                       className="bg-gray-800 border-gray-700 text-white"
                     />
                   </div>
                   <div>
                     <Label className="text-white">Last Name</Label>
                     <Input
-                      value={profileData.last_name}
-                      onChange={(e) => setProfileData({...profileData, last_name: e.target.value})}
+                      value={profileData.lastName}
+                      onChange={(e) => setProfileData({...profileData, lastName: e.target.value})}
                       className="bg-gray-800 border-gray-700 text-white"
                     />
                   </div>
@@ -121,8 +121,8 @@ const MobileProfile = () => {
                   <Label className="text-white">Birth Date</Label>
                   <Input
                     type="date"
-                    value={profileData.birth_date}
-                    onChange={(e) => setProfileData({...profileData, birth_date: e.target.value})}
+                    value={profileData.birthDate}
+                    onChange={(e) => setProfileData({...profileData, birthDate: e.target.value})}
                     className="bg-gray-800 border-gray-700 text-white"
                   />
                 </div>
@@ -137,10 +137,10 @@ const MobileProfile = () => {
                   <span className="text-gray-400">Email:</span>
                   <span className="text-white">{user?.email}</span>
                 </div>
-                {profile?.birth_date && (
+                {profile?.birthDate && (
                   <div className="flex justify-between">
                     <span className="text-gray-400">Birth Date:</span>
-                    <span className="text-white">{profile.birth_date}</span>
+                    <span className="text-white">{profile.birthDate}</span>
                   </div>
                 )}
                 <div className="flex justify-between">
@@ -242,7 +242,7 @@ const MobileProfile = () => {
                     <div>
                       <p className="text-white font-medium">{kundali.name}</p>
                       <p className="text-gray-400 text-sm">
-                        {new Date(kundali.created_at).toLocaleDateString()}
+                        {new Date(kundali.createdAt).toLocaleDateString()}
                       </p>
                     </div>
                     <Button

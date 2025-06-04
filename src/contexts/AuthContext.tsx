@@ -14,6 +14,8 @@ export interface UserProfile {
   email: string;
   firstName?: string;
   lastName?: string;
+  birthDate?: string;
+  profileImage?: string;
   settings: UserSettings;
   savedCharts: any[];
 }
@@ -30,7 +32,7 @@ interface AuthContextType {
   signup: (email: string, password: string, firstName: string, lastName: string) => Promise<boolean>;
   logout: () => Promise<void>;
   updateSettings: (newSettings: Partial<UserSettings>) => Promise<void>;
-  updateProfile: (profileData: any) => Promise<void>;
+  updateProfile: (profileData: any) => Promise<boolean>;
   saveKundali: (name: string, birthData: any, chartData: any) => Promise<boolean>;
   getSavedCharts: () => any[];
   deleteKundali: (id: string) => Promise<boolean>;
@@ -79,66 +81,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const loadUserProfile = async (user: User) => {
     try {
       setIsLoading(true);
-      // First try to get existing profile
-      const { data, error } = await supabase
-        .from('user_profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single();
+      
+      // For now, create a profile from user metadata since we don't have database tables
+      const profile: UserProfile = {
+        id: user.id,
+        email: user.email!,
+        firstName: user.user_metadata?.first_name || '',
+        lastName: user.user_metadata?.last_name || '',
+        birthDate: '',
+        profileImage: '',
+        settings: defaultSettings,
+        savedCharts: [],
+      };
 
-      if (error && error.code !== 'PGRST116') {
-        console.error('Error loading user profile:', error);
-        setIsLoading(false);
-        return;
-      }
-
-      if (!data) {
-        // Create new profile if it doesn't exist
-        const newProfile = {
-          id: user.id,
-          email: user.email!,
-          first_name: user.user_metadata?.first_name || '',
-          last_name: user.user_metadata?.last_name || '',
-          settings: defaultSettings,
-          saved_charts: []
-        };
-
-        const { data: createdProfile, error: createError } = await supabase
-          .from('user_profiles')
-          .insert(newProfile)
-          .select()
-          .single();
-
-        if (createError) {
-          console.error('Error creating user profile:', createError);
-          setIsLoading(false);
-          return;
-        }
-
-        const profile: UserProfile = {
-          id: user.id,
-          email: user.email!,
-          firstName: createdProfile?.first_name,
-          lastName: createdProfile?.last_name,
-          settings: createdProfile?.settings || defaultSettings,
-          savedCharts: createdProfile?.saved_charts || [],
-        };
-
-        setUserProfile(profile);
-        setSettings(profile.settings);
-      } else {
-        const profile: UserProfile = {
-          id: user.id,
-          email: user.email!,
-          firstName: data.first_name,
-          lastName: data.last_name,
-          settings: data.settings || defaultSettings,
-          savedCharts: data.saved_charts || [],
-        };
-
-        setUserProfile(profile);
-        setSettings(profile.settings);
-      }
+      setUserProfile(profile);
+      setSettings(profile.settings);
     } catch (error) {
       console.error('Error loading user profile:', error);
     } finally {
@@ -206,39 +163,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setSettings(updatedSettings);
 
     if (user && userProfile) {
-      try {
-        const { error } = await supabase
-          .from('user_profiles')
-          .update({ settings: updatedSettings })
-          .eq('id', user.id);
-
-        if (error) {
-          console.error('Error updating settings:', error);
-        } else {
-          setUserProfile({ ...userProfile, settings: updatedSettings });
-        }
-      } catch (error) {
-        console.error('Error updating settings:', error);
-      }
+      // Update the profile with new settings
+      setUserProfile({ ...userProfile, settings: updatedSettings });
     }
   };
 
-  const updateProfile = async (profileData: any): Promise<void> => {
-    if (!user || !userProfile) return;
+  const updateProfile = async (profileData: any): Promise<boolean> => {
+    if (!user || !userProfile) return false;
 
     try {
-      const { error } = await supabase
-        .from('user_profiles')
-        .update(profileData)
-        .eq('id', user.id);
-
-      if (error) {
-        console.error('Error updating profile:', error);
-      } else {
-        setUserProfile({ ...userProfile, ...profileData });
-      }
+      // Update local state since we don't have database tables yet
+      const updatedProfile = { ...userProfile, ...profileData };
+      setUserProfile(updatedProfile);
+      return true;
     } catch (error) {
       console.error('Error updating profile:', error);
+      return false;
     }
   };
 
@@ -255,17 +195,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       };
 
       const updatedCharts = [...userProfile.savedCharts, newChart];
-
-      const { error } = await supabase
-        .from('user_profiles')
-        .update({ saved_charts: updatedCharts })
-        .eq('id', user.id);
-
-      if (error) {
-        console.error('Error saving kundali:', error);
-        return false;
-      }
-
       setUserProfile({ ...userProfile, savedCharts: updatedCharts });
       return true;
     } catch (error) {
@@ -279,17 +208,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     try {
       const updatedCharts = userProfile.savedCharts.filter(chart => chart.id !== id);
-
-      const { error } = await supabase
-        .from('user_profiles')
-        .update({ saved_charts: updatedCharts })
-        .eq('id', user.id);
-
-      if (error) {
-        console.error('Error deleting kundali:', error);
-        return false;
-      }
-
       setUserProfile({ ...userProfile, savedCharts: updatedCharts });
       return true;
     } catch (error) {

@@ -21,10 +21,10 @@ const ProfilePage = () => {
   const { toast } = useToast();
   
   const [isUpdating, setIsUpdating] = useState(false);
-  const [firstName, setFirstName] = useState(profile?.first_name || '');
-  const [lastName, setLastName] = useState(profile?.last_name || '');
+  const [firstName, setFirstName] = useState(profile?.firstName || '');
+  const [lastName, setLastName] = useState(profile?.lastName || '');
   const [birthDate, setBirthDate] = useState<Date | undefined>(
-    profile?.birth_date ? new Date(profile.birth_date) : undefined
+    profile?.birthDate ? new Date(profile.birthDate) : undefined
   );
   const [profileImage, setProfileImage] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -35,9 +35,9 @@ const ProfilePage = () => {
     }
 
     if (profile) {
-      setFirstName(profile.first_name || '');
-      setLastName(profile.last_name || '');
-      setBirthDate(profile.birth_date ? new Date(profile.birth_date) : undefined);
+      setFirstName(profile.firstName || '');
+      setLastName(profile.lastName || '');
+      setBirthDate(profile.birthDate ? new Date(profile.birthDate) : undefined);
     }
   }, [isLoggedIn, isLoading, navigate, profile]);
 
@@ -46,37 +46,18 @@ const ProfilePage = () => {
     setIsUpdating(true);
 
     try {
-      let imageUrl = profile?.profile_image;
+      let imageUrl = profile?.profileImage;
 
-      // Upload image if selected
+      // For now, we'll skip image upload since we don't have storage set up
       if (profileImage) {
-        setIsUploading(true);
-        const fileExt = profileImage.name.split('.').pop();
-        const fileName = `${user?.id}-${Math.random()}.${fileExt}`;
-        const filePath = `profile-images/${fileName}`;
-
-        const { error: uploadError } = await supabase.storage
-          .from('avatars')
-          .upload(filePath, profileImage);
-
-        if (uploadError) {
-          throw new Error(uploadError.message);
-        }
-
-        // Get public URL
-        const { data } = supabase.storage
-          .from('avatars')
-          .getPublicUrl(filePath);
-
-        imageUrl = data.publicUrl;
-        setIsUploading(false);
+        console.log('Image upload not implemented yet');
       }
 
       const success = await updateProfile({
-        first_name: firstName,
-        last_name: lastName,
-        birth_date: birthDate ? format(birthDate, 'yyyy-MM-dd') : undefined,
-        profile_image: imageUrl
+        firstName: firstName,
+        lastName: lastName,
+        birthDate: birthDate ? format(birthDate, 'yyyy-MM-dd') : undefined,
+        profileImage: imageUrl
       });
 
       if (success) {
@@ -196,12 +177,12 @@ const ProfilePage = () => {
               <div className="space-y-2">
                 <Label htmlFor="profileImage">Profile Image</Label>
                 <div className="flex items-center gap-4">
-                  {(profile.profile_image || profileImage) && (
+                  {(profile.profileImage || profileImage) && (
                     <div className="h-16 w-16 rounded-full overflow-hidden bg-muted flex items-center justify-center">
                       <img 
                         src={profileImage 
                           ? URL.createObjectURL(profileImage) 
-                          : profile.profile_image || ''} 
+                          : profile.profileImage || ''} 
                         alt="Profile" 
                         className="h-full w-full object-cover"
                       />
@@ -259,7 +240,7 @@ const ProfilePage = () => {
             <div>
               <h3 className="text-sm font-medium">Saved Kundalis</h3>
               <p className="text-sm text-muted-foreground">
-                {user.savedCharts?.length || 0} charts saved
+                {profile.savedCharts?.length || 0} charts saved
               </p>
             </div>
             
