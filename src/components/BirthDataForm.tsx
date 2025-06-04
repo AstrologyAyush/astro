@@ -21,6 +21,7 @@ const BirthDataForm: React.FC<BirthDataFormProps> = ({ onSubmit, isLoading, lang
     placeOfBirth: '',
     latitude: 0,
     longitude: 0,
+    isLocationSelected: false,
   });
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -31,14 +32,14 @@ const BirthDataForm: React.FC<BirthDataFormProps> = ({ onSubmit, isLoading, lang
   };
 
   const fetchSuggestions = useCallback(async (place: string) => {
-    if (!place) {
+    if (!place || place.length < 3) {
       setSuggestions([]);
       return;
     }
 
     try {
       const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?q=${place}&format=jsonv2&limit=5`
+        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(place)}&format=jsonv2&limit=8&addressdetails=1`
       );
       const data = await response.json();
       setSuggestions(data);
@@ -53,24 +54,67 @@ const BirthDataForm: React.FC<BirthDataFormProps> = ({ onSubmit, isLoading, lang
   }, [toast, getTranslation]);
 
   React.useEffect(() => {
-    fetchSuggestions(debouncedSearchTerm);
-  }, [debouncedSearchTerm, fetchSuggestions]);
+    if (debouncedSearchTerm && !formData.isLocationSelected) {
+      fetchSuggestions(debouncedSearchTerm);
+    }
+  }, [debouncedSearchTerm, fetchSuggestions, formData.isLocationSelected]);
 
   const handlePlaceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const place = e.target.value;
-    setFormData(prev => ({ ...prev, placeOfBirth: place }));
+    setFormData(prev => ({ 
+      ...prev, 
+      placeOfBirth: place,
+      isLocationSelected: false,
+      latitude: 0,
+      longitude: 0
+    }));
     setShowSuggestions(true);
   };
 
   const handlePlaceSelect = (place: any) => {
+    const displayName = place.display_name || place.name;
+    const lat = parseFloat(place.lat);
+    const lon = parseFloat(place.lon);
+    
     setFormData(prev => ({
       ...prev,
-      placeOfBirth: place.display_name,
-      latitude: parseFloat(place.lat),
-      longitude: parseFloat(place.lon),
+      placeOfBirth: displayName,
+      latitude: lat,
+      longitude: lon,
+      isLocationSelected: true,
     }));
     setSuggestions([]);
     setShowSuggestions(false);
+    
+    toast({
+      title: getTranslation("Location Selected", "स्थान चुना गया"),
+      description: getTranslation(
+        `Coordinates: ${lat.toFixed(4)}, ${lon.toFixed(4)}`,
+        `निर्देशांक: ${lat.toFixed(4)}, ${lon.toFixed(4)}`
+      ),
+    });
+  };
+
+  const handleManualCoordinates = () => {
+    const lat = parseFloat(prompt(getTranslation("Enter Latitude:", "अक्षांश दर्ज करें:")) || "0");
+    const lon = parseFloat(prompt(getTranslation("Enter Longitude:", "देशांतर दर्ज करें:")) || "0");
+    
+    if (lat !== 0 && lon !== 0) {
+      setFormData(prev => ({
+        ...prev,
+        latitude: lat,
+        longitude: lon,
+        isLocationSelected: true,
+      }));
+      
+      toast({
+        title: getTranslation("Manual Coordinates Set", "मैन्युअल निर्देशांक सेट"),
+        description: getTranslation(
+          `Latitude: ${lat}, Longitude: ${lon}`,
+          `अक्षांश: ${lat}, देशांतर: ${lon}`
+        ),
+      });
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -88,15 +132,17 @@ const BirthDataForm: React.FC<BirthDataFormProps> = ({ onSubmit, isLoading, lang
     if (!formData.latitude || !formData.longitude) {
       toast({
         title: getTranslation("Error", "त्रुटि"),
-        description: getTranslation("Please select a valid place of birth from the suggestions.", "कृपया सुझावों से जन्म का एक मान्य स्थान चुनें।"),
+        description: getTranslation("Please select a valid place or enter coordinates manually.", "कृपया एक मान्य स्थान चुनें या मैन्युअल रूप से निर्देशांक दर्ज करें।"),
         variant: "destructive"
       });
       return;
     }
 
+    const birthDateTime = new Date(`${formData.dateOfBirth}T${formData.timeOfBirth}:00`);
+    
     onSubmit({
       name: formData.name,
-      dateOfBirth: new Date(formData.dateOfBirth),
+      dateOfBirth: birthDateTime,
       timeOfBirth: formData.timeOfBirth,
       placeOfBirth: formData.placeOfBirth,
       latitude: formData.latitude,
@@ -164,7 +210,7 @@ const BirthDataForm: React.FC<BirthDataFormProps> = ({ onSubmit, isLoading, lang
               id="place"
               value={formData.placeOfBirth}
               onChange={handlePlaceChange}
-              onFocus={() => setShowSuggestions(true)}
+              onFocus={() => !formData.isLocationSelected && setShowSuggestions(true)}
               placeholder={getTranslation('Enter city name', 'शहर का नाम दर्ज करें')}
               className="mt-1 bg-white border-gray-300 text-gray-900"
               required
@@ -175,16 +221,48 @@ const BirthDataForm: React.FC<BirthDataFormProps> = ({ onSubmit, isLoading, lang
                   <button
                     key={index}
                     type="button"
-                    className="w-full px-3 py-2 text-left hover:bg-gray-100 text-gray-900"
+                    className="w-full px-3 py-2 text-left hover:bg-gray-100 text-gray-900 text-sm"
                     onClick={() => handlePlaceSelect(place)}
                   >
-                    {place.name}
+                    <div>
+                      <div className="font-medium">{place.name}</div>
+                      <div className="text-xs text-gray-500">{place.display_name}</div>
+                    </div>
                   </button>
                 ))}
               </div>
             )}
           </div>
         </div>
+
+        {/* Coordinates Display */}
+        {formData.latitude !== 0 && formData.longitude !== 0 && (
+          <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+            <div className="text-sm text-green-800">
+              <div className="font-medium">{getTranslation('Coordinates Confirmed', 'निर्देशांक पुष्ट')}</div>
+              <div className="mt-1">
+                {getTranslation('Latitude', 'अक्षांश')}: {formData.latitude.toFixed(4)}°
+              </div>
+              <div>
+                {getTranslation('Longitude', 'देशांतर')}: {formData.longitude.toFixed(4)}°
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Manual Coordinates Button */}
+        {!formData.isLocationSelected && (
+          <div className="text-center">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleManualCoordinates}
+              className="text-sm"
+            >
+              {getTranslation('Enter Coordinates Manually', 'निर्देशांक मैन्युअली दर्ज करें')}
+            </Button>
+          </div>
+        )}
 
         {/* Submit Button */}
         <Button 
