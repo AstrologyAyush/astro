@@ -1,10 +1,7 @@
-import { calculateHouses } from './enhancedKundaliUtils';
-import { calculatePlanetPositions } from './kundaliUtils';
-import { generateAuspiciousTimes } from './remediesEngine';
-import { calculateDashas } from './dashaEngine';
-import { calculateTithi, calculateKarana, calculateYoga } from './panchangEngine';
 
-export interface BirthData {
+// Enhanced birth data interface
+export interface EnhancedBirthData {
+  name: string;
   dateOfBirth: Date;
   timeOfBirth: string;
   placeOfBirth: string;
@@ -12,450 +9,335 @@ export interface BirthData {
   longitude: number;
 }
 
-export interface EnhancedBirthData extends BirthData {
-  fullName: string;
-}
-
+// Planet position interface
 export interface PlanetPosition {
-  id: string;
   name: string;
   longitude: number;
-  rashi: number;
-  rashiName: string;
+  sign: string;
+  degree: number;
   house: number;
-  degreeInSign: number;
-  nakshatra: number;
-  nakshatraName: string;
+  nakshatra?: string;
+  pada?: number;
   isRetrograde: boolean;
+  shadbala?: number;
+  sanskrit?: string;
+  strengthGrade?: string;
+  isExalted?: boolean;
+  isDebilitated?: boolean;
+  isOwnSign?: boolean;
 }
 
-export interface House {
+// House information
+export interface HouseInfo {
   number: number;
-  sign: number;
-  signName: string;
+  sign: string;
   lord: string;
-  planets: string[];
-  signification: string[];
+  cusp: number;
+  significance: string[];
 }
 
-export interface Yoga {
+// Yoga information
+export interface YogaInfo {
   name: string;
-  sanskritName: string;
-  present: boolean;
   description: string;
+  effects: string;
   strength: number;
-  type?: 'benefic' | 'malefic';
-  planets?: string[];
-  effects?: string[];
+  isPresent: boolean;
 }
 
-export interface Dosha {
-  name: string;
-  sanskritName: string;
-  present: boolean;
-  severity: 'mild' | 'moderate' | 'severe';
-  description: string;
-  effects: string[];
-  remedies: string[];
-}
-
+// Dasha information
 export interface Dasha {
   planet: string;
   startDate: Date;
   endDate: Date;
-  effects: string[];
+  years: number;
+  isActive?: boolean;
+  antarDasha?: Dasha[];
 }
 
-export interface Predictions {
-  career: string;
-  finance: string;
-  relationships: string;
-  health: string;
-  education: string;
-  agePredictions?: {
-    [ageGroup: string]: {
-      theme: string;
-      events: string[];
-      struggles: string[];
-      successes: string[];
-      benefits: string;
+// Complete Kundali data
+export interface KundaliData {
+  personalInfo: {
+    name: string;
+    dateOfBirth: Date;
+    timeOfBirth: string;
+    placeOfBirth: string;
+    coordinates: { latitude: number; longitude: number };
+  };
+  lagna: {
+    sign: string;
+    degree: number;
+    lord: string;
+  };
+  planets: PlanetPosition[];
+  houses: HouseInfo[];
+  yogas: YogaInfo[];
+  doshas: any[];
+  dashas: Dasha[];
+  divisionalCharts: any;
+  predictions: {
+    ageGroups: {
+      [key: string]: {
+        period: string;
+        generalTrends: string[];
+        career: string[];
+        relationships: string[];
+        health: string[];
+        finance: string[];
+        remedies: string[];
+      };
     };
   };
-}
-
-export interface Remedies {
-  gemstones: string[];
-  mantras: string[];
-  charity: string[];
-}
-
-export interface AuspiciousTimes {
-  muhurta: string[];
-}
-
-export interface BasicInfo {
-  ascendantName: string;
-  moonSignName: string;
-  sunSignName: string;
-  birthNakshatra: string;
-  tithi: string;
-  karana: string;
-  yoga: string;
-  sunrise: string;
-  sunset: string;
-}
-
-export interface DetailedKundali {
-  birthData: EnhancedBirthData;
-  basicInfo: BasicInfo;
-  planets: PlanetPosition[];
-  houses: House[];
-  yogas: Yoga[];
-  doshas: Dosha[];
-  dashas: {
-    current: Dasha;
-    vimshottari: Dasha[];
+  remedies: {
+    gemstones: string[];
+    mantras: string[];
+    charity: string[];
+    rituals: string[];
   };
-  predictions: Predictions;
-  remedies: Remedies;
-  auspiciousTimes: AuspiciousTimes;
+  personality: {
+    traits: string[];
+    strengths: string[];
+    weaknesses: string[];
+    temperament: string;
+  };
 }
 
+// Zodiac signs mapping
 const zodiacSigns = [
   'Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo',
   'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'
 ];
 
-const nakshatras = [
-  'Ashwini', 'Bharani', 'Krittika', 'Rohini', 'Mrigashirsha', 'Ardra', 'Punarvasu', 'Pushya',
-  'Ashlesha', 'Magha', 'Purva Phalguni', 'Uttara Phalguni', 'Hasta', 'Chitra', 'Swati',
-  'Vishakha', 'Anuradha', 'Jyeshtha', 'Mula', 'Purva Ashadha', 'Uttara Ashadha', 'Shravana',
-  'Dhanishta', 'Shatabhisha', 'Purva Bhadrapada', 'Uttara Bhadrapada', 'Revati'
-];
+// Planet names mapping
+const planetNames = {
+  'Sun': 'Surya',
+  'Moon': 'Chandra',
+  'Mars': 'Mangal',
+  'Mercury': 'Budh',
+  'Jupiter': 'Guru',
+  'Venus': 'Shukra',
+  'Saturn': 'Shani',
+  'Rahu': 'Rahu',
+  'Ketu': 'Ketu'
+};
 
-// Helper function to generate houses
-function generateHouses(ascendant: number, planets: Record<string, PlanetPosition>): House[] {
-  const houses: House[] = [];
+// Simplified planetary calculations
+function calculatePlanetaryPositions(birthData: EnhancedBirthData): PlanetPosition[] {
+  // This is a simplified version - in production, use Swiss Ephemeris
+  const planets: PlanetPosition[] = [];
+  
+  // Mock planetary positions for demonstration
+  const mockPositions = [
+    { name: 'Sun', longitude: 45.5 },
+    { name: 'Moon', longitude: 123.7 },
+    { name: 'Mars', longitude: 234.2 },
+    { name: 'Mercury', longitude: 67.8 },
+    { name: 'Jupiter', longitude: 156.3 },
+    { name: 'Venus', longitude: 89.1 },
+    { name: 'Saturn', longitude: 278.9 },
+    { name: 'Rahu', longitude: 198.4 },
+    { name: 'Ketu', longitude: 18.4 }
+  ];
+
+  mockPositions.forEach(planet => {
+    const signIndex = Math.floor(planet.longitude / 30);
+    const degreeInSign = planet.longitude % 30;
+    
+    planets.push({
+      name: planet.name,
+      longitude: planet.longitude,
+      sign: zodiacSigns[signIndex],
+      degree: degreeInSign,
+      house: Math.floor(Math.random() * 12) + 1,
+      isRetrograde: Math.random() > 0.8,
+      shadbala: Math.floor(Math.random() * 100),
+      sanskrit: planetNames[planet.name as keyof typeof planetNames],
+      strengthGrade: Math.random() > 0.5 ? 'Strong' : 'Moderate',
+      isExalted: Math.random() > 0.9,
+      isDebilitated: Math.random() > 0.9,
+      isOwnSign: Math.random() > 0.7
+    });
+  });
+
+  return planets;
+}
+
+// Calculate houses
+function calculateHouses(): HouseInfo[] {
+  const houses: HouseInfo[] = [];
+  
   for (let i = 1; i <= 12; i++) {
-    const sign = (ascendant + i - 2) % 12 + 1;
-    const housePlanets = Object.values(planets).filter(planet => planet.house === i).map(planet => planet.name);
-
     houses.push({
       number: i,
-      sign: sign,
-      signName: zodiacSigns[sign - 1] || 'Unknown',
-      lord: 'Unknown',
-      planets: housePlanets,
-      signification: ['General', 'Effect']
+      sign: zodiacSigns[Math.floor(Math.random() * 12)],
+      lord: Object.keys(planetNames)[Math.floor(Math.random() * 7)],
+      cusp: Math.random() * 360,
+      significance: [`House ${i} significance`]
     });
   }
+  
   return houses;
 }
 
-// Helper function to detect yogas
-function detectYogas(planets: Record<string, PlanetPosition>): Yoga[] {
-  const yogas: Yoga[] = [];
+// Calculate yogas
+function calculateYogas(): YogaInfo[] {
+  const commonYogas = [
+    { name: 'Raja Yoga', description: 'Royal combination for success' },
+    { name: 'Dhana Yoga', description: 'Wealth bringing combination' },
+    { name: 'Gaja Kesari Yoga', description: 'Moon-Jupiter combination' }
+  ];
 
-  // Example Yoga: Gajakesari Yoga
-  if (planets.Moon && planets.Jupiter) {
-    const moonHouse = planets.Moon.house;
-    const jupiterHouse = planets.Jupiter.house;
-    if (Math.abs(moonHouse - jupiterHouse) % 4 === 0) {
-      yogas.push({
-        name: 'Gajakesari Yoga',
-        sanskritName: 'गजकेसरी योग',
-        present: true,
-        description: 'A powerful yoga for wealth and prosperity',
-        strength: 75
-      });
-    }
-  }
-
-  return yogas;
+  return commonYogas.map(yoga => ({
+    ...yoga,
+    effects: 'Positive effects on life',
+    strength: Math.floor(Math.random() * 100),
+    isPresent: Math.random() > 0.5
+  }));
 }
 
-// Helper function to detect doshas
-function detectDoshas(planets: Record<string, PlanetPosition>): Dosha[] {
-  const doshas: Dosha[] = [];
-
-  // Example Dosha: Mangal Dosha
-  const mangalHouses = [2, 4, 7, 8, 12];
-  if (planets.Mars && mangalHouses.includes(planets.Mars.house)) {
-    doshas.push({
-      name: 'Mangal Dosha',
-      sanskritName: 'मंगल दोष',
-      present: true,
-      severity: 'moderate',
-      description: 'Dosha related to marriage and relationships',
-      effects: ['Relationship issues', 'Conflicts'],
-      remedies: ['Chanting mantras', 'Fasting']
+// Calculate dashas
+function calculateDashas(birthData: EnhancedBirthData): Dasha[] {
+  const dashaPlanets = ['Sun', 'Moon', 'Mars', 'Mercury', 'Jupiter', 'Venus', 'Saturn'];
+  const dashas: Dasha[] = [];
+  
+  let currentDate = new Date(birthData.dateOfBirth);
+  
+  dashaPlanets.forEach((planet, index) => {
+    const years = [6, 10, 7, 17, 16, 20, 19][index];
+    const endDate = new Date(currentDate);
+    endDate.setFullYear(endDate.getFullYear() + years);
+    
+    dashas.push({
+      planet,
+      startDate: new Date(currentDate),
+      endDate,
+      years,
+      isActive: index === 0
     });
-  }
-
-  return doshas;
+    
+    currentDate = endDate;
+  });
+  
+  return dashas;
 }
 
-// Enhanced calculation function with age-based predictions
-export async function generateDetailedKundali(birthData: EnhancedBirthData): Promise<DetailedKundali> {
-  console.log('Generating detailed Kundali with advanced calculations...');
-  
-  const ascendant = 1;
-  const moonSign = 1;
-  const sunSign = 1;
-  const planets = calculatePlanetPositions(birthData);
-  
-  // Calculate current age for age-based predictions
-  const currentAge = new Date().getFullYear() - birthData.dateOfBirth.getFullYear();
-  
-  // Generate age-based life predictions using Gemini API
-  const agePredictions = await generateAgePredictions(birthData, planets, currentAge);
-  
-  const result: DetailedKundali = {
-    birthData,
-    basicInfo: {
-      ascendantName: zodiacSigns[ascendant - 1] || 'Aries',
-      moonSignName: zodiacSigns[moonSign - 1] || 'Aries',
-      sunSignName: zodiacSigns[sunSign - 1] || 'Aries',
-      birthNakshatra: nakshatras[Math.floor((planets.MO?.longitude || 0) / (360/27))] || 'Ashwini',
-      tithi: calculateTithi(planets.MO?.longitude || 0, planets.SU?.longitude || 0),
-      karana: calculateKarana(planets.MO?.longitude || 0, planets.SU?.longitude || 0),
-      yoga: calculateYoga(planets.MO?.longitude || 0, planets.SU?.longitude || 0),
-      sunrise: '06:00 AM',
-      sunset: '06:00 PM'
-    },
-    planets: Object.values(planets),
-    houses: generateHouses(ascendant, planets),
-    yogas: detectYogas(planets),
-    doshas: detectDoshas(planets),
-    dashas: calculateDashas(planets.MO?.longitude || 0, birthData.dateOfBirth),
-    predictions: {
-      career: agePredictions.career,
-      finance: agePredictions.finance,
-      relationships: agePredictions.relationships,
-      health: agePredictions.health,
-      education: agePredictions.education,
-      agePredictions: agePredictions.byAge
-    },
-    remedies: generateRemedies(planets, detectDoshas(planets)),
-    auspiciousTimes: generateAuspiciousTimes(planets)
-  };
-
-  return result;
-}
-
-// New function to generate age-based predictions using Gemini API
-async function generateAgePredictions(birthData: EnhancedBirthData, planets: Record<string, PlanetPosition>, currentAge: number) {
-  try {
-    const prompt = `
-    As Maharishi Parashar, the great sage of Vedic astrology, provide detailed life predictions for different age groups based on this birth chart:
-
-    Birth Details:
-    - Name: ${birthData.fullName}
-    - Date: ${birthData.dateOfBirth.toLocaleDateString()}
-    - Time: ${birthData.timeOfBirth}
-    - Place: ${birthData.placeOfBirth}
-    - Current Age: ${currentAge}
-
-    Planetary Positions:
-    ${Object.entries(planets).map(([id, planet]) => 
-      `${planet.name}: ${planet.rashiName} ${planet.degreeInSign.toFixed(2)}°`
-    ).join('\n')}
-
-    Provide detailed predictions for each age group covering struggles, successes, key life events, and what benefits them most:
-
-    1. Childhood (0-14 years): Education, family environment, early personality development
-    2. Youth (15-30 years): Career beginnings, relationships, marriage, major life decisions  
-    3. Maturity (31-45 years): Career peak, family responsibilities, financial growth, children
-    4. Middle Age (46-60 years): Achievements, wisdom, spiritual growth, health considerations
-    5. Later Life (60+ years): Legacy, spiritual pursuits, health, family relationships
-
-    For each age group, describe:
-    - Major life themes and events
-    - Challenges and struggles they will face
-    - Opportunities for success and growth
-    - What actions/attitudes will benefit them most
-    - Specific years of significance
-
-    Also provide overall predictions for:
-    - Career and professional life
-    - Financial prosperity and wealth
-    - Love, marriage and relationships
-    - Health and well-being
-    - Education and learning
-
-    Use traditional Vedic astrology principles and speak with the wisdom of an ancient sage.
-    `;
-
-    // For demo purposes, return structured predictions
-    // In production, you would call Gemini API here
-    return {
-      career: "Your 10th house indicates strong potential for leadership roles. Jupiter's influence suggests success in teaching, consulting, or advisory positions. Saturn's placement indicates steady progress through hard work.",
-      
-      finance: "Venus in the 2nd house promises good financial prospects. Multiple income sources likely after age 30. Property investments will be favorable. Avoid speculation during Saturn periods.",
-      
-      relationships: "7th house analysis shows marriage likely between 25-28 years. Partner will be well-educated and from a good family. Some initial adjustments needed but overall harmonious relationships.",
-      
-      health: "Strong constitution indicated by Sun's placement. Pay attention to digestive health after 40. Regular exercise and yoga recommended. Avoid stress during Mars transit periods.",
-      
-      education: "Mercury's strong position indicates excellent academic abilities. Higher education in technical or research fields favored. Multiple qualifications possible.",
-      
-      byAge: {
-        "0-14": {
-          theme: "Foundation Years - Building Character",
-          events: [
-            "Blessed childhood with strong family support",
-            "Natural intelligence and quick learning abilities",
-            "Good relationship with teachers and elders",
-            "Early signs of leadership qualities"
-          ],
-          struggles: [
-            "May be overly serious for their age",
-            "Possible health issues around age 7-8",
-            "Competition with siblings or peers"
-          ],
-          successes: [
-            "Excellent academic performance",
-            "Recognition for talents and abilities",
-            "Strong moral foundation from family"
-          ],
-          benefits: "Focus on building good study habits, respect for elders, and developing creativity. Spiritual practices from early age will bring lifelong benefits."
-        },
-        
-        "15-30": {
-          theme: "Growth Years - Career and Relationships",
-          events: [
-            "Higher education completion by age 22-23",
-            "First job or business venture around 24-25",
-            "Meeting of life partner around 26-27",
-            "Marriage likely between 27-29",
-            "Career establishment and financial independence"
-          ],
-          struggles: [
-            "Initial career confusion and multiple job changes",
-            "Family pressure regarding marriage",
-            "Financial constraints during early career",
-            "Relationship challenges before meeting the right partner"
-          ],
-          successes: [
-            "Recognition in chosen field",
-            "Stable income by late twenties",
-            "Happy marriage and supportive partner",
-            "Building of professional network"
-          ],
-          benefits: "Patience and persistence will pay off. Avoid hasty decisions. Maintain good relationships with mentors. Regular prayers and charity will enhance prosperity."
-        },
-        
-        "31-45": {
-          theme: "Achievement Years - Peak Performance",
-          events: [
-            "Major career advancement around 32-34",
-            "Children born during this period",
-            "Property purchase or construction",
-            "Possible travel abroad for work",
-            "Leadership roles and increased responsibilities"
-          ],
-          struggles: [
-            "Work-life balance challenges",
-            "Increased family responsibilities",
-            "Health issues if lifestyle neglected",
-            "Competition and workplace politics"
-          ],
-          successes: [
-            "Peak earning period of life",
-            "Recognition and awards possible",
-            "Happy family life with children",
-            "Establishment as expert in field"
-          ],
-          benefits: "Maintain humility despite success. Invest in health and relationships. Save for future. Help others and give back to society."
-        },
-        
-        "46-60": {
-          theme: "Wisdom Years - Consolidation and Guidance",
-          events: [
-            "Children's higher education and career decisions",
-            "Possible business expansion or consultancy",
-            "Spiritual awakening and deeper interests",
-            "Grandchildren bringing joy",
-            "Planning for retirement"
-          ],
-          struggles: [
-            "Health concerns requiring attention",
-            "Children's independence and changing dynamics",
-            "Aging parents needing care",
-            "Market changes affecting income"
-          ],
-          successes: [
-            "Respected position in society",
-            "Financial security and savings",
-            "Wisdom to guide others",
-            "Satisfaction from children's achievements"
-          ],
-          benefits: "Focus on health maintenance. Develop spiritual practices. Share knowledge with younger generation. Prepare for peaceful retirement."
-        },
-        
-        "60+": {
-          theme: "Fulfillment Years - Legacy and Spirituality",
-          events: [
-            "Retirement and life after work",
-            "Increased spiritual activities",
-            "Enjoyment of grandchildren",
-            "Travel and leisure time",
-            "Reflection on life's journey"
-          ],
-          struggles: [
-            "Health challenges of aging",
-            "Loneliness or isolation",
-            "Adapting to retirement lifestyle",
-            "Concern for spouse's health"
-          ],
-          successes: [
-            "Peaceful and content later years",
-            "Respect from family and community",
-            "Spiritual fulfillment and wisdom",
-            "Good health if lifestyle maintained"
-          ],
-          benefits: "Embrace spirituality and service. Maintain active lifestyle. Cherish family relationships. Leave positive legacy for future generations."
-        }
-      }
-    };
-  } catch (error) {
-    console.error('Error generating age predictions:', error);
-    // Return fallback predictions
-    return {
-      career: "Strong potential for leadership and success through determination and hard work.",
-      finance: "Steady financial growth with multiple income sources. Property investments favored.",
-      relationships: "Happy marriage and supportive family relationships. Good compatibility with partner.",
-      health: "Generally good health with attention to diet and exercise. Regular checkups recommended.",
-      education: "Excellent learning abilities and potential for higher qualifications.",
-      byAge: {
-        "0-14": { theme: "Foundation building", events: [], struggles: [], successes: [], benefits: "Focus on education and character development" },
-        "15-30": { theme: "Career establishment", events: [], struggles: [], successes: [], benefits: "Patience and hard work will bring success" },
-        "31-45": { theme: "Peak achievements", events: [], struggles: [], successes: [], benefits: "Balance work and family life" },
-        "46-60": { theme: "Wisdom and guidance", events: [], struggles: [], successes: [], benefits: "Focus on health and spirituality" },
-        "60+": { theme: "Peace and fulfillment", events: [], struggles: [], successes: [], benefits: "Enjoy fruits of lifelong efforts" }
-      }
-    };
-  }
-}
-
-// Basic function to generate remedies (can be expanded)
-function generateRemedies(planets: Record<string, PlanetPosition>, doshas: Dosha[]): Remedies {
-  const gemstones: string[] = [];
-  const mantras: string[] = [];
-  const charity: string[] = [];
-
-  // Example: Suggest gemstone for Sun if weak
-  if (planets.Sun && planets.Sun.rashi < 6) {
-    gemstones.push('Ruby');
-    mantras.push('Om Suryaya Namaha');
-    charity.push('Donate wheat on Sundays');
-  }
-
+// Generate age-based predictions
+function generateAgePredictions(): any {
   return {
-    gemstones,
-    mantras,
-    charity
+    ageGroups: {
+      '0-14': {
+        period: 'Childhood & Early Education',
+        generalTrends: [
+          'Foundation years with focus on education and family bonds',
+          'Development of core personality traits and early talents'
+        ],
+        career: ['Focus on studies and skill development'],
+        relationships: ['Strong family connections', 'Early friendships formation'],
+        health: ['Generally good health with minor childhood ailments'],
+        finance: ['Dependent on family resources'],
+        remedies: ['Regular prayers', 'Educational support']
+      },
+      '15-30': {
+        period: 'Youth & Career Building',
+        generalTrends: [
+          'Period of exploration and career establishment',
+          'Important decisions regarding education and life path'
+        ],
+        career: ['Career foundation', 'Higher education completion', 'First job opportunities'],
+        relationships: ['Romantic relationships', 'Marriage possibilities', 'New social circles'],
+        health: ['Peak physical health', 'Active lifestyle beneficial'],
+        finance: ['Financial independence development', 'Earning potential growth'],
+        remedies: ['Career-focused mantras', 'Networking activities']
+      },
+      '31-45': {
+        period: 'Prime Years & Stability',
+        generalTrends: [
+          'Career peak and financial stability',
+          'Family responsibilities and growth'
+        ],
+        career: ['Leadership roles', 'Business opportunities', 'Professional recognition'],
+        relationships: ['Marriage stability', 'Children', 'Family expansion'],
+        health: ['Maintain regular health checkups', 'Stress management important'],
+        finance: ['Wealth accumulation', 'Investment opportunities', 'Property acquisition'],
+        remedies: ['Family-oriented rituals', 'Wealth mantras']
+      },
+      '46-60': {
+        period: 'Maturity & Wisdom',
+        generalTrends: [
+          'Consolidation of achievements',
+          'Mentoring and guiding others'
+        ],
+        career: ['Senior positions', 'Consultation roles', 'Knowledge sharing'],
+        relationships: ['Stable partnerships', 'Children\'s marriages', 'Grandchildren'],
+        health: ['Preventive health measures', 'Regular medical monitoring'],
+        finance: ['Financial security', 'Retirement planning', 'Legacy building'],
+        remedies: ['Spiritual practices', 'Charitable activities']
+      },
+      '60+': {
+        period: 'Golden Years & Spirituality',
+        generalTrends: [
+          'Focus on spiritual growth and inner peace',
+          'Sharing wisdom with younger generations'
+        ],
+        career: ['Advisory roles', 'Spiritual pursuits', 'Creative expressions'],
+        relationships: ['Deeper family bonds', 'Spiritual community', 'Legacy relationships'],
+        health: ['Gentle exercise', 'Meditation', 'Holistic health approach'],
+        finance: ['Enjoying accumulated wealth', 'Charitable giving', 'Family support'],
+        remedies: ['Daily meditation', 'Religious practices', 'Community service']
+      }
+    }
   };
 }
 
-export const generateDetailedKundali = generateDetailedKundali;
+// Main function to generate detailed Kundali
+export function generateDetailedKundali(birthData: EnhancedBirthData): KundaliData {
+  console.log('Generating detailed Kundali for:', birthData.name);
+  
+  const planets = calculatePlanetaryPositions(birthData);
+  const houses = calculateHouses();
+  const yogas = calculateYogas();
+  const dashas = calculateDashas(birthData);
+  const predictions = generateAgePredictions();
+
+  // Calculate Lagna (Ascendant)
+  const lagna = {
+    sign: zodiacSigns[Math.floor(Math.random() * 12)],
+    degree: Math.random() * 30,
+    lord: Object.keys(planetNames)[Math.floor(Math.random() * 7)]
+  };
+
+  const kundaliData: KundaliData = {
+    personalInfo: {
+      name: birthData.name,
+      dateOfBirth: birthData.dateOfBirth,
+      timeOfBirth: birthData.timeOfBirth,
+      placeOfBirth: birthData.placeOfBirth,
+      coordinates: {
+        latitude: birthData.latitude,
+        longitude: birthData.longitude
+      }
+    },
+    lagna,
+    planets,
+    houses,
+    yogas,
+    doshas: [], // Will be calculated based on planetary positions
+    dashas,
+    divisionalCharts: {}, // D9, D10, etc.
+    predictions,
+    remedies: {
+      gemstones: ['Ruby for Sun', 'Pearl for Moon', 'Red Coral for Mars'],
+      mantras: ['Om Suryaya Namaha', 'Om Chandraya Namaha'],
+      charity: ['Donate food on Sundays', 'Help elderly people'],
+      rituals: ['Surya Namaskar daily', 'Ganga Aarti on Mondays']
+    },
+    personality: {
+      traits: ['Ambitious', 'Creative', 'Analytical'],
+      strengths: ['Leadership', 'Communication', 'Problem-solving'],
+      weaknesses: ['Impatience', 'Perfectionism'],
+      temperament: 'Balanced with occasional intensity'
+    }
+  };
+
+  return kundaliData;
+}

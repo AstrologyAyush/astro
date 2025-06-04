@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback } from 'react';
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -23,7 +24,6 @@ const BirthDataForm: React.FC<BirthDataFormProps> = ({ onSubmit, isLoading, lang
   });
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [debouncedPlace, setDebouncedPlace] = useState('');
   const debouncedSearchTerm = useDebounce(formData.placeOfBirth, 500);
 
   const getTranslation = (en: string, hi: string) => {
