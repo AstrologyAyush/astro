@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -114,14 +115,14 @@ const FloatingChatbot: React.FC<FloatingChatbotProps> = ({
               alt="Maharishi Parashar" 
               className="h-8 w-8 rounded-full object-cover" 
             />
-            <span className="text-xs font-bold mt-1">AI गुरु</span>
+            <span className="text-xs font-bold mt-1 text-white">AI गुरु</span>
           </div>
         </Button>
       )}
 
       {/* Chat Window */}
       {isOpen && (
-        <Card className="fixed bottom-6 right-6 w-96 h-[500px] shadow-2xl z-50 bg-gradient-to-b from-orange-50 to-white border-2 border-orange-300">
+        <Card className="fixed bottom-6 right-6 w-96 h-[500px] shadow-2xl z-50 bg-white border-2 border-orange-300">
           <CardHeader className="pb-3 bg-gradient-to-r from-orange-500 via-red-500 to-orange-600 text-white rounded-t-lg">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -131,8 +132,8 @@ const FloatingChatbot: React.FC<FloatingChatbotProps> = ({
                   className="h-10 w-10 rounded-full object-cover border-2 border-white" 
                 />
                 <div>
-                  <CardTitle className="text-sm font-bold">महर्षि पराशर</CardTitle>
-                  <p className="text-xs opacity-90">Vedic AI Guru</p>
+                  <CardTitle className="text-sm font-bold text-white">महर्षि पराशर</CardTitle>
+                  <p className="text-xs opacity-90 text-white">Vedic AI Guru</p>
                 </div>
               </div>
               <Button
@@ -145,7 +146,7 @@ const FloatingChatbot: React.FC<FloatingChatbotProps> = ({
               </Button>
             </div>
             <div className="flex justify-between items-center text-xs">
-              <span className="flex items-center gap-1 font-bold text-xs">
+              <span className="flex items-center gap-1 font-bold text-xs text-white">
                 <Sparkles className="h-3 w-3" />
                 Powered by Ayu
               </span>
@@ -181,13 +182,15 @@ const FloatingChatbot: React.FC<FloatingChatbotProps> = ({
                         className={`p-3 rounded-lg text-sm ${
                           message.type === 'user'
                             ? 'bg-orange-500 text-white rounded-br-none'
-                            : 'bg-white border border-orange-200 rounded-bl-none shadow-sm'
+                            : 'bg-gray-50 border border-gray-200 rounded-bl-none shadow-sm text-gray-900'
                         }`}
                       >
-                        <p className="whitespace-pre-wrap leading-relaxed">
+                        <p className="whitespace-pre-wrap leading-relaxed font-medium">
                           {message.content}
                         </p>
-                        <p className="text-xs opacity-70 mt-2">
+                        <p className={`text-xs opacity-70 mt-2 ${
+                          message.type === 'user' ? 'text-white/70' : 'text-gray-500'
+                        }`}>
                           {message.timestamp.toLocaleTimeString('hi-IN')}
                         </p>
                       </div>
@@ -202,7 +205,7 @@ const FloatingChatbot: React.FC<FloatingChatbotProps> = ({
                         alt="Maharishi" 
                         className="h-8 w-8 rounded-full object-cover border border-orange-300 flex-shrink-0" 
                       />
-                      <div className="bg-white border border-orange-200 p-3 rounded-lg rounded-bl-none">
+                      <div className="bg-gray-50 border border-gray-200 p-3 rounded-lg rounded-bl-none">
                         <div className="flex space-x-1">
                           <div className="w-2 h-2 bg-orange-500 rounded-full animate-bounce"></div>
                           <div className="w-2 h-2 bg-orange-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
@@ -227,7 +230,7 @@ const FloatingChatbot: React.FC<FloatingChatbotProps> = ({
                       : "चैट समाप्त / Chat finished"
                   }
                   disabled={isLoading || remainingChats === 0}
-                  className="flex-1 text-sm border-orange-200 focus:border-orange-400"
+                  className="flex-1 text-sm border-orange-200 focus:border-orange-400 bg-white text-gray-900"
                 />
                 <Button
                   onClick={handleSendMessage}
@@ -239,7 +242,7 @@ const FloatingChatbot: React.FC<FloatingChatbotProps> = ({
                 </Button>
               </div>
               {remainingChats === 0 && (
-                <p className="text-xs text-muted-foreground mt-2 text-center">
+                <p className="text-xs text-gray-600 mt-2 text-center">
                   नई कुंडली बनाएं अधिक चैट के लिए / Generate new kundali for more chats
                 </p>
               )}
@@ -250,7 +253,7 @@ const FloatingChatbot: React.FC<FloatingChatbotProps> = ({
                       key={index}
                       variant="outline"
                       size="sm"
-                      className="text-xs h-6 px-2 border-orange-200 text-orange-700 hover:bg-orange-100"
+                      className="text-xs h-6 px-2 border-orange-200 text-orange-700 hover:bg-orange-100 bg-white"
                       onClick={() => setInputValue(`मेरे ${topic} के बारे में बताएं`)}
                     >
                       {topic}

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -118,13 +119,13 @@ const Index = () => {
 
   if (step === 'form') {
     return (
-      <div className="min-h-screen bg-black text-white">
+      <div className="min-h-screen bg-white text-gray-900">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-800">
-          <Button variant="ghost" size="icon" onClick={() => navigate('/')} className="text-white">
+        <div className="flex items-center justify-between p-4 border-b border-gray-200">
+          <Button variant="ghost" size="icon" onClick={() => navigate('/')} className="text-gray-900">
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <h1 className="text-lg font-semibold">
+          <h1 className="text-lg font-semibold text-gray-900">
             {getTranslation('Generate Kundali', 'कुंडली बनाएं')}
           </h1>
           <div className="w-10" />
@@ -143,17 +144,17 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-white text-gray-900">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-800">
-        <Button variant="ghost" size="icon" onClick={() => setStep('form')} className="text-white">
+      <div className="flex items-center justify-between p-4 border-b border-gray-200">
+        <Button variant="ghost" size="icon" onClick={() => setStep('form')} className="text-gray-900">
           <ArrowLeft className="h-5 w-5" />
         </Button>
-        <h1 className="text-lg font-semibold">
+        <h1 className="text-lg font-semibold text-gray-900">
           {getTranslation('Your Birth Chart', 'आपकी जन्म कुंडली')}
         </h1>
         <div className="flex items-center gap-2">
-          <Badge variant="secondary" className="bg-green-500/20 text-green-400 text-xs">
+          <Badge variant="secondary" className="bg-green-100 text-green-700 text-xs">
             {getTranslation('Generated', 'तैयार')}
           </Badge>
         </div>
@@ -161,83 +162,83 @@ const Index = () => {
 
       <div className="p-4 space-y-6 pb-20">
         {/* Profile Header */}
-        <Card className="bg-gray-900 border-gray-800">
+        <Card className="bg-white border-gray-200">
           <CardContent className="p-4">
             <div className="flex items-center gap-4">
               <div className="h-12 w-12 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold text-lg">
                 {birthData?.name?.charAt(0) || 'U'}
               </div>
               <div className="flex-1">
-                <h2 className="text-lg font-semibold text-white">{birthData?.name}</h2>
-                <p className="text-gray-400 text-sm">
+                <h2 className="text-lg font-semibold text-gray-900">{birthData?.name}</h2>
+                <p className="text-gray-600 text-sm">
                   {birthData?.dateOfBirth.toLocaleDateString()} • {birthData?.timeOfBirth}
                 </p>
-                <p className="text-gray-400 text-sm">{birthData?.placeOfBirth}</p>
+                <p className="text-gray-600 text-sm">{birthData?.placeOfBirth}</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
         {/* Basic Information */}
-        <Card className="bg-gray-900 border-gray-800">
+        <Card className="bg-white border-gray-200">
           <CardHeader>
-            <CardTitle className="text-white text-base">
+            <CardTitle className="text-gray-900 text-base">
               {getTranslation('Basic Information', 'मूल जानकारी')}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="grid grid-cols-2 gap-4">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-orange-500/20 rounded-lg flex items-center justify-center">
-                  <span className="text-orange-400 text-sm">⚡</span>
+                <div className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
+                  <span className="text-orange-600 text-sm">⚡</span>
                 </div>
                 <div>
-                  <p className="text-gray-400 text-xs">
+                  <p className="text-gray-600 text-xs">
                     {getTranslation('Lagna', 'लग्न')}
                   </p>
-                  <p className="text-white text-sm font-medium">
+                  <p className="text-gray-900 text-sm font-medium">
                     {kundaliData?.ascendant?.rashi_name || 'Loading...'}
                   </p>
                 </div>
               </div>
               
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center">
-                  <span className="text-blue-400 text-sm">🌙</span>
+                <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                  <span className="text-blue-600 text-sm">🌙</span>
                 </div>
                 <div>
-                  <p className="text-gray-400 text-xs">
+                  <p className="text-gray-600 text-xs">
                     {getTranslation('Rashi', 'राशि')}
                   </p>
-                  <p className="text-white text-sm font-medium">
+                  <p className="text-gray-900 text-sm font-medium">
                     {kundaliData?.planets?.MO?.rashiName || 'Loading...'}
                   </p>
                 </div>
               </div>
 
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-yellow-500/20 rounded-lg flex items-center justify-center">
-                  <span className="text-yellow-400 text-sm">⭐</span>
+                <div className="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center">
+                  <span className="text-yellow-600 text-sm">⭐</span>
                 </div>
                 <div>
-                  <p className="text-gray-400 text-xs">
+                  <p className="text-gray-600 text-xs">
                     {getTranslation('Nakshatra', 'नक्षत्र')}
                   </p>
-                  <p className="text-white text-sm font-medium">
+                  <p className="text-gray-900 text-sm font-medium">
                     {kundaliData?.nakshatraName || 'Loading...'}
                   </p>
                 </div>
               </div>
 
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-purple-500/20 rounded-lg flex items-center justify-center">
-                  <span className="text-purple-400 text-sm">🔮</span>
+                <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                  <span className="text-purple-600 text-sm">🔮</span>
                 </div>
                 <div>
-                  <p className="text-gray-400 text-xs">
+                  <p className="text-gray-600 text-xs">
                     {getTranslation('Dasha', 'दशा')}
                   </p>
-                  <p className="text-white text-sm font-medium">
+                  <p className="text-gray-900 text-sm font-medium">
                     {kundaliData?.dashas?.current?.planet || 'Sun'}
                   </p>
                 </div>
@@ -247,9 +248,9 @@ const Index = () => {
         </Card>
 
         {/* Kundali Chart */}
-        <Card className="bg-gray-900 border-gray-800">
+        <Card className="bg-white border-gray-200">
           <CardHeader>
-            <CardTitle className="text-white text-base">
+            <CardTitle className="text-gray-900 text-base">
               {getTranslation('Birth Chart', 'जन्म चार्ट')}
             </CardTitle>
           </CardHeader>
@@ -262,24 +263,24 @@ const Index = () => {
         </Card>
 
         {/* Overview Section */}
-        <Card className="bg-gray-900 border-gray-800">
+        <Card className="bg-white border-gray-200">
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle className="text-green-400 text-base">
+              <CardTitle className="text-green-600 text-base">
                 {getTranslation('OVERVIEW', 'विवरण')}
               </CardTitle>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setShowOverview(!showOverview)}
-                className="text-gray-400"
+                className="text-gray-600"
               >
                 {showOverview ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </Button>
             </div>
           </CardHeader>
           <CardContent>
-            <p className="text-gray-300 text-sm leading-relaxed">
+            <p className="text-gray-700 text-sm leading-relaxed">
               {showOverview ? (
                 getTranslation(
                   "Your birth chart reveals a unique cosmic blueprint that influences your personality, relationships, and life path. The planetary positions at your time of birth create specific energies and opportunities that shape your journey. Understanding these influences can help you make better decisions and align with your natural strengths.",
@@ -303,14 +304,14 @@ const Index = () => {
       </div>
 
       {/* Fixed Action Buttons */}
-      <div className="fixed bottom-0 left-0 right-0 bg-black border-t border-gray-800 p-4">
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4">
         <div className="grid grid-cols-3 gap-3">
           <Button 
             variant="outline" 
             size="sm" 
             onClick={handleSaveKundali}
             disabled={isSaving}
-            className="border-gray-700 text-white hover:bg-gray-800"
+            className="border-gray-300 text-gray-900 hover:bg-gray-50"
           >
             <BookmarkPlus className="h-4 w-4 mr-2" />
             {isSaving ? getTranslation('Saving...', 'सेव कर रहे...') : getTranslation('Save', 'सेव')}
@@ -319,7 +320,7 @@ const Index = () => {
           <Button 
             variant="outline" 
             size="sm" 
-            className="border-gray-700 text-white hover:bg-gray-800"
+            className="border-gray-300 text-gray-900 hover:bg-gray-50"
           >
             <Download className="h-4 w-4 mr-2" />
             {getTranslation('PDF', 'पीडीएफ')}
@@ -329,7 +330,7 @@ const Index = () => {
             variant="outline" 
             size="sm" 
             onClick={handleShare}
-            className="border-gray-700 text-white hover:bg-gray-800"
+            className="border-gray-300 text-gray-900 hover:bg-gray-50"
           >
             <Share className="h-4 w-4 mr-2" />
             {getTranslation('Share', 'शेयर')}

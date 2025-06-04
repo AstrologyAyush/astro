@@ -139,9 +139,9 @@ const KundaliAIChat: React.FC<KundaliAIChatProps> = ({ kundaliData, language, nu
   ];
 
   return (
-    <Card className="h-[600px] flex flex-col bg-gray-900 border-gray-800">
+    <Card className="h-[600px] flex flex-col bg-white border-gray-200">
       <CardHeader className="pb-4">
-        <CardTitle className="flex items-center gap-2 text-white">
+        <CardTitle className="flex items-center gap-2 text-gray-900">
           <Sparkles className="h-5 w-5 text-orange-400" />
           {language === 'hi' ? "महर्षि पराशर - वैदिक ज्योतिष गुरु" : "Maharishi Parashar - Vedic Astrology Sage"}
         </CardTitle>
@@ -150,7 +150,7 @@ const KundaliAIChat: React.FC<KundaliAIChatProps> = ({ kundaliData, language, nu
             <Badge 
               key={index} 
               variant="outline" 
-              className="cursor-pointer hover:bg-orange-500/20 text-xs border-gray-600 text-gray-300 hover:text-white"
+              className="cursor-pointer hover:bg-orange-100 text-xs border-gray-300 text-gray-700 hover:text-gray-900 bg-white"
               onClick={() => setInputValue(question)}
             >
               {question}
@@ -159,7 +159,7 @@ const KundaliAIChat: React.FC<KundaliAIChatProps> = ({ kundaliData, language, nu
         </div>
       </CardHeader>
       
-      <Separator className="bg-gray-700" />
+      <Separator className="bg-gray-200" />
       
       <CardContent className="flex-1 flex flex-col p-0">
         <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
@@ -204,7 +204,7 @@ const KundaliAIChat: React.FC<KundaliAIChatProps> = ({ kundaliData, language, nu
           </div>
         </ScrollArea>
         
-        <Separator className="bg-gray-700" />
+        <Separator className="bg-gray-200" />
         
         <div className="p-4">
           <div className="flex gap-2">
@@ -214,7 +214,7 @@ const KundaliAIChat: React.FC<KundaliAIChatProps> = ({ kundaliData, language, nu
               onKeyPress={handleKeyPress}
               placeholder={language === 'hi' ? "महर्षि जी से अपना प्रश्न पूछें..." : "Ask Maharishi your question..."}
               disabled={isLoading}
-              className="flex-1 bg-gray-800 border-gray-600 text-white placeholder-gray-400"
+              className="flex-1 bg-white border-gray-300 text-gray-900 placeholder-gray-500"
             />
             <Button 
               onClick={handleSendMessage}

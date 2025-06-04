@@ -2,7 +2,7 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { Star, Home, User, Settings } from "lucide-react";
+import { Star, Home, User } from "lucide-react";
 import { useAuth } from '@/contexts/AuthContext';
 import AppLogo from './AppLogo';
 
@@ -14,7 +14,7 @@ interface AppLayoutProps {
 const AppLayout: React.FC<AppLayoutProps> = ({ children, language }) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { isLoggedIn, settings, updateSettings } = useAuth();
+  const { isLoggedIn, updateSettings } = useAuth();
   
   const isLandingPage = location.pathname === '/';
   const isLoginPage = location.pathname === '/login';
@@ -29,10 +29,10 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, language }) => {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-white text-gray-900">
       {/* Header - only show on landing page */}
       {isLandingPage && (
-        <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
+        <header className="sticky top-0 z-50 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 border-b border-gray-200">
           <div className="container mx-auto px-3 h-14 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <AppLogo size="sm" />
@@ -44,7 +44,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, language }) => {
                 variant="outline" 
                 size="sm" 
                 onClick={toggleLanguage} 
-                className="h-8 px-2 rounded-full text-xs"
+                className="h-8 px-2 rounded-full text-xs border-gray-300 text-gray-700 hover:bg-gray-50"
               >
                 {language === 'hi' ? 'EN' : 'हिं'}
               </Button>
@@ -53,7 +53,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, language }) => {
                   variant="default" 
                   size="sm" 
                   onClick={() => navigate('/login')}
-                  className="h-8 px-3 rounded-full text-xs bg-orange-500 hover:bg-orange-600"
+                  className="h-8 px-3 rounded-full text-xs bg-orange-500 hover:bg-orange-600 text-white"
                 >
                   {getTranslation('Login', 'लॉगिन')}
                 </Button>
@@ -70,13 +70,13 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, language }) => {
 
       {/* Mobile Bottom Navigation - hide on login and profile pages */}
       {!isLoginPage && !isProfilePage && (
-        <nav className="fixed bottom-0 left-0 right-0 bg-background border-t z-40 safe-area-pb">
-          <div className="grid grid-cols-4 gap-1 p-1">
+        <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-40 safe-area-pb">
+          <div className="grid grid-cols-3 gap-1 p-1">
             <Button 
               variant="ghost" 
               size="sm" 
               onClick={() => navigate('/')} 
-              className={`flex flex-col gap-0.5 h-12 py-1 rounded-lg ${location.pathname === '/' ? 'bg-orange-500/20 text-orange-400' : ''}`}
+              className={`flex flex-col gap-0.5 h-12 py-1 rounded-lg text-gray-700 hover:bg-gray-50 ${location.pathname === '/' ? 'bg-orange-100 text-orange-600' : ''}`}
             >
               <Home className="h-4 w-4" />
               <span className="text-xs">{getTranslation('Home', 'होम')}</span>
@@ -86,7 +86,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, language }) => {
               variant="ghost" 
               size="sm" 
               onClick={() => navigate('/kundali')} 
-              className={`flex flex-col gap-0.5 h-12 py-1 rounded-lg ${location.pathname === '/kundali' ? 'bg-orange-500/20 text-orange-400' : ''}`}
+              className={`flex flex-col gap-0.5 h-12 py-1 rounded-lg text-gray-700 hover:bg-gray-50 ${location.pathname === '/kundali' ? 'bg-orange-100 text-orange-600' : ''}`}
             >
               <Star className="h-4 w-4" />
               <span className="text-xs">{getTranslation('Kundali', 'कुंडली')}</span>
@@ -96,20 +96,10 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, language }) => {
               variant="ghost" 
               size="sm" 
               onClick={() => navigate(isLoggedIn ? '/profile' : '/login')} 
-              className={`flex flex-col gap-0.5 h-12 py-1 rounded-lg ${location.pathname === '/profile' ? 'bg-orange-500/20 text-orange-400' : ''}`}
+              className={`flex flex-col gap-0.5 h-12 py-1 rounded-lg text-gray-700 hover:bg-gray-50 ${location.pathname === '/profile' ? 'bg-orange-100 text-orange-600' : ''}`}
             >
               <User className="h-4 w-4" />
               <span className="text-xs">{getTranslation('Profile', 'प्रोफ़ाइल')}</span>
-            </Button>
-            
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={toggleLanguage} 
-              className="flex flex-col gap-0.5 h-12 py-1 rounded-lg"
-            >
-              <Settings className="h-4 w-4" />
-              <span className="text-xs">{getTranslation('Lang', 'भाषा')}</span>
             </Button>
           </div>
         </nav>

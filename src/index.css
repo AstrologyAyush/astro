@@ -7,7 +7,7 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
+    --background: 0 0% 98%;
     --foreground: 0 0% 3.9%;
     --card: 0 0% 100%;
     --card-foreground: 0 0% 3.9%;
@@ -30,24 +30,24 @@
   }
 
   .dark {
-    --background: 0 0% 0%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 6%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 6%;
-    --popover-foreground: 0 0% 98%;
+    --background: 0 0% 98%;
+    --foreground: 0 0% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 3.9%;
     --primary: 25 95% 53%;
-    --primary-foreground: 0 0% 0%;
-    --secondary: 0 0% 14.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 14.9%;
-    --accent-foreground: 0 0% 98%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 96.1%;
+    --secondary-foreground: 0 0% 9%;
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
+    --accent: 0 0% 96.1%;
+    --accent-foreground: 0 0% 9%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
     --ring: 25 95% 53%;
   }
 }
@@ -58,7 +58,7 @@
   }
   
   body {
-    @apply bg-background text-foreground font-sans;
+    @apply bg-white text-gray-900 font-sans;
     font-family: 'Inter', sans-serif;
     font-size: 14px;
     line-height: 1.6;
@@ -68,6 +68,7 @@
   
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Space Grotesk', sans-serif;
+    @apply text-gray-900;
   }
   
   @media (min-width: 640px) {
@@ -77,9 +78,9 @@
   }
 }
 
-/* Dark theme by default */
+/* Light theme by default */
 html {
-  @apply dark;
+  @apply bg-white;
 }
 
 /* Gradient text */
@@ -96,22 +97,22 @@ html {
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-muted;
+  @apply bg-gray-100;
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-muted-foreground/30 rounded-full;
+  @apply bg-gray-400 rounded-full;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-muted-foreground/50;
+  @apply bg-gray-500;
 }
 
-/* Calendar styling for dark theme */
+/* Calendar styling for light theme */
 .rdp {
   --rdp-cell-size: 40px;
   --rdp-accent-color: hsl(25 95% 53%);
-  --rdp-background-color: hsl(0 0% 6%);
+  --rdp-background-color: hsl(0 0% 100%);
 }
 
 /* Mobile-first responsive design */
@@ -121,51 +122,51 @@ html {
 
 /* Kundali chart styling */
 .kundali-chart {
-  @apply relative rounded-2xl p-6 aspect-square max-w-md mx-auto;
+  @apply relative rounded-2xl p-6 aspect-square max-w-md mx-auto bg-white border border-gray-200;
   background: linear-gradient(135deg, 
-    rgba(251, 146, 60, 0.1) 0%, 
-    rgba(251, 146, 60, 0.05) 50%,
-    rgba(139, 69, 19, 0.1) 100%);
+    rgba(251, 146, 60, 0.05) 0%, 
+    rgba(251, 146, 60, 0.02) 50%,
+    rgba(139, 69, 19, 0.05) 100%);
 }
 
 .kundali-house {
-  @apply border border-orange-500/20 text-center transition-all duration-200 hover:bg-orange-500/10 cursor-pointer rounded-lg;
+  @apply border border-orange-300 text-center transition-all duration-200 hover:bg-orange-50 cursor-pointer rounded-lg bg-white;
   min-height: 60px;
   position: relative;
 }
 
 .kundali-house:hover {
-  @apply border-orange-500/40;
+  @apply border-orange-400;
   transform: scale(1.02);
 }
 
 .kundali-house-number {
-  @apply text-xs font-bold text-orange-400 absolute top-1 left-1;
+  @apply text-xs font-bold text-orange-600 absolute top-1 left-1;
 }
 
 .planet-symbol {
-  @apply text-sm font-bold px-1 py-0.5 rounded bg-orange-500/20 text-orange-300 border border-orange-500/30;
+  @apply text-sm font-bold px-1 py-0.5 rounded bg-orange-100 text-orange-700 border border-orange-300;
   display: inline-block;
   margin: 1px;
 }
 
-/* Planet-specific colors */
-.planet-symbol-sun { @apply bg-yellow-500/20 text-yellow-300 border-yellow-500/30; }
-.planet-symbol-moon { @apply bg-blue-500/20 text-blue-300 border-blue-500/30; }
-.planet-symbol-mars { @apply bg-red-500/20 text-red-300 border-red-500/30; }
-.planet-symbol-mercury { @apply bg-green-500/20 text-green-300 border-green-500/30; }
-.planet-symbol-jupiter { @apply bg-purple-500/20 text-purple-300 border-purple-500/30; }
-.planet-symbol-venus { @apply bg-pink-500/20 text-pink-300 border-pink-500/30; }
-.planet-symbol-saturn { @apply bg-gray-500/20 text-gray-300 border-gray-500/30; }
-.planet-symbol-rahu { @apply bg-orange-500/20 text-orange-300 border-orange-500/30; }
-.planet-symbol-ketu { @apply bg-orange-500/20 text-orange-300 border-orange-500/30; }
+/* Planet-specific colors for light theme */
+.planet-symbol-sun { @apply bg-yellow-100 text-yellow-700 border-yellow-300; }
+.planet-symbol-moon { @apply bg-blue-100 text-blue-700 border-blue-300; }
+.planet-symbol-mars { @apply bg-red-100 text-red-700 border-red-300; }
+.planet-symbol-mercury { @apply bg-green-100 text-green-700 border-green-300; }
+.planet-symbol-jupiter { @apply bg-purple-100 text-purple-700 border-purple-300; }
+.planet-symbol-venus { @apply bg-pink-100 text-pink-700 border-pink-300; }
+.planet-symbol-saturn { @apply bg-gray-100 text-gray-700 border-gray-300; }
+.planet-symbol-rahu { @apply bg-orange-100 text-orange-700 border-orange-300; }
+.planet-symbol-ketu { @apply bg-orange-100 text-orange-700 border-orange-300; }
 
 /* Strength indicators */
-.strength-excellent { @apply text-emerald-400; }
-.strength-good { @apply text-green-400; }
-.strength-average { @apply text-yellow-400; }
-.strength-weak { @apply text-orange-400; }
-.strength-very-weak { @apply text-red-400; }
+.strength-excellent { @apply text-emerald-600; }
+.strength-good { @apply text-green-600; }
+.strength-average { @apply text-yellow-600; }
+.strength-weak { @apply text-orange-600; }
+.strength-very-weak { @apply text-red-600; }
 
 /* Mobile optimizations */
 @media (max-width: 640px) {
