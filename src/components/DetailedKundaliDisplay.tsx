@@ -1,8 +1,8 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { Star, Crown, Shield, Zap, Target, Heart } from "lucide-react";
 import { KundaliData } from '@/lib/advancedKundaliEngine';
 
 interface DetailedKundaliDisplayProps {
@@ -10,12 +10,28 @@ interface DetailedKundaliDisplayProps {
 }
 
 const DetailedKundaliDisplay: React.FC<DetailedKundaliDisplayProps> = ({ kundaliData }) => {
+  // Find strongest planet
+  const findStrongestPlanet = () => {
+    let strongest = { name: '', strength: 0 };
+    Object.entries(kundaliData.planets).forEach(([name, planet]) => {
+      if (planet.shadbala && planet.shadbala > strongest.strength) {
+        strongest = { name, strength: planet.shadbala };
+      }
+    });
+    return strongest;
+  };
+
+  const strongestPlanet = findStrongestPlanet();
+  const moonSign = kundaliData.planets.find(p => p.name === 'Moon')?.sign || 'Unknown';
+  const sunSign = kundaliData.planets.find(p => p.name === 'Sun')?.sign || 'Unknown';
+
   return (
     <div className="w-full max-w-6xl mx-auto p-6 space-y-6">
-      {/* Header with Personal Information */}
+      {/* Enhanced Header with Personal Information */}
       <Card className="bg-gradient-to-r from-orange-50 to-red-50 border-orange-200">
         <CardHeader>
-          <CardTitle className="text-2xl text-center text-gray-800">
+          <CardTitle className="text-2xl text-center text-gray-800 flex items-center justify-center gap-2">
+            <Crown className="h-6 w-6 text-orange-600" />
             Complete Vedic Kundali Analysis
           </CardTitle>
           <div className="text-center text-gray-600">
@@ -38,31 +54,148 @@ const DetailedKundaliDisplay: React.FC<DetailedKundaliDisplayProps> = ({ kundali
           <TabsTrigger value="personality">Personality</TabsTrigger>
         </TabsList>
 
-        {/* Overview Tab */}
+        {/* Enhanced Overview Tab */}
         <TabsContent value="overview">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Core Chart Information */}
+            <Card className="border-orange-200">
               <CardHeader>
-                <CardTitle className="text-orange-600">Lagna (Ascendant)</CardTitle>
+                <CardTitle className="text-orange-600 flex items-center gap-2">
+                  <Star className="h-5 w-5" />
+                  Core Chart Details
+                </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <p><strong>Sign:</strong> {kundaliData.lagna.sign}</p>
-                  <p><strong>Degree:</strong> {kundaliData.lagna.degree.toFixed(2)}°</p>
-                  <p><strong>Lord:</strong> {kundaliData.lagna.lord}</p>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="p-3 bg-orange-50 rounded-lg">
+                    <h4 className="font-semibold text-orange-800 mb-1">Lagna (Ascendant)</h4>
+                    <p className="text-orange-600 font-medium">{kundaliData.lagna.sign}</p>
+                    <p className="text-sm text-gray-600">{kundaliData.lagna.degree.toFixed(2)}°</p>
+                  </div>
+                  
+                  <div className="p-3 bg-blue-50 rounded-lg">
+                    <h4 className="font-semibold text-blue-800 mb-1">Moon Sign (Rashi)</h4>
+                    <p className="text-blue-600 font-medium">{moonSign}</p>
+                    <p className="text-sm text-gray-600">Mind & Emotions</p>
+                  </div>
+                  
+                  <div className="p-3 bg-yellow-50 rounded-lg">
+                    <h4 className="font-semibold text-yellow-800 mb-1">Sun Sign</h4>
+                    <p className="text-yellow-600 font-medium">{sunSign}</p>
+                    <p className="text-sm text-gray-600">Soul & Ego</p>
+                  </div>
+                  
+                  <div className="p-3 bg-green-50 rounded-lg">
+                    <h4 className="font-semibold text-green-800 mb-1">Strongest Planet</h4>
+                    <p className="text-green-600 font-medium">{strongestPlanet.name}</p>
+                    <p className="text-sm text-gray-600">{strongestPlanet.strength.toFixed(1)}% strength</p>
+                  </div>
                 </div>
               </CardContent>
             </Card>
 
-            <Card>
+            {/* Chart Summary */}
+            <Card className="border-blue-200">
               <CardHeader>
-                <CardTitle className="text-orange-600">Chart Summary</CardTitle>
+                <CardTitle className="text-blue-600 flex items-center gap-2">
+                  <Target className="h-5 w-5" />
+                  Chart Summary
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-700">Total Planets:</span>
+                  <Badge variant="outline">{kundaliData.planets.length}</Badge>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-700">Active Yogas:</span>
+                  <Badge className="bg-green-100 text-green-800">
+                    {kundaliData.yogas.filter(y => y.present).length}
+                  </Badge>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-700">Current Dasha:</span>
+                  <Badge className="bg-purple-100 text-purple-800">
+                    {kundaliData.dashas.find(d => d.isActive)?.planet || 'Not specified'}
+                  </Badge>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-700">Lagna Lord:</span>
+                  <Badge variant="secondary">{kundaliData.lagna.lord}</Badge>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Key Strengths & Challenges */}
+            <Card className="border-green-200">
+              <CardHeader>
+                <CardTitle className="text-green-600 flex items-center gap-2">
+                  <Zap className="h-5 w-5" />
+                  Key Strengths
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  <p><strong>Total Planets:</strong> {kundaliData.planets.length}</p>
-                  <p><strong>Active Yogas:</strong> {kundaliData.yogas.filter(y => y.isPresent).length}</p>
-                  <p><strong>Current Dasha:</strong> {kundaliData.dashas.find(d => d.isActive)?.planet || 'Not specified'}</p>
+                  {kundaliData.personality.strengths.slice(0, 4).map((strength, index) => (
+                    <div key={index} className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                      <span className="text-sm text-gray-700">{strength}</span>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Areas for Growth */}
+            <Card className="border-yellow-200">
+              <CardHeader>
+                <CardTitle className="text-yellow-600 flex items-center gap-2">
+                  <Shield className="h-5 w-5" />
+                  Areas for Growth
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  {kundaliData.personality.weaknesses.slice(0, 4).map((weakness, index) => (
+                    <div key={index} className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                      <span className="text-sm text-gray-700">{weakness}</span>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Life Path Insights */}
+            <Card className="border-purple-200 lg:col-span-2">
+              <CardHeader>
+                <CardTitle className="text-purple-600 flex items-center gap-2">
+                  <Heart className="h-5 w-5" />
+                  Life Path Insights
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="p-4 bg-purple-50 rounded-lg">
+                    <h4 className="font-semibold text-purple-800 mb-2">Career & Finance</h4>
+                    <p className="text-sm text-gray-700">
+                      {kundaliData.predictions.ageGroups['15-30'].career[0] || 'Focus on skill development and networking opportunities.'}
+                    </p>
+                  </div>
+                  
+                  <div className="p-4 bg-pink-50 rounded-lg">
+                    <h4 className="font-semibold text-pink-800 mb-2">Relationships</h4>
+                    <p className="text-sm text-gray-700">
+                      {kundaliData.predictions.ageGroups['15-30'].relationships[0] || 'Strong potential for meaningful connections and partnerships.'}
+                    </p>
+                  </div>
+                  
+                  <div className="p-4 bg-indigo-50 rounded-lg">
+                    <h4 className="font-semibold text-indigo-800 mb-2">Health & Wellness</h4>
+                    <p className="text-sm text-gray-700">
+                      {kundaliData.predictions.ageGroups['15-30'].health[0] || 'Maintain regular exercise and balanced nutrition for optimal health.'}
+                    </p>
+                  </div>
                 </div>
               </CardContent>
             </Card>

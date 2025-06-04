@@ -1,85 +1,225 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Calendar, Star, Heart, Briefcase, DollarSign, Activity } from "lucide-react";
+import { Calendar, Star, Heart, Briefcase, DollarSign, Activity, Sparkles } from "lucide-react";
 
 interface EnhancedDailyHoroscopeProps {
-  kundali?: any;
+  kundaliData?: any;
   language: 'hi' | 'en';
 }
 
-const EnhancedDailyHoroscope: React.FC<EnhancedDailyHoroscopeProps> = ({ kundali, language }) => {
+const EnhancedDailyHoroscope: React.FC<EnhancedDailyHoroscopeProps> = ({ kundaliData, language }) => {
   const [horoscope, setHoroscope] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (kundali) {
-      generateDailyHoroscope();
+    if (kundaliData) {
+      generatePersonalizedHoroscope();
+    } else {
+      generateGenericHoroscope();
     }
-  }, [kundali]);
+  }, [kundaliData]);
 
-  const generateDailyHoroscope = async () => {
-    if (!kundali) return;
+  const generatePersonalizedHoroscope = async () => {
+    if (!kundaliData) return;
     
     setLoading(true);
     try {
-      // Simulate enhanced horoscope generation
       const today = new Date();
-      const moonHouse = Math.floor(Math.random() * 12) + 1;
+      
+      // Use actual Kundali data for personalized predictions
+      const moonSign = kundaliData.planets?.find((p: any) => p.name === 'Moon')?.sign || 'Aries';
+      const ascendant = kundaliData.lagna?.sign || 'Aries';
+      const strongestPlanet = findStrongestPlanet(kundaliData.planets || []);
+      const currentDasha = kundaliData.dashas?.find((d: any) => d.isActive)?.planet || 'Sun';
       
       const predictions = {
-        overall: generateOverallPrediction(moonHouse, language),
-        career: generateCareerPrediction(moonHouse, language),
-        finance: generateFinancePrediction(moonHouse, language),
-        health: generateHealthPrediction(moonHouse, language),
-        relationships: generateRelationshipPrediction(moonHouse, language)
+        overall: generatePersonalizedPrediction(moonSign, ascendant, strongestPlanet, currentDasha, language),
+        career: generateCareerPrediction(ascendant, strongestPlanet, language),
+        finance: generateFinancePrediction(moonSign, currentDasha, language),
+        health: generateHealthPrediction(ascendant, language),
+        relationships: generateRelationshipPrediction(moonSign, language)
       };
 
-      const ratings = {
-        overall: Math.floor(Math.random() * 5) + 6,
-        career: Math.floor(Math.random() * 5) + 6,
-        finance: Math.floor(Math.random() * 5) + 6,
-        health: Math.floor(Math.random() * 5) + 6,
-        relationships: Math.floor(Math.random() * 5) + 6
-      };
+      const ratings = calculatePersonalizedRatings(kundaliData);
 
       setHoroscope({
         date: today.toLocaleDateString(),
-        moonHouse,
+        moonSign,
+        ascendant,
+        strongestPlanet: strongestPlanet.name,
+        currentDasha,
         predictions,
         ratings,
-        luckyNumbers: [Math.floor(Math.random() * 9) + 1, Math.floor(Math.random() * 9) + 1, Math.floor(Math.random() * 9) + 1],
-        luckyColors: ['Blue', 'Green', 'Yellow'],
-        auspiciousTime: '10:30 AM - 12:30 PM'
+        luckyNumbers: generateLuckyNumbers(kundaliData),
+        luckyColors: generateLuckyColors(strongestPlanet.name),
+        auspiciousTime: generateAuspiciousTime(currentDasha),
+        isPersonalized: true
       });
     } catch (error) {
-      console.error('Error generating horoscope:', error);
+      console.error('Error generating personalized horoscope:', error);
+      generateGenericHoroscope();
     } finally {
       setLoading(false);
     }
   };
 
-  const generateOverallPrediction = (moonHouse: number, lang: 'hi' | 'en'): string => {
+  const generateGenericHoroscope = () => {
+    const today = new Date();
+    const genericSign = 'Aries'; // Default for demo
+    
+    const predictions = {
+      overall: language === 'hi' 
+        ? "आज आपके लिए मिश्रित फल है। सकारात्मक दृष्टिकोण बनाए रखें।"
+        : "Today brings mixed results. Maintain a positive outlook.",
+      career: language === 'hi'
+        ? "कार्यक्षेत्र में नई संभावनाएं हो सकती हैं।"
+        : "New opportunities may arise in your professional sphere.",
+      finance: language === 'hi'
+        ? "वित्तीय मामलों में सावधानी बरतें।"
+        : "Exercise caution in financial matters.",
+      health: language === 'hi'
+        ? "स्वास्थ्य का ध्यान रखें और पर्याप्त आराम करें।"
+        : "Take care of your health and get adequate rest.",
+      relationships: language === 'hi'
+        ? "रिश्तों में धैर्य और समझदारी दिखाएं।"
+        : "Show patience and understanding in relationships."
+    };
+
+    setHoroscope({
+      date: today.toLocaleDateString(),
+      moonSign: genericSign,
+      predictions,
+      ratings: {
+        overall: 7,
+        career: 6,
+        finance: 5,
+        health: 8,
+        relationships: 7
+      },
+      luckyNumbers: [3, 7, 21],
+      luckyColors: ['Blue', 'Green'],
+      auspiciousTime: '10:30 AM - 12:30 PM',
+      isPersonalized: false
+    });
+  };
+
+  const findStrongestPlanet = (planets: any[]) => {
+    let strongest = { name: 'Sun', strength: 0 };
+    planets.forEach(planet => {
+      if (planet.shadbala && planet.shadbala > strongest.strength) {
+        strongest = { name: planet.name, strength: planet.shadbala };
+      }
+    });
+    return strongest;
+  };
+
+  const generatePersonalizedPrediction = (moonSign: string, ascendant: string, strongestPlanet: any, currentDasha: string, lang: 'hi' | 'en') => {
     const predictions = {
       en: [
-        `The Moon's transit through your ${moonHouse}th house brings positive energy today.`,
-        `Planetary alignments suggest a day of opportunities and growth.`,
-        `Your intuitive powers are heightened with favorable lunar positions.`,
-        `Cosmic energies support your endeavors today.`
+        `With your Moon in ${moonSign} and ${strongestPlanet.name} being your strongest planet, today brings focus on ${getLifeArea(strongestPlanet.name)}.`,
+        `Your ${ascendant} ascendant suggests that taking initiative will be beneficial today.`,
+        `The current ${currentDasha} dasha period influences your daily activities positively.`,
+        `Planetary alignments favor your natural strengths in ${getStrengthArea(moonSign)}.`
       ],
       hi: [
-        `चंद्रमा का आपके ${moonHouse}वें भाव में गोचर आज सकारात्मक ऊर्जा लाता है।`,
-        `ग्रहों की स्थिति आज अवसरों और विकास का दिन सुझाती है।`,
-        `अनुकूल चंद्र स्थिति के साथ आपकी सहज शक्तियां बढ़ी हुई हैं।`,
-        `ब्रह्मांडीय ऊर्जाएं आज आपके प्रयासों का समर्थन करती हैं।`
+        `आपका चंद्र ${moonSign} में है और ${strongestPlanet.name} आपका सबसे शक्तिशाली ग्रह है, आज ${getLifeAreaHindi(strongestPlanet.name)} पर ध्यान दें।`,
+        `आपका ${ascendant} लग्न सुझाता है कि आज पहल करना लाभकारी होगा।`,
+        `वर्तमान ${currentDasha} दशा काल आपकी दैनिक गतिविधियों को सकारात्मक रूप से प्रभावित करता है।`,
+        `ग्रहों की स्थिति आपकी प्राकृतिक शक्तियों का समर्थन करती है।`
       ]
     };
     return predictions[lang][Math.floor(Math.random() * predictions[lang].length)];
   };
 
-  const generateCareerPrediction = (moonHouse: number, lang: 'hi' | 'en'): string => {
+  const calculatePersonalizedRatings = (kundaliData: any) => {
+    const baseRating = 5;
+    const strongPlanets = kundaliData.planets?.filter((p: any) => p.shadbala > 70).length || 0;
+    const yogaCount = kundaliData.yogas?.filter((y: any) => y.present).length || 0;
+    
+    return {
+      overall: Math.min(10, baseRating + Math.floor(strongPlanets / 2) + Math.floor(yogaCount / 3)),
+      career: Math.min(10, baseRating + Math.floor(yogaCount / 2)),
+      finance: Math.min(10, baseRating + Math.floor(strongPlanets / 3)),
+      health: Math.min(10, baseRating + Math.floor(strongPlanets / 2)),
+      relationships: Math.min(10, baseRating + Math.floor(yogaCount / 2))
+    };
+  };
+
+  const generateLuckyNumbers = (kundaliData: any) => {
+    if (!kundaliData) return [3, 7, 21];
+    
+    const moonDegree = Math.floor(kundaliData.planets?.find((p: any) => p.name === 'Moon')?.degree || 0);
+    const ascendantDegree = Math.floor(kundaliData.lagna?.degree || 0);
+    
+    return [
+      (moonDegree % 9) + 1,
+      (ascendantDegree % 9) + 1,
+      ((moonDegree + ascendantDegree) % 9) + 1
+    ];
+  };
+
+  const generateLuckyColors = (strongestPlanet: string) => {
+    const planetColors: { [key: string]: string[] } = {
+      'Sun': ['Orange', 'Gold'],
+      'Moon': ['White', 'Silver'],
+      'Mars': ['Red', 'Maroon'],
+      'Mercury': ['Green', 'Yellow'],
+      'Jupiter': ['Yellow', 'Orange'],
+      'Venus': ['White', 'Pink'],
+      'Saturn': ['Blue', 'Black'],
+      'Rahu': ['Grey', 'Brown'],
+      'Ketu': ['Grey', 'Brown']
+    };
+    return planetColors[strongestPlanet] || ['Blue', 'Green'];
+  };
+
+  const generateAuspiciousTime = (currentDasha: string) => {
+    const dashaTimes: { [key: string]: string } = {
+      'Sun': '6:00 AM - 8:00 AM',
+      'Moon': '6:00 PM - 8:00 PM',
+      'Mars': '12:00 PM - 2:00 PM',
+      'Mercury': '10:00 AM - 12:00 PM',
+      'Jupiter': '8:00 AM - 10:00 AM',
+      'Venus': '2:00 PM - 4:00 PM',
+      'Saturn': '4:00 PM - 6:00 PM'
+    };
+    return dashaTimes[currentDasha] || '10:00 AM - 12:00 PM';
+  };
+
+  const getLifeArea = (planet: string): string => {
+    const areas: { [key: string]: string } = {
+      'Sun': 'leadership and authority',
+      'Moon': 'emotions and intuition', 
+      'Mars': 'energy and action',
+      'Mercury': 'communication and learning',
+      'Jupiter': 'wisdom and growth',
+      'Venus': 'relationships and creativity',
+      'Saturn': 'discipline and responsibility'
+    };
+    return areas[planet] || 'personal growth';
+  };
+
+  const getLifeAreaHindi = (planet: string): string => {
+    const areas: { [key: string]: string } = {
+      'Sun': 'नेतृत्व और अधिकार',
+      'Moon': 'भावनाएं और अंतर्ज्ञान',
+      'Mars': 'ऊर्जा और कार्य',
+      'Mercury': 'संवाद और शिक्षा',
+      'Jupiter': 'ज्ञान और विकास',
+      'Venus': 'रिश्ते और रचनात्मकता',
+      'Saturn': 'अनुशासन और जिम्मेदारी'
+    };
+    return areas[planet] || 'व्यक्तिगत विकास';
+  };
+
+  const getStrengthArea = (moonSign: string): string => {
+    // Simplified mapping - in real implementation, use comprehensive moon sign characteristics
+    return 'emotional intelligence and intuitive decision-making';
+  };
+
+  const generateCareerPrediction = (ascendant: string, strongestPlanet: any, lang: 'hi' | 'en'): string => {
     const predictions = {
       en: [
         "Professional opportunities may present themselves today.",
@@ -97,7 +237,7 @@ const EnhancedDailyHoroscope: React.FC<EnhancedDailyHoroscopeProps> = ({ kundali
     return predictions[lang][Math.floor(Math.random() * predictions[lang].length)];
   };
 
-  const generateFinancePrediction = (moonHouse: number, lang: 'hi' | 'en'): string => {
+  const generateFinancePrediction = (moonSign: string, currentDasha: string, lang: 'hi' | 'en'): string => {
     const predictions = {
       en: [
         "Financial stability is indicated by current planetary positions.",
@@ -115,7 +255,7 @@ const EnhancedDailyHoroscope: React.FC<EnhancedDailyHoroscopeProps> = ({ kundali
     return predictions[lang][Math.floor(Math.random() * predictions[lang].length)];
   };
 
-  const generateHealthPrediction = (moonHouse: number, lang: 'hi' | 'en'): string => {
+  const generateHealthPrediction = (ascendant: string, lang: 'hi' | 'en'): string => {
     const predictions = {
       en: [
         "Pay attention to your mental health and stress levels.",
@@ -133,7 +273,7 @@ const EnhancedDailyHoroscope: React.FC<EnhancedDailyHoroscopeProps> = ({ kundali
     return predictions[lang][Math.floor(Math.random() * predictions[lang].length)];
   };
 
-  const generateRelationshipPrediction = (moonHouse: number, lang: 'hi' | 'en'): string => {
+  const generateRelationshipPrediction = (moonSign: string, lang: 'hi' | 'en'): string => {
     const predictions = {
       en: [
         "Relationships may require extra patience and understanding today.",
@@ -157,7 +297,7 @@ const EnhancedDailyHoroscope: React.FC<EnhancedDailyHoroscopeProps> = ({ kundali
         <Card>
           <CardContent className="p-6 text-center">
             <div className="animate-spin h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-            <p>{language === 'hi' ? 'दैनिक राशिफल तैयार हो रहा है...' : 'Generating daily horoscope...'}</p>
+            <p>{language === 'hi' ? 'व्यक्तिगत राशिफल तैयार हो रहा है...' : 'Generating personalized horoscope...'}</p>
           </CardContent>
         </Card>
       </div>
@@ -184,8 +324,31 @@ const EnhancedDailyHoroscope: React.FC<EnhancedDailyHoroscopeProps> = ({ kundali
           <CardTitle className="flex items-center gap-2 text-lg">
             <Calendar className="h-5 w-5" />
             {language === 'hi' ? 'आज का राशिफल' : 'Today\'s Horoscope'}
+            {horoscope.isPersonalized && (
+              <Badge className="bg-orange-100 text-orange-700 ml-2">
+                <Sparkles className="h-3 w-3 mr-1" />
+                {language === 'hi' ? 'व्यक्तिगत' : 'Personalized'}
+              </Badge>
+            )}
           </CardTitle>
           <p className="text-sm text-muted-foreground">{horoscope.date}</p>
+          {horoscope.isPersonalized && (
+            <div className="flex flex-wrap gap-2 mt-2">
+              <Badge variant="outline" className="text-xs">
+                {language === 'hi' ? 'चंद्र राशि' : 'Moon'}: {horoscope.moonSign}
+              </Badge>
+              {horoscope.ascendant && (
+                <Badge variant="outline" className="text-xs">
+                  {language === 'hi' ? 'लग्न' : 'Asc'}: {horoscope.ascendant}
+                </Badge>
+              )}
+              {horoscope.currentDasha && (
+                <Badge variant="outline" className="text-xs">
+                  {language === 'hi' ? 'दशा' : 'Dasha'}: {horoscope.currentDasha}
+                </Badge>
+              )}
+            </div>
+          )}
         </CardHeader>
       </Card>
 
@@ -311,6 +474,19 @@ const EnhancedDailyHoroscope: React.FC<EnhancedDailyHoroscopeProps> = ({ kundali
           </div>
         </CardContent>
       </Card>
+
+      {!horoscope.isPersonalized && (
+        <Card className="border-orange-200 bg-orange-50">
+          <CardContent className="p-4 text-center">
+            <p className="text-sm text-orange-700">
+              {language === 'hi' 
+                ? 'अधिक सटीक और व्यक्तिगत राशिफल के लिए कुंडली बनवाएं'
+                : 'Generate your Kundali for more accurate and personalized horoscope'
+              }
+            </p>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };

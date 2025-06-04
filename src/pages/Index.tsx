@@ -5,7 +5,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import BirthDataForm from '@/components/BirthDataForm';
 import DetailedKundaliDisplay from '@/components/DetailedKundaliDisplay';
 import PersonalityTest from '@/components/PersonalityTest';
-import DailyHoroscope from '@/components/DailyHoroscope';
+import EnhancedDailyHoroscope from '@/components/EnhancedDailyHoroscope';
+import FloatingChatbot from '@/components/FloatingChatbot';
 import { generateDetailedKundali, EnhancedBirthData, KundaliData } from '@/lib/advancedKundaliEngine';
 import { useToast } from "@/hooks/use-toast";
 import { Star, Moon, Sun, Calculator } from 'lucide-react';
@@ -20,7 +21,6 @@ const Index = () => {
     setIsLoading(true);
     
     try {
-      // Convert the form data to EnhancedBirthData format
       const enhancedBirthData: EnhancedBirthData = {
         name: birthData.name,
         dateOfBirth: birthData.dateOfBirth,
@@ -30,7 +30,6 @@ const Index = () => {
         longitude: birthData.longitude
       };
 
-      // Simulate API call delay
       await new Promise(resolve => setTimeout(resolve, 2000));
       
       const result = generateDetailedKundali(enhancedBirthData);
@@ -110,7 +109,10 @@ const Index = () => {
             </TabsContent>
 
             <TabsContent value="horoscope">
-              <DailyHoroscope language={language} />
+              <EnhancedDailyHoroscope 
+                kundaliData={kundaliData} 
+                language={language} 
+              />
             </TabsContent>
           </Tabs>
         ) : (
@@ -124,6 +126,19 @@ const Index = () => {
               </button>
             </div>
             <DetailedKundaliDisplay kundaliData={kundaliData} />
+            
+            {/* Show personalized horoscope after Kundali generation */}
+            <div className="mt-8">
+              <h2 className="text-2xl font-bold text-center mb-6 text-gray-800">
+                {language === 'hi' ? 'आपका व्यक्तिगत दैनिक राशिफल' : 'Your Personalized Daily Horoscope'}
+              </h2>
+              <div className="flex justify-center">
+                <EnhancedDailyHoroscope 
+                  kundaliData={kundaliData} 
+                  language={language} 
+                />
+              </div>
+            </div>
           </div>
         )}
 
@@ -177,6 +192,12 @@ const Index = () => {
           </div>
         )}
       </div>
+
+      {/* Floating Chatbot - Always present */}
+      <FloatingChatbot 
+        kundaliData={kundaliData} 
+        numerologyData={null}
+      />
     </div>
   );
 };
