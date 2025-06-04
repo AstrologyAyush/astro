@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -40,7 +39,17 @@ const Index = () => {
   const handleFormSubmit = async (data: BirthData) => {
     setIsGenerating(true);
     try {
-      const result = await generateDetailedKundali(data);
+      // Convert the data to the format expected by generateDetailedKundali
+      const formattedData = {
+        name: data.name,
+        date: data.dateOfBirth,
+        time: data.timeOfBirth,
+        latitude: data.latitude,
+        longitude: data.longitude,
+        timezone: 5.5 // Default to IST, should be configurable
+      };
+      
+      const result = await generateDetailedKundali(formattedData);
       setBirthData(data);
       setKundaliData(result);
       setStep('result');
@@ -186,7 +195,7 @@ const Index = () => {
                     {getTranslation('Lagna', 'लग्न')}
                   </p>
                   <p className="text-white text-sm font-medium">
-                    {kundaliData?.ascendant?.rashi_name}
+                    {kundaliData?.ascendant?.rashi_name || 'Loading...'}
                   </p>
                 </div>
               </div>
@@ -200,7 +209,7 @@ const Index = () => {
                     {getTranslation('Rashi', 'राशि')}
                   </p>
                   <p className="text-white text-sm font-medium">
-                    {kundaliData?.planets?.Moon?.rashi_name}
+                    {kundaliData?.planets?.MO?.rashiName || 'Loading...'}
                   </p>
                 </div>
               </div>
@@ -214,7 +223,7 @@ const Index = () => {
                     {getTranslation('Nakshatra', 'नक्षत्र')}
                   </p>
                   <p className="text-white text-sm font-medium">
-                    {kundaliData?.planets?.Moon?.nakshatra?.name}
+                    {kundaliData?.nakshatraName || 'Loading...'}
                   </p>
                 </div>
               </div>
@@ -228,7 +237,7 @@ const Index = () => {
                     {getTranslation('Dasha', 'दशा')}
                   </p>
                   <p className="text-white text-sm font-medium">
-                    {kundaliData?.dashas?.current?.planet}
+                    {kundaliData?.dashas?.current?.planet || 'Sun'}
                   </p>
                 </div>
               </div>

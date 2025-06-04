@@ -1,4 +1,3 @@
-
 // Enhanced Astronomical Engine for Vedic Astrology
 import { BirthData, PlanetPosition, KundaliChart } from './kundaliUtils';
 
@@ -439,3 +438,6 @@ export function generateEnhancedKundaliChart(birthData: BirthData): EnhancedKund
     }
   };
 }
+
+// Add the missing export that Index.tsx is looking for
+export const generateDetailedKundali = generateEnhancedKundaliChart;

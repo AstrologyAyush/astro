@@ -21,14 +21,19 @@ export interface UserProfile {
 interface AuthContextType {
   user: User | null;
   userProfile: UserProfile | null;
+  profile: UserProfile | null;
   isLoggedIn: boolean;
+  isLoading: boolean;
   settings: UserSettings;
+  savedKundalis: any[];
   login: (email: string, password: string) => Promise<boolean>;
   signup: (email: string, password: string, firstName: string, lastName: string) => Promise<boolean>;
   logout: () => Promise<void>;
   updateSettings: (newSettings: Partial<UserSettings>) => Promise<void>;
+  updateProfile: (profileData: any) => Promise<void>;
   saveKundali: (name: string, birthData: any, chartData: any) => Promise<boolean>;
   getSavedCharts: () => any[];
+  deleteKundali: (id: string) => Promise<boolean>;
 }
 
 const defaultSettings: UserSettings = {
@@ -43,6 +48,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [settings, setSettings] = useState<UserSettings>(defaultSettings);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     // Get initial session
@@ -50,6 +56,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(session?.user ?? null);
       if (session?.user) {
         loadUserProfile(session.user);
+      } else {
+        setIsLoading(false);
       }
     });
 
@@ -61,6 +69,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } else {
         setUserProfile(null);
         setSettings(defaultSettings);
+        setIsLoading(false);
       }
     });
 
@@ -69,30 +78,71 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const loadUserProfile = async (user: User) => {
     try {
+      setIsLoading(true);
+      // First try to get existing profile
       const { data, error } = await supabase
-        .from('profiles')
+        .from('user_profiles')
         .select('*')
         .eq('id', user.id)
         .single();
 
-      if (error) {
+      if (error && error.code !== 'PGRST116') {
         console.error('Error loading user profile:', error);
+        setIsLoading(false);
         return;
       }
 
-      const profile: UserProfile = {
-        id: user.id,
-        email: user.email!,
-        firstName: data?.first_name,
-        lastName: data?.last_name,
-        settings: data?.settings || defaultSettings,
-        savedCharts: data?.saved_charts || [],
-      };
+      if (!data) {
+        // Create new profile if it doesn't exist
+        const newProfile = {
+          id: user.id,
+          email: user.email!,
+          first_name: user.user_metadata?.first_name || '',
+          last_name: user.user_metadata?.last_name || '',
+          settings: defaultSettings,
+          saved_charts: []
+        };
 
-      setUserProfile(profile);
-      setSettings(profile.settings);
+        const { data: createdProfile, error: createError } = await supabase
+          .from('user_profiles')
+          .insert(newProfile)
+          .select()
+          .single();
+
+        if (createError) {
+          console.error('Error creating user profile:', createError);
+          setIsLoading(false);
+          return;
+        }
+
+        const profile: UserProfile = {
+          id: user.id,
+          email: user.email!,
+          firstName: createdProfile?.first_name,
+          lastName: createdProfile?.last_name,
+          settings: createdProfile?.settings || defaultSettings,
+          savedCharts: createdProfile?.saved_charts || [],
+        };
+
+        setUserProfile(profile);
+        setSettings(profile.settings);
+      } else {
+        const profile: UserProfile = {
+          id: user.id,
+          email: user.email!,
+          firstName: data.first_name,
+          lastName: data.last_name,
+          settings: data.settings || defaultSettings,
+          savedCharts: data.saved_charts || [],
+        };
+
+        setUserProfile(profile);
+        setSettings(profile.settings);
+      }
     } catch (error) {
       console.error('Error loading user profile:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -158,7 +208,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (user && userProfile) {
       try {
         const { error } = await supabase
-          .from('profiles')
+          .from('user_profiles')
           .update({ settings: updatedSettings })
           .eq('id', user.id);
 
@@ -170,6 +220,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } catch (error) {
         console.error('Error updating settings:', error);
       }
+    }
+  };
+
+  const updateProfile = async (profileData: any): Promise<void> => {
+    if (!user || !userProfile) return;
+
+    try {
+      const { error } = await supabase
+        .from('user_profiles')
+        .update(profileData)
+        .eq('id', user.id);
+
+      if (error) {
+        console.error('Error updating profile:', error);
+      } else {
+        setUserProfile({ ...userProfile, ...profileData });
+      }
+    } catch (error) {
+      console.error('Error updating profile:', error);
     }
   };
 
@@ -188,7 +257,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const updatedCharts = [...userProfile.savedCharts, newChart];
 
       const { error } = await supabase
-        .from('profiles')
+        .from('user_profiles')
         .update({ saved_charts: updatedCharts })
         .eq('id', user.id);
 
@@ -205,6 +274,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const deleteKundali = async (id: string): Promise<boolean> => {
+    if (!user || !userProfile) return false;
+
+    try {
+      const updatedCharts = userProfile.savedCharts.filter(chart => chart.id !== id);
+
+      const { error } = await supabase
+        .from('user_profiles')
+        .update({ saved_charts: updatedCharts })
+        .eq('id', user.id);
+
+      if (error) {
+        console.error('Error deleting kundali:', error);
+        return false;
+      }
+
+      setUserProfile({ ...userProfile, savedCharts: updatedCharts });
+      return true;
+    } catch (error) {
+      console.error('Error deleting kundali:', error);
+      return false;
+    }
+  };
+
   const getSavedCharts = (): any[] => {
     return userProfile?.savedCharts || [];
   };
@@ -212,14 +305,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const value: AuthContextType = {
     user,
     userProfile,
+    profile: userProfile,
     isLoggedIn: !!user,
+    isLoading,
     settings,
+    savedKundalis: userProfile?.savedCharts || [],
     login,
     signup,
     logout,
     updateSettings,
+    updateProfile,
     saveKundali,
     getSavedCharts,
+    deleteKundali,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
