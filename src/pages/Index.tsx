@@ -6,10 +6,9 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Download, Share, BookmarkPlus, Eye, EyeOff } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
 import BirthDataForm from '@/components/BirthDataForm';
-import EnhancedKundaliChart from '@/components/EnhancedKundaliChart';
-import PlanetaryPositions from '@/components/PlanetaryPositions';
+import DetailedKundaliDisplay from '@/components/DetailedKundaliDisplay';
 import FloatingChatbot from '@/components/FloatingChatbot';
-import { generateDetailedKundali } from '@/lib/enhancedAstronomicalEngine';
+import { generateDetailedKundali, type DetailedKundali, type EnhancedBirthData } from '@/lib/advancedKundaliEngine';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 
@@ -28,9 +27,8 @@ const Index = () => {
   const { toast } = useToast();
   const [step, setStep] = useState<'form' | 'result'>('form');
   const [birthData, setBirthData] = useState<BirthData | null>(null);
-  const [kundaliData, setKundaliData] = useState<any>(null);
+  const [kundaliData, setKundaliData] = useState<DetailedKundali | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [showOverview, setShowOverview] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
   const getTranslation = (en: string, hi: string) => {
@@ -40,26 +38,33 @@ const Index = () => {
   const handleFormSubmit = async (data: BirthData) => {
     setIsGenerating(true);
     try {
+      console.log('Starting detailed Kundali generation with enhanced engine...');
+      
       // Convert the data to the format expected by generateDetailedKundali
-      const formattedData = {
+      const enhancedBirthData: EnhancedBirthData = {
         fullName: data.name,
-        place: data.placeOfBirth,
-        date: data.dateOfBirth,
-        time: data.timeOfBirth,
+        dateOfBirth: data.dateOfBirth,
+        timeOfBirth: data.timeOfBirth,
+        placeOfBirth: data.placeOfBirth,
         latitude: data.latitude,
         longitude: data.longitude,
         timezone: 5.5 // Default to IST, should be configurable
       };
       
-      const result = await generateDetailedKundali(formattedData);
+      const result = await generateDetailedKundali(enhancedBirthData);
       setBirthData(data);
       setKundaliData(result);
       setStep('result');
-    } catch (error) {
-      console.error('Error generating kundali:', error);
+      
       toast({
-        title: "Error",
-        description: "Failed to generate kundali. Please try again.",
+        title: getTranslation("Success", "सफलता"),
+        description: getTranslation("Detailed Kundali generated successfully!", "विस्तृत कुंडली सफलतापूर्वक तैयार की गई!"),
+      });
+    } catch (error) {
+      console.error('Error generating detailed kundali:', error);
+      toast({
+        title: getTranslation("Error", "त्रुटि"),
+        description: getTranslation("Failed to generate kundali. Please try again.", "कुंडली बनाने में विफल। कृपया पुनः प्रयास करें।"),
         variant: "destructive"
       });
     } finally {
@@ -70,8 +75,8 @@ const Index = () => {
   const handleSaveKundali = async () => {
     if (!isLoggedIn) {
       toast({
-        title: "Login Required",
-        description: "Please login to save your kundali",
+        title: getTranslation("Login Required", "लॉगिन आवश्यक"),
+        description: getTranslation("Please login to save your kundali", "कुंडली सेव करने के लिए कृपया लॉगिन करें"),
         variant: "destructive"
       });
       navigate('/login');
@@ -90,12 +95,17 @@ const Index = () => {
       
       if (success) {
         toast({
-          title: "Kundali Saved",
-          description: "Your kundali has been saved to your profile",
+          title: getTranslation("Kundali Saved", "कुंडली सेव की गई"),
+          description: getTranslation("Your kundali has been saved to your profile", "आपकी कुंडली आपकी प्रोफ़ाइल में सेव कर दी गई है"),
         });
       }
     } catch (error) {
       console.error('Error saving kundali:', error);
+      toast({
+        title: getTranslation("Error", "त्रुटि"),
+        description: getTranslation("Failed to save kundali", "कुंडली सेव करने में विफल"),
+        variant: "destructive"
+      });
     } finally {
       setIsSaving(false);
     }
@@ -104,15 +114,15 @@ const Index = () => {
   const handleShare = () => {
     if (navigator.share && birthData) {
       navigator.share({
-        title: `${birthData.name}'s Kundali - AyushAstro`,
-        text: 'Check out my Vedic birth chart generated by AyushAstro',
+        title: `${birthData.name}'s Detailed Kundali - AyushAstro`,
+        text: 'Check out my detailed Vedic birth chart generated by AyushAstro',
         url: window.location.href,
       });
     } else {
       navigator.clipboard.writeText(window.location.href);
       toast({
-        title: "Link Copied",
-        description: "Kundali link copied to clipboard",
+        title: getTranslation("Link Copied", "लिंक कॉपी किया गया"),
+        description: getTranslation("Kundali link copied to clipboard", "कुंडली लिंक क्लिपबोर्ड में कॉपी किया गया"),
       });
     }
   };
@@ -126,7 +136,7 @@ const Index = () => {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <h1 className="text-lg font-semibold text-gray-900">
-            {getTranslation('Generate Kundali', 'कुंडली बनाएं')}
+            {getTranslation('Generate Detailed Kundali', 'विस्तृत कुंडली बनाएं')}
           </h1>
           <div className="w-10" />
         </div>
@@ -151,7 +161,7 @@ const Index = () => {
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <h1 className="text-lg font-semibold text-gray-900">
-          {getTranslation('Your Birth Chart', 'आपकी जन्म कुंडली')}
+          {getTranslation('Detailed Birth Chart', 'विस्तृत जन्म कुंडली')}
         </h1>
         <div className="flex items-center gap-2">
           <Badge variant="secondary" className="bg-green-100 text-green-700 text-xs">
@@ -179,128 +189,13 @@ const Index = () => {
           </CardContent>
         </Card>
 
-        {/* Basic Information */}
-        <Card className="bg-white border-gray-200">
-          <CardHeader>
-            <CardTitle className="text-gray-900 text-base">
-              {getTranslation('Basic Information', 'मूल जानकारी')}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
-                  <span className="text-orange-600 text-sm">⚡</span>
-                </div>
-                <div>
-                  <p className="text-gray-600 text-xs">
-                    {getTranslation('Lagna', 'लग्न')}
-                  </p>
-                  <p className="text-gray-900 text-sm font-medium">
-                    {kundaliData?.ascendant?.rashi_name || 'Loading...'}
-                  </p>
-                </div>
-              </div>
-              
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <span className="text-blue-600 text-sm">🌙</span>
-                </div>
-                <div>
-                  <p className="text-gray-600 text-xs">
-                    {getTranslation('Rashi', 'राशि')}
-                  </p>
-                  <p className="text-gray-900 text-sm font-medium">
-                    {kundaliData?.planets?.MO?.rashiName || 'Loading...'}
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center">
-                  <span className="text-yellow-600 text-sm">⭐</span>
-                </div>
-                <div>
-                  <p className="text-gray-600 text-xs">
-                    {getTranslation('Nakshatra', 'नक्षत्र')}
-                  </p>
-                  <p className="text-gray-900 text-sm font-medium">
-                    {kundaliData?.nakshatraName || 'Loading...'}
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
-                  <span className="text-purple-600 text-sm">🔮</span>
-                </div>
-                <div>
-                  <p className="text-gray-600 text-xs">
-                    {getTranslation('Dasha', 'दशा')}
-                  </p>
-                  <p className="text-gray-900 text-sm font-medium">
-                    {kundaliData?.dashas?.current?.planet || 'Sun'}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Kundali Chart */}
-        <Card className="bg-white border-gray-200">
-          <CardHeader>
-            <CardTitle className="text-gray-900 text-base">
-              {getTranslation('Birth Chart', 'जन्म चार्ट')}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <EnhancedKundaliChart 
-              chart={kundaliData} 
-              language={settings.language}
-            />
-          </CardContent>
-        </Card>
-
-        {/* Overview Section */}
-        <Card className="bg-white border-gray-200">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-green-600 text-base">
-                {getTranslation('OVERVIEW', 'विवरण')}
-              </CardTitle>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowOverview(!showOverview)}
-                className="text-gray-600"
-              >
-                {showOverview ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <p className="text-gray-700 text-sm leading-relaxed">
-              {showOverview ? (
-                getTranslation(
-                  "Your birth chart reveals a unique cosmic blueprint that influences your personality, relationships, and life path. The planetary positions at your time of birth create specific energies and opportunities that shape your journey. Understanding these influences can help you make better decisions and align with your natural strengths.",
-                  "आपकी जन्म कुंडली एक अनूठी ब्रह्मांडीय योजना को प्रकट करती है जो आपके व्यक्तित्व, रिश्तों और जीवन पथ को प्रभावित करती है। आपके जन्म के समय ग्रहों की स्थितियां विशिष्ट ऊर्जाएं और अवसर बनाती हैं जो आपकी यात्रा को आकार देती हैं।"
-                )
-              ) : (
-                getTranslation(
-                  "Your birth chart reveals a unique cosmic blueprint that influences your personality, relationships, and life path...",
-                  "आपकी जन्म कुंडली एक अनूठी ब्रह्मांडीय योजना को प्रकट करती है..."
-                )
-              )}
-            </p>
-          </CardContent>
-        </Card>
-
-        {/* Planetary Positions */}
-        <PlanetaryPositions 
-          planets={kundaliData?.planets} 
-          language={settings.language}
-        />
+        {/* Detailed Kundali Display */}
+        {kundaliData && (
+          <DetailedKundaliDisplay 
+            kundaliData={kundaliData}
+            language={settings.language}
+          />
+        )}
       </div>
 
       {/* Fixed Action Buttons */}
@@ -339,9 +234,17 @@ const Index = () => {
       </div>
 
       {/* AI Chatbot */}
-      <FloatingChatbot 
-        kundaliData={kundaliData}
-      />
+      {kundaliData && (
+        <FloatingChatbot 
+          kundaliData={{
+            birthData: {
+              fullName: birthData?.name || '',
+              ...birthData
+            },
+            chart: kundaliData
+          }}
+        />
+      )}
     </div>
   );
 };

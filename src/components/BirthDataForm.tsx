@@ -101,20 +101,20 @@ const BirthDataForm: React.FC<BirthDataFormProps> = ({ onSubmit, isLoading = fal
             <Sparkles className="h-6 w-6 text-white" />
           </div>
         </div>
-        <h2 className="text-xl font-semibold text-white">
+        <h2 className="text-xl font-semibold text-gray-900">
           {getTranslation('Enter Birth Details', 'जन्म विवरण दर्ज करें')}
         </h2>
-        <p className="text-gray-400 text-sm">
+        <p className="text-gray-600 text-sm">
           {getTranslation('Provide accurate information for precise calculations', 'सटीक गणना के लिए सही जानकारी दें')}
         </p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Name */}
-        <Card className="bg-gray-900 border-gray-800">
+        <Card className="bg-white border-gray-200">
           <CardContent className="p-4 space-y-3">
-            <Label htmlFor="name" className="text-white flex items-center gap-2">
-              <User className="h-4 w-4 text-gray-400" />
+            <Label htmlFor="name" className="text-gray-900 flex items-center gap-2">
+              <User className="h-4 w-4 text-gray-600" />
               {getTranslation('Full Name', 'पूरा नाम')}
             </Label>
             <Input
@@ -123,16 +123,16 @@ const BirthDataForm: React.FC<BirthDataFormProps> = ({ onSubmit, isLoading = fal
               placeholder={getTranslation('Enter your full name', 'अपना पूरा नाम दर्ज करें')}
               value={formData.name}
               onChange={(e) => setFormData({...formData, name: e.target.value})}
-              className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500"
+              className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-500"
             />
           </CardContent>
         </Card>
 
-        {/* Date of Birth */}
-        <Card className="bg-gray-900 border-gray-800">
+        {/* Date of Birth - Fixed Calendar */}
+        <Card className="bg-white border-gray-200">
           <CardContent className="p-4 space-y-3">
-            <Label className="text-white flex items-center gap-2">
-              <CalendarIcon className="h-4 w-4 text-gray-400" />
+            <Label className="text-gray-900 flex items-center gap-2">
+              <CalendarIcon className="h-4 w-4 text-gray-600" />
               {getTranslation('Date of Birth', 'जन्म तिथि')}
             </Label>
             <Popover>
@@ -140,11 +140,11 @@ const BirthDataForm: React.FC<BirthDataFormProps> = ({ onSubmit, isLoading = fal
                 <Button
                   variant="outline"
                   className={cn(
-                    "w-full justify-start text-left font-normal bg-gray-800 border-gray-700 text-white hover:bg-gray-700",
+                    "w-full justify-start text-left font-normal bg-white border-gray-300 text-gray-900 hover:bg-gray-50",
                     !formData.dateOfBirth && "text-gray-500"
                   )}
                 >
-                  <CalendarIcon className="mr-2 h-4 w-4 text-gray-400" />
+                  <CalendarIcon className="mr-2 h-4 w-4 text-gray-600" />
                   {formData.dateOfBirth ? (
                     format(formData.dateOfBirth, "PPP")
                   ) : (
@@ -152,33 +152,40 @@ const BirthDataForm: React.FC<BirthDataFormProps> = ({ onSubmit, isLoading = fal
                   )}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0 bg-gray-800 border-gray-700" align="start">
+              <PopoverContent className="w-auto p-0 bg-white border-gray-300" align="start">
                 <Calendar
                   mode="single"
                   selected={formData.dateOfBirth}
                   onSelect={(date) => setFormData({...formData, dateOfBirth: date})}
-                  disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
+                  disabled={(date) => date > new Date() || date < new Date("1800-01-01")}
                   initialFocus
-                  className="bg-gray-800 text-white"
+                  captionLayout="dropdown-buttons"
+                  fromYear={1800}
+                  toYear={new Date().getFullYear()}
+                  className={cn("p-3 pointer-events-auto bg-white")}
                   classNames={{
-                    months: "text-white",
-                    month: "text-white",
-                    caption: "text-white",
-                    caption_label: "text-white font-medium",
-                    nav: "text-white",
-                    nav_button: "text-white hover:bg-gray-700 hover:text-white border-0",
-                    nav_button_previous: "text-white hover:bg-gray-700",
-                    nav_button_next: "text-white hover:bg-gray-700",
-                    table: "text-white",
-                    head_row: "text-gray-400",
-                    head_cell: "text-gray-400 font-medium",
-                    row: "text-white",
-                    cell: "text-white",
-                    day: "text-white hover:bg-gray-700 hover:text-white aria-selected:bg-orange-500 aria-selected:text-white",
-                    day_today: "bg-gray-700 text-white",
+                    months: "text-gray-900",
+                    month: "text-gray-900",
+                    caption: "text-gray-900",
+                    caption_label: "text-gray-900 font-medium",
+                    caption_dropdowns: "flex gap-2",
+                    dropdown: "bg-white border border-gray-300 text-gray-900",
+                    dropdown_month: "bg-white border border-gray-300 text-gray-900",
+                    dropdown_year: "bg-white border border-gray-300 text-gray-900",
+                    nav: "text-gray-900",
+                    nav_button: "text-gray-900 hover:bg-gray-100 hover:text-gray-900 border-0",
+                    nav_button_previous: "text-gray-900 hover:bg-gray-100",
+                    nav_button_next: "text-gray-900 hover:bg-gray-100",
+                    table: "text-gray-900",
+                    head_row: "text-gray-600",
+                    head_cell: "text-gray-600 font-medium",
+                    row: "text-gray-900",
+                    cell: "text-gray-900",
+                    day: "text-gray-900 hover:bg-gray-100 hover:text-gray-900 aria-selected:bg-orange-500 aria-selected:text-white",
+                    day_today: "bg-gray-100 text-gray-900",
                     day_selected: "bg-orange-500 text-white hover:bg-orange-600",
-                    day_disabled: "text-gray-600",
-                    day_outside: "text-gray-600",
+                    day_disabled: "text-gray-400",
+                    day_outside: "text-gray-400",
                   }}
                 />
               </PopoverContent>
@@ -187,10 +194,10 @@ const BirthDataForm: React.FC<BirthDataFormProps> = ({ onSubmit, isLoading = fal
         </Card>
 
         {/* Time of Birth */}
-        <Card className="bg-gray-900 border-gray-800">
+        <Card className="bg-white border-gray-200">
           <CardContent className="p-4 space-y-3">
-            <Label htmlFor="time" className="text-white flex items-center gap-2">
-              <Clock className="h-4 w-4 text-gray-400" />
+            <Label htmlFor="time" className="text-gray-900 flex items-center gap-2">
+              <Clock className="h-4 w-4 text-gray-600" />
               {getTranslation('Time of Birth', 'जन्म समय')}
             </Label>
             <Input
@@ -198,7 +205,7 @@ const BirthDataForm: React.FC<BirthDataFormProps> = ({ onSubmit, isLoading = fal
               type="time"
               value={formData.timeOfBirth}
               onChange={(e) => setFormData({...formData, timeOfBirth: e.target.value})}
-              className="bg-gray-800 border-gray-700 text-white [&::-webkit-calendar-picker-indicator]:invert"
+              className="bg-white border-gray-300 text-gray-900"
               required
             />
             <p className="text-xs text-gray-500">
@@ -208,10 +215,10 @@ const BirthDataForm: React.FC<BirthDataFormProps> = ({ onSubmit, isLoading = fal
         </Card>
 
         {/* Place of Birth */}
-        <Card className="bg-gray-900 border-gray-800">
+        <Card className="bg-white border-gray-200">
           <CardContent className="p-4 space-y-3">
-            <Label htmlFor="place" className="text-white flex items-center gap-2">
-              <MapPin className="h-4 w-4 text-gray-400" />
+            <Label htmlFor="place" className="text-gray-900 flex items-center gap-2">
+              <MapPin className="h-4 w-4 text-gray-600" />
               {getTranslation('Place of Birth', 'जन्म स्थान')}
             </Label>
             <Input
@@ -220,7 +227,7 @@ const BirthDataForm: React.FC<BirthDataFormProps> = ({ onSubmit, isLoading = fal
               placeholder={getTranslation('Enter city name', 'शहर का नाम दर्ज करें')}
               value={formData.placeOfBirth}
               onChange={(e) => setFormData({...formData, placeOfBirth: e.target.value})}
-              className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500"
+              className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-500"
               required
             />
             {coordinates.latitude && coordinates.longitude && (
@@ -243,7 +250,7 @@ const BirthDataForm: React.FC<BirthDataFormProps> = ({ onSubmit, isLoading = fal
               {getTranslation('Generating...', 'तैयार कर रहे...')}
             </div>
           ) : (
-            getTranslation('Generate Kundali', 'कुंडली बनाएं')
+            getTranslation('Generate Detailed Kundali', 'विस्तृत कुंडली बनाएं')
           )}
         </Button>
       </form>
