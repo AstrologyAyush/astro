@@ -1,290 +1,180 @@
 
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { useIsMobile } from '@/hooks/use-mobile';
-import { 
-  Star, 
-  Zap, 
-  Heart, 
-  TrendingUp, 
-  Clock, 
-  CheckCircle2, 
-  ArrowRight,
-  Sparkles,
-  Timer,
-  Gift
-} from "lucide-react";
+import { useNavigate } from 'react-router-dom';
+import { Star, Users, Heart, TrendingUp, Sparkles, Gift, CheckCircle } from "lucide-react";
+import CountdownTimer from './CountdownTimer';
 
-const LandingPage: React.FC = () => {
+const LandingPage = () => {
   const navigate = useNavigate();
-  const isMobile = useIsMobile();
-  const [timeLeft, setTimeLeft] = useState({
-    days: 0,
-    hours: 0,
-    minutes: 0,
-    seconds: 0
-  });
-
-  // Timer countdown logic
-  useEffect(() => {
-    const calculateTimeLeft = () => {
-      const now = new Date().getTime();
-      const targetDate = new Date(now + (7 * 24 * 60 * 60 * 1000)).getTime(); // 7 days from now
-      const difference = targetDate - now;
-
-      if (difference > 0) {
-        setTimeLeft({
-          days: Math.floor(difference / (1000 * 60 * 60 * 24)),
-          hours: Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
-          minutes: Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60)),
-          seconds: Math.floor((difference % (1000 * 60)) / 1000)
-        });
-      }
-    };
-
-    calculateTimeLeft();
-    const timer = setInterval(calculateTimeLeft, 1000);
-
-    return () => clearInterval(timer);
-  }, []);
 
   const features = [
     {
-      icon: <Star className="h-6 w-6" />,
-      title: "Swiss Precision Calculations",
-      titleHi: "स्विस सटीक गणना",
-      description: "Advanced astronomical calculations using Swiss Ephemeris for unmatched accuracy",
-      descriptionHi: "बेजोड़ सटीकता के लिए स्विस एफेमेरिस का उपयोग करके उन्नत खगोलीय गणना"
+      icon: <Star className="h-6 w-6 text-orange-500" />,
+      title: "Detailed Birth Chart Analysis",
+      description: "Complete planetary positions, houses, and their influences on your life"
     },
     {
-      icon: <Heart className="h-6 w-6" />,
-      title: "Karma Pattern Analysis",
-      titleHi: "कर्म पैटर्न विश्लेषण",
-      description: "Deep insights into relationship karma and past-life connections",
-      descriptionHi: "संबंध कर्म और पूर्व जन्म के संबंधों में गहरी अंतर्दृष्टि"
+      icon: <TrendingUp className="h-6 w-6 text-blue-500" />,
+      title: "Life Predictions by Age Groups",
+      description: "Detailed insights for different life phases: 0-14, 15-30, 31-45, 46-60, 60+"
     },
     {
-      icon: <TrendingUp className="h-6 w-6" />,
-      title: "AI-Powered Predictions",
-      titleHi: "AI-संचालित भविष्यवाणियां",
-      description: "Machine learning enhanced interpretations for personalized guidance",
-      descriptionHi: "व्यक्तिगत मार्गदर्शन के लिए मशीन लर्निंग बेहतर व्याख्या"
+      icon: <Heart className="h-6 w-6 text-pink-500" />,
+      title: "Relationship Compatibility", 
+      description: "Marriage timing, partner characteristics, and compatibility analysis"
     },
     {
-      icon: <Zap className="h-6 w-6" />,
-      title: "Interactive Charts",
-      titleHi: "इंटरैक्टिव चार्ट",
-      description: "3D visualizations and interactive birth chart exploration",
-      descriptionHi: "3D विज़ुअलाइज़ेशन और इंटरैक्टिव जन्म चार्ट अन्वेषण"
+      icon: <Sparkles className="h-6 w-6 text-purple-500" />,
+      title: "AI-Powered Maharishi Parashar",
+      description: "Chat with our AI sage for personalized guidance and remedies"
+    },
+    {
+      icon: <Users className="h-6 w-6 text-green-500" />,
+      title: "Personality Analysis",
+      description: "Discover your true nature through our advanced personality test"
+    },
+    {
+      icon: <Gift className="h-6 w-6 text-red-500" />,
+      title: "Daily Horoscope",
+      description: "Personalized daily insights based on your birth chart"
     }
   ];
 
+  const benefits = [
+    "Complete Lagna Chart with planetary positions",
+    "Detailed Dasha periods (Mahadasha, Antardasha, Pratyantardasha)",
+    "Yoga formations (Raja Yoga, Dhana Yoga, etc.)",
+    "Dosha analysis (Mangal Dosha, Kaal Sarp Dosha, Sade Sati)",
+    "Transit analysis for current planetary movements",
+    "Annual Horoscope (Varshphal) predictions",
+    "Remedial measures and gemstone recommendations",
+    "Career, finance, health, and relationship insights",
+    "Lucky numbers, colors, and auspicious timings"
+  ];
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50">
       {/* Hero Section */}
-      <section className="relative px-4 py-12 sm:py-20 lg:py-24">
-        <div className="container mx-auto max-w-6xl">
-          {/* Limited Time Banner */}
-          <div className="text-center mb-8">
-            <Badge className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-4 py-2 text-sm animate-pulse">
-              <Gift className="h-4 w-4 mr-2" />
-              LIMITED TIME FREE ACCESS
+      <div className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-orange-600/10 to-red-600/10"></div>
+        <div className="relative px-6 pt-16 pb-20">
+          <div className="max-w-4xl mx-auto text-center">
+            <Badge className="mb-4 bg-orange-100 text-orange-800 border-orange-200">
+              ✨ Completely FREE - Limited Time Launch Offer
             </Badge>
-          </div>
-
-          <div className="text-center space-y-6">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
-              <span className="gradient-heading">Ayu Explorer</span>
-              <br />
-              <span className="text-muted-foreground text-xl sm:text-2xl md:text-3xl">
-                Swiss Precision Vedic Astrology
-              </span>
+            <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
+              Discover Your Destiny with
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-red-600"> AyushAstro</span>
             </h1>
-            
-            <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-              Experience the most accurate Kundali analysis powered by Swiss Ephemeris calculations 
-              and ancient Vedic wisdom. Discover your cosmic blueprint with unprecedented precision.
+            <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+              Get your complete Vedic astrology analysis with detailed life predictions, 
+              personality insights, and AI-powered guidance - absolutely FREE!
             </p>
-
-            {/* Countdown Timer */}
-            <div className="bg-card/50 backdrop-blur-sm border rounded-xl p-6 max-w-lg mx-auto">
-              <div className="flex items-center justify-center gap-2 mb-4">
-                <Timer className="h-5 w-5 text-red-500" />
-                <span className="text-sm font-medium text-red-600">Offer Expires In:</span>
-              </div>
-              
-              <div className="grid grid-cols-4 gap-2 sm:gap-4">
-                {[
-                  { label: 'Days', labelHi: 'दिन', value: timeLeft.days },
-                  { label: 'Hours', labelHi: 'घंटे', value: timeLeft.hours },
-                  { label: 'Min', labelHi: 'मिनट', value: timeLeft.minutes },
-                  { label: 'Sec', labelHi: 'सेकंड', value: timeLeft.seconds }
-                ].map((item, index) => (
-                  <div key={index} className="text-center">
-                    <div className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground rounded-lg p-2 sm:p-3 font-bold text-lg sm:text-2xl">
-                      {item.value.toString().padStart(2, '0')}
-                    </div>
-                    <div className="text-xs text-muted-foreground mt-1">{item.label}</div>
-                  </div>
-                ))}
-              </div>
-              
-              <p className="text-xs text-muted-foreground mt-4">
-                🎁 Normally $99/year - Now FREE for limited time
-              </p>
+            
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
+              <Button 
+                size="lg" 
+                onClick={() => navigate('/kundali')}
+                className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white px-8 py-3"
+              >
+                Generate Free Kundali
+              </Button>
+              <Button 
+                variant="outline" 
+                size="lg"
+                onClick={() => navigate('/personality-test')}
+                className="border-orange-600 text-orange-600 hover:bg-orange-50 px-8 py-3"
+              >
+                Take Personality Test
+              </Button>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <Button 
-                onClick={() => navigate('/kundali')} 
-                size={isMobile ? "lg" : "lg"}
-                className="min-h-[52px] px-8 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary text-lg font-semibold"
-              >
-                <Sparkles className="h-5 w-5 mr-2" />
-                Create Your Free Kundali
-                <ArrowRight className="h-5 w-5 ml-2" />
-              </Button>
-              
-              <div className="text-sm text-muted-foreground">
-                <CheckCircle2 className="h-4 w-4 inline mr-1 text-green-500" />
-                No credit card required
-              </div>
+            <div className="max-w-md mx-auto mb-12">
+              <CountdownTimer />
             </div>
           </div>
         </div>
-      </section>
+      </div>
 
       {/* Features Section */}
-      <section className="px-4 py-16 sm:py-20">
-        <div className="container mx-auto max-w-6xl">
-          <div className="text-center mb-12">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4">
-              Why Choose <span className="gradient-heading">Ayu Explorer?</span>
+      <div className="py-20 px-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Complete Astrology Solutions
             </h2>
-            <p className="text-muted-foreground text-base sm:text-lg max-w-2xl mx-auto">
-              Advanced technology meets ancient wisdom for the most accurate astrological insights
+            <p className="text-xl text-gray-600">
+              Everything you need to understand your cosmic blueprint
             </p>
           </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {features.map((feature, index) => (
-              <Card key={index} className="text-center p-6 hover:shadow-lg transition-all duration-300 border-0 bg-card/50 backdrop-blur-sm">
-                <CardHeader className="pb-4">
-                  <div className="mx-auto mb-4 p-3 bg-primary/10 rounded-full w-fit">
-                    <div className="text-primary">{feature.icon}</div>
+              <Card key={index} className="border-gray-200 hover:shadow-lg transition-all duration-300 hover:border-orange-200">
+                <CardHeader>
+                  <div className="flex items-center gap-3 mb-2">
+                    {feature.icon}
+                    <CardTitle className="text-lg text-gray-900">{feature.title}</CardTitle>
                   </div>
-                  <CardTitle className="text-lg sm:text-xl">{feature.title}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    {feature.description}
-                  </p>
+                  <p className="text-gray-600">{feature.description}</p>
                 </CardContent>
               </Card>
             ))}
           </div>
         </div>
-      </section>
+      </div>
 
       {/* What You Get Section */}
-      <section className="px-4 py-16 sm:py-20 bg-muted/20">
-        <div className="container mx-auto max-w-4xl">
-          <div className="text-center mb-12">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4">
-              What's Included <span className="gradient-heading">FREE</span>
+      <div className="py-20 px-6 bg-gradient-to-r from-orange-50 to-red-50">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              What's Included in Your FREE Analysis
             </h2>
-            <p className="text-muted-foreground">Everything you need for complete astrological insights</p>
+            <p className="text-xl text-gray-600">
+              Get comprehensive insights worth thousands of rupees - completely free
+            </p>
           </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            {[
-              "Complete Birth Chart Analysis",
-              "Planetary Position Details",
-              "Dasha Period Calculations", 
-              "Karma Pattern Analysis",
-              "Relationship Compatibility",
-              "Career & Financial Guidance",
-              "Health & Wellness Insights",
-              "Remedial Measures",
-              "PDF Export of Full Report",
-              "Multi-language Support",
-              "Interactive 3D Charts",
-              "AI-Powered Predictions"
-            ].map((item, index) => (
-              <div key={index} className="flex items-center gap-3 p-3 bg-card/50 rounded-lg">
-                <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0" />
-                <span className="text-sm sm:text-base">{item}</span>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {benefits.map((benefit, index) => (
+              <div key={index} className="flex items-start gap-3">
+                <CheckCircle className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
+                <span className="text-gray-700">{benefit}</span>
               </div>
             ))}
           </div>
-
-          <div className="text-center mt-8">
-            <Button 
-              onClick={() => navigate('/')}
-              size="lg"
-              className="min-h-[52px] px-8 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary"
-            >
-              <Clock className="h-5 w-5 mr-2" />
-              Start Free Analysis Now
-            </Button>
-          </div>
         </div>
-      </section>
+      </div>
 
-      {/* Testimonials/Social Proof */}
-      <section className="px-4 py-16 sm:py-20">
-        <div className="container mx-auto max-w-6xl">
-          <div className="text-center mb-12">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4">
-              Trusted by <span className="gradient-heading">Thousands</span>
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 text-center">
-            <div className="space-y-2">
-              <div className="text-3xl font-bold text-primary">50,000+</div>
-              <div className="text-muted-foreground">Kundalis Generated</div>
-            </div>
-            <div className="space-y-2">
-              <div className="text-3xl font-bold text-primary">4.9/5</div>
-              <div className="text-muted-foreground">User Rating</div>
-            </div>
-            <div className="space-y-2">
-              <div className="text-3xl font-bold text-primary">99.9%</div>
-              <div className="text-muted-foreground">Accuracy Rate</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Final CTA */}
-      <section className="px-4 py-16 sm:py-20 bg-gradient-to-r from-primary/10 to-primary/5">
-        <div className="container mx-auto max-w-4xl text-center">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4">
-            Don't Miss This <span className="gradient-heading">Limited Time Offer</span>
+      {/* CTA Section */}
+      <div className="py-20 px-6">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            Ready to Unlock Your Cosmic Secrets?
           </h2>
-          <p className="text-muted-foreground text-lg mb-8">
-            Join thousands who have discovered their cosmic blueprint with Ayu Explorer
+          <p className="text-xl text-gray-600 mb-8">
+            Join thousands who have discovered their true potential through Vedic astrology
           </p>
           
           <Button 
+            size="lg" 
             onClick={() => navigate('/kundali')}
-            size="lg"
-            className="min-h-[56px] px-12 text-lg bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary"
+            className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white px-12 py-4 text-lg"
           >
-            <Sparkles className="h-6 w-6 mr-2" />
-            Get Your Free Kundali Now
-            <ArrowRight className="h-6 w-6 ml-2" />
+            Start Your Free Analysis Now
           </Button>
           
-          <p className="text-xs text-muted-foreground mt-4">
-            No registration required • Instant results • 100% Free
+          <p className="text-sm text-gray-500 mt-4">
+            No payment required • No hidden charges • Complete analysis in minutes
           </p>
         </div>
-      </section>
+      </div>
     </div>
   );
 };

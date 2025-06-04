@@ -393,62 +393,122 @@ const DetailedKundaliDisplay: React.FC<DetailedKundaliDisplayProps> = ({
 
         {/* Predictions Tab */}
         <TabsContent value="predictions" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card className="border-gray-200">
+          {/* Age-based Predictions */}
+          <div className="space-y-6">
+            <Card className="border-purple-200 bg-purple-50">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-gray-900">
-                  <Briefcase className="h-5 w-5 text-blue-500" />
-                  {getTranslation('Career & Finance', 'करियर और वित्त')}
+                  <Clock className="h-5 w-5 text-purple-500" />
+                  {getTranslation('Life Journey by Age Groups', 'आयु के अनुसार जीवन यात्रा')}
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
-                <div>
-                  <h4 className="font-medium text-gray-900 text-sm">{getTranslation('Career', 'करियर')}</h4>
-                  <p className="text-sm text-gray-700">{kundaliData.predictions.career}</p>
-                </div>
-                <Separator />
-                <div>
-                  <h4 className="font-medium text-gray-900 text-sm">{getTranslation('Finance', 'वित्त')}</h4>
-                  <p className="text-sm text-gray-700">{kundaliData.predictions.finance}</p>
-                </div>
+              <CardContent className="space-y-4">
+                {kundaliData.predictions?.agePredictions && Object.entries(kundaliData.predictions.agePredictions).map(([ageGroup, prediction]) => (
+                  <div key={ageGroup} className="border border-gray-200 rounded-lg p-4 bg-white">
+                    <h3 className="font-bold text-lg text-gray-900 mb-2">
+                      {ageGroup === '0-14' ? getTranslation('Childhood (0-14 years)', 'बचपन (0-14 वर्ष)') :
+                       ageGroup === '15-30' ? getTranslation('Youth (15-30 years)', 'युवावस्था (15-30 वर्ष)') :
+                       ageGroup === '31-45' ? getTranslation('Maturity (31-45 years)', 'परिपक्वता (31-45 वर्ष)') :
+                       ageGroup === '46-60' ? getTranslation('Middle Age (46-60 years)', 'मध्य आयु (46-60 वर्ष)') :
+                       getTranslation('Later Life (60+ years)', 'उत्तर आयु (60+ वर्ष)')}
+                    </h3>
+                    <p className="text-purple-800 font-medium mb-3">{prediction.theme}</p>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <h4 className="font-medium text-green-700 mb-2">{getTranslation('Key Events', 'मुख्य घटनाएं')}</h4>
+                        <ul className="text-sm text-gray-700 space-y-1">
+                          {prediction.events.map((event, i) => (
+                            <li key={i} className="flex items-start gap-2">
+                              <div className="w-1 h-1 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
+                              {event}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      
+                      <div>
+                        <h4 className="font-medium text-orange-700 mb-2">{getTranslation('Challenges', 'चुनौतियां')}</h4>
+                        <ul className="text-sm text-gray-700 space-y-1">
+                          {prediction.struggles.map((struggle, i) => (
+                            <li key={i} className="flex items-start gap-2">
+                              <div className="w-1 h-1 bg-orange-500 rounded-full mt-2 flex-shrink-0"></div>
+                              {struggle}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                    
+                    <div className="mt-4">
+                      <h4 className="font-medium text-blue-700 mb-2">{getTranslation('What Benefits You Most', 'आपके लिए सबसे लाभकारी')}</h4>
+                      <p className="text-sm text-gray-700 bg-blue-50 p-3 rounded border border-blue-200">
+                        {prediction.benefits}
+                      </p>
+                    </div>
+                  </div>
+                ))}
               </CardContent>
             </Card>
 
-            <Card className="border-gray-200">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-gray-900">
-                  <Heart className="h-5 w-5 text-pink-500" />
-                  {getTranslation('Relationships', 'रिश्ते')}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-gray-700">{kundaliData.predictions.relationships}</p>
-              </CardContent>
-            </Card>
+            {/* General Life Area Predictions */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Card className="border-gray-200">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-gray-900">
+                    <Briefcase className="h-5 w-5 text-blue-500" />
+                    {getTranslation('Career & Finance', 'करियर और वित्त')}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div>
+                    <h4 className="font-medium text-gray-900 text-sm">{getTranslation('Career', 'करियर')}</h4>
+                    <p className="text-sm text-gray-700">{kundaliData.predictions.career}</p>
+                  </div>
+                  <Separator />
+                  <div>
+                    <h4 className="font-medium text-gray-900 text-sm">{getTranslation('Finance', 'वित्त')}</h4>
+                    <p className="text-sm text-gray-700">{kundaliData.predictions.finance}</p>
+                  </div>
+                </CardContent>
+              </Card>
 
-            <Card className="border-gray-200">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-gray-900">
-                  <Shield className="h-5 w-5 text-green-500" />
-                  {getTranslation('Health', 'स्वास्थ्य')}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-gray-700">{kundaliData.predictions.health}</p>
-              </CardContent>
-            </Card>
+              <Card className="border-gray-200">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-gray-900">
+                    <Heart className="h-5 w-5 text-pink-500" />
+                    {getTranslation('Relationships', 'रिश्ते')}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-gray-700">{kundaliData.predictions.relationships}</p>
+                </CardContent>
+              </Card>
 
-            <Card className="border-gray-200">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-gray-900">
-                  <BookOpen className="h-5 w-5 text-purple-500" />
-                  {getTranslation('Education', 'शिक्षा')}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-gray-700">{kundaliData.predictions.education}</p>
-              </CardContent>
-            </Card>
+              <Card className="border-gray-200">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-gray-900">
+                    <Shield className="h-5 w-5 text-green-500" />
+                    {getTranslation('Health', 'स्वास्थ्य')}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-gray-700">{kundaliData.predictions.health}</p>
+                </CardContent>
+              </Card>
+
+              <Card className="border-gray-200">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-gray-900">
+                    <BookOpen className="h-5 w-5 text-purple-500" />
+                    {getTranslation('Education', 'शिक्षा')}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-gray-700">{kundaliData.predictions.education}</p>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </TabsContent>
 
