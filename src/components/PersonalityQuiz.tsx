@@ -7,7 +7,7 @@ import { Progress } from "@/components/ui/progress";
 import { Brain, Heart, Target, Users, Star, Compass } from "lucide-react";
 
 // Sample questions - replace with your 100 questions
-const QUESTION_BANK = {
+const QUESTION_BANK: { [key: string]: any[] } = {
   career: [
     {
       id: 1,
@@ -208,13 +208,13 @@ const PersonalityQuiz: React.FC<PersonalityQuizProps> = ({ language, onComplete 
       setCurrentQuestionIndex(prev => prev + 1);
     } else {
       // Complete the quiz and analyze results
-      const archetypeScores = {};
+      const archetypeScores: { [key: string]: number } = {};
       newAnswers.forEach(answer => {
         archetypeScores[answer.archetype] = (archetypeScores[answer.archetype] || 0) + 1;
       });
       
       const dominantArchetype = Object.entries(archetypeScores)
-        .sort(([,a], [,b]) => b - a)[0][0];
+        .sort(([,a], [,b]) => (b as number) - (a as number))[0][0];
       
       const result = {
         dominantArchetype,
