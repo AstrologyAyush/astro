@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -11,6 +10,8 @@ import KundaliConsultationView from '@/components/KundaliConsultationView';
 import { generateComprehensiveKundali, EnhancedBirthData, ComprehensiveKundaliData } from '@/lib/advancedKundaliEngine';
 import { useToast } from "@/hooks/use-toast";
 import { Star, Moon, Sun, Calculator, Sparkles, Crown, Target, ArrowLeft } from 'lucide-react';
+import InteractiveDashboard from '@/components/InteractiveDashboard';
+import EnhancedKundaliPDFExport from '@/components/EnhancedKundaliPDFExport';
 
 const Index = () => {
   const [kundaliData, setKundaliData] = useState<ComprehensiveKundaliData | null>(null);
@@ -174,7 +175,7 @@ const Index = () => {
                           </p>
                           <p className="text-orange-600 text-sm">
                             {language === 'hi' 
-                              ? 'ग्रह स्थिति, योग, दशा और पं. ऋषि पराशर विश्लेषण तैयार हो रहा है'
+                              ? 'ग्रह स्थिति, योग, दशा और ऋषि पराशर विश्लेषण तैयार हो रहा है'
                               : 'Calculating planetary positions, yogas, dashas, and Rishi Parasher analysis'
                             }
                           </p>
@@ -208,6 +209,22 @@ const Index = () => {
                 {language === 'hi' ? 'नई कुंडली बनाएं' : 'Generate New Kundali'}
               </button>
             </div>
+            
+            {/* Interactive Dashboard */}
+            <Card className="w-full border-orange-200 shadow-lg">
+              <CardHeader className="bg-gradient-to-r from-orange-100 to-red-100">
+                <div className="flex justify-between items-center">
+                  <CardTitle className="text-orange-800 flex items-center gap-2">
+                    <Crown className="h-5 w-5 text-orange-600" />
+                    {language === 'hi' ? 'इंटरैक्टिव डैशबोर्ड' : 'Interactive Dashboard'}
+                  </CardTitle>
+                  <EnhancedKundaliPDFExport kundaliData={kundaliData} language={language} />
+                </div>
+              </CardHeader>
+              <CardContent className="p-6">
+                <InteractiveDashboard kundaliData={kundaliData} language={language} />
+              </CardContent>
+            </Card>
             
             {/* Display comprehensive Kundali using KundaliConsultationView */}
             <KundaliConsultationView 

@@ -38,7 +38,7 @@ const FloatingChatbot: React.FC<FloatingChatbotProps> = ({ kundaliData, numerolo
           className="flex items-center gap-2 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white rounded-full p-4 shadow-lg"
         >
           <MessageCircle className="h-5 w-5" />
-          <span>{language === 'hi' ? 'पं. ऋषि पराशर से परामर्श' : 'Consult Rishi Parasher'}</span>
+          <span>{language === 'hi' ? 'ऋषि पराशर से परामर्श' : 'Consult Rishi Parasher'}</span>
         </Button>
       )}
 
@@ -50,7 +50,7 @@ const FloatingChatbot: React.FC<FloatingChatbotProps> = ({ kundaliData, numerolo
             <div className="flex items-center gap-2">
               <span className="font-bold flex items-center gap-1">
                 <MessageCircle className="h-4 w-4" />
-                {language === 'hi' ? 'महर्षि पराशर' : 'Maharishi Parasher'}
+                {language === 'hi' ? 'ऋषि पराशर' : 'Rishi Parasher'}
               </span>
             </div>
             <div className="flex items-center gap-1">
@@ -71,7 +71,12 @@ const FloatingChatbot: React.FC<FloatingChatbotProps> = ({ kundaliData, numerolo
               </div>
               
               {/* Close button */}
-              <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-white hover:bg-white/20" onClick={toggleChat}>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="h-7 w-7 p-0 text-white hover:bg-white/20" 
+                onClick={toggleChat}
+              >
                 <X className="h-4 w-4" />
               </Button>
             </div>
