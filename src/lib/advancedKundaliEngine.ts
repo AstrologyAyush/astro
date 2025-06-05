@@ -158,7 +158,8 @@ function getCurrentDasha(birthData: EnhancedBirthData): string {
 }
 
 function getLagnaLord(chart: KundaliChart): string {
-  const ascendantSign = chart.ascendant.sign;
+  // chart.ascendant is a number representing the sign
+  const ascendantSign = chart.ascendant;
   const signLords: { [key: number]: string } = {
     1: 'Mars', 2: 'Venus', 3: 'Mercury', 4: 'Moon', 5: 'Sun', 6: 'Mercury',
     7: 'Venus', 8: 'Mars', 9: 'Jupiter', 10: 'Saturn', 11: 'Saturn', 12: 'Jupiter'
@@ -189,7 +190,7 @@ function generateMockData(birthData: EnhancedBirthData, chart: KundaliChart): Ku
   // Generate mock houses data
   const houses: HouseData[] = Array.from({ length: 12 }, (_, i) => ({
     number: i + 1,
-    sign: getSignName(((i + chart.ascendant.sign - 1) % 12) + 1),
+    sign: getSignName(((i + chart.ascendant - 1) % 12) + 1),
     lord: ['Mars', 'Venus', 'Mercury', 'Moon', 'Sun', 'Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn', 'Saturn', 'Jupiter'][i],
     cusp: i * 30 + Math.random() * 30,
     significance: [`House ${i + 1} represents various life aspects`]
@@ -265,8 +266,8 @@ function generateMockData(birthData: EnhancedBirthData, chart: KundaliChart): Ku
     predictions,
     remedies,
     lagna: {
-      sign: getSignName(chart.ascendant.sign),
-      degree: chart.ascendant.degree,
+      sign: getSignName(chart.ascendant),
+      degree: 0, // chart.ascendant is just the sign number, so degree is 0 for now
       lord: getLagnaLord(chart)
     },
     strengthestPlanet: findStrongestPlanet(chart),
@@ -287,10 +288,10 @@ export function generateDetailedKundali(birthData: EnhancedBirthData): KundaliDa
   
   // Convert to BirthData format for the chart generation
   const chartData: BirthData = {
-    name: birthData.fullName,
-    dateOfBirth: birthData.date,
-    timeOfBirth: birthData.time,
-    placeOfBirth: birthData.place,
+    fullName: birthData.fullName,
+    date: birthData.date,
+    time: birthData.time,
+    place: birthData.place,
     latitude: birthData.latitude,
     longitude: birthData.longitude,
     timezone: birthData.timezone
