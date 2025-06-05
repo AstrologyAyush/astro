@@ -1,11 +1,11 @@
-
 import { BirthData, generateKundaliChart, KundaliChart } from './kundaliUtils';
 
 export interface EnhancedBirthData extends BirthData {
-  name: string;
-  dateOfBirth: Date;
-  timeOfBirth: string;
-  placeOfBirth: string;
+  fullName: string;
+  date: Date;
+  time: string;
+  place: string;
+  timezone?: string;
 }
 
 export interface PlanetData {
@@ -247,6 +247,10 @@ function generateMockData(birthData: EnhancedBirthData, chart: KundaliChart): Ku
     rituals: ['Light lamp daily', 'Visit temple regularly', 'Fast on appropriate days']
   };
 
+  // Get Moon and Sun signs from actual chart data
+  const moonPlanet = chart.planets['Moon'];
+  const sunPlanet = chart.planets['Sun'];
+
   return {
     birthData,
     chart,
@@ -266,8 +270,8 @@ function generateMockData(birthData: EnhancedBirthData, chart: KundaliChart): Ku
     strengthestPlanet: findStrongestPlanet(chart),
     currentDasha: getCurrentDasha(birthData),
     lagnaLord: getLagnaLord(chart),
-    moonSign: getSignName(chart.planets['Moon']?.sign || 1),
-    sunSign: getSignName(chart.planets['Sun']?.sign || 1)
+    moonSign: moonPlanet ? getSignName(moonPlanet.sign) : 'Unknown',
+    sunSign: sunPlanet ? getSignName(sunPlanet.sign) : 'Unknown'
   };
 }
 
@@ -275,8 +279,8 @@ export function generateDetailedKundali(birthData: EnhancedBirthData): KundaliDa
   console.log('Generating Kundali with coordinates:', {
     latitude: birthData.latitude,
     longitude: birthData.longitude,
-    date: birthData.dateOfBirth,
-    time: birthData.timeOfBirth
+    date: birthData.date,
+    time: birthData.time
   });
   
   // Generate the chart using the enhanced birth data with proper coordinates

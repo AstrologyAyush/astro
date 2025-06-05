@@ -22,12 +22,13 @@ const Index = () => {
     
     try {
       const enhancedBirthData: EnhancedBirthData = {
-        name: birthData.name,
-        dateOfBirth: birthData.dateOfBirth,
-        timeOfBirth: birthData.timeOfBirth,
-        placeOfBirth: birthData.placeOfBirth,
+        fullName: birthData.name,
+        date: birthData.dateOfBirth,
+        time: birthData.timeOfBirth,
+        place: birthData.placeOfBirth,
         latitude: birthData.latitude,
-        longitude: birthData.longitude
+        longitude: birthData.longitude,
+        timezone: 'Asia/Kolkata'
       };
 
       await new Promise(resolve => setTimeout(resolve, 2000));
