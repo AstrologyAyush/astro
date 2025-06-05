@@ -1,387 +1,311 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Sparkles, Send, AlertCircle, X, MessageCircle } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-import { ComprehensiveKundaliData } from '@/lib/advancedKundaliEngine';
-import AppLogo from './AppLogo';
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Send, Sparkles } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+
+interface Message {
+  id: string;
+  text: string;
+  isUser: boolean;
+  timestamp: Date;
+}
 
 interface RishiParasherGuruProps {
-  kundaliData: ComprehensiveKundaliData | null;
+  kundaliData: any;
   language: 'hi' | 'en';
 }
 
-interface ChatMessage {
-  role: 'user' | 'rishi';
-  content: string;
-  timestamp: Date;
-  suggestedQuestions?: string[];
-}
-
 const RishiParasherGuru: React.FC<RishiParasherGuruProps> = ({ kundaliData, language }) => {
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { toast } = useToast();
+  const sessionId = useRef<string>(`session-${Date.now()}`);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
 
   useEffect(() => {
-    // Add welcome message
-    if (messages.length === 0) {
-      const welcomeMessage = language === 'hi'
-        ? `नमस्ते! मैं महर्षि पराशर हूँ। मैं वैदिक ज्योतिष का महान गुरु हूँ और आपकी कुंडली के रहस्यों को समझाने में आपकी सहायता करूंगा।`
-        : `Namaste! I am Maharishi Parasher, the great sage of Vedic astrology. I will help you understand the mysteries of your Kundali.`;
-        
-      const suggestedQuestions = language === 'hi' 
-        ? [
-            'मेरी वर्तमान महादशा कौन सी चल रही है?',
-            'मेरी कुंडली में कौन से योग हैं?',
-            'मेरे जीवन में कोई दोष है क्या?',
-            'मेरी राशि और लग्न के बारे में बताएं'
-          ]
-        : [
-            'What is my current Mahadasha?',
-            'What yogas are present in my Kundali?',
-            'Are there any doshas in my life?',
-            'Tell me about my Rashi and Lagna'
-          ];
-        
-      setMessages([
-        {
-          role: 'rishi',
-          content: welcomeMessage,
-          timestamp: new Date(),
-          suggestedQuestions: suggestedQuestions
-        }
-      ]);
-    }
-  }, [language]);
-
-  useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
+    scrollToBottom();
   }, [messages]);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!inputValue.trim()) return;
+  useEffect(() => {
+    // Initial greeting
+    const greeting = language === 'hi' 
+      ? "नमस्कार! मैं ऋषि पराशर हूं। मैं आपकी कुंडली के आधार पर आपके प्रश्नों का उत्तर दूंगा। आप मुझसे दशा, योग, दोष, या जीवन के किसी भी पहलू के बारे में पूछ सकते हैं।"
+      : "Namaste! I am Rishi Parasher. I will answer your questions based on your Kundali. You can ask me about Dasha, Yogas, Doshas, or any aspect of life.";
+    
+    setMessages([{
+      id: '1',
+      text: greeting,
+      isUser: false,
+      timestamp: new Date()
+    }]);
+  }, [language]);
 
-    const userMessage: ChatMessage = {
-      role: 'user',
-      content: inputValue,
+  const saveConversation = async (userQuestion: string, rishiResponse: string) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase.from('rishi_parasher_conversations').insert({
+          user_id: user.id,
+          session_id: sessionId.current,
+          user_question: userQuestion,
+          rishi_response: rishiResponse,
+          kundali_context: kundaliData ? {
+            ascendant: kundaliData.ascendant,
+            moonSign: kundaliData.moonSign,
+            currentDasha: kundaliData.dashaSequence?.[0]
+          } : null
+        });
+
+        // Log activity
+        await supabase.from('user_activities').insert({
+          user_id: user.id,
+          activity_type: 'chat_interaction',
+          activity_data: { question_length: userQuestion.length }
+        });
+      }
+    } catch (error) {
+      console.error('Error saving conversation:', error);
+    }
+  };
+
+  const generateResponse = (question: string): string => {
+    const lowerQuestion = question.toLowerCase();
+    
+    // Enhanced question detection and responses
+    if (lowerQuestion.includes('dasha') || lowerQuestion.includes('दशा') || lowerQuestion.includes('mahadasha') || lowerQuestion.includes('महादशा')) {
+      const currentDasha = kundaliData?.dashaSequence?.[0];
+      if (currentDasha) {
+        const response = language === 'hi' 
+          ? `आपकी वर्तमान महादशा ${currentDasha.planet} की है जो ${new Date(currentDasha.startDate).toLocaleDateString()} से ${new Date(currentDasha.endDate).toLocaleDateString()} तक चलेगी। यह दशा ${getDashaMeaning(currentDasha.planet, language)} का प्रभाव देती है। इस समय में ${getDashaGuidance(currentDasha.planet, language)}`
+          : `Your current Mahadasha is of ${currentDasha.planet} running from ${new Date(currentDasha.startDate).toLocaleDateString()} to ${new Date(currentDasha.endDate).toLocaleDateString()}. This dasha brings ${getDashaMeaning(currentDasha.planet, language)}. During this period, ${getDashaGuidance(currentDasha.planet, language)}`;
+        
+        const followUp = language === 'hi' 
+          ? "\n\nक्या आप जानना चाहते हैं कि इस दशा में कौन से उपाय करने चाहिए? या फिर आपका कोई विशेष क्षेत्र में प्रश्न है?"
+          : "\n\nWould you like to know what remedies to perform during this dasha? Or do you have questions about a specific area of life?";
+        
+        return response + followUp;
+      }
+    }
+
+    if (lowerQuestion.includes('yoga') || lowerQuestion.includes('योग')) {
+      const yogas = kundaliData?.yogas || [];
+      if (yogas.length > 0) {
+        const response = language === 'hi' 
+          ? `आपकी कुंडली में निम्नलिखित योग हैं: ${yogas.map((y: any) => y.name).join(', ')}। ये योग ${getYogaEffects(yogas, language)} का प्रभाव देते हैं।`
+          : `Your Kundali has the following yogas: ${yogas.map((y: any) => y.name).join(', ')}. These yogas bring ${getYogaEffects(yogas, language)}.`;
+        
+        const followUp = language === 'hi' 
+          ? "\n\nक्या आप किसी विशेष योग के बारे में विस्तार से जानना चाहते हैं? या इन योगों को कैसे सक्रिय करें?"
+          : "\n\nWould you like to know more about any specific yoga? Or how to activate these yogas?";
+        
+        return response + followUp;
+      }
+    }
+
+    if (lowerQuestion.includes('dosha') || lowerQuestion.includes('दोष') || lowerQuestion.includes('mangal') || lowerQuestion.includes('मंगल')) {
+      const doshas = kundaliData?.doshas || [];
+      if (doshas.length > 0) {
+        const response = language === 'hi' 
+          ? `आपकी कुंडली में ${doshas.map((d: any) => d.name).join(', ')} दोष हैं। ${getDoshaRemedies(doshas, language)}`
+          : `Your Kundali has ${doshas.map((d: any) => d.name).join(', ')} doshas. ${getDoshaRemedies(doshas, language)}`;
+        
+        const followUp = language === 'hi' 
+          ? "\n\nक्या आप इन दोषों के विशिष्ट उपाय जानना चाहते हैं? या इनका आपके जीवन पर क्या प्रभाव होगा?"
+          : "\n\nWould you like to know specific remedies for these doshas? Or how they affect your life?";
+        
+        return response + followUp;
+      } else {
+        const response = language === 'hi' 
+          ? "आपकी कुंडली में कोई प्रमुख दोष नहीं है, यह शुभ संकेत है।"
+          : "Your Kundali is free from major doshas, which is auspicious.";
+        
+        const followUp = language === 'hi' 
+          ? "\n\nक्या आप अपनी कुंडली की अन्य विशेषताओं के बारे में जानना चाहते हैं?"
+          : "\n\nWould you like to know about other features of your Kundali?";
+        
+        return response + followUp;
+      }
+    }
+
+    // General response with follow-up questions
+    const responses = language === 'hi' ? [
+      "मैं आपके प्रश्न को समझ रहा हूं। कृपया अधिक स्पष्ट रूप से बताएं कि आप क्या जानना चाहते हैं।",
+      "आपका प्रश्न दिलचस्प है। क्या आप किसी विशेष ग्रह या जीवन क्षेत्र के बारे में पूछ रहे हैं?",
+      "मैं आपकी सहायता करना चाहता हूं। कृपया बताएं कि आप दशा, योग, दोष, या करियर के बारे में जानना चाहते हैं?"
+    ] : [
+      "I understand your question. Please clarify what specifically you would like to know.",
+      "Your question is interesting. Are you asking about a specific planet or life area?",
+      "I want to help you. Please tell me if you want to know about Dasha, Yogas, Doshas, or career?"
+    ];
+
+    const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+    
+    const followUpQuestions = language === 'hi' ? [
+      "\n\nआप निम्न में से किसके बारे में जानना चाहते हैं:\n• वर्तमान दशा और उसका प्रभाव?\n• कुंडली में योग और उनके फल?\n• दोष और उनके उपाय?\n• करियर और वित्तीय स्थिति?"
+    ] : [
+      "\n\nYou can ask me about:\n• Current dasha and its effects?\n• Yogas in your Kundali and their results?\n• Doshas and their remedies?\n• Career and financial prospects?"
+    ];
+
+    return randomResponse + followUpQuestions[0];
+  };
+
+  const getDashaMeaning = (planet: string, lang: 'hi' | 'en'): string => {
+    const meanings: Record<string, { hi: string; en: string }> = {
+      'Sun': { hi: 'नेतृत्व, सरकारी कार्य, पिता से संबंध', en: 'leadership, government work, father relations' },
+      'Moon': { hi: 'मानसिक शांति, मातृत्व, जल से संबंध', en: 'mental peace, motherhood, water relations' },
+      'Mars': { hi: 'साहस, भूमि-संपत्ति, भाई-बहन', en: 'courage, land property, siblings' },
+      'Mercury': { hi: 'बुद्धि, व्यापार, संचार', en: 'intelligence, business, communication' },
+      'Jupiter': { hi: 'ज्ञान, धर्म, गुरु का आशीर्वाद', en: 'wisdom, dharma, guru blessings' },
+      'Venus': { hi: 'प्रेम, कला, सुख-सुविधा', en: 'love, arts, luxury' },
+      'Saturn': { hi: 'कड़ी मेहनत, अनुशासन, न्याय', en: 'hard work, discipline, justice' },
+      'Rahu': { hi: 'अचानक बदलाव, विदेशी संपर्क', en: 'sudden changes, foreign connections' },
+      'Ketu': { hi: 'आध्यात्म, मोक्ष, त्याग', en: 'spirituality, moksha, renunciation' }
+    };
+    return meanings[planet]?.[lang] || (lang === 'hi' ? 'विशेष प्रभाव' : 'special influence');
+  };
+
+  const getDashaGuidance = (planet: string, lang: 'hi' | 'en'): string => {
+    const guidance: Record<string, { hi: string; en: string }> = {
+      'Sun': { hi: 'सरकारी कार्यों में सफलता मिल सकती है', en: 'success in government work is possible' },
+      'Moon': { hi: 'मानसिक शांति और पारिवारिक सुख मिलेगा', en: 'mental peace and family happiness will come' },
+      'Mars': { hi: 'संपत्ति और साहसिक कार्यों में लाभ', en: 'gains in property and courageous endeavors' },
+      'Mercury': { hi: 'व्यापार और शिक्षा में उन्नति', en: 'progress in business and education' },
+      'Jupiter': { hi: 'धार्मिक कार्य और ज्ञान की प्राप्ति', en: 'religious activities and knowledge acquisition' },
+      'Venus': { hi: 'कलात्मक कार्य और वैवाहिक सुख', en: 'artistic work and marital happiness' },
+      'Saturn': { hi: 'धैर्य रखें, मेहनत का फल मिलेगा', en: 'be patient, hard work will pay off' },
+      'Rahu': { hi: 'नए अवसर आएंगे, विदेश यात्रा संभव', en: 'new opportunities will come, foreign travel possible' },
+      'Ketu': { hi: 'आध्यात्मिक साधना का समय', en: 'time for spiritual practice' }
+    };
+    return guidance[planet]?.[lang] || (lang === 'hi' ? 'सामान्य प्रभाव होगा' : 'general influence will be there');
+  };
+
+  const getYogaEffects = (yogas: any[], lang: 'hi' | 'en'): string => {
+    return lang === 'hi' ? 'धन, यश, और सफलता' : 'wealth, fame, and success';
+  };
+
+  const getDoshaRemedies = (doshas: any[], lang: 'hi' | 'en'): string => {
+    return lang === 'hi' 
+      ? 'इनके उपाय के लिए मंत्र जाप, दान, और पूजा करनी चाहिए।'
+      : 'To remedy these, you should chant mantras, donate, and perform puja.';
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!inputValue.trim() || isLoading) return;
+
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      text: inputValue,
+      isUser: true,
       timestamp: new Date()
     };
 
     setMessages(prev => [...prev, userMessage]);
-    setInputValue('');
     setIsLoading(true);
 
-    setTimeout(() => {
-      generateRishiResponse(inputValue);
-    }, 1000);
-  };
+    try {
+      // Simulate thinking time
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      const response = generateResponse(inputValue);
+      
+      const rishiMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        text: response,
+        isUser: false,
+        timestamp: new Date()
+      };
 
-  const generateRishiResponse = (query: string) => {
-    let response = '';
-    let suggestedQuestions: string[] = [];
-    
-    if (!kundaliData) {
-      response = language === 'hi'
-        ? "वत्स, मुझे आपकी कुंडली दिखाई नहीं दे रही। पहले अपनी जन्म विवरण देकर कुंडली बनवाएं, फिर मैं आपको विस्तृत मार्गदर्शन दे सकूंगा।"
-        : "Dear child, I cannot see your Kundali. Please first create your birth chart with your birth details, then I can provide you detailed guidance.";
-    } else {
-      const queryLower = query.toLowerCase();
+      setMessages(prev => [...prev, rishiMessage]);
       
-      // Enhanced Current Mahadasha query
-      if (queryLower.includes('mahadasha') || queryLower.includes('महादशा') || queryLower.includes('current dasha') || queryLower.includes('वर्तमान दशा') || queryLower.includes('dasha')) {
-        const currentDasha = kundaliData.enhancedCalculations.dashas.find(d => d.isActive);
-        if (currentDasha) {
-          const planetTraits = {
-            'Sun': { hi: 'सूर्य आत्मविश्वास और नेतृत्व देता है', en: 'Sun brings confidence and leadership' },
-            'Moon': { hi: 'चंद्र मन की शांति और भावनाओं का संतुलन देता है', en: 'Moon brings mental peace and emotional balance' },
-            'Mars': { hi: 'मंगल साहस और ऊर्जा देता है', en: 'Mars brings courage and energy' },
-            'Mercury': { hi: 'बुध बुद्धि और संवाद कौशल देता है', en: 'Mercury brings intelligence and communication skills' },
-            'Jupiter': { hi: 'गुरु ज्ञान और आध्यात्मिकता देता है', en: 'Jupiter brings wisdom and spirituality' },
-            'Venus': { hi: 'शुक्र सुख और कलात्मकता देता है', en: 'Venus brings pleasure and artistry' },
-            'Saturn': { hi: 'शनि अनुशासन और कड़ी मेहनत सिखाता है', en: 'Saturn teaches discipline and hard work' },
-            'Rahu': { hi: 'राहु अप्रत्याशित बदलाव लाता है', en: 'Rahu brings unexpected changes' },
-            'Ketu': { hi: 'केतु आध्यात्मिक विकास देता है', en: 'Ketu brings spiritual development' }
-          };
-          
-          const trait = planetTraits[currentDasha.planet as keyof typeof planetTraits];
-          
-          response = language === 'hi'
-            ? `वत्स, आपकी वर्तमान में ${currentDasha.planet} महादशा चल रही है। यह ${currentDasha.startDate.toLocaleDateString()} से ${currentDasha.endDate.toLocaleDateString()} तक रहेगी। ${trait?.hi || 'यह ग्रह विशेष प्रभाव देता है'}। इस काल में आपको धैर्य रखना चाहिए और ${currentDasha.planet} के गुणों को अपने जीवन में अपनाना चाहिए।`
-            : `Dear child, you are currently running ${currentDasha.planet} Mahadasha from ${currentDasha.startDate.toLocaleDateString()} to ${currentDasha.endDate.toLocaleDateString()}. ${trait?.en || 'This planet brings special influences'}. During this period, you should practice patience and embrace the qualities of ${currentDasha.planet}.`;
-          
-          suggestedQuestions = language === 'hi' 
-            ? [
-                'इस दशा में मुझे क्या सावधानियां रखनी चाहिए?',
-                'इस दशा के लिए कौन से उपाय करूं?',
-                'इस दशा में करियर कैसा रहेगा?',
-                'अगली दशा कब शुरू होगी?'
-              ]
-            : [
-                'What precautions should I take in this dasha?',
-                'What remedies should I do for this dasha?',
-                'How will my career be in this dasha?',
-                'When will the next dasha start?'
-              ];
-        } else {
-          response = language === 'hi'
-            ? "वत्स, आपकी दशा की गणना में कुछ समस्या है। कृपया अपनी जन्म तिथि और समय की पुष्टि करें।"
-            : "Dear child, there seems to be an issue with your dasha calculation. Please verify your birth date and time.";
-        }
-      }
+      // Save conversation to Supabase
+      await saveConversation(inputValue, response);
       
-      // Enhanced Yoga query
-      else if (queryLower.includes('yoga') || queryLower.includes('yogas') || queryLower.includes('योग')) {
-        const yogas = kundaliData.enhancedCalculations.yogas;
-        const activeYogas = yogas.filter(y => y.isActive);
-        
-        if (activeYogas.length > 0) {
-          const topYogas = activeYogas.slice(0, 3);
-          response = language === 'hi'
-            ? `वत्स, आपकी कुंडली में ${activeYogas.length} मुख्य योग हैं। सबसे महत्वपूर्ण योग हैं:\n\n${topYogas.map((yoga, i) => `${i+1}. ${yoga.name} (${yoga.strength}% शक्ति) - ${yoga.description.substring(0, 100)}...`).join('\n\n')}\n\nये योग आपके जीवन में ${topYogas[0]?.type === 'benefic' ? 'शुभ प्रभाव' : 'चुनौतियां'} लाते हैं। आपको इन योगों का पूरा लाभ उठाने के लिए संयम और धैर्य रखना चाहिए।`
-            : `Dear child, your Kundali has ${activeYogas.length} main yogas. The most important ones are:\n\n${topYogas.map((yoga, i) => `${i+1}. ${yoga.name} (${yoga.strength}% strength) - ${yoga.description.substring(0, 100)}...`).join('\n\n')}\n\nThese yogas bring ${topYogas[0]?.type === 'benefic' ? 'auspicious effects' : 'challenges'} in your life. You should practice patience and moderation to get full benefits of these yogas.`;
-          
-          suggestedQuestions = language === 'hi' 
-            ? [
-                'इन योगों का मेरे करियर पर क्या प्रभाव है?',
-                'इन योगों को और शक्तिशाली कैसे बनाऊं?',
-                'इन योगों के फल कब मिलेंगे?',
-                'क्या कोई नकारात्मक योग भी है?'
-              ]
-            : [
-                'How do these yogas affect my career?',
-                'How can I strengthen these yogas?',
-                'When will I get the results of these yogas?',
-                'Are there any negative yogas too?'
-              ];
-        } else {
-          response = language === 'hi'
-            ? "वत्स, आपकी कुंडली में कोई विशेष योग नहीं दिख रहा, लेकिन चिंता न करें। सामान्य ग्रह स्थितियां भी अच्छे परिणाम दे सकती हैं। आपको अपने कर्म पर ध्यान देना चाहिए।"
-            : "Dear child, no specific yogas are visible in your Kundali, but don't worry. General planetary positions can also give good results. You should focus on your actions.";
-        }
-      }
-      
-      // Enhanced Dosha query  
-      else if (queryLower.includes('dosha') || queryLower.includes('doshas') || queryLower.includes('दोष')) {
-        const doshas = [];
-        
-        // Enhanced Dosha checking
-        const marsHouse = Math.floor(((kundaliData.enhancedCalculations.planets.MA.rashi - kundaliData.enhancedCalculations.lagna.sign + 12) % 12) + 1);
-        if ([1, 4, 7, 8, 12].includes(marsHouse)) {
-          doshas.push({
-            name: language === 'hi' ? 'मंगल दोष' : 'Mangal Dosha',
-            remedy: language === 'hi' ? 'हनुमान चालीसा पाठ और मंगलवार को हनुमान जी की पूजा' : 'Hanuman Chalisa recitation and Hanuman worship on Tuesdays'
-          });
-        }
-        
-        // Check for Kaal Sarp Dosha (simplified)
-        const planets = kundaliData.enhancedCalculations.planets;
-        const rahuPos = planets.RA.rashi;
-        const ketuPos = planets.KE.rashi;
-        let isKaalSarpPresent = true;
-        
-        Object.values(planets).forEach(planet => {
-          if (planet.name !== 'Rahu' && planet.name !== 'Ketu') {
-            const planetPos = planet.rashi;
-            if (!((rahuPos <= planetPos && planetPos <= ketuPos) || (ketuPos <= planetPos && planetPos <= rahuPos))) {
-              isKaalSarpPresent = false;
-            }
-          }
-        });
-        
-        if (isKaalSarpPresent) {
-          doshas.push({
-            name: language === 'hi' ? 'काल सर्प दोष' : 'Kaal Sarp Dosha',
-            remedy: language === 'hi' ? 'रुद्राभिषेक और महामृत्युंजय मंत्र जाप' : 'Rudrabhishek and Mahamrityunjaya mantra chanting'
-          });
-        }
-        
-        response = language === 'hi'
-          ? doshas.length > 0 
-            ? `वत्स, आपकी कुंडली में निम्नलिखित दोष हैं:\n\n${doshas.map((dosha, i) => `${i+1}. ${dosha.name}\n   उपाय: ${dosha.remedy}`).join('\n\n')}\n\nलेकिन घबराने की बात नहीं है। नियमित पूजा-पाठ और सत्कर्म से इन दोषों का प्रभाव कम हो जाता है।`
-            : "वत्स, आपकी कुंडली में कोई मुख्य दोष नहीं है। यह बहुत अच्छी बात है। आपको केवल नियमित रूप से अपने इष्ट देव की पूजा करनी चाहिए।"
-          : doshas.length > 0 
-            ? `Dear child, your Kundali has the following doshas:\n\n${doshas.map((dosha, i) => `${i+1}. ${dosha.name}\n   Remedy: ${dosha.remedy}`).join('\n\n')}\n\nBut don't worry. Regular worship and good deeds can reduce the effects of these doshas.`
-            : "Dear child, your Kundali doesn't have any major doshas. This is very good. You should just regularly worship your chosen deity.";
-        
-        suggestedQuestions = language === 'hi' 
-          ? [
-              'इन दोषों के कारण क्या समस्याएं हो सकती हैं?',
-              'क्या ये दोष विवाह में बाधक हैं?',
-              'इन दोषों का प्रभाव कितने साल तक रहेगा?',
-              'क्या कोई तत्काल उपाय है?'
-            ]
-          : [
-              'What problems can these doshas cause?',
-              'Do these doshas affect marriage?',
-              'How long will these doshas affect me?',
-              'Is there any immediate remedy?'
-            ];
-      }
-      
-      // General response with enhanced information
-      else {
-        const moonSign = kundaliData.enhancedCalculations.planets.MO.rashiName;
-        const lagna = kundaliData.enhancedCalculations.lagna.signName;
-        const activeYogasCount = kundaliData.enhancedCalculations.yogas.filter(y => y.isActive).length;
-        
-        response = language === 'hi'
-          ? `वत्स, आपका प्रश्न रोचक है। आपकी कुंडली के अनुसार आपका लग्न ${lagna} और चंद्र राशि ${moonSign} है। आपकी कुंडली में ${activeYogasCount} शुभ योग हैं। कृपया अधिक विशिष्ट प्रश्न पूछें जैसे दशा, योग, या दोष के बारे में ताकि मैं आपको बेहतर मार्गदर्शन दे सकूं।`
-          : `Dear child, your question is interesting. According to your Kundali, your Lagna is ${lagna} and Moon sign is ${moonSign}. Your Kundali has ${activeYogasCount} auspicious yogas. Please ask more specific questions about dasha, yogas, or doshas so I can provide better guidance.`;
-        
-        suggestedQuestions = language === 'hi' 
-          ? [
-              'मेरी वर्तमान महादशा के बारे में बताएं',
-              'मेरी कुंडली में कौन से योग हैं?',
-              'मेरे जीवन में कोई दोष है क्या?',
-              'मेरे करियर के लिए सुझाव दें',
-              'मेरी राशि के अनुसार स्वभाव कैसा है?'
-            ]
-          : [
-              'Tell me about my current Mahadasha',
-              'What yogas are in my Kundali?',
-              'Are there any doshas in my life?',
-              'Give me career suggestions',
-              'What is my nature according to my rashi?'
-            ];
-      }
+    } catch (error) {
+      console.error('Error generating response:', error);
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        text: language === 'hi' 
+          ? "क्षमा करें, मुझे कुछ तकनीकी समस्या हो रही है। कृपया पुनः प्रयास करें।"
+          : "Sorry, I'm experiencing some technical issues. Please try again.",
+        isUser: false,
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setIsLoading(false);
+      setInputValue('');
     }
-
-    const rishiMessage: ChatMessage = {
-      role: 'rishi',
-      content: response,
-      timestamp: new Date(),
-      suggestedQuestions: suggestedQuestions
-    };
-
-    setMessages(prev => [...prev, rishiMessage]);
-    setIsLoading(false);
-  };
-
-  const getSignTraits = (sign: string, language: 'hi' | 'en'): string => {
-    const traits: { [key: string]: { hi: string, en: string } } = {
-      'Aries': { hi: 'साहसी और नेतृत्व करने वाले', en: 'courageous and leadership-oriented' },
-      'Taurus': { hi: 'स्थिर और धैर्यवान', en: 'stable and patient' },
-      'Gemini': { hi: 'बुद्धिमान और संवादप्रिय', en: 'intelligent and communicative' },
-      'Cancer': { hi: 'भावुक और देखभाल करने वाले', en: 'emotional and caring' },
-      'Leo': { hi: 'गर्वीले और रचनात्मक', en: 'proud and creative' },
-      'Virgo': { hi: 'व्यावहारिक और विश्लेषणकर्ता', en: 'practical and analytical' },
-      'Libra': { hi: 'संतुलित और न्यायप्रिय', en: 'balanced and fair' },
-      'Scorpio': { hi: 'गहन और रहस्यमय', en: 'intense and mysterious' },
-      'Sagittarius': { hi: 'दार्शनिक और साहसी', en: 'philosophical and adventurous' },
-      'Capricorn': { hi: 'अनुशासित और महत्वाकांक्षी', en: 'disciplined and ambitious' },
-      'Aquarius': { hi: 'अभिनव और मानवतावादी', en: 'innovative and humanitarian' },
-      'Pisces': { hi: 'कल्पनाशील और आध्यात्मिक', en: 'imaginative and spiritual' }
-    };
-    
-    return traits[sign]?.[language] || (language === 'hi' ? 'विशेष गुणों वाले' : 'special qualities');
-  };
-
-  const formatTime = (date: Date) => {
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  };
-
-  const handleSuggestedQuestion = (question: string) => {
-    setInputValue(question);
-    setTimeout(() => {
-      const event = new Event('submit') as any;
-      handleSubmit(event);
-    }, 100);
   };
 
   return (
-    <div className="max-h-[600px] overflow-hidden flex flex-col">
-      {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto p-4 bg-gradient-to-br from-orange-50 to-red-50">
-        {messages.map((msg, index) => (
-          <div key={index} className="mb-4">
-            <div className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-              <div className={`max-w-[85%] rounded-lg p-3 ${
-                msg.role === 'user'
-                  ? 'bg-orange-500 text-white'
-                  : 'bg-white border border-orange-200 shadow-sm'
-              }`}>
-                <p className={`text-sm whitespace-pre-line ${msg.role === 'user' ? 'text-white' : 'text-gray-700'}`}>
-                  {msg.content}
-                </p>
-                <p className={`text-xs mt-1 text-right ${msg.role === 'user' ? 'text-orange-100' : 'text-gray-400'}`}>
-                  {formatTime(msg.timestamp)}
-                </p>
-              </div>
-            </div>
-            
-            {/* Suggested Questions */}
-            {msg.role === 'rishi' && msg.suggestedQuestions && msg.suggestedQuestions.length > 0 && (
-              <div className="mt-3 flex flex-wrap gap-2 justify-start">
-                {msg.suggestedQuestions.map((question, qIndex) => (
-                  <button
-                    key={qIndex}
-                    onClick={() => handleSuggestedQuestion(question)}
-                    className="text-xs bg-orange-100 hover:bg-orange-200 border border-orange-300 rounded-full px-3 py-1 text-orange-700 transition-colors"
-                  >
-                    {question}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        ))}
-        
-        {isLoading && (
-          <div className="flex justify-start mb-3">
-            <div className="bg-white border border-orange-200 rounded-lg p-3 shadow-sm">
-              <div className="flex items-center space-x-2">
-                <div className="flex space-x-1">
-                  <div className="h-2 w-2 bg-orange-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                  <div className="h-2 w-2 bg-orange-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
-                  <div className="h-2 w-2 bg-orange-500 rounded-full animate-bounce" style={{ animationDelay: '600ms' }}></div>
+    <div className="flex flex-col h-[500px] bg-gradient-to-br from-orange-50 to-red-50">
+      <ScrollArea className="flex-1 p-4">
+        <div className="space-y-4">
+          {messages.map((message) => (
+            <div
+              key={message.id}
+              className={`flex ${message.isUser ? 'justify-end' : 'justify-start'}`}
+            >
+              <div
+                className={`max-w-[80%] p-3 rounded-lg ${
+                  message.isUser
+                    ? 'bg-orange-500 text-white'
+                    : 'bg-white text-gray-800 shadow-sm border border-orange-100'
+                }`}
+              >
+                {!message.isUser && (
+                  <div className="flex items-center gap-2 mb-2">
+                    <Sparkles className="h-4 w-4 text-orange-500" />
+                    <span className="text-xs font-medium text-orange-600">
+                      {language === 'hi' ? 'ऋषि पराशर' : 'Rishi Parasher'}
+                    </span>
+                  </div>
+                )}
+                <p className="text-sm whitespace-pre-wrap">{message.text}</p>
+                <div className="text-xs opacity-70 mt-1">
+                  {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </div>
-                <p className="text-sm text-gray-500">
-                  {language === 'hi' ? 'ऋषि पराशर विचार कर रहे हैं...' : 'Rishi Parasher is thinking...'}
-                </p>
               </div>
             </div>
-          </div>
-        )}
-        
+          ))}
+          {isLoading && (
+            <div className="flex justify-start">
+              <div className="bg-white p-3 rounded-lg shadow-sm border border-orange-100">
+                <div className="flex items-center gap-2">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-orange-500"></div>
+                  <span className="text-sm text-gray-600">
+                    {language === 'hi' ? 'ऋषि पराशर विचार कर रहे हैं...' : 'Rishi Parasher is thinking...'}
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
         <div ref={messagesEndRef} />
-      </div>
+      </ScrollArea>
 
-      {/* Input Area */}
-      <form onSubmit={handleSubmit} className="p-3 bg-white border-t border-gray-200 flex gap-2">
-        <Input
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          placeholder={language === 'hi' ? 'ऋषि पराशर से प्रश्न पूछें...' : 'Ask Rishi Parasher...'}
-          className="flex-1 border-orange-200 focus-visible:ring-orange-500"
-          disabled={isLoading}
-        />
-        <Button 
-          type="submit" 
-          size="icon" 
-          disabled={isLoading || !inputValue.trim()}
-          className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
-        >
-          <Send className="h-4 w-4" />
-        </Button>
+      <form onSubmit={handleSubmit} className="p-4 border-t border-orange-200 bg-white">
+        <div className="flex gap-2">
+          <Input
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            placeholder={language === 'hi' ? 'अपना प्रश्न पूछें...' : 'Ask your question...'}
+            className="flex-1"
+            disabled={isLoading}
+          />
+          <Button type="submit" disabled={isLoading || !inputValue.trim()}>
+            <Send className="h-4 w-4" />
+          </Button>
+        </div>
       </form>
-      
-      {/* Disclaimer */}
-      <div className="px-3 py-2 bg-orange-50 text-xs text-orange-700 border-t border-orange-200 flex items-start gap-2">
-        <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
-        <p>
-          {language === 'hi' 
-            ? 'ऋषि पराशर के उत्तर वैदिक सिद्धांतों पर आधारित हैं। महत्वपूर्ण निर्णयों के लिए योग्य ज्योतिषी से सलाह लें।' 
-            : 'Rishi Parasher responses are based on Vedic principles. Consult qualified astrologer for important decisions.'}
-        </p>
-      </div>
     </div>
   );
 };

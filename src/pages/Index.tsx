@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -7,17 +8,34 @@ import EnhancedDailyHoroscope from '@/components/EnhancedDailyHoroscope';
 import FloatingChatbot from '@/components/FloatingChatbot';
 import AppLogo from '@/components/AppLogo';
 import KundaliConsultationView from '@/components/KundaliConsultationView';
+import NumerologyCalculator from '@/components/NumerologyCalculator';
 import { generateComprehensiveKundali, EnhancedBirthData, ComprehensiveKundaliData } from '@/lib/advancedKundaliEngine';
 import { useToast } from "@/hooks/use-toast";
-import { Star, Moon, Sun, Calculator, Sparkles, Crown, Target, ArrowLeft } from 'lucide-react';
+import { Star, Moon, Sun, Calculator, Sparkles, Crown, Target, ArrowLeft, Hash } from 'lucide-react';
 import InteractiveDashboard from '@/components/InteractiveDashboard';
 import EnhancedKundaliPDFExport from '@/components/EnhancedKundaliPDFExport';
+import { supabase } from "@/integrations/supabase/client";
 
 const Index = () => {
   const [kundaliData, setKundaliData] = useState<ComprehensiveKundaliData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [language, setLanguage] = useState<'hi' | 'en'>('en');
   const { toast } = useToast();
+
+  const logUserActivity = async (activityType: string, activityData?: any) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase.from('user_activities').insert({
+          user_id: user.id,
+          activity_type: activityType,
+          activity_data: activityData
+        });
+      }
+    } catch (error) {
+      console.error('Error logging user activity:', error);
+    }
+  };
 
   const handleKundaliGeneration = async (birthData: any) => {
     setIsLoading(true);
@@ -37,6 +55,27 @@ const Index = () => {
       
       const result = generateComprehensiveKundali(enhancedBirthData);
       setKundaliData(result);
+      
+      // Save to Supabase
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          await supabase.from('kundali_reports').insert({
+            user_id: user.id,
+            name: birthData.name,
+            birth_data: enhancedBirthData,
+            kundali_data: result
+          });
+        }
+      } catch (error) {
+        console.error('Error saving kundali:', error);
+      }
+
+      // Log activity
+      await logUserActivity('kundali_generated', {
+        name: birthData.name,
+        place: birthData.placeOfBirth
+      });
       
       toast({
         title: language === 'hi' ? "सफलता" : "Success",
@@ -129,10 +168,14 @@ const Index = () => {
         {/* Main Content */}
         {!kundaliData ? (
           <Tabs defaultValue="kundali" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 mb-8">
+            <TabsList className="grid w-full grid-cols-4 mb-8">
               <TabsTrigger value="kundali" className="flex items-center gap-2">
                 <Star className="h-4 w-4" />
                 {language === 'hi' ? 'संपूर्ण कुंडली' : 'Complete Kundali'}
+              </TabsTrigger>
+              <TabsTrigger value="numerology" className="flex items-center gap-2">
+                <Hash className="h-4 w-4" />
+                {language === 'hi' ? 'न्यूमेरोलॉजी' : 'Numerology'}
               </TabsTrigger>
               <TabsTrigger value="personality" className="flex items-center gap-2">
                 <Calculator className="h-4 w-4" />
@@ -185,6 +228,10 @@ const Index = () => {
                   )}
                 </CardContent>
               </Card>
+            </TabsContent>
+
+            <TabsContent value="numerology">
+              <NumerologyCalculator language={language} />
             </TabsContent>
 
             <TabsContent value="personality">
@@ -309,6 +356,13 @@ const Index = () => {
             }
           </p>
         </div>
+
+        {/* Footer */}
+        <footer className="mt-16 text-center py-8 border-t border-gray-200">
+          <p className="text-gray-600 text-sm">
+            © 2025 AyuAstro. All rights reserved.
+          </p>
+        </footer>
       </div>
 
       {/* Enhanced Floating Chatbot - Always present */}

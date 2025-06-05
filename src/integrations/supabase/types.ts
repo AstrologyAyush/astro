@@ -9,7 +9,188 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      kundali_reports: {
+        Row: {
+          birth_data: Json
+          created_at: string
+          id: string
+          kundali_data: Json
+          name: string
+          profile_id: string | null
+          user_id: string
+        }
+        Insert: {
+          birth_data: Json
+          created_at?: string
+          id?: string
+          kundali_data: Json
+          name: string
+          profile_id?: string | null
+          user_id: string
+        }
+        Update: {
+          birth_data?: Json
+          created_at?: string
+          id?: string
+          kundali_data?: Json
+          name?: string
+          profile_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kundali_reports_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      numerology_reports: {
+        Row: {
+          birth_date: string
+          birthday_number: number | null
+          calculations: Json | null
+          created_at: string
+          destiny_number: number | null
+          full_name: string
+          id: string
+          life_path_number: number | null
+          maturity_number: number | null
+          personality_number: number | null
+          soul_urge_number: number | null
+          user_id: string
+        }
+        Insert: {
+          birth_date: string
+          birthday_number?: number | null
+          calculations?: Json | null
+          created_at?: string
+          destiny_number?: number | null
+          full_name: string
+          id?: string
+          life_path_number?: number | null
+          maturity_number?: number | null
+          personality_number?: number | null
+          soul_urge_number?: number | null
+          user_id: string
+        }
+        Update: {
+          birth_date?: string
+          birthday_number?: number | null
+          calculations?: Json | null
+          created_at?: string
+          destiny_number?: number | null
+          full_name?: string
+          id?: string
+          life_path_number?: number | null
+          maturity_number?: number | null
+          personality_number?: number | null
+          soul_urge_number?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          birth_place: string | null
+          birth_time: string | null
+          created_at: string
+          date_of_birth: string | null
+          first_name: string | null
+          id: string
+          last_name: string | null
+          latitude: number | null
+          longitude: number | null
+          phone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          birth_place?: string | null
+          birth_time?: string | null
+          created_at?: string
+          date_of_birth?: string | null
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          latitude?: number | null
+          longitude?: number | null
+          phone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          birth_place?: string | null
+          birth_time?: string | null
+          created_at?: string
+          date_of_birth?: string | null
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          latitude?: number | null
+          longitude?: number | null
+          phone?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      rishi_parasher_conversations: {
+        Row: {
+          created_at: string
+          id: string
+          kundali_context: Json | null
+          rishi_response: string | null
+          session_id: string | null
+          user_id: string | null
+          user_question: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          kundali_context?: Json | null
+          rishi_response?: string | null
+          session_id?: string | null
+          user_id?: string | null
+          user_question: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          kundali_context?: Json | null
+          rishi_response?: string | null
+          session_id?: string | null
+          user_id?: string | null
+          user_question?: string
+        }
+        Relationships: []
+      }
+      user_activities: {
+        Row: {
+          activity_data: Json | null
+          activity_type: string
+          created_at: string
+          id: string
+          user_id: string | null
+        }
+        Insert: {
+          activity_data?: Json | null
+          activity_type: string
+          created_at?: string
+          id?: string
+          user_id?: string | null
+        }
+        Update: {
+          activity_data?: Json | null
+          activity_type?: string
+          created_at?: string
+          id?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
