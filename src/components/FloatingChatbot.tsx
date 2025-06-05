@@ -2,8 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { MessageCircle, X, ChevronDown } from "lucide-react";
-import AyuAstroAIGuru from './AyuAstroAIGuru';
+import { MessageCircle, X } from "lucide-react";
+import RishiParasherGuru from './RishiParasherGuru';
 
 interface FloatingChatbotProps {
   kundaliData: any;
@@ -14,7 +14,6 @@ const FloatingChatbot: React.FC<FloatingChatbotProps> = ({ kundaliData, numerolo
   const [isOpen, setIsOpen] = useState(false);
   const [language, setLanguage] = useState<'hi' | 'en'>('en');
   
-  // Load language preference from local storage
   useEffect(() => {
     const savedLanguage = localStorage.getItem('preferredLanguage');
     if (savedLanguage === 'hi' || savedLanguage === 'en') {
@@ -22,7 +21,6 @@ const FloatingChatbot: React.FC<FloatingChatbotProps> = ({ kundaliData, numerolo
     }
   }, []);
   
-  // Save language preference to local storage
   useEffect(() => {
     localStorage.setItem('preferredLanguage', language);
   }, [language]);
@@ -40,7 +38,7 @@ const FloatingChatbot: React.FC<FloatingChatbotProps> = ({ kundaliData, numerolo
           className="flex items-center gap-2 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white rounded-full p-4 shadow-lg"
         >
           <MessageCircle className="h-5 w-5" />
-          <span>{language === 'hi' ? 'AI गुरु से परामर्श' : 'Consult AI Guru'}</span>
+          <span>{language === 'hi' ? 'पं. ऋषि पराशर से परामर्श' : 'Consult Rishi Parasher'}</span>
         </Button>
       )}
 
@@ -52,7 +50,7 @@ const FloatingChatbot: React.FC<FloatingChatbotProps> = ({ kundaliData, numerolo
             <div className="flex items-center gap-2">
               <span className="font-bold flex items-center gap-1">
                 <MessageCircle className="h-4 w-4" />
-                {language === 'hi' ? 'आयु एस्ट्रो AI गुरु' : 'AyuAstro AI Guru'}
+                {language === 'hi' ? 'महर्षि पराशर' : 'Maharishi Parasher'}
               </span>
             </div>
             <div className="flex items-center gap-1">
@@ -80,8 +78,8 @@ const FloatingChatbot: React.FC<FloatingChatbotProps> = ({ kundaliData, numerolo
           </div>
 
           {/* Chat content */}
-          <div className="overflow-y-auto p-0 bg-gradient-to-br from-orange-50 to-red-50 max-h-[70vh]">
-            <AyuAstroAIGuru kundaliData={kundaliData} language={language} />
+          <div className="overflow-y-auto p-0 bg-gradient-to-br from-orange-50 to-red-50">
+            <RishiParasherGuru kundaliData={kundaliData} language={language} />
           </div>
         </Card>
       )}

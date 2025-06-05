@@ -3,14 +3,14 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import BirthDataForm from '@/components/BirthDataForm';
-import DetailedKundaliDisplay from '@/components/DetailedKundaliDisplay';
 import PersonalityTest from '@/components/PersonalityTest';
 import EnhancedDailyHoroscope from '@/components/EnhancedDailyHoroscope';
 import FloatingChatbot from '@/components/FloatingChatbot';
 import AppLogo from '@/components/AppLogo';
+import KundaliConsultationView from '@/components/KundaliConsultationView';
 import { generateComprehensiveKundali, EnhancedBirthData, ComprehensiveKundaliData } from '@/lib/advancedKundaliEngine';
 import { useToast } from "@/hooks/use-toast";
-import { Star, Moon, Sun, Calculator, Sparkles, Crown, Target } from 'lucide-react';
+import { Star, Moon, Sun, Calculator, Sparkles, Crown, Target, ArrowLeft } from 'lucide-react';
 
 const Index = () => {
   const [kundaliData, setKundaliData] = useState<ComprehensiveKundaliData | null>(null);
@@ -29,10 +29,9 @@ const Index = () => {
         place: birthData.placeOfBirth,
         latitude: birthData.latitude,
         longitude: birthData.longitude,
-        timezone: '5.5' // Default to IST, can be enhanced
+        timezone: '5.5'
       };
 
-      // Simulate processing time for complex calculations
       await new Promise(resolve => setTimeout(resolve, 3000));
       
       const result = generateComprehensiveKundali(enhancedBirthData);
@@ -70,7 +69,7 @@ const Index = () => {
               <div className="flex items-center justify-center gap-2 mt-2">
                 <Sparkles className="h-4 w-4 text-orange-500" />
                 <span className="text-sm text-orange-600 font-medium">
-                  {language === 'hi' ? 'AI संचालित वैदिक ज्योतिष' : 'AI-Powered Vedic Astrology'}
+                  {language === 'hi' ? 'पं. ऋषि पराशर के सिद्धांतों पर आधारित' : 'Based on Rishi Parasher Principles'}
                 </span>
                 <Sparkles className="h-4 w-4 text-orange-500" />
               </div>
@@ -78,8 +77,8 @@ const Index = () => {
           </div>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
             {language === 'hi' 
-              ? "उन्नत खगोलीय गणना और AI गुरु के साथ अपने भाग्य की सटीक खोज करें"
-              : "Discover Your Destiny with Precision - Advanced Astronomical Calculations & AI Guru Guidance"
+              ? "उन्नत खगोलीय गणना और पं. ऋषि पराशर के मार्गदर्शन के साथ अपने भाग्य की सटीक खोज करें"
+              : "Discover Your Destiny with Precision - Advanced Astronomical Calculations & Rishi Parasher Guidance"
             }
           </p>
           
@@ -91,7 +90,7 @@ const Index = () => {
             </div>
             <div className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
               <Target className="h-3 w-3 inline mr-1" />
-              {language === 'hi' ? 'Gemini AI गुरु' : 'Gemini AI Guru'}
+              {language === 'hi' ? 'पं. ऋषि पराशर मार्गदर्शन' : 'Rishi Parasher Guidance'}
             </div>
             <div className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
               <Star className="h-3 w-3 inline mr-1" />
@@ -175,8 +174,8 @@ const Index = () => {
                           </p>
                           <p className="text-orange-600 text-sm">
                             {language === 'hi' 
-                              ? 'ग्रह स्थिति, योग, दशा और AI विश्लेषण तैयार हो रहा है'
-                              : 'Calculating planetary positions, yogas, dashas, and AI analysis'
+                              ? 'ग्रह स्थिति, योग, दशा और पं. ऋषि पराशर विश्लेषण तैयार हो रहा है'
+                              : 'Calculating planetary positions, yogas, dashas, and Rishi Parasher analysis'
                             }
                           </p>
                         </div>
@@ -205,33 +204,16 @@ const Index = () => {
                 onClick={() => setKundaliData(null)}
                 className="text-orange-600 hover:text-orange-700 underline mb-4 flex items-center gap-2 mx-auto"
               >
-                ← {language === 'hi' ? 'नई कुंडली बनाएं' : 'Generate New Kundali'}
+                <ArrowLeft className="h-4 w-4" />
+                {language === 'hi' ? 'नई कुंडली बनाएं' : 'Generate New Kundali'}
               </button>
             </div>
             
-            {/* Display comprehensive Kundali - we'll need to adapt DetailedKundaliDisplay */}
-            <div className="bg-white rounded-lg shadow-lg p-6">
-              <h2 className="text-2xl font-bold text-center mb-6 text-gray-800 flex items-center justify-center gap-2">
-                <Crown className="h-6 w-6 text-orange-600" />
-                {language === 'hi' ? 'आपकी संपूर्ण कुंडली विश्लेषण' : 'Your Comprehensive Kundali Analysis'}
-              </h2>
-              
-              {/* We'll create a new component to display comprehensive data */}
-              <div className="text-center p-8 bg-gradient-to-r from-orange-50 to-red-50 rounded-lg">
-                <p className="text-lg text-gray-700 mb-4">
-                  {language === 'hi'
-                    ? 'आपकी संपूर्ण कुंडली सफलतापूर्वक तैयार हो गई है!'
-                    : 'Your comprehensive Kundali has been successfully generated!'
-                  }
-                </p>
-                <p className="text-gray-600">
-                  {language === 'hi'
-                    ? 'कृपया PDF डाउनलोड करें या AI गुरु से चर्चा करें।'
-                    : 'Please download the PDF or discuss with AI Guru.'
-                  }
-                </p>
-              </div>
-            </div>
+            {/* Display comprehensive Kundali using KundaliConsultationView */}
+            <KundaliConsultationView 
+              kundaliData={kundaliData}
+              language={language}
+            />
             
             {/* Show personalized horoscope after Kundali generation */}
             <div className="mt-8">
@@ -270,12 +252,12 @@ const Index = () => {
               <CardContent className="pt-6">
                 <Target className="h-12 w-12 mx-auto text-blue-500 mb-4" />
                 <h3 className="text-lg font-semibold mb-2 text-blue-800">
-                  {language === 'hi' ? 'Gemini AI गुरु' : 'Gemini AI Guru'}
+                  {language === 'hi' ? 'पं. ऋषि पराशर मार्गदर्शन' : 'Rishi Parasher Guidance'}
                 </h3>
                 <p className="text-gray-600 text-sm">
                   {language === 'hi' 
-                    ? 'AI संचालित व्यक्तिगत ज्योतिष परामर्श और मार्गदर्शन'
-                    : 'AI-powered personalized astrology consultation and guidance'
+                    ? 'वैदिक ज्योतिष के महान गुरु के सिद्धांतों पर आधारित व्यक्तिगत परामर्श'
+                    : 'Personalized consultation based on the great sage of Vedic astrology principles'
                   }
                 </p>
               </CardContent>
@@ -305,8 +287,8 @@ const Index = () => {
           </h3>
           <p className="text-orange-700 text-sm max-w-3xl mx-auto">
             {language === 'hi'
-              ? 'हमारी उन्नत गणना प्रणाली Swiss Ephemeris डेटा का उपयोग करती है, जो NASA और दुनिया की सबसे सटीक ज्योतिषीय गणना है।'
-              : 'Our advanced calculation system uses Swiss Ephemeris data, the same astronomical calculations used by NASA and the most accurate astrological calculations in the world.'
+              ? 'हमारी उन्नत गणना प्रणाली Swiss Ephemeris डेटा का उपयोग करती है, जो NASA और दुनिया की सबसे सटीक ज्योतिषीय गणना है। पं. ऋषि पराशर के शास्त्रों के अनुसार विश्लेषण।'
+              : 'Our advanced calculation system uses Swiss Ephemeris data, the same astronomical calculations used by NASA and the most accurate astrological calculations in the world. Analysis according to Rishi Parasher scriptures.'
             }
           </p>
         </div>
