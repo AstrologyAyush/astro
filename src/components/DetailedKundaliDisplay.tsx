@@ -2,60 +2,60 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ComprehensiveKundaliData } from '@/lib/advancedKundaliEngine';
+import EnhancedVisualKundaliChart from './EnhancedVisualKundaliChart';
+import EnhancedKundaliPDFExport from './EnhancedKundaliPDFExport';
 import { Badge } from "@/components/ui/badge";
-import { Star, Crown, Shield, Zap, Target, Heart } from "lucide-react";
-import { KundaliData } from '@/lib/advancedKundaliEngine';
+import { Star, Crown, Shield, Zap, Target, Heart, Download, FileText } from "lucide-react";
 
 interface DetailedKundaliDisplayProps {
-  kundaliData: KundaliData;
+  kundaliData: ComprehensiveKundaliData;
+  language?: 'hi' | 'en';
 }
 
-const DetailedKundaliDisplay: React.FC<DetailedKundaliDisplayProps> = ({ kundaliData }) => {
-  // Find strongest planet
-  const findStrongestPlanet = () => {
-    let strongest = { name: '', strength: 0 };
-    kundaliData.planets.forEach((planet) => {
-      if (planet.shadbala && planet.shadbala > strongest.strength) {
-        strongest = { name: planet.name, strength: planet.shadbala };
-      }
-    });
-    return strongest;
-  };
-
-  const strongestPlanet = findStrongestPlanet();
-  const moonSign = kundaliData.planets.find(p => p.name === 'Moon')?.sign || 'Unknown';
-  const sunSign = kundaliData.planets.find(p => p.name === 'Sun')?.sign || 'Unknown';
-
+const DetailedKundaliDisplay: React.FC<DetailedKundaliDisplayProps> = ({ 
+  kundaliData,
+  language = 'en'
+}) => {
+  const { enhancedCalculations, interpretations, birthData } = kundaliData;
+  
   return (
-    <div className="w-full max-w-6xl mx-auto p-6 space-y-6">
+    <div className="w-full max-w-6xl mx-auto p-4 md:p-6 space-y-6">
       {/* Enhanced Header with Personal Information */}
       <Card className="bg-gradient-to-r from-orange-50 to-red-50 border-orange-200">
         <CardHeader>
           <CardTitle className="text-2xl text-center text-gray-800 flex items-center justify-center gap-2">
             <Crown className="h-6 w-6 text-orange-600" />
-            Complete Vedic Kundali Analysis
+            {language === 'hi' ? 'संपूर्ण वैदिक कुंडली विश्लेषण' : 'Complete Vedic Kundali Analysis'}
           </CardTitle>
           <div className="text-center text-gray-600">
-            <p className="text-lg font-semibold">{kundaliData.personalInfo.fullName}</p>
-            <p>Born: {kundaliData.personalInfo.date.toLocaleDateString()} at {kundaliData.personalInfo.time}</p>
-            <p>Place: {kundaliData.personalInfo.place}</p>
+            <p className="text-lg font-semibold">{birthData.fullName}</p>
+            <p>
+              {language === 'hi' ? 'जन्म: ' : 'Born: '}
+              {birthData.date.toLocaleDateString()} {language === 'hi' ? 'को ' : 'at '}
+              {birthData.time}
+            </p>
+            <p>{language === 'hi' ? 'स्थान: ' : 'Place: '}{birthData.place}</p>
           </div>
         </CardHeader>
       </Card>
 
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full grid-cols-8 mb-6">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="planets">Planets</TabsTrigger>
-          <TabsTrigger value="houses">Houses</TabsTrigger>
-          <TabsTrigger value="yogas">Yogas</TabsTrigger>
-          <TabsTrigger value="dashas">Dashas</TabsTrigger>
-          <TabsTrigger value="predictions">Life Phases</TabsTrigger>
-          <TabsTrigger value="remedies">Remedies</TabsTrigger>
-          <TabsTrigger value="personality">Personality</TabsTrigger>
+        <TabsList className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-1 mb-6">
+          <TabsTrigger value="overview">{language === 'hi' ? 'अवलोकन' : 'Overview'}</TabsTrigger>
+          <TabsTrigger value="chart">{language === 'hi' ? 'चार्ट' : 'Chart'}</TabsTrigger>
+          <TabsTrigger value="planets">{language === 'hi' ? 'ग्रह' : 'Planets'}</TabsTrigger>
+          <TabsTrigger value="houses">{language === 'hi' ? 'भाव' : 'Houses'}</TabsTrigger>
+          <TabsTrigger value="yogas">{language === 'hi' ? 'योग' : 'Yogas'}</TabsTrigger>
+          <TabsTrigger value="dashas">{language === 'hi' ? 'दशा' : 'Dashas'}</TabsTrigger>
+          <TabsTrigger value="remedies">{language === 'hi' ? 'उपाय' : 'Remedies'}</TabsTrigger>
+          <TabsTrigger value="download">
+            <Download className="h-4 w-4 mr-1" />
+            {language === 'hi' ? 'डाउनलोड' : 'Download'}
+          </TabsTrigger>
         </TabsList>
 
-        {/* Enhanced Overview Tab */}
+        {/* Overview Tab */}
         <TabsContent value="overview">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Core Chart Information */}
@@ -63,33 +63,47 @@ const DetailedKundaliDisplay: React.FC<DetailedKundaliDisplayProps> = ({ kundali
               <CardHeader>
                 <CardTitle className="text-orange-600 flex items-center gap-2">
                   <Star className="h-5 w-5" />
-                  Core Chart Details
+                  {language === 'hi' ? 'मुख्य चार्ट विवरण' : 'Core Chart Details'}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="p-3 bg-orange-50 rounded-lg">
-                    <h4 className="font-semibold text-orange-800 mb-1">Lagna (Ascendant)</h4>
-                    <p className="text-orange-600 font-medium">{kundaliData.lagna.sign}</p>
-                    <p className="text-sm text-gray-600">{kundaliData.lagna.degree.toFixed(2)}°</p>
+                    <h4 className="font-semibold text-orange-800 mb-1">
+                      {language === 'hi' ? 'लग्न (उदयकालीन राशि)' : 'Lagna (Ascendant)'}
+                    </h4>
+                    <p className="text-orange-600 font-medium">{enhancedCalculations.lagna.signName}</p>
+                    <p className="text-sm text-gray-600">{enhancedCalculations.lagna.degree.toFixed(2)}°</p>
                   </div>
                   
                   <div className="p-3 bg-blue-50 rounded-lg">
-                    <h4 className="font-semibold text-blue-800 mb-1">Moon Sign (Rashi)</h4>
-                    <p className="text-blue-600 font-medium">{moonSign}</p>
-                    <p className="text-sm text-gray-600">Mind & Emotions</p>
+                    <h4 className="font-semibold text-blue-800 mb-1">
+                      {language === 'hi' ? 'चंद्र राशि' : 'Moon Sign'}
+                    </h4>
+                    <p className="text-blue-600 font-medium">{enhancedCalculations.planets.MO.rashiName}</p>
+                    <p className="text-sm text-gray-600">
+                      {language === 'hi' ? 'मन और भावनाएँ' : 'Mind & Emotions'}
+                    </p>
                   </div>
                   
                   <div className="p-3 bg-yellow-50 rounded-lg">
-                    <h4 className="font-semibold text-yellow-800 mb-1">Sun Sign</h4>
-                    <p className="text-yellow-600 font-medium">{sunSign}</p>
-                    <p className="text-sm text-gray-600">Soul & Ego</p>
+                    <h4 className="font-semibold text-yellow-800 mb-1">
+                      {language === 'hi' ? 'सूर्य राशि' : 'Sun Sign'}
+                    </h4>
+                    <p className="text-yellow-600 font-medium">{enhancedCalculations.planets.SU.rashiName}</p>
+                    <p className="text-sm text-gray-600">
+                      {language === 'hi' ? 'आत्मा और अहम्' : 'Soul & Ego'}
+                    </p>
                   </div>
                   
                   <div className="p-3 bg-green-50 rounded-lg">
-                    <h4 className="font-semibold text-green-800 mb-1">Strongest Planet</h4>
-                    <p className="text-green-600 font-medium">{strongestPlanet.name}</p>
-                    <p className="text-sm text-gray-600">{strongestPlanet.strength.toFixed(1)}% strength</p>
+                    <h4 className="font-semibold text-green-800 mb-1">
+                      {language === 'hi' ? 'नक्षत्र' : 'Birth Nakshatra'}
+                    </h4>
+                    <p className="text-green-600 font-medium">{enhancedCalculations.planets.MO.nakshatraName}</p>
+                    <p className="text-sm text-gray-600">
+                      {language === 'hi' ? 'पद' : 'Pada'}: {enhancedCalculations.planets.MO.nakshatraPada}
+                    </p>
                   </div>
                 </div>
               </CardContent>
@@ -100,44 +114,52 @@ const DetailedKundaliDisplay: React.FC<DetailedKundaliDisplayProps> = ({ kundali
               <CardHeader>
                 <CardTitle className="text-blue-600 flex items-center gap-2">
                   <Target className="h-5 w-5" />
-                  Chart Summary
+                  {language === 'hi' ? 'चार्ट सारांश' : 'Chart Summary'}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-700">Total Planets:</span>
-                  <Badge variant="outline">{kundaliData.planets.length}</Badge>
+                  <span className="text-gray-700">
+                    {language === 'hi' ? 'कुल ग्रह:' : 'Total Planets:'}
+                  </span>
+                  <Badge variant="outline">{Object.keys(enhancedCalculations.planets).length}</Badge>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-700">Active Yogas:</span>
+                  <span className="text-gray-700">
+                    {language === 'hi' ? 'सक्रिय योग:' : 'Active Yogas:'}
+                  </span>
                   <Badge className="bg-green-100 text-green-800">
-                    {kundaliData.yogas.filter(y => y.isPresent).length}
+                    {enhancedCalculations.yogas.filter(y => y.isActive).length}
                   </Badge>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-700">Current Dasha:</span>
+                  <span className="text-gray-700">
+                    {language === 'hi' ? 'वर्तमान दशा:' : 'Current Dasha:'}
+                  </span>
                   <Badge className="bg-purple-100 text-purple-800">
-                    {kundaliData.dashas.find(d => d.isActive)?.planet || 'Not specified'}
+                    {enhancedCalculations.dashas.find(d => d.isActive)?.planet || 'Not specified'}
                   </Badge>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-700">Lagna Lord:</span>
-                  <Badge variant="secondary">{kundaliData.lagna.lord}</Badge>
+                  <span className="text-gray-700">
+                    {language === 'hi' ? 'जुलियन दिन:' : 'Julian Day:'}
+                  </span>
+                  <Badge variant="secondary">{enhancedCalculations.julianDay.toFixed(4)}</Badge>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Key Strengths & Challenges */}
+            {/* Key Strengths */}
             <Card className="border-green-200">
               <CardHeader>
                 <CardTitle className="text-green-600 flex items-center gap-2">
                   <Zap className="h-5 w-5" />
-                  Key Strengths
+                  {language === 'hi' ? 'मुख्य शक्तियां' : 'Key Strengths'}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  {kundaliData.personality.strengths.slice(0, 4).map((strength, index) => (
+                  {interpretations.personality.strengths.slice(0, 4).map((strength, index) => (
                     <div key={index} className="flex items-center gap-2">
                       <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                       <span className="text-sm text-gray-700">{strength}</span>
@@ -152,12 +174,12 @@ const DetailedKundaliDisplay: React.FC<DetailedKundaliDisplayProps> = ({ kundali
               <CardHeader>
                 <CardTitle className="text-yellow-600 flex items-center gap-2">
                   <Shield className="h-5 w-5" />
-                  Areas for Growth
+                  {language === 'hi' ? 'विकास के क्षेत्र' : 'Areas for Growth'}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  {kundaliData.personality.weaknesses.slice(0, 4).map((weakness, index) => (
+                  {interpretations.personality.challenges.slice(0, 4).map((weakness, index) => (
                     <div key={index} className="flex items-center gap-2">
                       <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
                       <span className="text-sm text-gray-700">{weakness}</span>
@@ -172,29 +194,35 @@ const DetailedKundaliDisplay: React.FC<DetailedKundaliDisplayProps> = ({ kundali
               <CardHeader>
                 <CardTitle className="text-purple-600 flex items-center gap-2">
                   <Heart className="h-5 w-5" />
-                  Life Path Insights
+                  {language === 'hi' ? 'जीवन मार्ग अंतर्दृष्टि' : 'Life Path Insights'}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="p-4 bg-purple-50 rounded-lg">
-                    <h4 className="font-semibold text-purple-800 mb-2">Career & Finance</h4>
+                    <h4 className="font-semibold text-purple-800 mb-2">
+                      {language === 'hi' ? 'करियर और वित्त' : 'Career & Finance'}
+                    </h4>
                     <p className="text-sm text-gray-700">
-                      {kundaliData.predictions.ageGroups['15-30'].career[0] || 'Focus on skill development and networking opportunities.'}
+                      {interpretations.predictions.youth.career[0] || 'Focus on skill development and networking opportunities.'}
                     </p>
                   </div>
                   
                   <div className="p-4 bg-pink-50 rounded-lg">
-                    <h4 className="font-semibold text-pink-800 mb-2">Relationships</h4>
+                    <h4 className="font-semibold text-pink-800 mb-2">
+                      {language === 'hi' ? 'रिश्ते' : 'Relationships'}
+                    </h4>
                     <p className="text-sm text-gray-700">
-                      {kundaliData.predictions.ageGroups['15-30'].relationships[0] || 'Strong potential for meaningful connections and partnerships.'}
+                      {interpretations.predictions.youth.relationships[0] || 'Strong potential for meaningful connections and partnerships.'}
                     </p>
                   </div>
                   
                   <div className="p-4 bg-indigo-50 rounded-lg">
-                    <h4 className="font-semibold text-indigo-800 mb-2">Health & Wellness</h4>
+                    <h4 className="font-semibold text-indigo-800 mb-2">
+                      {language === 'hi' ? 'स्वास्थ्य और कल्याण' : 'Health & Wellness'}
+                    </h4>
                     <p className="text-sm text-gray-700">
-                      {kundaliData.predictions.ageGroups['15-30'].health[0] || 'Maintain regular exercise and balanced nutrition for optimal health.'}
+                      {interpretations.predictions.youth.health[0] || 'Maintain regular exercise and balanced nutrition for optimal health.'}
                     </p>
                   </div>
                 </div>
@@ -203,61 +231,68 @@ const DetailedKundaliDisplay: React.FC<DetailedKundaliDisplayProps> = ({ kundali
           </div>
         </TabsContent>
 
+        {/* Chart Tab */}
+        <TabsContent value="chart">
+          <EnhancedVisualKundaliChart kundaliData={kundaliData} language={language} />
+        </TabsContent>
+
         {/* Planets Tab */}
         <TabsContent value="planets">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {kundaliData.planets.map((planet) => (
-              <Card key={planet.name} className="border-gray-200">
+            {Object.entries(enhancedCalculations.planets).map(([planetId, planet]) => (
+              <Card key={planetId} className="border-gray-200">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-lg flex items-center justify-between">
                     <span>{planet.name}</span>
                     {planet.isRetrograde && (
-                      <Badge variant="secondary" className="text-xs">Retrograde</Badge>
+                      <Badge variant="secondary" className="text-xs">
+                        {language === 'hi' ? 'वक्री' : 'Retrograde'}
+                      </Badge>
                     )}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2">
                   <div className="grid grid-cols-2 gap-2 text-sm">
                     <div>
-                      <strong>Sign:</strong> {planet.sign}
+                      <strong>{language === 'hi' ? 'राशि:' : 'Sign:'}</strong> {planet.rashiName}
                     </div>
                     <div>
-                      <strong>House:</strong> {planet.house}
+                      <strong>{language === 'hi' ? 'भाव:' : 'House:'}</strong> {
+                        Math.floor(((planet.rashi - enhancedCalculations.lagna.sign + 12) % 12) + 1)
+                      }
                     </div>
                     <div>
-                      <strong>Degree:</strong> {planet.degree.toFixed(2)}°
+                      <strong>{language === 'hi' ? 'अंश:' : 'Degree:'}</strong> {planet.degreeInSign.toFixed(2)}°
                     </div>
-                    {planet.shadbala && (
-                      <div>
-                        <strong>Strength:</strong> {planet.shadbala}/100
-                      </div>
-                    )}
+                    <div>
+                      <strong>{language === 'hi' ? 'नक्षत्र:' : 'Nakshatra:'}</strong> {planet.nakshatraName}
+                    </div>
                   </div>
                   
-                  {planet.sanskrit && (
-                    <p className="text-sm text-gray-600">
-                      <strong>Sanskrit:</strong> {planet.sanskrit}
-                    </p>
-                  )}
-                  
                   <div className="flex flex-wrap gap-1 mt-2">
-                    {planet.shadbala && planet.shadbala > 70 && (
-                      <Badge variant="default" className="text-xs">Strong</Badge>
+                    {planet.shadbala > 70 && (
+                      <Badge variant="default" className="text-xs">
+                        {language === 'hi' ? 'शक्तिशाली' : 'Strong'}
+                      </Badge>
                     )}
-                    {planet.strengthGrade && (
-                      <Badge variant="outline" className="text-xs">{planet.strengthGrade}</Badge>
-                    )}
+                    <Badge variant="outline" className="text-xs">{planet.dignity}</Badge>
                   </div>
                   
                   <div className="space-y-1 mt-2">
-                    {planet.isExalted && (
-                      <div className="text-xs text-green-600">✓ Exalted</div>
+                    {planet.exaltation && (
+                      <div className="text-xs text-green-600">
+                        ✓ {language === 'hi' ? 'उच्च राशि' : 'Exalted'}
+                      </div>
                     )}
-                    {planet.isDebilitated && (
-                      <div className="text-xs text-red-600">⚠ Debilitated</div>
+                    {planet.debilitation && (
+                      <div className="text-xs text-red-600">
+                        ⚠ {language === 'hi' ? 'नीच राशि' : 'Debilitated'}
+                      </div>
                     )}
-                    {planet.isOwnSign && (
-                      <div className="text-xs text-blue-600">⭐ Own Sign</div>
+                    {planet.ownSign && (
+                      <div className="text-xs text-blue-600">
+                        ⭐ {language === 'hi' ? 'स्वराशि' : 'Own Sign'}
+                      </div>
                     )}
                   </div>
                 </CardContent>
@@ -269,22 +304,46 @@ const DetailedKundaliDisplay: React.FC<DetailedKundaliDisplayProps> = ({ kundali
         {/* Houses Tab */}
         <TabsContent value="houses">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {kundaliData.houses.map((house) => (
+            {enhancedCalculations.houses.map((house) => (
               <Card key={house.number} className="border-gray-200">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-lg">
-                    House {house.number}
+                    {language === 'hi' ? 'भाव' : 'House'} {house.number}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2">
                   <div className="space-y-1 text-sm">
-                    <div><strong>Sign:</strong> {house.sign}</div>
-                    <div><strong>Lord:</strong> {house.lord}</div>
-                    <div><strong>Cusp:</strong> {house.cusp.toFixed(2)}°</div>
+                    <div>
+                      <strong>{language === 'hi' ? 'राशि:' : 'Sign:'}</strong> {house.signName}
+                    </div>
+                    <div>
+                      <strong>{language === 'hi' ? 'स्वामी:' : 'Lord:'}</strong> {house.lord}
+                    </div>
+                    <div>
+                      <strong>{language === 'hi' ? 'क्षेत्रफल:' : 'Cusp:'}</strong> {house.cusp.toFixed(2)}°
+                    </div>
                   </div>
+                  
+                  {house.planetsInHouse.length > 0 && (
+                    <div className="mt-3">
+                      <p className="text-sm font-medium text-gray-700">
+                        {language === 'hi' ? 'स्थित ग्रह:' : 'Planets:'}
+                      </p>
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {house.planetsInHouse.map((planet, index) => (
+                          <Badge key={index} variant="outline" className="text-xs">
+                            {planet}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  
                   {house.significance.length > 0 && (
                     <div className="mt-3">
-                      <p className="text-sm font-medium text-gray-700">Significance:</p>
+                      <p className="text-sm font-medium text-gray-700">
+                        {language === 'hi' ? 'महत्व:' : 'Significance:'}
+                      </p>
                       <ul className="text-xs text-gray-600 mt-1">
                         {house.significance.map((sig, index) => (
                           <li key={index}>• {sig}</li>
@@ -301,32 +360,56 @@ const DetailedKundaliDisplay: React.FC<DetailedKundaliDisplayProps> = ({ kundali
         {/* Yogas Tab */}
         <TabsContent value="yogas">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {kundaliData.yogas.map((yoga, index) => (
-              <Card key={index} className={`border-gray-200 ${yoga.isPresent ? 'bg-green-50 border-green-200' : 'bg-gray-50'}`}>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-lg flex items-center justify-between">
-                    <span>{yoga.name}</span>
-                    <Badge variant={yoga.isPresent ? "default" : "secondary"}>
-                      {yoga.isPresent ? 'Present' : 'Absent'}
-                    </Badge>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  <p className="text-sm text-gray-700">{yoga.description}</p>
-                  <p className="text-sm"><strong>Effects:</strong> {yoga.effects}</p>
-                  <div className="flex items-center gap-2">
-                    <strong className="text-sm">Strength:</strong>
-                    <div className="flex-1 bg-gray-200 rounded-full h-2">
-                      <div 
-                        className="bg-orange-500 h-2 rounded-full" 
-                        style={{ width: `${yoga.strength}%` }}
-                      ></div>
+            {enhancedCalculations.yogas.length > 0 ? (
+              enhancedCalculations.yogas.map((yoga, index) => (
+                <Card key={index} className={`border-gray-200 ${yoga.isActive ? 'bg-green-50 border-green-200' : 'bg-gray-50'}`}>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-lg flex items-center justify-between">
+                      <span>{yoga.name}</span>
+                      <Badge variant={yoga.isActive ? "default" : "secondary"}>
+                        {yoga.isActive ? (language === 'hi' ? 'मौजूद' : 'Present') : (language === 'hi' ? 'अनुपस्थित' : 'Absent')}
+                      </Badge>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    <p className="text-sm text-gray-700">{yoga.description}</p>
+                    <div className="space-y-1">
+                      <p className="text-sm">
+                        <strong>{language === 'hi' ? 'प्रभाव:' : 'Effects:'}</strong>
+                      </p>
+                      <ul className="text-xs text-gray-600">
+                        {yoga.effects.map((effect, i) => (
+                          <li key={i}>• {effect}</li>
+                        ))}
+                      </ul>
                     </div>
-                    <span className="text-sm">{yoga.strength}%</span>
-                  </div>
-                </CardContent>
+                    <div className="flex items-center gap-2">
+                      <strong className="text-sm">
+                        {language === 'hi' ? 'शक्ति:' : 'Strength:'}
+                      </strong>
+                      <div className="flex-1 bg-gray-200 rounded-full h-2">
+                        <div 
+                          className={`h-2 rounded-full ${
+                            yoga.type === 'benefic' ? 'bg-green-500' : 
+                            yoga.type === 'malefic' ? 'bg-red-500' : 'bg-orange-500'
+                          }`}
+                          style={{ width: `${yoga.strength}%` }}
+                        ></div>
+                      </div>
+                      <span className="text-sm">{yoga.strength}%</span>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              <Card className="md:col-span-2 text-center p-8">
+                <p className="text-gray-500">
+                  {language === 'hi' 
+                    ? 'कोई विशेष योग नहीं मिला।' 
+                    : 'No specific yogas found in the chart.'}
+                </p>
               </Card>
-            ))}
+            )}
           </div>
         </TabsContent>
 
@@ -335,26 +418,37 @@ const DetailedKundaliDisplay: React.FC<DetailedKundaliDisplayProps> = ({ kundali
           <div className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle className="text-orange-600">Vimshottari Dasha Periods</CardTitle>
+                <CardTitle className="text-orange-600">
+                  {language === 'hi' ? 'विंशोत्तरी दशा अवधि' : 'Vimshottari Dasha Periods'}
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {kundaliData.dashas.map((dasha, index) => (
+                  {enhancedCalculations.dashas.map((dasha, index) => (
                     <div 
                       key={index} 
-                      className={`p-4 rounded-lg border ${dasha.isActive ? 'bg-orange-50 border-orange-200' : 'bg-gray-50 border-gray-200'}`}
+                      className={`p-4 rounded-lg border ${
+                        dasha.isActive 
+                          ? 'bg-orange-50 border-orange-200' 
+                          : 'bg-gray-50 border-gray-200'
+                      }`}
                     >
                       <div className="flex items-center justify-between">
                         <div>
-                          <h4 className="font-semibold text-lg">{dasha.planet} Dasha</h4>
+                          <h4 className="font-semibold text-lg">
+                            {dasha.planet} {language === 'hi' ? 'दशा' : 'Dasha'}
+                            {dasha.planetSanskrit && language === 'hi' && ` (${dasha.planetSanskrit})`}
+                          </h4>
                           <p className="text-sm text-gray-600">
                             {dasha.startDate.toLocaleDateString()} - {dasha.endDate.toLocaleDateString()}
                           </p>
                         </div>
                         <div className="text-right">
-                          <p className="font-medium">{dasha.years} years</p>
+                          <p className="font-medium">{dasha.years} {language === 'hi' ? 'वर्ष' : 'years'}</p>
                           {dasha.isActive && (
-                            <Badge className="mt-1">Currently Active</Badge>
+                            <Badge className="mt-1">
+                              {language === 'hi' ? 'वर्तमान में सक्रिय' : 'Currently Active'}
+                            </Badge>
                           )}
                         </div>
                       </div>
@@ -366,85 +460,27 @@ const DetailedKundaliDisplay: React.FC<DetailedKundaliDisplayProps> = ({ kundali
           </div>
         </TabsContent>
 
-        {/* Life Phases Predictions Tab */}
-        <TabsContent value="predictions">
-          <div className="space-y-6">
-            {Object.entries(kundaliData.predictions.ageGroups).map(([ageGroup, data]) => (
-              <Card key={ageGroup} className="border-gray-200">
-                <CardHeader>
-                  <CardTitle className="text-xl text-orange-600">
-                    Age {ageGroup}: {data.period}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <h4 className="font-semibold text-gray-800 mb-2">General Trends</h4>
-                      <ul className="text-sm space-y-1">
-                        {data.generalTrends.map((trend, index) => (
-                          <li key={index} className="flex items-start gap-2">
-                            <span className="text-orange-500 mt-1">•</span>
-                            <span>{trend}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                    
-                    <div>
-                      <h4 className="font-semibold text-gray-800 mb-2">Career & Finance</h4>
-                      <ul className="text-sm space-y-1">
-                        {[...data.career, ...data.finance].map((item, index) => (
-                          <li key={index} className="flex items-start gap-2">
-                            <span className="text-green-500 mt-1">•</span>
-                            <span>{item}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                    
-                    <div>
-                      <h4 className="font-semibold text-gray-800 mb-2">Relationships</h4>
-                      <ul className="text-sm space-y-1">
-                        {data.relationships.map((rel, index) => (
-                          <li key={index} className="flex items-start gap-2">
-                            <span className="text-pink-500 mt-1">•</span>
-                            <span>{rel}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                    
-                    <div>
-                      <h4 className="font-semibold text-gray-800 mb-2">Health & Remedies</h4>
-                      <ul className="text-sm space-y-1">
-                        {[...data.health, ...data.remedies].map((item, index) => (
-                          <li key={index} className="flex items-start gap-2">
-                            <span className="text-blue-500 mt-1">•</span>
-                            <span>{item}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </TabsContent>
-
         {/* Remedies Tab */}
         <TabsContent value="remedies">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card>
               <CardHeader>
-                <CardTitle className="text-orange-600">Gemstones</CardTitle>
+                <CardTitle className="text-orange-600">
+                  {language === 'hi' ? 'रत्न' : 'Gemstones'}
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <ul className="space-y-2">
-                  {kundaliData.remedies.gemstones.map((gem, index) => (
+                  {interpretations.remedies.gemstones.map((gem, index) => (
                     <li key={index} className="flex items-start gap-2">
                       <span className="text-orange-500 mt-1">💎</span>
-                      <span className="text-sm">{gem}</span>
+                      <span className="text-sm">
+                        <strong>{gem.stone}</strong> - {gem.weight} {language === 'hi' ? 'के लिए' : 'for'} {gem.planet}
+                        <div className="text-xs text-gray-600 mt-1">
+                          {language === 'hi' ? 'धातु:' : 'Metal:'} {gem.metal}, 
+                          {language === 'hi' ? ' उंगली:' : ' Finger:'} {gem.finger}
+                        </div>
+                      </span>
                     </li>
                   ))}
                 </ul>
@@ -453,14 +489,16 @@ const DetailedKundaliDisplay: React.FC<DetailedKundaliDisplayProps> = ({ kundali
 
             <Card>
               <CardHeader>
-                <CardTitle className="text-orange-600">Mantras</CardTitle>
+                <CardTitle className="text-orange-600">
+                  {language === 'hi' ? 'मंत्र' : 'Mantras'}
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <ul className="space-y-2">
-                  {kundaliData.remedies.mantras.map((mantra, index) => (
+                  {interpretations.remedies.mantras.map((mantra, index) => (
                     <li key={index} className="flex items-start gap-2">
                       <span className="text-orange-500 mt-1">🕉️</span>
-                      <span className="text-sm font-mono">{mantra}</span>
+                      <span className="text-sm font-mono">{mantra.mantra}</span>
                     </li>
                   ))}
                 </ul>
@@ -469,14 +507,16 @@ const DetailedKundaliDisplay: React.FC<DetailedKundaliDisplayProps> = ({ kundali
 
             <Card>
               <CardHeader>
-                <CardTitle className="text-orange-600">Charity & Donations</CardTitle>
+                <CardTitle className="text-orange-600">
+                  {language === 'hi' ? 'दान और अनुदान' : 'Charity & Donations'}
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <ul className="space-y-2">
-                  {kundaliData.remedies.charity.map((charity, index) => (
+                  {interpretations.remedies.charities.map((charity, index) => (
                     <li key={index} className="flex items-start gap-2">
                       <span className="text-orange-500 mt-1">🤲</span>
-                      <span className="text-sm">{charity}</span>
+                      <span className="text-sm">{charity.item}</span>
                     </li>
                   ))}
                 </ul>
@@ -485,14 +525,16 @@ const DetailedKundaliDisplay: React.FC<DetailedKundaliDisplayProps> = ({ kundali
 
             <Card>
               <CardHeader>
-                <CardTitle className="text-orange-600">Rituals & Practices</CardTitle>
+                <CardTitle className="text-orange-600">
+                  {language === 'hi' ? 'अनुष्ठान और प्रथाएँ' : 'Rituals & Practices'}
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <ul className="space-y-2">
-                  {kundaliData.remedies.rituals.map((ritual, index) => (
+                  {interpretations.remedies.rituals.map((ritual, index) => (
                     <li key={index} className="flex items-start gap-2">
                       <span className="text-orange-500 mt-1">🙏</span>
-                      <span className="text-sm">{ritual}</span>
+                      <span className="text-sm">{ritual.ritual}</span>
                     </li>
                   ))}
                 </ul>
@@ -501,59 +543,9 @@ const DetailedKundaliDisplay: React.FC<DetailedKundaliDisplayProps> = ({ kundali
           </div>
         </TabsContent>
 
-        {/* Personality Tab */}
-        <TabsContent value="personality">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-orange-600">Key Traits</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-wrap gap-2">
-                  {kundaliData.personality.traits.map((trait, index) => (
-                    <Badge key={index} variant="outline" className="text-sm">
-                      {trait}
-                    </Badge>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-green-600">Strengths</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-1">
-                  {kundaliData.personality.strengths.map((strength, index) => (
-                    <li key={index} className="flex items-center gap-2 text-sm">
-                      <span className="text-green-500">✓</span>
-                      {strength}
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-red-600">Areas for Growth</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-1">
-                  {kundaliData.personality.weaknesses.map((weakness, index) => (
-                    <li key={index} className="flex items-center gap-2 text-sm">
-                      <span className="text-red-500">⚠</span>
-                      {weakness}
-                    </li>
-                  ))}
-                </ul>
-                <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-                  <p className="text-sm"><strong>Temperament:</strong> {kundaliData.personality.temperament}</p>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+        {/* Download Tab */}
+        <TabsContent value="download">
+          <EnhancedKundaliPDFExport kundaliData={kundaliData} language={language} />
         </TabsContent>
       </Tabs>
     </div>

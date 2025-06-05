@@ -17,8 +17,8 @@ const AppLogo: React.FC<AppLogoProps> = ({ size = 'md', className = '' }) => {
   return (
     <div className={`${sizeClasses[size]} ${className} relative`}>
       <img 
-        src="/lovable-uploads/13651911-1a85-4796-bf23-b9ff50004e14.png" 
-        alt="Ayu Logo"
+        src="/lovable-uploads/f6a4ccba-df80-49e2-88fd-17a006366d32.png" 
+        alt="Ayu Astro Logo"
         className="w-full h-full object-contain rounded-lg"
       />
     </div>

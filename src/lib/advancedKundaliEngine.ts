@@ -1,4 +1,20 @@
+
 import { BirthData, generateKundaliChart, KundaliChart } from './kundaliUtils';
+import {
+  PreciseCoordinates,
+  PreciseBirthTime,
+  PlanetaryPosition,
+  LagnaData,
+  HouseData,
+  DashaDetails,
+  YogaDetails,
+  calculateJulianDay,
+  calculatePlanetaryPositions,
+  calculateAscendant,
+  calculateHouseCusps,
+  calculateVimshottariDasha,
+  calculateAdvancedYogas
+} from './enhancedAstronomicalCalculations';
 
 export interface EnhancedBirthData {
   fullName: string;
@@ -10,283 +26,199 @@ export interface EnhancedBirthData {
   timezone: string;
 }
 
-export interface PlanetData {
-  name: string;
-  sign: string;
-  house: number;
-  degree: number;
-  isRetrograde: boolean;
-  shadbala?: number;
-  sanskrit?: string;
-  strengthGrade?: string;
-  isExalted?: boolean;
-  isDebilitated?: boolean;
-  isOwnSign?: boolean;
-}
-
-export interface HouseData {
-  number: number;
-  sign: string;
-  lord: string;
-  cusp: number;
-  significance: string[];
-}
-
-export interface YogaData {
-  name: string;
-  description: string;
-  effects: string;
-  strength: number;
-  isPresent: boolean;
-}
-
-export interface DashaData {
-  planet: string;
-  startDate: Date;
-  endDate: Date;
-  years: number;
-  isActive: boolean;
-}
-
-export interface PersonalityData {
-  traits: string[];
-  strengths: string[];
-  weaknesses: string[];
-  temperament: string;
-}
-
-export interface PredictionData {
-  ageGroups: {
-    [key: string]: {
-      period: string;
-      generalTrends: string[];
-      career: string[];
-      finance: string[];
-      relationships: string[];
-      health: string[];
-      remedies: string[];
-    };
-  };
-}
-
-export interface RemedyData {
-  gemstones: string[];
-  mantras: string[];
-  charity: string[];
-  rituals: string[];
-}
-
-export interface LagnaData {
-  sign: string;
-  degree: number;
-  lord: string;
-}
-
-export interface KundaliData {
+export interface ComprehensiveKundaliData {
   birthData: EnhancedBirthData;
-  chart: KundaliChart;
-  personalInfo: EnhancedBirthData;
-  planets: PlanetData[];
-  houses: HouseData[];
-  yogas: YogaData[];
-  dashas: DashaData[];
-  personality: PersonalityData;
-  predictions: PredictionData;
-  remedies: RemedyData;
-  lagna: LagnaData;
-  strengthestPlanet: string;
-  currentDasha: string;
-  lagnaLord: string;
-  moonSign: string;
-  sunSign: string;
+  basicChart: KundaliChart;
+  enhancedCalculations: {
+    lagna: LagnaData;
+    planets: Record<string, PlanetaryPosition>;
+    houses: HouseData[];
+    dashas: DashaDetails[];
+    yogas: YogaDetails[];
+    ayanamsa: number;
+    julianDay: number;
+  };
+  interpretations: {
+    personality: PersonalityAnalysis;
+    predictions: LifePhasePredictions;
+    remedies: RemedySuggestions;
+    compatibility: CompatibilityFactors;
+  };
+  additionalCharts: {
+    navamsa: any; // D9 chart
+    dashamsa: any; // D10 chart
+    dwadhamsa: any; // D12 chart
+  };
 }
 
-// Enhanced planet strength calculation
-function calculatePlanetStrengths(chart: KundaliChart): { [key: string]: number } {
-  const strengths: { [key: string]: number } = {};
+export interface PersonalityAnalysis {
+  coreTraits: string[];
+  strengths: string[];
+  challenges: string[];
+  mentalMakeup: string;
+  physicalAttributes: string[];
+  careerAptitude: string[];
+  relationshipStyle: string;
+  spiritualInclination: string;
+}
+
+export interface LifePhasePredictions {
+  childhood: PhasePrediction;
+  youth: PhasePrediction;
+  adulthood: PhasePrediction;
+  maturity: PhasePrediction;
+}
+
+export interface PhasePrediction {
+  ageRange: string;
+  generalTrends: string[];
+  career: string[];
+  finance: string[];
+  relationships: string[];
+  health: string[];
+  majorEvents: string[];
+  opportunities: string[];
+  challenges: string[];
+}
+
+export interface RemedySuggestions {
+  gemstones: GemstoneRecommendation[];
+  mantras: MantraRecommendation[];
+  charities: CharityRecommendation[];
+  rituals: RitualRecommendation[];
+  lifestyle: LifestyleRecommendation[];
+  colors: ColorRecommendation[];
+  directions: DirectionRecommendation[];
+}
+
+export interface GemstoneRecommendation {
+  stone: string;
+  planet: string;
+  weight: string;
+  metal: string;
+  finger: string;
+  day: string;
+  mantra: string;
+  benefits: string[];
+}
+
+export interface MantraRecommendation {
+  mantra: string;
+  planet: string;
+  count: number;
+  timing: string;
+  duration: string;
+  benefits: string[];
+}
+
+export interface CharityRecommendation {
+  item: string;
+  planet: string;
+  day: string;
+  quantity: string;
+  benefits: string[];
+}
+
+export interface RitualRecommendation {
+  ritual: string;
+  planet: string;
+  timing: string;
+  frequency: string;
+  procedure: string[];
+  benefits: string[];
+}
+
+export interface LifestyleRecommendation {
+  category: string;
+  recommendations: string[];
+  benefits: string[];
+}
+
+export interface ColorRecommendation {
+  color: string;
+  planet: string;
+  usage: string;
+  benefits: string[];
+}
+
+export interface DirectionRecommendation {
+  direction: string;
+  planet: string;
+  usage: string;
+  benefits: string[];
+}
+
+export interface CompatibilityFactors {
+  marriageCompatibility: MarriageCompatibility;
+  businessPartnership: BusinessCompatibility;
+  friendshipCompatibility: FriendshipCompatibility;
+}
+
+export interface MarriageCompatibility {
+  idealPartnerTraits: string[];
+  compatibleSigns: string[];
+  mangalDoshaStatus: string;
+  recommendedAge: string;
+  importantConsiderations: string[];
+}
+
+export interface BusinessCompatibility {
+  idealPartnerTraits: string[];
+  suitableBusinessTypes: string[];
+  partnership: string[];
+  leadership: string[];
+}
+
+export interface FriendshipCompatibility {
+  idealFriendTraits: string[];
+  socialBehavior: string[];
+  loyaltyFactors: string[];
+}
+
+export function generateComprehensiveKundali(birthData: EnhancedBirthData): ComprehensiveKundaliData {
+  console.log('Generating comprehensive Kundali with enhanced calculations...');
   
-  Object.entries(chart.planets).forEach(([planetName, planet]) => {
-    let strength = 0;
-    
-    // Sign strength (own sign = 5, exaltation = 6, debilitation = 1)
-    const signStrengthMap: { [key: number]: number } = {
-      1: 3, 2: 3, 3: 4, 4: 3, 5: 5, 6: 2,
-      7: 4, 8: 2, 9: 4, 10: 3, 11: 4, 12: 3
-    };
-    
-    strength += signStrengthMap[planet.sign] || 3;
-    
-    // House strength (Kendra houses = stronger)
-    const houseNumber = planet.house;
-    if ([1, 4, 7, 10].includes(houseNumber)) {
-      strength += 3; // Kendra
-    } else if ([5, 9].includes(houseNumber)) {
-      strength += 2; // Trikona
-    } else if ([3, 6, 11].includes(houseNumber)) {
-      strength += 1; // Upachaya
-    }
-    
-    // Retrograde consideration
-    if (planet.isRetrograde) {
-      strength += 1; // Retrograde planets are considered stronger
-    }
-    
-    strengths[planetName] = strength;
-  });
+  // Convert birth data to precise format
+  const birthDate = new Date(birthData.date);
+  const [hours, minutes] = birthData.time.split(':').map(Number);
+  const timezone = parseFloat(birthData.timezone) || 5.5; // Default to IST
   
-  return strengths;
-}
-
-function findStrongestPlanet(chart: KundaliChart): string {
-  const strengths = calculatePlanetStrengths(chart);
-  return Object.entries(strengths).reduce((a, b) => strengths[a[0]] > strengths[b[0]] ? a : b)[0];
-}
-
-function getCurrentDasha(birthData: EnhancedBirthData): string {
-  // Simplified Vimshottari Dasha calculation
-  const moonLongitude = 102.23; // This should come from actual moon calculation
-  const nakshatra = Math.floor(moonLongitude / (360/27));
+  const preciseBirthTime: PreciseBirthTime = {
+    year: birthDate.getFullYear(),
+    month: birthDate.getMonth() + 1,
+    day: birthDate.getDate(),
+    hour: hours,
+    minute: minutes,
+    second: 0,
+    timezone
+  };
   
-  const dashaLords = [
-    'Ketu', 'Venus', 'Sun', 'Moon', 'Mars', 'Rahu', 'Jupiter',
-    'Saturn', 'Mercury', 'Ketu', 'Venus', 'Sun', 'Moon', 'Mars',
-    'Rahu', 'Jupiter', 'Saturn', 'Mercury', 'Ketu', 'Venus',
-    'Sun', 'Moon', 'Mars', 'Rahu', 'Jupiter', 'Saturn', 'Mercury'
-  ];
-  
-  return dashaLords[nakshatra] || 'Jupiter';
-}
-
-function getLagnaLord(chart: KundaliChart): string {
-  // chart.ascendant is a number representing the sign
-  const ascendantSign = chart.ascendant;
-  const signLords: { [key: number]: string } = {
-    1: 'Mars', 2: 'Venus', 3: 'Mercury', 4: 'Moon', 5: 'Sun', 6: 'Mercury',
-    7: 'Venus', 8: 'Mars', 9: 'Jupiter', 10: 'Saturn', 11: 'Saturn', 12: 'Jupiter'
-  };
-  return signLords[ascendantSign] || 'Jupiter';
-}
-
-function getSignName(signNumber: number): string {
-  const signs = [
-    'Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo',
-    'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'
-  ];
-  return signs[signNumber - 1] || 'Unknown';
-}
-
-function generateMockData(birthData: EnhancedBirthData, chart: KundaliChart): KundaliData {
-  // Generate mock planets data
-  const planets: PlanetData[] = [
-    { name: 'Sun', sign: 'Leo', house: 5, degree: 15.23, isRetrograde: false, shadbala: 85, strengthGrade: 'Strong' },
-    { name: 'Moon', sign: 'Cancer', house: 4, degree: 22.45, isRetrograde: false, shadbala: 78, strengthGrade: 'Good' },
-    { name: 'Mars', sign: 'Aries', house: 1, degree: 8.67, isRetrograde: false, shadbala: 90, strengthGrade: 'Excellent' },
-    { name: 'Mercury', sign: 'Virgo', house: 6, degree: 12.89, isRetrograde: true, shadbala: 72, strengthGrade: 'Good' },
-    { name: 'Jupiter', sign: 'Sagittarius', house: 9, degree: 25.34, isRetrograde: false, shadbala: 88, strengthGrade: 'Excellent' },
-    { name: 'Venus', sign: 'Libra', house: 7, degree: 18.56, isRetrograde: false, shadbala: 82, strengthGrade: 'Strong' },
-    { name: 'Saturn', sign: 'Capricorn', house: 10, degree: 3.21, isRetrograde: false, shadbala: 75, strengthGrade: 'Good' }
-  ];
-
-  // Generate mock houses data
-  const houses: HouseData[] = Array.from({ length: 12 }, (_, i) => ({
-    number: i + 1,
-    sign: getSignName(((i + chart.ascendant - 1) % 12) + 1),
-    lord: ['Mars', 'Venus', 'Mercury', 'Moon', 'Sun', 'Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn', 'Saturn', 'Jupiter'][i],
-    cusp: i * 30 + Math.random() * 30,
-    significance: [`House ${i + 1} represents various life aspects`]
-  }));
-
-  // Generate mock yogas
-  const yogas: YogaData[] = [
-    { name: 'Raj Yoga', description: 'Royal combination for success', effects: 'Leadership and authority', strength: 85, isPresent: true },
-    { name: 'Gaj Kesari Yoga', description: 'Moon-Jupiter combination', effects: 'Wisdom and prosperity', strength: 70, isPresent: true },
-    { name: 'Panch Mahapurush Yoga', description: 'Great personality yoga', effects: 'Excellence in chosen field', strength: 60, isPresent: false }
-  ];
-
-  // Generate mock dashas
-  const currentDate = new Date();
-  const dashas: DashaData[] = [
-    { planet: 'Jupiter', startDate: new Date(currentDate.getFullYear() - 2, 0, 1), endDate: new Date(currentDate.getFullYear() + 14, 0, 1), years: 16, isActive: true },
-    { planet: 'Saturn', startDate: new Date(currentDate.getFullYear() + 14, 0, 1), endDate: new Date(currentDate.getFullYear() + 33, 0, 1), years: 19, isActive: false }
-  ];
-
-  // Generate personality data
-  const personality: PersonalityData = {
-    traits: ['Analytical', 'Compassionate', 'Determined', 'Creative'],
-    strengths: ['Strong intuition', 'Natural leadership', 'Good communication', 'Spiritual inclination'],
-    weaknesses: ['Tendency to overthink', 'Sometimes impatient', 'Can be too critical'],
-    temperament: 'Balanced with fiery determination'
-  };
-
-  // Generate predictions
-  const predictions: PredictionData = {
-    ageGroups: {
-      '15-30': {
-        period: 'Youth and Learning',
-        generalTrends: ['Focus on education and skill development', 'Building foundation for career'],
-        career: ['Good opportunities in chosen field', 'Possibility of foreign connections'],
-        finance: ['Gradual improvement in financial status', 'Investment opportunities'],
-        relationships: ['Possibility of meaningful relationships', 'Marriage prospects'],
-        health: ['Generally good health', 'Need to maintain work-life balance'],
-        remedies: ['Wear yellow sapphire', 'Chant Jupiter mantras']
-      },
-      '30-50': {
-        period: 'Career and Family',
-        generalTrends: ['Peak career phase', 'Family responsibilities increase'],
-        career: ['Leadership positions possible', 'Business ventures may succeed'],
-        finance: ['Significant financial growth', 'Property investments'],
-        relationships: ['Stable family life', 'Children bring joy'],
-        health: ['Monitor stress levels', 'Regular health checkups needed'],
-        remedies: ['Donate to education causes', 'Practice meditation']
-      }
-    }
-  };
-
-  // Generate remedies
-  const remedies: RemedyData = {
-    gemstones: ['Yellow Sapphire for Jupiter', 'Red Coral for Mars', 'Pearl for Moon'],
-    mantras: ['Om Gam Ganapataye Namaha', 'Om Namah Shivaya', 'Gayatri Mantra'],
-    charity: ['Donate yellow items on Thursdays', 'Feed cows', 'Support education'],
-    rituals: ['Light lamp daily', 'Visit temple regularly', 'Fast on appropriate days']
-  };
-
-  // Get Moon and Sun signs from actual chart data
-  const moonPlanet = chart.planets['Moon'];
-  const sunPlanet = chart.planets['Sun'];
-
-  return {
-    birthData,
-    chart,
-    personalInfo: birthData,
-    planets,
-    houses,
-    yogas,
-    dashas,
-    personality,
-    predictions,
-    remedies,
-    lagna: {
-      sign: getSignName(chart.ascendant),
-      degree: 0, // chart.ascendant is just the sign number, so degree is 0 for now
-      lord: getLagnaLord(chart)
-    },
-    strengthestPlanet: findStrongestPlanet(chart),
-    currentDasha: getCurrentDasha(birthData),
-    lagnaLord: getLagnaLord(chart),
-    moonSign: moonPlanet ? getSignName(moonPlanet.sign) : 'Unknown',
-    sunSign: sunPlanet ? getSignName(sunPlanet.sign) : 'Unknown'
-  };
-}
-
-export function generateDetailedKundali(birthData: EnhancedBirthData): KundaliData {
-  console.log('Generating Kundali with coordinates:', {
+  const coordinates: PreciseCoordinates = {
     latitude: birthData.latitude,
-    longitude: birthData.longitude,
-    date: birthData.date,
-    time: birthData.time
+    longitude: birthData.longitude
+  };
+  
+  // Calculate Julian Day
+  const julianDay = calculateJulianDay(preciseBirthTime);
+  
+  // Enhanced calculations
+  const planets = calculatePlanetaryPositions(julianDay);
+  const lagna = calculateAscendant(julianDay, coordinates);
+  const houses = calculateHouseCusps(julianDay, coordinates, lagna.longitude);
+  const dashas = calculateVimshottariDasha(julianDay, planets.MO.longitude);
+  const yogas = calculateAdvancedYogas(planets, houses, lagna);
+  
+  // Assign planets to houses
+  houses.forEach(house => {
+    Object.values(planets).forEach(planet => {
+      const planetHouse = Math.floor(((planet.rashi - lagna.sign + 12) % 12) + 1);
+      if (planetHouse === house.number) {
+        house.planetsInHouse.push(planet.name);
+      }
+    });
   });
   
-  // Convert to BirthData format for the chart generation
+  // Generate basic chart for compatibility
   const chartData: BirthData = {
     fullName: birthData.fullName,
     date: birthData.date,
@@ -297,9 +229,505 @@ export function generateDetailedKundali(birthData: EnhancedBirthData): KundaliDa
     timezone: birthData.timezone
   };
   
-  // Generate the chart using the enhanced birth data with proper coordinates
-  const chart = generateKundaliChart(chartData);
+  const basicChart = generateKundaliChart(chartData);
   
-  // Generate comprehensive kundali data
-  return generateMockData(birthData, chart);
+  // Generate interpretations
+  const personality = generatePersonalityAnalysis(planets, lagna, houses, yogas);
+  const predictions = generateLifePhasePredictions(planets, lagna, houses, dashas);
+  const remedies = generateRemedySuggestions(planets, lagna, yogas);
+  const compatibility = generateCompatibilityFactors(planets, lagna, houses);
+  
+  // Generate additional charts (simplified for now)
+  const additionalCharts = {
+    navamsa: generateNavamsaChart(planets),
+    dashamsa: generateDashamshChart(planets),
+    dwadhamsa: generateDwadhamshChart(planets)
+  };
+  
+  return {
+    birthData,
+    basicChart,
+    enhancedCalculations: {
+      lagna,
+      planets,
+      houses,
+      dashas,
+      yogas,
+      ayanamsa: 23.85, // Simplified
+      julianDay
+    },
+    interpretations: {
+      personality,
+      predictions,
+      remedies,
+      compatibility
+    },
+    additionalCharts
+  };
+}
+
+function generatePersonalityAnalysis(
+  planets: Record<string, PlanetaryPosition>,
+  lagna: LagnaData,
+  houses: HouseData[],
+  yogas: YogaDetails[]
+): PersonalityAnalysis {
+  const sun = planets.SU;
+  const moon = planets.MO;
+  const mars = planets.MA;
+  const mercury = planets.ME;
+  
+  const coreTraits = [];
+  const strengths = [];
+  const challenges = [];
+  
+  // Analyze based on Lagna
+  switch (lagna.sign) {
+    case 0: // Aries
+      coreTraits.push('Dynamic leadership', 'Pioneering spirit', 'High energy');
+      strengths.push('Initiative', 'Courage', 'Independence');
+      challenges.push('Impatience', 'Impulsiveness');
+      break;
+    case 1: // Taurus
+      coreTraits.push('Stability seeking', 'Practical approach', 'Artistic nature');
+      strengths.push('Persistence', 'Reliability', 'Aesthetic sense');
+      challenges.push('Stubbornness', 'Resistance to change');
+      break;
+    // ... continue for all signs
+    default:
+      coreTraits.push('Unique personality traits');
+      strengths.push('Individual strengths');
+      challenges.push('Areas for growth');
+  }
+  
+  // Analyze based on Moon sign
+  const mentalMakeup = getMentalMakeupFromMoon(moon.rashi);
+  
+  // Analyze based on benefic yogas
+  yogas.forEach(yoga => {
+    if (yoga.type === 'benefic' && yoga.isActive) {
+      strengths.push(`${yoga.name} brings ${yoga.effects.join(', ')}`);
+    }
+  });
+  
+  return {
+    coreTraits,
+    strengths,
+    challenges,
+    mentalMakeup,
+    physicalAttributes: getPhysicalAttributes(lagna.sign),
+    careerAptitude: getCareerAptitude(planets, houses),
+    relationshipStyle: getRelationshipStyle(planets.VE.rashi, houses[6]),
+    spiritualInclination: getSpiritualInclination(planets.JU.rashi, houses[8])
+  };
+}
+
+function generateLifePhasePredictions(
+  planets: Record<string, PlanetaryPosition>,
+  lagna: LagnaData,
+  houses: HouseData[],
+  dashas: DashaDetails[]
+): LifePhasePredictions {
+  return {
+    childhood: {
+      ageRange: '0-16 years',
+      generalTrends: ['Foundation building', 'Educational focus', 'Family influence strong'],
+      career: ['Academic excellence', 'Talent development', 'Early interests emerge'],
+      finance: ['Dependent on family', 'Basic needs fulfilled'],
+      relationships: ['Family bonds', 'Friendship formation', 'Early social skills'],
+      health: ['Generally good health', 'Building immunity', 'Growth phase'],
+      majorEvents: ['Educational milestones', 'Skill development'],
+      opportunities: ['Learning opportunities', 'Talent recognition'],
+      challenges: ['Academic pressure', 'Social adjustment']
+    },
+    youth: {
+      ageRange: '16-35 years',
+      generalTrends: ['Career establishment', 'Independence', 'Major life decisions'],
+      career: ['Professional growth', 'Skill enhancement', 'Career changes possible'],
+      finance: ['Income growth', 'Investment beginning', 'Financial independence'],
+      relationships: ['Romantic relationships', 'Marriage possibilities', 'Social expansion'],
+      health: ['Peak physical health', 'Lifestyle establishment'],
+      majorEvents: ['Career milestones', 'Marriage', 'Major purchases'],
+      opportunities: ['Career advancement', 'Skill development', 'Network building'],
+      challenges: ['Career competition', 'Relationship decisions', 'Financial planning']
+    },
+    adulthood: {
+      ageRange: '35-55 years',
+      generalTrends: ['Peak career phase', 'Family responsibilities', 'Wealth accumulation'],
+      career: ['Leadership roles', 'Business expansion', 'Expert status'],
+      finance: ['Wealth peak', 'Investment maturity', 'Property acquisition'],
+      relationships: ['Stable partnerships', 'Children focus', 'Social responsibility'],
+      health: ['Health awareness needed', 'Preventive care important'],
+      majorEvents: ['Business success', 'Property investments', 'Children\'s education'],
+      opportunities: ['Leadership opportunities', 'Wealth creation', 'Social impact'],
+      challenges: ['Work-life balance', 'Health maintenance', 'Family responsibilities']
+    },
+    maturity: {
+      ageRange: '55+ years',
+      generalTrends: ['Wisdom phase', 'Spiritual focus', 'Legacy building'],
+      career: ['Mentoring roles', 'Reduced work', 'Advisory positions'],
+      finance: ['Wealth preservation', 'Inheritance planning', 'Charitable giving'],
+      relationships: ['Grandparent role', 'Deep friendships', 'Community service'],
+      health: ['Health focus critical', 'Chronic condition management'],
+      majorEvents: ['Retirement', 'Spiritual pursuits', 'Legacy projects'],
+      opportunities: ['Spiritual growth', 'Teaching others', 'Social contribution'],
+      challenges: ['Health issues', 'Generation gap', 'Technology adaptation']
+    }
+  };
+}
+
+function generateRemedySuggestions(
+  planets: Record<string, PlanetaryPosition>,
+  lagna: LagnaData,
+  yogas: YogaDetails[]
+): RemedySuggestions {
+  const gemstones: GemstoneRecommendation[] = [];
+  const mantras: MantraRecommendation[] = [];
+  const charities: CharityRecommendation[] = [];
+  const rituals: RitualRecommendation[] = [];
+  
+  // Find weakest planet for gemstone recommendation
+  let weakestPlanet = 'SU';
+  let lowestStrength = 100;
+  
+  Object.entries(planets).forEach(([planetId, planet]) => {
+    if (planet.shadbala < lowestStrength) {
+      lowestStrength = planet.shadbala;
+      weakestPlanet = planetId;
+    }
+  });
+  
+  // Recommend gemstone for weakest planet
+  const gemstoneMap: Record<string, any> = {
+    'SU': { stone: 'Ruby', weight: '3-5 carats', metal: 'Gold', finger: 'Ring', day: 'Sunday' },
+    'MO': { stone: 'Pearl', weight: '4-6 carats', metal: 'Silver', finger: 'Little', day: 'Monday' },
+    'MA': { stone: 'Red Coral', weight: '5-7 carats', metal: 'Gold/Copper', finger: 'Ring', day: 'Tuesday' },
+    'ME': { stone: 'Emerald', weight: '3-5 carats', metal: 'Gold', finger: 'Little', day: 'Wednesday' },
+    'JU': { stone: 'Yellow Sapphire', weight: '4-6 carats', metal: 'Gold', finger: 'Index', day: 'Thursday' },
+    'VE': { stone: 'Diamond', weight: '1-2 carats', metal: 'Platinum/Gold', finger: 'Middle', day: 'Friday' },
+    'SA': { stone: 'Blue Sapphire', weight: '4-6 carats', metal: 'Silver', finger: 'Middle', day: 'Saturday' }
+  };
+  
+  if (gemstoneMap[weakestPlanet]) {
+    const gem = gemstoneMap[weakestPlanet];
+    gemstones.push({
+      stone: gem.stone,
+      planet: planets[weakestPlanet].name,
+      weight: gem.weight,
+      metal: gem.metal,
+      finger: gem.finger,
+      day: gem.day,
+      mantra: `Om ${planets[weakestPlanet].name}aya Namaha`,
+      benefits: ['Strengthen planet', 'Improve related life areas', 'Enhance positive qualities']
+    });
+  }
+  
+  // Add mantras for all planets
+  Object.entries(planets).forEach(([planetId, planet]) => {
+    const mantraMap: Record<string, any> = {
+      'SU': { mantra: 'Om Suryaya Namaha', count: 7000 },
+      'MO': { mantra: 'Om Chandraya Namaha', count: 11000 },
+      'MA': { mantra: 'Om Angarakaya Namaha', count: 10000 },
+      'ME': { mantra: 'Om Budhaya Namaha', count: 9000 },
+      'JU': { mantra: 'Om Brihaspataye Namaha', count: 19000 },
+      'VE': { mantra: 'Om Shukraya Namaha', count: 16000 },
+      'SA': { mantra: 'Om Shanaye Namaha', count: 23000 }
+    };
+    
+    if (mantraMap[planetId] && planet.shadbala < 60) {
+      mantras.push({
+        mantra: mantraMap[planetId].mantra,
+        planet: planet.name,
+        count: mantraMap[planetId].count,
+        timing: 'During planet\'s hora',
+        duration: '40 days',
+        benefits: [`Strengthen ${planet.name}`, 'Remove negative effects', 'Enhance positive qualities']
+      });
+    }
+  });
+  
+  return {
+    gemstones,
+    mantras,
+    charities,
+    rituals,
+    lifestyle: [
+      {
+        category: 'Daily Routine',
+        recommendations: ['Wake up early', 'Regular meditation', 'Healthy diet'],
+        benefits: ['Improved health', 'Mental clarity', 'Spiritual growth']
+      }
+    ],
+    colors: [
+      {
+        color: 'Orange/Red',
+        planet: 'Sun',
+        usage: 'Wear on Sundays',
+        benefits: ['Confidence boost', 'Leadership qualities']
+      }
+    ],
+    directions: [
+      {
+        direction: 'East',
+        planet: 'Sun',
+        usage: 'Face east during meditation',
+        benefits: ['Positive energy', 'Spiritual growth']
+      }
+    ]
+  };
+}
+
+function generateCompatibilityFactors(
+  planets: Record<string, PlanetaryPosition>,
+  lagna: LagnaData,
+  houses: HouseData[]
+): CompatibilityFactors {
+  return {
+    marriageCompatibility: {
+      idealPartnerTraits: ['Understanding', 'Supportive', 'Compatible values'],
+      compatibleSigns: getCompatibleSigns(lagna.sign),
+      mangalDoshaStatus: checkMangalDosha(planets, lagna),
+      recommendedAge: getRecommendedMarriageAge(planets, houses),
+      importantConsiderations: ['Mangal dosha matching', 'Guna matching', 'Family compatibility']
+    },
+    businessPartnership: {
+      idealPartnerTraits: ['Complementary skills', 'Trustworthy', 'Shared vision'],
+      suitableBusinessTypes: getSuitableBusinessTypes(planets, houses),
+      partnership: ['Equal partnership works well', 'Clear role definition needed'],
+      leadership: ['Natural leadership qualities', 'Good decision making']
+    },
+    friendshipCompatibility: {
+      idealFriendTraits: ['Loyal', 'Understanding', 'Supportive'],
+      socialBehavior: ['Friendly nature', 'Good communication', 'Helpful attitude'],
+      loyaltyFactors: ['Long-term friendships', 'Reliable in crisis', 'Trustworthy']
+    }
+  };
+}
+
+// Helper functions
+function getMentalMakeupFromMoon(moonSign: number): string {
+  const moonTraits = [
+    'Energetic and quick-thinking', 'Stable and practical', 'Curious and communicative',
+    'Emotional and intuitive', 'Creative and confident', 'Analytical and perfectionist',
+    'Balanced and diplomatic', 'Intense and transformative', 'Philosophical and optimistic',
+    'Disciplined and ambitious', 'Innovative and humanitarian', 'Intuitive and spiritual'
+  ];
+  return moonTraits[moonSign] || 'Balanced mental approach';
+}
+
+function getPhysicalAttributes(lagnaSign: number): string[] {
+  const attributes = [
+    ['Medium height', 'Athletic build', 'Sharp features'],
+    ['Sturdy build', 'Beautiful features', 'Pleasant appearance'],
+    ['Tall stature', 'Agile body', 'Expressive eyes'],
+    ['Medium height', 'Round face', 'Soft features'],
+    ['Tall and majestic', 'Strong build', 'Radiant personality'],
+    ['Medium height', 'Well-proportioned', 'Refined features'],
+    ['Tall and graceful', 'Symmetrical features', 'Charming appearance'],
+    ['Medium height', 'Intense eyes', 'Magnetic personality'],
+    ['Tall stature', 'Athletic build', 'Open features'],
+    ['Medium height', 'Lean build', 'Sharp features'],
+    ['Tall height', 'Unique features', 'Attractive personality'],
+    ['Medium height', 'Soft features', 'Kind expression']
+  ];
+  return attributes[lagnaSign] || ['Balanced physical features'];
+}
+
+function getCareerAptitude(planets: Record<string, PlanetaryPosition>, houses: HouseData[]): string[] {
+  const aptitudes = [];
+  
+  // Check 10th house for career indications
+  const tenthHouse = houses[9]; // 0-indexed
+  const tenthHousePlanets = tenthHouse.planetsInHouse;
+  
+  if (tenthHousePlanets.includes('Sun')) {
+    aptitudes.push('Government service', 'Leadership roles', 'Administration');
+  }
+  if (tenthHousePlanets.includes('Moon')) {
+    aptitudes.push('Public dealing', 'Hospitality', 'Healthcare');
+  }
+  if (tenthHousePlanets.includes('Mars')) {
+    aptitudes.push('Engineering', 'Military', 'Sports', 'Technology');
+  }
+  if (tenthHousePlanets.includes('Mercury')) {
+    aptitudes.push('Communication', 'Writing', 'Business', 'Teaching');
+  }
+  if (tenthHousePlanets.includes('Jupiter')) {
+    aptitudes.push('Education', 'Law', 'Finance', 'Counseling');
+  }
+  if (tenthHousePlanets.includes('Venus')) {
+    aptitudes.push('Arts', 'Entertainment', 'Fashion', 'Luxury goods');
+  }
+  if (tenthHousePlanets.includes('Saturn')) {
+    aptitudes.push('Construction', 'Mining', 'Agriculture', 'Social service');
+  }
+  
+  if (aptitudes.length === 0) {
+    aptitudes.push('Versatile career options', 'Multi-talented', 'Adaptable to various fields');
+  }
+  
+  return aptitudes;
+}
+
+function getRelationshipStyle(venusSign: number, seventhHouse: HouseData): string {
+  const styles = [
+    'Passionate and direct in relationships',
+    'Loyal and committed partner',
+    'Communicative and friendly',
+    'Nurturing and caring',
+    'Generous and romantic',
+    'Practical and supportive',
+    'Balanced and harmonious',
+    'Intense and transformative',
+    'Adventurous and freedom-loving',
+    'Responsible and committed',
+    'Unique and unconventional',
+    'Compassionate and understanding'
+  ];
+  return styles[venusSign] || 'Balanced relationship approach';
+}
+
+function getSpiritualInclination(jupiterSign: number, eighthHouse: HouseData): string {
+  const inclinations = [
+    'Direct spiritual approach, action-oriented practices',
+    'Traditional and ritualistic spiritual practices',
+    'Intellectual approach to spirituality, study-oriented',
+    'Devotional and emotional spiritual connection',
+    'Creative and joyful spiritual expression',
+    'Practical and service-oriented spirituality',
+    'Balanced and harmonious spiritual practices',
+    'Deep and transformative spiritual experiences',
+    'Philosophical and knowledge-seeking approach',
+    'Disciplined and structured spiritual practices',
+    'Unique and unconventional spiritual path',
+    'Compassionate and universal spiritual outlook'
+  ];
+  return inclinations[jupiterSign] || 'Balanced spiritual approach';
+}
+
+function getCompatibleSigns(lagnaSign: number): string[] {
+  const compatibility = [
+    ['Leo', 'Sagittarius', 'Gemini', 'Aquarius'], // Aries
+    ['Virgo', 'Capricorn', 'Cancer', 'Pisces'], // Taurus
+    ['Libra', 'Aquarius', 'Leo', 'Aries'], // Gemini
+    ['Scorpio', 'Pisces', 'Virgo', 'Taurus'], // Cancer
+    ['Sagittarius', 'Aries', 'Libra', 'Gemini'], // Leo
+    ['Capricorn', 'Taurus', 'Scorpio', 'Cancer'], // Virgo
+    ['Aquarius', 'Gemini', 'Sagittarius', 'Leo'], // Libra
+    ['Pisces', 'Cancer', 'Capricorn', 'Virgo'], // Scorpio
+    ['Aries', 'Leo', 'Aquarius', 'Libra'], // Sagittarius
+    ['Taurus', 'Virgo', 'Pisces', 'Scorpio'], // Capricorn
+    ['Gemini', 'Libra', 'Aries', 'Sagittarius'], // Aquarius
+    ['Cancer', 'Scorpio', 'Taurus', 'Capricorn'] // Pisces
+  ];
+  return compatibility[lagnaSign] || ['Compatible with most signs'];
+}
+
+function checkMangalDosha(planets: Record<string, PlanetaryPosition>, lagna: LagnaData): string {
+  const mars = planets.MA;
+  const marsHouse = Math.floor(((mars.rashi - lagna.sign + 12) % 12) + 1);
+  
+  if ([1, 4, 7, 8, 12].includes(marsHouse)) {
+    return 'Present - requires matching with similar dosha or remedies';
+  }
+  return 'Absent - no Mangal dosha';
+}
+
+function getRecommendedMarriageAge(planets: Record<string, PlanetaryPosition>, houses: HouseData[]): string {
+  // Simplified calculation based on 7th house and Venus
+  const venus = planets.VE;
+  const seventhHouse = houses[6];
+  
+  if (venus.shadbala > 70 && seventhHouse.planetsInHouse.length > 0) {
+    return '23-28 years (favorable period)';
+  } else if (venus.shadbala < 50) {
+    return '28-32 years (after strengthening Venus)';
+  }
+  return '25-30 years (normal period)';
+}
+
+function getSuitableBusinessTypes(planets: Record<string, PlanetaryPosition>, houses: HouseData[]): string[] {
+  const businesses = [];
+  const tenthHouse = houses[9];
+  
+  if (tenthHouse.planetsInHouse.includes('Mercury')) {
+    businesses.push('Communication', 'IT', 'Trading', 'Education');
+  }
+  if (tenthHouse.planetsInHouse.includes('Venus')) {
+    businesses.push('Luxury goods', 'Entertainment', 'Fashion', 'Arts');
+  }
+  if (tenthHouse.planetsInHouse.includes('Jupiter')) {
+    businesses.push('Consulting', 'Finance', 'Education', 'Spiritual services');
+  }
+  if (tenthHouse.planetsInHouse.includes('Mars')) {
+    businesses.push('Technology', 'Real estate', 'Manufacturing', 'Sports');
+  }
+  
+  if (businesses.length === 0) {
+    businesses.push('Service industry', 'Consulting', 'General business');
+  }
+  
+  return businesses;
+}
+
+function generateNavamsaChart(planets: Record<string, PlanetaryPosition>): any {
+  // Simplified Navamsa calculation
+  const navamsaChart: any = {};
+  
+  Object.entries(planets).forEach(([planetId, planet]) => {
+    const navamsaPosition = (planet.longitude * 9) % 360;
+    const navamsaSign = Math.floor(navamsaPosition / 30);
+    
+    navamsaChart[planetId] = {
+      sign: navamsaSign,
+      signName: getSignName(navamsaSign),
+      longitude: navamsaPosition
+    };
+  });
+  
+  return navamsaChart;
+}
+
+function generateDashamshChart(planets: Record<string, PlanetaryPosition>): any {
+  // Simplified D10 calculation for career
+  const dashamshChart: any = {};
+  
+  Object.entries(planets).forEach(([planetId, planet]) => {
+    const dashamshPosition = (planet.longitude * 10) % 360;
+    const dashamshSign = Math.floor(dashamshPosition / 30);
+    
+    dashamshChart[planetId] = {
+      sign: dashamshSign,
+      signName: getSignName(dashamshSign),
+      longitude: dashamshPosition
+    };
+  });
+  
+  return dashamshChart;
+}
+
+function generateDwadhamshChart(planets: Record<string, PlanetaryPosition>): any {
+  // Simplified D12 calculation for parents
+  const dwadhamshChart: any = {};
+  
+  Object.entries(planets).forEach(([planetId, planet]) => {
+    const dwadhamshPosition = (planet.longitude * 12) % 360;
+    const dwadhamshSign = Math.floor(dwadhamshPosition / 30);
+    
+    dwadhamshChart[planetId] = {
+      sign: dwadhamshSign,
+      signName: getSignName(dwadhamshSign),
+      longitude: dwadhamshPosition
+    };
+  });
+  
+  return dwadhamshChart;
+}
+
+function getSignName(index: number): string {
+  const signs = [
+    'Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo',
+    'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'
+  ];
+  return signs[index] || 'Unknown';
 }
