@@ -1,11 +1,13 @@
 import { BirthData, generateKundaliChart, KundaliChart } from './kundaliUtils';
 
-export interface EnhancedBirthData extends BirthData {
+export interface EnhancedBirthData {
   fullName: string;
   date: Date;
   time: string;
   place: string;
-  timezone?: string;
+  latitude: number;
+  longitude: number;
+  timezone: string;
 }
 
 export interface PlanetData {
@@ -283,8 +285,19 @@ export function generateDetailedKundali(birthData: EnhancedBirthData): KundaliDa
     time: birthData.time
   });
   
+  // Convert to BirthData format for the chart generation
+  const chartData: BirthData = {
+    name: birthData.fullName,
+    dateOfBirth: birthData.date,
+    timeOfBirth: birthData.time,
+    placeOfBirth: birthData.place,
+    latitude: birthData.latitude,
+    longitude: birthData.longitude,
+    timezone: birthData.timezone
+  };
+  
   // Generate the chart using the enhanced birth data with proper coordinates
-  const chart = generateKundaliChart(birthData);
+  const chart = generateKundaliChart(chartData);
   
   // Generate comprehensive kundali data
   return generateMockData(birthData, chart);

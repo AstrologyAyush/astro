@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -13,9 +14,9 @@ const DetailedKundaliDisplay: React.FC<DetailedKundaliDisplayProps> = ({ kundali
   // Find strongest planet
   const findStrongestPlanet = () => {
     let strongest = { name: '', strength: 0 };
-    Object.entries(kundaliData.planets).forEach(([name, planet]) => {
+    kundaliData.planets.forEach((planet) => {
       if (planet.shadbala && planet.shadbala > strongest.strength) {
-        strongest = { name, strength: planet.shadbala };
+        strongest = { name: planet.name, strength: planet.shadbala };
       }
     });
     return strongest;
@@ -35,9 +36,9 @@ const DetailedKundaliDisplay: React.FC<DetailedKundaliDisplayProps> = ({ kundali
             Complete Vedic Kundali Analysis
           </CardTitle>
           <div className="text-center text-gray-600">
-            <p className="text-lg font-semibold">{kundaliData.personalInfo.name}</p>
-            <p>Born: {kundaliData.personalInfo.dateOfBirth.toLocaleDateString()} at {kundaliData.personalInfo.timeOfBirth}</p>
-            <p>Place: {kundaliData.personalInfo.placeOfBirth}</p>
+            <p className="text-lg font-semibold">{kundaliData.personalInfo.fullName}</p>
+            <p>Born: {kundaliData.personalInfo.date.toLocaleDateString()} at {kundaliData.personalInfo.time}</p>
+            <p>Place: {kundaliData.personalInfo.place}</p>
           </div>
         </CardHeader>
       </Card>
