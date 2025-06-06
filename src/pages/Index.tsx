@@ -55,7 +55,7 @@ const Index = () => {
       const result = generateComprehensiveKundali(enhancedBirthData);
       setKundaliData(result);
       
-      // Save to Supabase - fix the insert to match the actual table structure
+      // Save to Supabase - using direct insert without type checking
       try {
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
@@ -64,15 +64,22 @@ const Index = () => {
             .from('profiles')
             .select('id')
             .eq('user_id', user.id)
-            .single();
+            .maybeSingle();
 
-          await supabase.from('kundali_reports').insert({
-            user_id: user.id,
-            profile_id: profile?.id || null,
-            name: birthData.name,
-            birth_data: enhancedBirthData,
-            kundali_data: result
-          });
+          // Use raw insert to bypass TypeScript type issues
+          const { error: insertError } = await supabase
+            .from('kundali_reports')
+            .insert([{
+              user_id: user.id,
+              profile_id: profile?.id || null,
+              name: birthData.name,
+              birth_data: enhancedBirthData,
+              kundali_data: result
+            }]);
+
+          if (insertError) {
+            console.error('Error saving kundali:', insertError);
+          }
         }
       } catch (error) {
         console.error('Error saving kundali:', error);
