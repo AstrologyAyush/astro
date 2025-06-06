@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -60,6 +59,15 @@ const Index = () => {
       await new Promise(resolve => setTimeout(resolve, 3000));
       
       const result = generateComprehensiveKundali(enhancedBirthData);
+      
+      // Enhanced yoga calculation to ensure accurate active yogas
+      if (result.enhancedCalculations.yogas) {
+        result.enhancedCalculations.yogas = result.enhancedCalculations.yogas.map(yoga => ({
+          ...yoga,
+          isActive: yoga.strength > 60 && yoga.present // More accurate active yoga detection
+        }));
+      }
+      
       setKundaliData(result);
       
       // Save to Supabase with enhanced error handling
@@ -119,7 +127,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50">
-      <div className="container mx-auto px-2 md:px-4 py-4 md:py-8 max-w-7xl">
+      <div className="container mx-auto px-2 sm:px-4 md:px-6 lg:px-8 py-4 md:py-8 max-w-7xl">
         {/* Enhanced Header */}
         <HeroSection language={language} />
 
@@ -129,44 +137,46 @@ const Index = () => {
         {/* Main Content */}
         {!kundaliData ? (
           <Tabs defaultValue="kundali" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 mb-6 md:mb-8 mx-2 md:mx-0">
-              <TabsTrigger value="kundali" className="flex items-center gap-1 md:gap-2 text-xs md:text-sm px-2 md:px-4">
-                <Star className="h-3 w-3 md:h-4 md:w-4" />
+            <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 mb-4 md:mb-6 mx-2 md:mx-0 h-auto">
+              <TabsTrigger value="kundali" className="flex flex-col sm:flex-row items-center gap-1 text-xs sm:text-sm px-2 py-2 sm:py-3">
+                <Star className="h-3 w-3 sm:h-4 sm:w-4" />
                 <span className="hidden sm:inline">{getTranslation('Complete Kundali', 'संपूर्ण कुंडली')}</span>
-                <span className="sm:hidden">{getTranslation('Kundali', 'कुंडली')}</span>
+                <span className="sm:hidden text-center">{getTranslation('Kundali', 'कुंडली')}</span>
               </TabsTrigger>
-              <TabsTrigger value="numerology" className="flex items-center gap-1 md:gap-2 text-xs md:text-sm px-2 md:px-4">
-                <Hash className="h-3 w-3 md:h-4 md:w-4" />
+              <TabsTrigger value="numerology" className="flex flex-col sm:flex-row items-center gap-1 text-xs sm:text-sm px-2 py-2 sm:py-3">
+                <Hash className="h-3 w-3 sm:h-4 sm:w-4" />
                 <span className="hidden sm:inline">{getTranslation('Numerology', 'न्यूमेरोलॉजी')}</span>
-                <span className="sm:hidden">{getTranslation('Numbers', 'अंक')}</span>
+                <span className="sm:hidden text-center">{getTranslation('Numbers', 'अंक')}</span>
               </TabsTrigger>
-              <TabsTrigger value="personality" className="flex items-center gap-1 md:gap-2 text-xs md:text-sm px-2 md:px-4">
-                <Calculator className="h-3 w-3 md:h-4 md:w-4" />
+              <TabsTrigger value="personality" className="flex flex-col sm:flex-row items-center gap-1 text-xs sm:text-sm px-2 py-2 sm:py-3">
+                <Calculator className="h-3 w-3 sm:h-4 sm:w-4" />
                 <span className="hidden sm:inline">{getTranslation('Personality Test', 'व्यक्तित्व परीक्षण')}</span>
-                <span className="sm:hidden">{getTranslation('Test', 'परीक्षण')}</span>
+                <span className="sm:hidden text-center">{getTranslation('Test', 'परीक्षण')}</span>
               </TabsTrigger>
-              <TabsTrigger value="horoscope" className="flex items-center gap-1 md:gap-2 text-xs md:text-sm px-2 md:px-4">
-                <Sun className="h-3 w-3 md:h-4 md:w-4" />
+              <TabsTrigger value="horoscope" className="flex flex-col sm:flex-row items-center gap-1 text-xs sm:text-sm px-2 py-2 sm:py-3">
+                <Sun className="h-3 w-3 sm:h-4 sm:w-4" />
                 <span className="hidden sm:inline">{getTranslation('Daily Horoscope', 'दैनिक राशिफल')}</span>
-                <span className="sm:hidden">{getTranslation('Daily', 'दैनिक')}</span>
+                <span className="sm:hidden text-center">{getTranslation('Daily', 'दैनिक')}</span>
               </TabsTrigger>
             </TabsList>
 
             <TabsContent value="kundali" data-testid="kundali-section">
               <Card className="max-w-2xl mx-auto shadow-lg">
-                <CardHeader className="bg-gradient-to-r from-orange-100 to-red-100 p-4 md:p-6">
-                  <CardTitle className="text-center text-xl md:text-2xl text-gray-800 flex items-center justify-center gap-2">
-                    <Crown className="h-5 w-5 md:h-6 md:w-6 text-orange-600" />
-                    {getTranslation('Generate Advanced Complete Kundali', 'उन्नत संपूर्ण कुंडली बनवाएं')}
+                <CardHeader className="bg-gradient-to-r from-orange-100 to-red-100 p-3 sm:p-4 md:p-6">
+                  <CardTitle className="text-center text-lg sm:text-xl md:text-2xl text-gray-800 flex items-center justify-center gap-2">
+                    <Crown className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 text-orange-600" />
+                    <span className="text-center leading-tight">
+                      {getTranslation('Generate Advanced Complete Kundali', 'उन्नत संपूर्ण कुंडली बनवाएं')}
+                    </span>
                   </CardTitle>
-                  <p className="text-center text-gray-600 mt-2 text-sm md:text-base px-2">
+                  <p className="text-center text-gray-600 mt-2 text-xs sm:text-sm md:text-base px-2">
                     {getTranslation(
                       'Detailed 90+ page analysis with Swiss Ephemeris precision',
                       'Swiss Ephemeris की सटीकता के साथ 90+ पेज का विस्तृत विश्लेषण'
                     )}
                   </p>
                 </CardHeader>
-                <CardContent className="p-4 md:p-6">
+                <CardContent className="p-3 sm:p-4 md:p-6">
                   <BirthDataForm 
                     onSubmit={handleKundaliGeneration}
                     isLoading={isLoading}
@@ -208,8 +218,8 @@ const Index = () => {
         <AccuracyStatement language={language} kundaliData={kundaliData} />
 
         {/* Footer */}
-        <footer className="mt-12 md:mt-16 text-center py-6 md:py-8 border-t border-gray-200 mx-4">
-          <p className="text-gray-600 text-sm">
+        <footer className="mt-8 md:mt-12 text-center py-4 md:py-6 border-t border-gray-200 mx-2 sm:mx-4">
+          <p className="text-gray-600 text-xs sm:text-sm">
             © 2025 AyuAstro. All rights reserved.
           </p>
         </footer>

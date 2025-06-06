@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { Send, Bot, User, Sparkles, Crown } from "lucide-react";
+import { Send, Bot, User, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { ComprehensiveKundaliData } from '@/lib/advancedKundaliEngine';
 import { useToast } from "@/hooks/use-toast";
@@ -128,7 +128,7 @@ Ask me about any aspect of your life - career, marriage, health, wealth, or spir
 
       setMessages(prev => [...prev, aiMessage]);
 
-      // Save conversation to database - FIX: Convert kundaliData to JSON
+      // Save conversation to database with proper type casting
       await supabase.from('rishi_parasher_conversations').insert({
         user_question: inputValue,
         rishi_response: data.analysis,
@@ -188,47 +188,64 @@ Ask me about any aspect of your life - career, marriage, health, wealth, or spir
   ];
 
   return (
-    <Card className="h-[500px] flex flex-col bg-gradient-to-br from-orange-50 to-red-50 border-orange-200">
-      <CardHeader className="pb-3 bg-gradient-to-r from-orange-100 to-red-100">
-        <CardTitle className="flex items-center gap-2 text-orange-800">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center">
-            <Crown className="h-4 w-4 text-white" />
+    <Card className="h-[400px] sm:h-[450px] md:h-[500px] flex flex-col bg-gradient-to-br from-orange-50 to-red-50 border-orange-200">
+      <CardHeader className="pb-3 bg-gradient-to-r from-orange-100 to-red-100 px-3 sm:px-4 md:px-6">
+        <CardTitle className="flex items-center gap-2 text-orange-800 text-sm sm:text-base md:text-lg">
+          <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center overflow-hidden">
+            <img 
+              src="/lovable-uploads/8cb18da4-1ec3-40d2-8e2d-5f0efcfc10da.png" 
+              alt="Rishi Parasher" 
+              className="w-full h-full object-cover"
+            />
           </div>
-          {language === 'hi' ? "महर्षि पराशर - वैदिक ज्योतिष गुरु" : "Maharishi Parashar - Vedic Astrology Sage"}
+          <span className="hidden sm:inline">
+            {language === 'hi' ? "महर्षि पराशर - वैदिक ज्योतिष गुरु" : "Maharishi Parashar - Vedic Astrology Sage"}
+          </span>
+          <span className="sm:hidden">
+            {language === 'hi' ? "महर्षि पराशर" : "Rishi Parashar"}
+          </span>
         </CardTitle>
         <div className="flex flex-wrap gap-1">
-          {suggestedQuestions.slice(0, 3).map((question, index) => (
+          {suggestedQuestions.slice(0, 2).map((question, index) => (
             <Badge 
               key={index} 
               variant="outline" 
               className="cursor-pointer hover:bg-orange-200 text-xs border-orange-300 text-orange-700 hover:text-orange-900 bg-orange-50 px-2 py-1"
               onClick={() => setInputValue(question)}
             >
-              {question}
+              {question.length > 30 ? `${question.substring(0, 30)}...` : question}
             </Badge>
           ))}
         </div>
       </CardHeader>
       
       <CardContent className="flex-1 flex flex-col p-0">
-        <ScrollArea className="flex-1 p-3" ref={scrollAreaRef}>
-          <div className="space-y-3">
+        <ScrollArea className="flex-1 p-2 sm:p-3" ref={scrollAreaRef}>
+          <div className="space-y-2 sm:space-y-3">
             {messages.map((message) => (
               <div key={message.id} className={`flex gap-2 ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}>
                 <div className={`flex gap-2 max-w-[85%] ${message.type === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
-                  <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 ${
+                  <div className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center flex-shrink-0 ${
                     message.type === 'user' 
                       ? 'bg-blue-600 text-white' 
-                      : 'bg-gradient-to-br from-orange-500 to-red-600 text-white'
+                      : 'bg-gradient-to-br from-orange-500 to-red-600 text-white overflow-hidden'
                   }`}>
-                    {message.type === 'user' ? <User className="h-3 w-3" /> : <Crown className="h-3 w-3" />}
+                    {message.type === 'user' ? (
+                      <User className="h-3 w-3 sm:h-4 sm:w-4" />
+                    ) : (
+                      <img 
+                        src="/lovable-uploads/8cb18da4-1ec3-40d2-8e2d-5f0efcfc10da.png" 
+                        alt="Rishi Parasher" 
+                        className="w-full h-full object-cover"
+                      />
+                    )}
                   </div>
-                  <div className={`p-3 rounded-lg shadow-sm ${
+                  <div className={`p-2 sm:p-3 rounded-lg shadow-sm ${
                     message.type === 'user' 
                       ? 'bg-blue-600 text-white' 
                       : 'bg-gradient-to-br from-orange-500 to-red-600 text-white'
                   }`}>
-                    <p className="text-sm whitespace-pre-wrap leading-relaxed">{message.content}</p>
+                    <p className="text-xs sm:text-sm whitespace-pre-wrap leading-relaxed">{message.content}</p>
                     <p className="text-xs opacity-80 mt-1">
                       {message.timestamp.toLocaleTimeString()}
                     </p>
@@ -239,10 +256,14 @@ Ask me about any aspect of your life - career, marriage, health, wealth, or spir
             {isLoading && (
               <div className="flex gap-2 justify-start">
                 <div className="flex gap-2 max-w-[85%]">
-                  <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 bg-gradient-to-br from-orange-500 to-red-600 text-white">
-                    <Crown className="h-3 w-3" />
+                  <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center flex-shrink-0 bg-gradient-to-br from-orange-500 to-red-600 text-white overflow-hidden">
+                    <img 
+                      src="/lovable-uploads/8cb18da4-1ec3-40d2-8e2d-5f0efcfc10da.png" 
+                      alt="Rishi Parasher" 
+                      className="w-full h-full object-cover"
+                    />
                   </div>
-                  <div className="p-3 rounded-lg bg-gradient-to-br from-orange-500 to-red-600 text-white">
+                  <div className="p-2 sm:p-3 rounded-lg bg-gradient-to-br from-orange-500 to-red-600 text-white">
                     <div className="flex space-x-1">
                       <div className="w-2 h-2 bg-white rounded-full animate-bounce"></div>
                       <div className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
@@ -255,7 +276,7 @@ Ask me about any aspect of your life - career, marriage, health, wealth, or spir
           </div>
         </ScrollArea>
         
-        <div className="p-3 border-t border-orange-200 bg-white">
+        <div className="p-2 sm:p-3 border-t border-orange-200 bg-white">
           <div className="flex gap-2">
             <Input
               value={inputValue}
@@ -263,15 +284,15 @@ Ask me about any aspect of your life - career, marriage, health, wealth, or spir
               onKeyPress={handleKeyPress}
               placeholder={language === 'hi' ? "महर्षि जी से अपना प्रश्न पूछें..." : "Ask Maharishi your question..."}
               disabled={isLoading}
-              className="flex-1 bg-white border-orange-300 text-gray-900 placeholder-gray-500 text-sm"
+              className="flex-1 bg-white border-orange-300 text-gray-900 placeholder-gray-500 text-xs sm:text-sm min-h-[44px]"
             />
             <Button 
               onClick={handleSendMessage}
               disabled={!inputValue.trim() || isLoading}
               size="icon"
-              className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700"
+              className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 min-h-[44px] min-w-[44px]"
             >
-              <Send className="h-4 w-4" />
+              <Send className="h-3 w-3 sm:h-4 sm:w-4" />
             </Button>
           </div>
         </div>

@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { MessageCircle, X } from "lucide-react";
+import { MessageCircle, X, Sparkles } from "lucide-react";
 import RishiParasherGuru from './RishiParasherGuru';
 
 interface FloatingChatbotProps {
@@ -30,41 +30,59 @@ const FloatingChatbot: React.FC<FloatingChatbotProps> = ({ kundaliData, numerolo
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-50">
-      {/* Chat button when closed */}
+    <div className="fixed bottom-4 right-4 z-50">
+      {/* Chat button when closed - smaller and more mobile-friendly */}
       {!isOpen && (
         <Button
           onClick={toggleChat}
-          className="flex items-center gap-2 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white rounded-full p-4 shadow-lg"
+          className="flex items-center gap-2 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white rounded-full p-3 shadow-lg min-h-[56px] max-w-[200px] sm:max-w-none"
         >
-          <MessageCircle className="h-5 w-5" />
-          <span>{language === 'hi' ? 'ऋषि पराशर से परामर्श' : 'Consult Rishi Parasher'}</span>
+          <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center overflow-hidden flex-shrink-0">
+            <img 
+              src="/lovable-uploads/8cb18da4-1ec3-40d2-8e2d-5f0efcfc10da.png" 
+              alt="Rishi Parasher" 
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <span className="text-xs sm:text-sm font-medium hidden sm:inline">
+            {language === 'hi' ? 'ऋषि पराशर से परामर्श' : 'Consult Rishi Parasher'}
+          </span>
+          <span className="text-xs font-medium sm:hidden">
+            {language === 'hi' ? 'परामर्श' : 'Chat'}
+          </span>
         </Button>
       )}
 
-      {/* Chat interface when open */}
+      {/* Chat interface when open - responsive sizing */}
       {isOpen && (
-        <Card className="w-[350px] md:w-[450px] shadow-xl border-orange-200 overflow-hidden max-h-[80vh]">
-          {/* Chat header */}
-          <div className="bg-gradient-to-r from-orange-500 to-red-500 p-3 text-white flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="font-bold flex items-center gap-1">
-                <MessageCircle className="h-4 w-4" />
+        <Card className="w-[280px] sm:w-[320px] md:w-[380px] lg:w-[420px] shadow-xl border-orange-200 overflow-hidden max-h-[80vh] sm:max-h-[70vh]">
+          {/* Chat header - more compact on mobile */}
+          <div className="bg-gradient-to-r from-orange-500 to-red-500 p-2 sm:p-3 text-white flex items-center justify-between">
+            <div className="flex items-center gap-2 min-w-0 flex-1">
+              <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-white/20 flex items-center justify-center overflow-hidden flex-shrink-0">
+                <img 
+                  src="/lovable-uploads/8cb18da4-1ec3-40d2-8e2d-5f0efcfc10da.png" 
+                  alt="Rishi Parasher" 
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <span className="font-bold text-xs sm:text-sm truncate">
                 {language === 'hi' ? 'ऋषि पराशर' : 'Rishi Parasher'}
               </span>
             </div>
-            <div className="flex items-center gap-1">
-              {/* Language toggle */}
-              <div className="bg-white/20 rounded-md p-1 mr-1">
+            
+            <div className="flex items-center gap-1 flex-shrink-0">
+              {/* Language toggle - more compact */}
+              <div className="bg-white/20 rounded-md p-1">
                 <button 
                   onClick={() => setLanguage('en')}
-                  className={`px-2 py-0.5 rounded-sm text-xs ${language === 'en' ? 'bg-white text-orange-600' : 'text-white'}`}
+                  className={`px-1.5 py-0.5 rounded-sm text-xs ${language === 'en' ? 'bg-white text-orange-600' : 'text-white'}`}
                 >
                   EN
                 </button>
                 <button 
                   onClick={() => setLanguage('hi')}
-                  className={`px-2 py-0.5 rounded-sm text-xs ${language === 'hi' ? 'bg-white text-orange-600' : 'text-white'}`}
+                  className={`px-1.5 py-0.5 rounded-sm text-xs ${language === 'hi' ? 'bg-white text-orange-600' : 'text-white'}`}
                 >
                   हि
                 </button>
@@ -74,10 +92,10 @@ const FloatingChatbot: React.FC<FloatingChatbotProps> = ({ kundaliData, numerolo
               <Button 
                 variant="ghost" 
                 size="sm" 
-                className="h-7 w-7 p-0 text-white hover:bg-white/20" 
+                className="h-6 w-6 sm:h-7 sm:w-7 p-0 text-white hover:bg-white/20" 
                 onClick={toggleChat}
               >
-                <X className="h-4 w-4" />
+                <X className="h-3 w-3 sm:h-4 sm:w-4" />
               </Button>
             </div>
           </div>

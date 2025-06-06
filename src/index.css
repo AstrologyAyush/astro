@@ -120,9 +120,53 @@ html {
   padding-bottom: env(safe-area-inset-bottom);
 }
 
-/* Kundali chart styling */
+/* Enhanced responsive container */
+.container {
+  @apply mx-auto px-4;
+  max-width: 100%;
+}
+
+@media (min-width: 480px) {
+  .container {
+    @apply px-6;
+    max-width: 480px;
+  }
+}
+
+@media (min-width: 640px) {
+  .container {
+    @apply px-8;
+    max-width: 640px;
+  }
+}
+
+@media (min-width: 768px) {
+  .container {
+    max-width: 768px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    max-width: 1024px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .container {
+    max-width: 1280px;
+  }
+}
+
+@media (min-width: 1536px) {
+  .container {
+    max-width: 1400px;
+  }
+}
+
+/* Kundali chart styling - mobile responsive */
 .kundali-chart {
-  @apply relative rounded-2xl p-6 aspect-square max-w-md mx-auto bg-white border border-gray-200;
+  @apply relative rounded-2xl p-3 sm:p-4 md:p-6 aspect-square max-w-xs sm:max-w-sm md:max-w-md mx-auto bg-white border border-gray-200;
   background: linear-gradient(135deg, 
     rgba(251, 146, 60, 0.05) 0%, 
     rgba(251, 146, 60, 0.02) 50%,
@@ -131,8 +175,20 @@ html {
 
 .kundali-house {
   @apply border border-orange-300 text-center transition-all duration-200 hover:bg-orange-50 cursor-pointer rounded-lg bg-white;
-  min-height: 60px;
+  min-height: 40px;
   position: relative;
+}
+
+@media (min-width: 640px) {
+  .kundali-house {
+    min-height: 50px;
+  }
+}
+
+@media (min-width: 768px) {
+  .kundali-house {
+    min-height: 60px;
+  }
 }
 
 .kundali-house:hover {
@@ -145,7 +201,7 @@ html {
 }
 
 .planet-symbol {
-  @apply text-sm font-bold px-1 py-0.5 rounded bg-orange-100 text-orange-700 border border-orange-300;
+  @apply text-xs sm:text-sm font-bold px-1 py-0.5 rounded bg-orange-100 text-orange-700 border border-orange-300;
   display: inline-block;
   margin: 1px;
 }
@@ -168,15 +224,19 @@ html {
 .strength-weak { @apply text-orange-600; }
 .strength-very-weak { @apply text-red-600; }
 
-/* Mobile optimizations */
-@media (max-width: 640px) {
+/* Enhanced mobile touch targets */
+@media (max-width: 767px) {
+  button, .clickable {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
   .kundali-chart {
-    @apply p-4;
     min-height: 280px;
   }
   
   .kundali-house {
-    min-height: 50px;
+    min-height: 40px;
     @apply text-xs;
   }
   
@@ -202,4 +262,26 @@ html {
 
 .animate-glow {
   animation: glow 2s ease-in-out infinite alternate;
+}
+
+/* Improved responsive typography */
+@media (max-width: 479px) {
+  h1 { @apply text-xl; }
+  h2 { @apply text-lg; }
+  h3 { @apply text-base; }
+  .text-responsive { @apply text-sm; }
+}
+
+@media (min-width: 480px) and (max-width: 639px) {
+  h1 { @apply text-2xl; }
+  h2 { @apply text-xl; }
+  h3 { @apply text-lg; }
+  .text-responsive { @apply text-base; }
+}
+
+@media (min-width: 640px) {
+  h1 { @apply text-3xl; }
+  h2 { @apply text-2xl; }
+  h3 { @apply text-xl; }
+  .text-responsive { @apply text-lg; }
 }
