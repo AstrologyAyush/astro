@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -56,12 +55,20 @@ const Index = () => {
       const result = generateComprehensiveKundali(enhancedBirthData);
       setKundaliData(result);
       
-      // Save to Supabase
+      // Save to Supabase - fix the insert to match the actual table structure
       try {
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
+          // Get or create user profile first
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('id')
+            .eq('user_id', user.id)
+            .single();
+
           await supabase.from('kundali_reports').insert({
             user_id: user.id,
+            profile_id: profile?.id || null,
             name: birthData.name,
             birth_data: enhancedBirthData,
             kundali_data: result
