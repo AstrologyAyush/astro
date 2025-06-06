@@ -55,7 +55,7 @@ const Index = () => {
       const result = generateComprehensiveKundali(enhancedBirthData);
       setKundaliData(result);
       
-      // Save to Supabase - using direct insert without type checking
+      // Save to Supabase - using type assertion to bypass TypeScript issue
       try {
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
@@ -66,16 +66,16 @@ const Index = () => {
             .eq('user_id', user.id)
             .maybeSingle();
 
-          // Use direct insert without array brackets
+          // Use type assertion to bypass TypeScript type mismatch
           const { error: insertError } = await supabase
             .from('kundali_reports')
             .insert({
               user_id: user.id,
               profile_id: profile?.id || null,
               name: birthData.name,
-              birth_data: enhancedBirthData,
-              kundali_data: result
-            });
+              birth_data: enhancedBirthData as any,
+              kundali_data: result as any
+            } as any);
 
           if (insertError) {
             console.error('Error saving kundali:', insertError);
