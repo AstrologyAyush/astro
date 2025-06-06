@@ -35,6 +35,20 @@ const RishiParasherGuru: React.FC<RishiParasherGuruProps> = ({ kundaliData, lang
   };
 
   useEffect(() => {
+    // Guard clause: if kundaliData is null or undefined, show a fallback welcome message
+    if (!kundaliData || !kundaliData.enhancedCalculations) {
+      const fallbackMessage: Message = {
+        id: '1',
+        type: 'ai',
+        content: language === 'hi' 
+          ? '🙏 नमस्कार! मैं महर्षि पराशर हूँ। कृपया अपनी जन्मपत्रिका डेटा दर्ज करें ताकि मैं आपको बेहतर मार्गदर्शन दे सकूँ।'
+          : '🙏 Namaste! I am Maharishi Parashar. Please enter your birth chart data so I can provide you with better guidance.',
+        timestamp: new Date()
+      };
+      setMessages([fallbackMessage]);
+      return;
+    }
+
     // Enhanced welcome message with Kundali insights
     const lagna = kundaliData.enhancedCalculations.lagna;
     const planets = kundaliData.enhancedCalculations.planets;
@@ -90,6 +104,11 @@ Ask me about any aspect of your life - career, marriage, health, wealth, or spir
     setIsLoading(true);
 
     try {
+      // Guard against null kundaliData
+      if (!kundaliData) {
+        throw new Error('No birth chart data available');
+      }
+      
       const { data, error } = await supabase.functions.invoke('kundali-ai-analysis', {
         body: {
           kundaliData,
