@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -64,7 +65,7 @@ const Index = () => {
       if (result.enhancedCalculations.yogas) {
         result.enhancedCalculations.yogas = result.enhancedCalculations.yogas.map(yoga => ({
           ...yoga,
-          isActive: yoga.strength > 60 && yoga.present // More accurate active yoga detection
+          isActive: yoga.strength > 60 && yoga.isActive // Use isActive property instead of present
         }));
       }
       
