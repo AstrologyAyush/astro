@@ -9,6 +9,7 @@ import { Send, Bot, User, Sparkles, Crown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { ComprehensiveKundaliData } from '@/lib/advancedKundaliEngine';
 import { useToast } from "@/hooks/use-toast";
+import { Json } from '@/integrations/supabase/types';
 
 interface Message {
   id: string;
@@ -108,11 +109,11 @@ Ask me about any aspect of your life - career, marriage, health, wealth, or spir
 
       setMessages(prev => [...prev, aiMessage]);
 
-      // Save conversation to database
+      // Save conversation to database - FIX: Convert kundaliData to JSON
       await supabase.from('rishi_parasher_conversations').insert({
         user_question: inputValue,
         rishi_response: data.analysis,
-        kundali_context: kundaliData,
+        kundali_context: kundaliData as unknown as Json,
         session_id: `session_${Date.now()}`
       });
 
