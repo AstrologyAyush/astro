@@ -35,7 +35,6 @@ const RishiParasherGuru: React.FC<RishiParasherGuruProps> = ({ kundaliData, lang
   };
 
   useEffect(() => {
-    // Guard clause: if kundaliData is null or undefined, show a fallback welcome message
     if (!kundaliData || !kundaliData.enhancedCalculations) {
       const fallbackMessage: Message = {
         id: '1',
@@ -49,7 +48,6 @@ const RishiParasherGuru: React.FC<RishiParasherGuruProps> = ({ kundaliData, lang
       return;
     }
 
-    // Enhanced welcome message with Kundali insights
     const lagna = kundaliData.enhancedCalculations.lagna;
     const planets = kundaliData.enhancedCalculations.planets;
     const activeYogas = kundaliData.enhancedCalculations.yogas.filter(y => y.isActive);
@@ -104,7 +102,6 @@ Ask me about any aspect of your life - career, marriage, health, wealth, or spir
     setIsLoading(true);
 
     try {
-      // Guard against null kundaliData
       if (!kundaliData) {
         throw new Error('No birth chart data available');
       }
@@ -128,7 +125,6 @@ Ask me about any aspect of your life - career, marriage, health, wealth, or spir
 
       setMessages(prev => [...prev, aiMessage]);
 
-      // Save conversation to database with proper type casting
       await supabase.from('rishi_parasher_conversations').insert({
         user_question: inputValue,
         rishi_response: data.analysis,
@@ -171,67 +167,54 @@ Ask me about any aspect of your life - career, marriage, health, wealth, or spir
     "मेरे करियर की संभावनाएं क्या हैं?",
     "मेरा विवाह कब होगा?",
     "मेरी स्वास्थ्य की स्थिति कैसी है?",
-    "कौन सा रत्न मेरे लिए शुभ है?",
-    "मेरी वर्तमान दशा का प्रभाव क्या है?",
-    "व्यापार में सफलता के लिए क्या करूं?",
-    "संतान प्राप्ति के लिए उपाय बताएं",
-    "धन लाभ के योग कब बनेंगे?"
+    "कौन सा रत्न मेरे लिए शुभ है?"
   ] : [
     "What are my career prospects?",
     "When will I get married?",
     "How is my health condition?",
-    "Which gemstone is auspicious for me?",
-    "What is the effect of my current dasha?",
-    "What should I do for business success?",
-    "Tell me remedies for childbirth",
-    "When will I have wealth yoga?"
+    "Which gemstone is auspicious for me?"
   ];
 
   return (
-    <Card className="h-[400px] sm:h-[450px] md:h-[500px] flex flex-col bg-gradient-to-br from-orange-50 to-red-50 border-orange-200">
-      <CardHeader className="pb-3 bg-gradient-to-r from-orange-100 to-red-100 px-3 sm:px-4 md:px-6">
-        <CardTitle className="flex items-center gap-2 text-orange-800 text-sm sm:text-base md:text-lg">
-          <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center overflow-hidden">
+    <Card className="h-[450px] flex flex-col bg-gradient-to-br from-orange-50 to-red-50 border-orange-200">
+      <CardHeader className="pb-2 bg-gradient-to-r from-orange-100 to-red-100 px-3 py-2">
+        <CardTitle className="flex items-center gap-2 text-orange-800 text-sm">
+          <div className="w-6 h-6 rounded-full bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center overflow-hidden">
             <img 
               src="/lovable-uploads/8cb18da4-1ec3-40d2-8e2d-5f0efcfc10da.png" 
               alt="Rishi Parasher" 
               className="w-full h-full object-cover"
             />
           </div>
-          <span className="hidden sm:inline">
-            {language === 'hi' ? "महर्षि पराशर - वैदिक ज्योतिष गुरु" : "Maharishi Parashar - Vedic Astrology Sage"}
-          </span>
-          <span className="sm:hidden">
-            {language === 'hi' ? "महर्षि पराशर" : "Rishi Parashar"}
-          </span>
+          <span>{language === 'hi' ? "महर्षि पराशर" : "Rishi Parashar"}</span>
         </CardTitle>
         <div className="flex flex-wrap gap-1">
           {suggestedQuestions.slice(0, 2).map((question, index) => (
             <Badge 
               key={index} 
               variant="outline" 
-              className="cursor-pointer hover:bg-orange-200 text-xs border-orange-300 text-orange-700 hover:text-orange-900 bg-orange-50 px-2 py-1"
+              className="cursor-pointer hover:bg-orange-200 text-xs border-orange-300 text-orange-700 hover:text-orange-900 bg-orange-50 px-1 py-0.5"
               onClick={() => setInputValue(question)}
             >
-              {question.length > 30 ? `${question.substring(0, 30)}...` : question}
+              {question.length > 25 ? `${question.substring(0, 25)}...` : question}
             </Badge>
           ))}
         </div>
       </CardHeader>
       
       <CardContent className="flex-1 flex flex-col p-0">
-        <ScrollArea className="flex-1 p-2 sm:p-3" ref={scrollAreaRef}>
-          <div className="space-y-2 sm:space-y-3">
+        <ScrollArea className="flex-1 p-2 max-h-[300px]" ref={scrollAreaRef}>
+          <div className="space-y-2">
             {messages.map((message) => (
               <div key={message.id} className={`flex gap-2 ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}>
                 <div className={`flex gap-2 max-w-[85%] ${message.type === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
-                  <div className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center flex-shrink-0 ${
+                  <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${
                     message.type === 'user' 
                       ? 'bg-blue-600 text-white' 
                       : 'bg-gradient-to-br from-orange-500 to-red-600 text-white overflow-hidden'
                   }`}>
                     {message.type === 'user' ? (
-                      <User className="h-3 w-3 sm:h-4 sm:w-4" />
+                      <User className="h-3 w-3" />
                     ) : (
                       <img 
                         src="/lovable-uploads/8cb18da4-1ec3-40d2-8e2d-5f0efcfc10da.png" 
@@ -240,12 +223,12 @@ Ask me about any aspect of your life - career, marriage, health, wealth, or spir
                       />
                     )}
                   </div>
-                  <div className={`p-2 sm:p-3 rounded-lg shadow-sm ${
+                  <div className={`p-2 rounded-lg shadow-sm ${
                     message.type === 'user' 
                       ? 'bg-blue-600 text-white' 
                       : 'bg-gradient-to-br from-orange-500 to-red-600 text-white'
                   }`}>
-                    <p className="text-xs sm:text-sm whitespace-pre-wrap leading-relaxed">{message.content}</p>
+                    <p className="text-xs whitespace-pre-wrap leading-relaxed">{message.content}</p>
                     <p className="text-xs opacity-80 mt-1">
                       {message.timestamp.toLocaleTimeString()}
                     </p>
@@ -256,14 +239,14 @@ Ask me about any aspect of your life - career, marriage, health, wealth, or spir
             {isLoading && (
               <div className="flex gap-2 justify-start">
                 <div className="flex gap-2 max-w-[85%]">
-                  <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center flex-shrink-0 bg-gradient-to-br from-orange-500 to-red-600 text-white overflow-hidden">
+                  <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 bg-gradient-to-br from-orange-500 to-red-600 text-white overflow-hidden">
                     <img 
                       src="/lovable-uploads/8cb18da4-1ec3-40d2-8e2d-5f0efcfc10da.png" 
                       alt="Rishi Parasher" 
                       className="w-full h-full object-cover"
                     />
                   </div>
-                  <div className="p-2 sm:p-3 rounded-lg bg-gradient-to-br from-orange-500 to-red-600 text-white">
+                  <div className="p-2 rounded-lg bg-gradient-to-br from-orange-500 to-red-600 text-white">
                     <div className="flex space-x-1">
                       <div className="w-2 h-2 bg-white rounded-full animate-bounce"></div>
                       <div className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
@@ -276,7 +259,7 @@ Ask me about any aspect of your life - career, marriage, health, wealth, or spir
           </div>
         </ScrollArea>
         
-        <div className="p-2 sm:p-3 border-t border-orange-200 bg-white">
+        <div className="p-2 border-t border-orange-200 bg-white">
           <div className="flex gap-2">
             <Input
               value={inputValue}
@@ -284,15 +267,15 @@ Ask me about any aspect of your life - career, marriage, health, wealth, or spir
               onKeyPress={handleKeyPress}
               placeholder={language === 'hi' ? "महर्षि जी से अपना प्रश्न पूछें..." : "Ask Maharishi your question..."}
               disabled={isLoading}
-              className="flex-1 bg-white border-orange-300 text-gray-900 placeholder-gray-500 text-xs sm:text-sm min-h-[44px]"
+              className="flex-1 bg-white border-orange-300 text-gray-900 placeholder-gray-500 text-xs h-8"
             />
             <Button 
               onClick={handleSendMessage}
               disabled={!inputValue.trim() || isLoading}
-              size="icon"
-              className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 min-h-[44px] min-w-[44px]"
+              size="sm"
+              className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 h-8 w-8 p-0"
             >
-              <Send className="h-3 w-3 sm:h-4 sm:w-4" />
+              <Send className="h-3 w-3" />
             </Button>
           </div>
         </div>
