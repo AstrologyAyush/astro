@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useDebounce } from "@/hooks/use-debounce";
+import { MapPin, Clock, Calendar, User } from 'lucide-react';
 
 interface BirthDataFormProps {
   onSubmit: (data: any) => void;
@@ -151,11 +152,12 @@ const BirthDataForm: React.FC<BirthDataFormProps> = ({ onSubmit, isLoading, lang
   };
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-md mx-auto">
-      <div className="space-y-4">
+    <form onSubmit={handleSubmit} className="w-full max-w-md mx-auto px-2">
+      <div className="space-y-4 md:space-y-6">
         {/* Name Input */}
-        <div>
-          <Label htmlFor="name" className="text-gray-700 font-medium">
+        <div className="space-y-2">
+          <Label htmlFor="name" className="text-gray-700 font-medium flex items-center gap-2 text-sm md:text-base">
+            <User className="h-4 w-4 text-orange-500" />
             {getTranslation('Full Name', 'पूरा नाम')} *
           </Label>
           <Input
@@ -163,46 +165,52 @@ const BirthDataForm: React.FC<BirthDataFormProps> = ({ onSubmit, isLoading, lang
             value={formData.name}
             onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
             placeholder={getTranslation('Enter your full name', 'अपना पूरा नाम दर्ज करें')}
-            className="mt-1 bg-white border-gray-300 text-gray-900"
+            className="bg-white border-gray-300 text-gray-900 h-12 text-sm md:text-base"
             required
           />
         </div>
 
-        {/* Date of Birth */}
-        <div>
-          <Label htmlFor="date" className="text-gray-700 font-medium">
-            {getTranslation('Date of Birth', 'जन्म तिथि')} *
-          </Label>
-          <Input
-            id="date"
-            type="date"
-            value={formData.dateOfBirth}
-            onChange={(e) => setFormData(prev => ({ ...prev, dateOfBirth: e.target.value }))}
-            className="mt-1 bg-white border-gray-300 text-gray-900"
-            min="1900-01-01"
-            max="2024-12-31"
-            required
-          />
-        </div>
+        {/* Date and Time Row */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
+          {/* Date of Birth */}
+          <div className="space-y-2">
+            <Label htmlFor="date" className="text-gray-700 font-medium flex items-center gap-2 text-sm md:text-base">
+              <Calendar className="h-4 w-4 text-orange-500" />
+              {getTranslation('Birth Date', 'जन्म तिथि')} *
+            </Label>
+            <Input
+              id="date"
+              type="date"
+              value={formData.dateOfBirth}
+              onChange={(e) => setFormData(prev => ({ ...prev, dateOfBirth: e.target.value }))}
+              className="bg-white border-gray-300 text-gray-900 h-12 text-sm md:text-base"
+              min="1900-01-01"
+              max="2024-12-31"
+              required
+            />
+          </div>
 
-        {/* Time of Birth */}
-        <div>
-          <Label htmlFor="time" className="text-gray-700 font-medium">
-            {getTranslation('Time of Birth', 'जन्म समय')} *
-          </Label>
-          <Input
-            id="time"
-            type="time"
-            value={formData.timeOfBirth}
-            onChange={(e) => setFormData(prev => ({ ...prev, timeOfBirth: e.target.value }))}
-            className="mt-1 bg-white border-gray-300 text-gray-900"
-            required
-          />
+          {/* Time of Birth */}
+          <div className="space-y-2">
+            <Label htmlFor="time" className="text-gray-700 font-medium flex items-center gap-2 text-sm md:text-base">
+              <Clock className="h-4 w-4 text-orange-500" />
+              {getTranslation('Birth Time', 'जन्म समय')} *
+            </Label>
+            <Input
+              id="time"
+              type="time"
+              value={formData.timeOfBirth}
+              onChange={(e) => setFormData(prev => ({ ...prev, timeOfBirth: e.target.value }))}
+              className="bg-white border-gray-300 text-gray-900 h-12 text-sm md:text-base"
+              required
+            />
+          </div>
         </div>
 
         {/* Place of Birth */}
-        <div>
-          <Label htmlFor="place" className="text-gray-700 font-medium">
+        <div className="space-y-2">
+          <Label htmlFor="place" className="text-gray-700 font-medium flex items-center gap-2 text-sm md:text-base">
+            <MapPin className="h-4 w-4 text-orange-500" />
             {getTranslation('Place of Birth', 'जन्म स्थान')} *
           </Label>
           <div className="relative">
@@ -212,21 +220,21 @@ const BirthDataForm: React.FC<BirthDataFormProps> = ({ onSubmit, isLoading, lang
               onChange={handlePlaceChange}
               onFocus={() => !formData.isLocationSelected && setShowSuggestions(true)}
               placeholder={getTranslation('Enter city name', 'शहर का नाम दर्ज करें')}
-              className="mt-1 bg-white border-gray-300 text-gray-900"
+              className="bg-white border-gray-300 text-gray-900 h-12 text-sm md:text-base"
               required
             />
             {showSuggestions && suggestions.length > 0 && (
-              <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-40 overflow-y-auto">
+              <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-48 overflow-y-auto">
                 {suggestions.map((place, index) => (
                   <button
                     key={index}
                     type="button"
-                    className="w-full px-3 py-2 text-left hover:bg-gray-100 text-gray-900 text-sm"
+                    className="w-full px-3 py-3 text-left hover:bg-gray-100 text-gray-900 text-sm border-b border-gray-100 last:border-b-0"
                     onClick={() => handlePlaceSelect(place)}
                   >
                     <div>
-                      <div className="font-medium">{place.name}</div>
-                      <div className="text-xs text-gray-500">{place.display_name}</div>
+                      <div className="font-medium text-sm">{place.name}</div>
+                      <div className="text-xs text-gray-500 truncate">{place.display_name}</div>
                     </div>
                   </button>
                 ))}
@@ -239,12 +247,13 @@ const BirthDataForm: React.FC<BirthDataFormProps> = ({ onSubmit, isLoading, lang
         {formData.latitude !== 0 && formData.longitude !== 0 && (
           <div className="bg-green-50 border border-green-200 rounded-lg p-3">
             <div className="text-sm text-green-800">
-              <div className="font-medium">{getTranslation('Coordinates Confirmed', 'निर्देशांक पुष्ट')}</div>
-              <div className="mt-1">
-                {getTranslation('Latitude', 'अक्षांश')}: {formData.latitude.toFixed(4)}°
+              <div className="font-medium flex items-center gap-2">
+                <MapPin className="h-4 w-4" />
+                {getTranslation('Coordinates Confirmed', 'निर्देशांक पुष्ट')}
               </div>
-              <div>
-                {getTranslation('Longitude', 'देशांतर')}: {formData.longitude.toFixed(4)}°
+              <div className="mt-2 space-y-1">
+                <div>{getTranslation('Latitude', 'अक्षांश')}: {formData.latitude.toFixed(4)}°</div>
+                <div>{getTranslation('Longitude', 'देशांतर')}: {formData.longitude.toFixed(4)}°</div>
               </div>
             </div>
           </div>
@@ -257,7 +266,7 @@ const BirthDataForm: React.FC<BirthDataFormProps> = ({ onSubmit, isLoading, lang
               type="button"
               variant="outline"
               onClick={handleManualCoordinates}
-              className="text-sm"
+              className="text-sm w-full sm:w-auto"
             >
               {getTranslation('Enter Coordinates Manually', 'निर्देशांक मैन्युअली दर्ज करें')}
             </Button>
@@ -267,7 +276,7 @@ const BirthDataForm: React.FC<BirthDataFormProps> = ({ onSubmit, isLoading, lang
         {/* Submit Button */}
         <Button 
           type="submit" 
-          className="w-full bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white py-3"
+          className="w-full bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white py-3 md:py-4 h-12 md:h-14 text-sm md:text-base font-medium"
           disabled={isLoading}
         >
           {isLoading ? (
