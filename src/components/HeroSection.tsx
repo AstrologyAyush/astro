@@ -18,37 +18,42 @@ const HeroSection: React.FC<HeroSectionProps> = ({ language }) => {
   };
 
   const handleGetStarted = () => {
-    navigate('/');
-    // Scroll to kundali section or trigger kundali tab
-    setTimeout(() => {
-      const kundaliSection = document.querySelector('[data-testid="kundali-section"]');
-      if (kundaliSection) {
-        kundaliSection.scrollIntoView({ behavior: 'smooth' });
-      }
-    }, 100);
+    // Scroll to kundali section
+    const kundaliSection = document.querySelector('[data-testid="kundali-section"]');
+    if (kundaliSection) {
+      kundaliSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  const handleTryEngine = () => {
+    // Scroll to kundali section
+    const kundaliSection = document.querySelector('[data-testid="kundali-section"]');
+    if (kundaliSection) {
+      kundaliSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   };
 
   return (
-    <div className="text-center mb-6 md:mb-8 px-4">
-      <div className="flex items-center justify-center mb-4 flex-col md:flex-row">
-        <AppLogo size="xl" className="mr-0 md:mr-4 mb-2 md:mb-0" />
+    <div className="text-center mb-4 md:mb-6 px-2">
+      <div className="flex items-center justify-center mb-3 md:mb-4 flex-col">
+        <AppLogo size="xl" className="mb-2" />
         <div>
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900">
+          <h1 className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-gray-900 leading-tight">
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-red-600">
               AyuAstro
             </span>
           </h1>
-          <div className="flex items-center justify-center gap-2 mt-2 flex-wrap">
-            <Sparkles className="h-3 w-3 md:h-4 md:w-4 text-orange-500" />
-            <span className="text-xs md:text-sm text-orange-600 font-medium text-center">
+          <div className="flex items-center justify-center gap-1 md:gap-2 mt-1 md:mt-2 flex-wrap">
+            <Sparkles className="h-3 w-3 md:h-4 md:w-4 text-orange-500 flex-shrink-0" />
+            <span className="text-xs md:text-sm text-orange-600 font-medium text-center leading-tight">
               {getTranslation('Based on Rishi Parasher Principles', 'पं. ऋषि पराशर के सिद्धांतों पर आधारित')}
             </span>
-            <Sparkles className="h-3 w-3 md:h-4 md:w-4 text-orange-500" />
+            <Sparkles className="h-3 w-3 md:h-4 md:w-4 text-orange-500 flex-shrink-0" />
           </div>
         </div>
       </div>
       
-      <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto mb-6 px-2">
+      <p className="text-base md:text-lg lg:text-xl text-gray-600 max-w-3xl mx-auto mb-4 md:mb-6 px-2 leading-relaxed">
         {getTranslation(
           "Discover Your Destiny with Precision - Advanced Astronomical Calculations & Rishi Parasher Guidance",
           "उन्नत खगोलीय गणना और पं. ऋषि पराशर के मार्गदर्शन के साथ अपने भाग्य की सटीक खोज करें"
@@ -56,40 +61,54 @@ const HeroSection: React.FC<HeroSectionProps> = ({ language }) => {
       </p>
       
       {/* Features highlight */}
-      <div className="flex flex-wrap justify-center gap-2 md:gap-4 mt-4 md:mt-6 px-2">
-        <div className="bg-orange-100 text-orange-800 px-2 md:px-3 py-1 rounded-full text-xs md:text-sm font-medium">
-          <Crown className="h-3 w-3 inline mr-1" />
-          {getTranslation('Swiss Ephemeris Accuracy', 'Swiss Ephemeris सटीकता')}
+      <div className="flex flex-wrap justify-center gap-2 mt-3 md:mt-4 px-2">
+        <div className="bg-orange-100 text-orange-800 px-2 md:px-3 py-1 rounded-full text-xs md:text-sm font-medium flex items-center gap-1">
+          <Crown className="h-3 w-3 flex-shrink-0" />
+          <span className="whitespace-nowrap">{getTranslation('Swiss Ephemeris Accuracy', 'Swiss Ephemeris सटीकता')}</span>
         </div>
-        <div className="bg-blue-100 text-blue-800 px-2 md:px-3 py-1 rounded-full text-xs md:text-sm font-medium">
-          <Target className="h-3 w-3 inline mr-1" />
-          {getTranslation('Rishi Parasher Guidance', 'पं. ऋषि पराशर मार्गदर्शन')}
+        <div className="bg-blue-100 text-blue-800 px-2 md:px-3 py-1 rounded-full text-xs md:text-sm font-medium flex items-center gap-1">
+          <Target className="h-3 w-3 flex-shrink-0" />
+          <span className="whitespace-nowrap">{getTranslation('Rishi Parasher Guidance', 'पं. ऋषि पराशर मार्गदर्शन')}</span>
         </div>
-        <div className="bg-green-100 text-green-800 px-2 md:px-3 py-1 rounded-full text-xs md:text-sm font-medium">
-          <Star className="h-3 w-3 inline mr-1" />
-          {getTranslation('Comprehensive Analysis', 'संपूर्ण विश्लेषण')}
+        <div className="bg-green-100 text-green-800 px-2 md:px-3 py-1 rounded-full text-xs md:text-sm font-medium flex items-center gap-1">
+          <Star className="h-3 w-3 flex-shrink-0" />
+          <span className="whitespace-nowrap">{getTranslation('Comprehensive Analysis', 'संपूर्ण विश्लेषण')}</span>
         </div>
       </div>
 
       {/* CTA Buttons */}
-      <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center mt-6 md:mt-8 px-2">
+      <div className="flex flex-col gap-3 justify-center mt-4 md:mt-6 px-2 max-w-md mx-auto">
         <Button 
           onClick={handleGetStarted}
-          className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white text-sm md:text-base px-6 md:px-8 py-3 md:py-4 rounded-full shadow-lg w-full sm:w-auto"
+          className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white text-sm md:text-base px-4 md:px-6 py-3 md:py-4 rounded-full shadow-lg w-full transition-all duration-300 transform hover:scale-105"
         >
-          <Play className="mr-2 h-4 w-4" />
-          {getTranslation('Get Your Free Astro Report in 60 Seconds', 'अपनी मुफ्त ज्योतिष रिपोर्ट 60 सेकंड में पाएं')}
+          <Play className="mr-2 h-4 w-4 flex-shrink-0" />
+          <span className="leading-tight">
+            {getTranslation('Get Your Free Astro Report in 60 Seconds', 'अपनी मुफ्त ज्योतिष रिपोर्ट 60 सेकंड में पाएं')}
+          </span>
+        </Button>
+        <Button 
+          variant="outline"
+          onClick={handleTryEngine}
+          className="border-orange-600 text-orange-600 hover:bg-orange-50 text-sm md:text-base px-4 md:px-6 py-3 md:py-4 rounded-full w-full transition-all duration-300"
+        >
+          <span className="leading-tight">
+            {getTranslation('Try the Engine - First Report is Free', 'इंजन आज़माएं - पहली रिपोर्ट मुफ्त')}
+          </span>
         </Button>
         <Button 
           variant="outline"
           onClick={handleGetStarted}
-          className="border-orange-600 text-orange-600 hover:bg-orange-50 text-sm md:text-base px-6 md:px-8 py-3 md:py-4 rounded-full w-full sm:w-auto"
+          className="border-green-600 text-green-600 hover:bg-green-50 text-sm md:text-base px-4 md:px-6 py-3 md:py-4 rounded-full w-full transition-all duration-300"
         >
-          {getTranslation('Try the Engine - First Report is Free', 'इंजन आज़माएं - पहली रिपोर्ट मुफ्त')}
+          <Crown className="mr-2 h-4 w-4 flex-shrink-0" />
+          <span className="leading-tight">
+            {getTranslation('Unlock My Vedic Report', 'मेरी वैदिक रिपोर्ट अनलॉक करें')}
+          </span>
         </Button>
       </div>
       
-      <p className="text-xs md:text-sm text-gray-600 mt-3 md:mt-4 px-2">
+      <p className="text-xs md:text-sm text-gray-600 mt-3 md:mt-4 px-2 leading-relaxed">
         {getTranslation('No Card. No Guesswork. Just Truth.', 'कोई कार्ड नहीं। कोई अनुमान नहीं। सिर्फ सच्चाई।')}
       </p>
     </div>

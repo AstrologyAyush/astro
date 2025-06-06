@@ -1,8 +1,9 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { ComprehensiveKundaliData } from '@/lib/advancedKundaliEngine';
-import { Star, Moon, Sun } from "lucide-react";
+import { Star, Sun, Moon } from 'lucide-react';
 
 interface EnhancedVisualKundaliChartProps {
   kundaliData: ComprehensiveKundaliData;
@@ -13,321 +14,273 @@ const EnhancedVisualKundaliChart: React.FC<EnhancedVisualKundaliChartProps> = ({
   kundaliData, 
   language = 'en' 
 }) => {
-  const { enhancedCalculations } = kundaliData;
-  const { lagna, planets } = enhancedCalculations;
-  
-  // Planet symbols
-  const planetSymbols: Record<string, string> = {
-    SU: '☉', // Sun
-    MO: '☽', // Moon
-    MA: '♂', // Mars
-    ME: '☿', // Mercury
-    JU: '♃', // Jupiter
-    VE: '♀', // Venus
-    SA: '♄', // Saturn
-    RA: '☊', // Rahu
-    KE: '☋'  // Ketu
-  };
-  
-  // Hindi planet names
-  const planetNamesHi: Record<string, string> = {
-    SU: 'सू', // Sun
-    MO: 'चं', // Moon
-    MA: 'मं', // Mars
-    ME: 'बु', // Mercury
-    JU: 'गु', // Jupiter
-    VE: 'शु', // Venus
-    SA: 'श', // Saturn
-    RA: 'रा', // Rahu
-    KE: 'के'  // Ketu
-  };
-  
-  // Zodiac signs symbols
-  const zodiacSymbols: Record<number, string> = {
-    0: '♈', // Aries
-    1: '♉', // Taurus
-    2: '♊', // Gemini
-    3: '♋', // Cancer
-    4: '♌', // Leo
-    5: '♍', // Virgo
-    6: '♎', // Libra
-    7: '♏', // Scorpio
-    8: '♐', // Sagittarius
-    9: '♑', // Capricorn
-    10: '♒', // Aquarius
-    11: '♓'  // Pisces
-  };
-  
-  // Short zodiac names in Hindi
-  const zodiacNamesHi: Record<number, string> = {
-    0: 'मे', // Aries (Mesh)
-    1: 'वृ', // Taurus (Vrishabh)
-    2: 'मि', // Gemini (Mithun)
-    3: 'क', // Cancer (Kark)
-    4: 'सिं', // Leo (Simha)
-    5: 'क', // Virgo (Kanya)
-    6: 'तु', // Libra (Tula)
-    7: 'वृ', // Scorpio (Vrishchik)
-    8: 'ध', // Sagittarius (Dhanu)
-    9: 'म', // Capricorn (Makar)
-    10: 'कु', // Aquarius (Kumbh)
-    11: 'मी'  // Pisces (Meen)
+  const getTranslation = (en: string, hi: string) => {
+    return language === 'hi' ? hi : en;
   };
 
-  // Calculate house positions based on Lagna
-  const houses = new Array(12).fill(null).map((_, index) => {
-    const houseNumber = index + 1;
-    const sign = (lagna.sign + index) % 12;
-    const planetsInHouse: string[] = [];
-    
-    // Find planets in this house
+  const lagna = kundaliData.enhancedCalculations.lagna;
+  const planets = kundaliData.enhancedCalculations.planets;
+
+  // Zodiac signs in both languages
+  const zodiacSigns = [
+    { en: 'Aries', hi: 'मेष', symbol: '♈' },
+    { en: 'Taurus', hi: 'वृष', symbol: '♉' },
+    { en: 'Gemini', hi: 'मिथुन', symbol: '♊' },
+    { en: 'Cancer', hi: 'कर्क', symbol: '♋' },
+    { en: 'Leo', hi: 'सिंह', symbol: '♌' },
+    { en: 'Virgo', hi: 'कन्या', symbol: '♍' },
+    { en: 'Libra', hi: 'तुला', symbol: '♎' },
+    { en: 'Scorpio', hi: 'वृश्चिक', symbol: '♏' },
+    { en: 'Sagittarius', hi: 'धनु', symbol: '♐' },
+    { en: 'Capricorn', hi: 'मकर', symbol: '♑' },
+    { en: 'Aquarius', hi: 'कुम्भ', symbol: '♒' },
+    { en: 'Pisces', hi: 'मीन', symbol: '♓' }
+  ];
+
+  // Planet symbols and colors
+  const planetInfo = {
+    SU: { symbol: '☉', color: 'text-yellow-600', name: language === 'hi' ? 'सूर्य' : 'Sun' },
+    MO: { symbol: '☽', color: 'text-blue-600', name: language === 'hi' ? 'चंद्र' : 'Moon' },
+    MA: { symbol: '♂', color: 'text-red-600', name: language === 'hi' ? 'मंगल' : 'Mars' },
+    ME: { symbol: '☿', color: 'text-green-600', name: language === 'hi' ? 'बुध' : 'Mercury' },
+    JU: { symbol: '♃', color: 'text-purple-600', name: language === 'hi' ? 'गुरु' : 'Jupiter' },
+    VE: { symbol: '♀', color: 'text-pink-600', name: language === 'hi' ? 'शुक्र' : 'Venus' },
+    SA: { symbol: '♄', color: 'text-gray-600', name: language === 'hi' ? 'शनि' : 'Saturn' },
+    RA: { symbol: '☊', color: 'text-orange-600', name: language === 'hi' ? 'राहु' : 'Rahu' },
+    KE: { symbol: '☋', color: 'text-indigo-600', name: language === 'hi' ? 'केतु' : 'Ketu' }
+  };
+
+  // Calculate house positions for display
+  const getHouseData = () => {
+    const houses = Array.from({ length: 12 }, (_, index) => ({
+      number: index + 1,
+      sign: zodiacSigns[index],
+      planets: []
+    }));
+
+    // Place planets in houses
     Object.entries(planets).forEach(([planetId, planet]) => {
-      const planetHouse = Math.floor(((planet.rashi - lagna.sign + 12) % 12) + 1);
-      if (planetHouse === houseNumber) {
-        planetsInHouse.push(planetId);
+      const houseNumber = Math.floor(((planet.rashi - lagna.sign + 12) % 12)) + 1;
+      const houseIndex = houseNumber - 1;
+      if (houseIndex >= 0 && houseIndex < 12) {
+        houses[houseIndex].planets.push({
+          id: planetId,
+          ...planetInfo[planetId as keyof typeof planetInfo]
+        });
       }
     });
-    
-    return {
-      number: houseNumber,
-      sign,
-      signName: sign,
-      planets: planetsInHouse
-    };
-  });
-  
-  // Function to get planet color
-  const getPlanetColor = (planetId: string): string => {
-    const colorMap: Record<string, string> = {
-      SU: 'text-yellow-600', // Sun - Yellow
-      MO: 'text-blue-400',   // Moon - Light Blue
-      MA: 'text-red-600',    // Mars - Red
-      ME: 'text-green-500',  // Mercury - Green
-      JU: 'text-orange-500', // Jupiter - Orange
-      VE: 'text-pink-400',   // Venus - Pink
-      SA: 'text-gray-700',   // Saturn - Dark Gray
-      RA: 'text-indigo-600', // Rahu - Indigo
-      KE: 'text-purple-600'  // Ketu - Purple
-    };
-    
-    return colorMap[planetId] || 'text-gray-600';
+
+    return houses;
   };
 
-  // North Indian style chart layout
+  const houseData = getHouseData();
+
+  // Chart layout positions (North Indian style)
+  const chartLayout = [
+    { house: 12, position: 'col-start-1 row-start-1' },
+    { house: 1, position: 'col-start-2 row-start-1' },
+    { house: 2, position: 'col-start-3 row-start-1' },
+    { house: 3, position: 'col-start-4 row-start-1' },
+    { house: 11, position: 'col-start-1 row-start-2' },
+    { house: 0, position: 'col-start-2 row-start-2 col-span-2 row-span-2' }, // Center
+    { house: 4, position: 'col-start-4 row-start-2' },
+    { house: 10, position: 'col-start-1 row-start-3' },
+    { house: 5, position: 'col-start-4 row-start-3' },
+    { house: 9, position: 'col-start-1 row-start-4' },
+    { house: 8, position: 'col-start-2 row-start-4' },
+    { house: 7, position: 'col-start-3 row-start-4' },
+    { house: 6, position: 'col-start-4 row-start-4' }
+  ];
+
   return (
-    <Card>
-      <CardHeader className="bg-gradient-to-r from-orange-100 to-red-100 pb-3">
-        <CardTitle className="text-center text-orange-800 flex items-center justify-center gap-2">
-          <Star className="h-5 w-5 text-orange-600" />
-          {language === 'hi' ? 'उत्तर भारतीय कुंडली चार्ट' : 'North Indian Kundali Chart'}
-        </CardTitle>
-        <div className="text-center text-sm text-orange-700">
-          <span className="font-semibold">{language === 'hi' ? 'लग्न:' : 'Ascendant:'}</span> {lagna.signName} ({lagna.degree.toFixed(1)}°)
-        </div>
-      </CardHeader>
-      <CardContent className="p-4">
-        <div className="relative w-full max-w-md mx-auto">
-          {/* North Indian style chart */}
-          <div className="aspect-square border-2 border-orange-300 relative">
-            {/* Inner cross lines */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-full h-[2px] bg-orange-300"></div>
-            </div>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-[2px] h-full bg-orange-300"></div>
-            </div>
-            
-            {/* Diagonal lines */}
-            <div className="absolute inset-0">
-              <div className="w-full h-full border-2 border-orange-300 transform rotate-45 origin-center"></div>
+    <div className="space-y-4 md:space-y-6">
+      {/* Birth Details Card */}
+      <Card className="border-orange-200 bg-gradient-to-r from-orange-50 to-red-50">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-orange-800 text-center text-lg md:text-xl">
+            {getTranslation('Birth Chart Details', 'जन्म कुंडली विवरण')}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 text-center">
+            <div className="bg-white p-3 rounded-lg shadow-sm">
+              <h4 className="font-semibold text-orange-800 text-sm mb-1">
+                {getTranslation('Ascendant (Lagna)', 'लग्न')}
+              </h4>
+              <p className="text-orange-600 font-medium text-lg">
+                {lagna.signName}
+              </p>
+              <p className="text-xs text-gray-600">
+                {zodiacSigns[lagna.sign - 1]?.symbol} {lagna.degree.toFixed(2)}°
+              </p>
             </div>
             
-            {/* Houses and Planets */}
-            {/* Top row */}
-            <div className="absolute top-0 left-0 w-1/4 h-1/4 border-orange-300 p-1 text-center">
-              <div className="text-xs font-bold text-orange-700">{houses[11].number}</div>
-              <div className="text-xs text-gray-600">
-                {language === 'hi' ? zodiacNamesHi[houses[11].sign] : zodiacSymbols[houses[11].sign]}
-              </div>
-              {houses[11].planets.map(planet => (
-                <div key={planet} className={`text-xs font-bold ${getPlanetColor(planet)}`}>
-                  {language === 'hi' ? planetNamesHi[planet] : planetSymbols[planet]}
-                </div>
-              ))}
+            <div className="bg-white p-3 rounded-lg shadow-sm">
+              <h4 className="font-semibold text-blue-800 text-sm mb-1 flex items-center justify-center gap-1">
+                <Moon className="h-4 w-4" />
+                {getTranslation('Moon Sign', 'चंद्र राशि')}
+              </h4>
+              <p className="text-blue-600 font-medium text-lg">
+                {planets.MO.rashiName}
+              </p>
+              <p className="text-xs text-gray-600">
+                {zodiacSigns[planets.MO.rashi - 1]?.symbol} {planets.MO.degree.toFixed(2)}°
+              </p>
             </div>
             
-            <div className="absolute top-0 left-1/4 w-1/4 h-1/4 border-orange-300 p-1 text-center">
-              <div className="text-xs font-bold text-orange-700">{houses[0].number}</div>
-              <div className="text-xs text-gray-600">
-                {language === 'hi' ? zodiacNamesHi[houses[0].sign] : zodiacSymbols[houses[0].sign]}
-              </div>
-              {houses[0].planets.map(planet => (
-                <div key={planet} className={`text-xs font-bold ${getPlanetColor(planet)}`}>
-                  {language === 'hi' ? planetNamesHi[planet] : planetSymbols[planet]}
-                </div>
-              ))}
+            <div className="bg-white p-3 rounded-lg shadow-sm">
+              <h4 className="font-semibold text-yellow-800 text-sm mb-1 flex items-center justify-center gap-1">
+                <Sun className="h-4 w-4" />
+                {getTranslation('Sun Sign', 'सूर्य राशि')}
+              </h4>
+              <p className="text-yellow-600 font-medium text-lg">
+                {planets.SU.rashiName}
+              </p>
+              <p className="text-xs text-gray-600">
+                {zodiacSigns[planets.SU.rashi - 1]?.symbol} {planets.SU.degree.toFixed(2)}°
+              </p>
             </div>
             
-            <div className="absolute top-0 left-1/2 w-1/4 h-1/4 border-orange-300 p-1 text-center">
-              <div className="text-xs font-bold text-orange-700">{houses[1].number}</div>
-              <div className="text-xs text-gray-600">
-                {language === 'hi' ? zodiacNamesHi[houses[1].sign] : zodiacSymbols[houses[1].sign]}
-              </div>
-              {houses[1].planets.map(planet => (
-                <div key={planet} className={`text-xs font-bold ${getPlanetColor(planet)}`}>
-                  {language === 'hi' ? planetNamesHi[planet] : planetSymbols[planet]}
-                </div>
-              ))}
+            <div className="bg-white p-3 rounded-lg shadow-sm">
+              <h4 className="font-semibold text-purple-800 text-sm mb-1">
+                {getTranslation('Nakshatra', 'नक्षत्र')}
+              </h4>
+              <p className="text-purple-600 font-medium text-lg">
+                {planets.MO.nakshatraName}
+              </p>
+              <p className="text-xs text-gray-600">
+                {getTranslation('Pada', 'पाद')} {planets.MO.nakshatraPada}
+              </p>
             </div>
-            
-            <div className="absolute top-0 left-3/4 w-1/4 h-1/4 border-orange-300 p-1 text-center">
-              <div className="text-xs font-bold text-orange-700">{houses[2].number}</div>
-              <div className="text-xs text-gray-600">
-                {language === 'hi' ? zodiacNamesHi[houses[2].sign] : zodiacSymbols[houses[2].sign]}
-              </div>
-              {houses[2].planets.map(planet => (
-                <div key={planet} className={`text-xs font-bold ${getPlanetColor(planet)}`}>
-                  {language === 'hi' ? planetNamesHi[planet] : planetSymbols[planet]}
-                </div>
-              ))}
-            </div>
-            
-            {/* Left column */}
-            <div className="absolute top-1/4 left-0 w-1/4 h-1/4 border-orange-300 p-1 text-center">
-              <div className="text-xs font-bold text-orange-700">{houses[10].number}</div>
-              <div className="text-xs text-gray-600">
-                {language === 'hi' ? zodiacNamesHi[houses[10].sign] : zodiacSymbols[houses[10].sign]}
-              </div>
-              {houses[10].planets.map(planet => (
-                <div key={planet} className={`text-xs font-bold ${getPlanetColor(planet)}`}>
-                  {language === 'hi' ? planetNamesHi[planet] : planetSymbols[planet]}
-                </div>
-              ))}
-            </div>
-            
-            <div className="absolute top-1/2 left-0 w-1/4 h-1/4 border-orange-300 p-1 text-center">
-              <div className="text-xs font-bold text-orange-700">{houses[9].number}</div>
-              <div className="text-xs text-gray-600">
-                {language === 'hi' ? zodiacNamesHi[houses[9].sign] : zodiacSymbols[houses[9].sign]}
-              </div>
-              {houses[9].planets.map(planet => (
-                <div key={planet} className={`text-xs font-bold ${getPlanetColor(planet)}`}>
-                  {language === 'hi' ? planetNamesHi[planet] : planetSymbols[planet]}
-                </div>
-              ))}
-            </div>
-            
-            <div className="absolute top-3/4 left-0 w-1/4 h-1/4 border-orange-300 p-1 text-center">
-              <div className="text-xs font-bold text-orange-700">{houses[8].number}</div>
-              <div className="text-xs text-gray-600">
-                {language === 'hi' ? zodiacNamesHi[houses[8].sign] : zodiacSymbols[houses[8].sign]}
-              </div>
-              {houses[8].planets.map(planet => (
-                <div key={planet} className={`text-xs font-bold ${getPlanetColor(planet)}`}>
-                  {language === 'hi' ? planetNamesHi[planet] : planetSymbols[planet]}
-                </div>
-              ))}
-            </div>
-            
-            {/* Bottom row */}
-            <div className="absolute top-3/4 left-1/4 w-1/4 h-1/4 border-orange-300 p-1 text-center">
-              <div className="text-xs font-bold text-orange-700">{houses[7].number}</div>
-              <div className="text-xs text-gray-600">
-                {language === 'hi' ? zodiacNamesHi[houses[7].sign] : zodiacSymbols[houses[7].sign]}
-              </div>
-              {houses[7].planets.map(planet => (
-                <div key={planet} className={`text-xs font-bold ${getPlanetColor(planet)}`}>
-                  {language === 'hi' ? planetNamesHi[planet] : planetSymbols[planet]}
-                </div>
-              ))}
-            </div>
-            
-            <div className="absolute top-3/4 left-1/2 w-1/4 h-1/4 border-orange-300 p-1 text-center">
-              <div className="text-xs font-bold text-orange-700">{houses[6].number}</div>
-              <div className="text-xs text-gray-600">
-                {language === 'hi' ? zodiacNamesHi[houses[6].sign] : zodiacSymbols[houses[6].sign]}
-              </div>
-              {houses[6].planets.map(planet => (
-                <div key={planet} className={`text-xs font-bold ${getPlanetColor(planet)}`}>
-                  {language === 'hi' ? planetNamesHi[planet] : planetSymbols[planet]}
-                </div>
-              ))}
-            </div>
-            
-            <div className="absolute top-3/4 left-3/4 w-1/4 h-1/4 border-orange-300 p-1 text-center">
-              <div className="text-xs font-bold text-orange-700">{houses[5].number}</div>
-              <div className="text-xs text-gray-600">
-                {language === 'hi' ? zodiacNamesHi[houses[5].sign] : zodiacSymbols[houses[5].sign]}
-              </div>
-              {houses[5].planets.map(planet => (
-                <div key={planet} className={`text-xs font-bold ${getPlanetColor(planet)}`}>
-                  {language === 'hi' ? planetNamesHi[planet] : planetSymbols[planet]}
-                </div>
-              ))}
-            </div>
-            
-            {/* Right column */}
-            <div className="absolute top-1/2 left-3/4 w-1/4 h-1/4 border-orange-300 p-1 text-center">
-              <div className="text-xs font-bold text-orange-700">{houses[4].number}</div>
-              <div className="text-xs text-gray-600">
-                {language === 'hi' ? zodiacNamesHi[houses[4].sign] : zodiacSymbols[houses[4].sign]}
-              </div>
-              {houses[4].planets.map(planet => (
-                <div key={planet} className={`text-xs font-bold ${getPlanetColor(planet)}`}>
-                  {language === 'hi' ? planetNamesHi[planet] : planetSymbols[planet]}
-                </div>
-              ))}
-            </div>
-            
-            <div className="absolute top-1/4 left-3/4 w-1/4 h-1/4 border-orange-300 p-1 text-center">
-              <div className="text-xs font-bold text-orange-700">{houses[3].number}</div>
-              <div className="text-xs text-gray-600">
-                {language === 'hi' ? zodiacNamesHi[houses[3].sign] : zodiacSymbols[houses[3].sign]}
-              </div>
-              {houses[3].planets.map(planet => (
-                <div key={planet} className={`text-xs font-bold ${getPlanetColor(planet)}`}>
-                  {language === 'hi' ? planetNamesHi[planet] : planetSymbols[planet]}
-                </div>
-              ))}
-            </div>
-            
-            {/* Center area */}
-            <div className="absolute top-1/4 left-1/4 w-1/2 h-1/2 flex items-center justify-center">
-              <div className="text-center">
-                <div className="text-lg font-bold text-orange-800">
-                  {language === 'hi' ? 'जन्मपत्री' : 'Birth Chart'}
-                </div>
-                <div className="flex justify-center space-x-4 mt-1">
-                  <div className="flex items-center text-xs">
-                    <Sun className="h-3 w-3 mr-1 text-yellow-600" />
-                    <span className="text-gray-700">{planets.SU.rashiName}</span>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Kundali Chart */}
+      <Card className="border-orange-200">
+        <CardHeader>
+          <CardTitle className="text-orange-800 text-center">
+            {getTranslation('Kundali Chart (North Indian Style)', 'कुंडली चार्ट (उत्तर भारतीय शैली)')}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="max-w-lg mx-auto">
+            <div className="grid grid-cols-4 grid-rows-4 gap-1 aspect-square">
+              {chartLayout.map((layout, index) => {
+                if (layout.house === 0) {
+                  // Center area
+                  return (
+                    <div
+                      key={index}
+                      className={`${layout.position} bg-gradient-to-br from-orange-100 to-red-100 border-2 border-orange-300 rounded flex flex-col items-center justify-center p-2`}
+                    >
+                      <div className="text-center">
+                        <div className="text-lg font-bold text-orange-800 mb-1">
+                          {getTranslation('Kundali', 'कुंडली')}
+                        </div>
+                        <div className="text-sm text-orange-600">
+                          {getTranslation('Lagna:', 'लग्न:')} {lagna.signName}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                }
+
+                const house = houseData[layout.house - 1];
+                const isLagnaHouse = layout.house === lagna.sign;
+
+                return (
+                  <div
+                    key={index}
+                    className={`${layout.position} border border-gray-300 p-1 bg-white hover:bg-gray-50 transition-colors ${
+                      isLagnaHouse ? 'bg-orange-100 border-orange-400 font-bold' : ''
+                    }`}
+                  >
+                    <div className="text-xs text-center h-full flex flex-col">
+                      <div className="font-bold text-gray-800 mb-1">
+                        {layout.house}
+                      </div>
+                      <div className="text-xs text-gray-600 mb-1">
+                        {language === 'hi' ? house.sign.hi : house.sign.en}
+                      </div>
+                      <div className="flex-1 flex flex-col items-center gap-1">
+                        {house.planets.map((planet: any, planetIndex: number) => (
+                          <div
+                            key={planetIndex}
+                            className={`${planet.color} text-sm font-medium`}
+                            title={planet.name}
+                          >
+                            {planet.symbol}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex items-center text-xs">
-                    <Moon className="h-3 w-3 mr-1 text-blue-600" />
-                    <span className="text-gray-700">{planets.MO.rashiName}</span>
-                  </div>
-                </div>
-              </div>
+                );
+              })}
             </div>
           </div>
-        </div>
-        
-        {/* Legend below chart */}
-        <div className="mt-4 bg-orange-50 rounded-lg p-3 border border-orange-200">
-          <div className="text-sm font-semibold text-orange-800 mb-2">
-            {language === 'hi' ? 'ग्रह सूची:' : 'Planet Legend:'}
+        </CardContent>
+      </Card>
+
+      {/* Planet Positions Table */}
+      <Card className="border-orange-200">
+        <CardHeader>
+          <CardTitle className="text-orange-800 flex items-center gap-2">
+            <Star className="h-5 w-5" />
+            {getTranslation('Planetary Positions', 'ग्रह स्थिति')}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-orange-200">
+                  <th className="text-left p-2 font-semibold text-orange-800">
+                    {getTranslation('Planet', 'ग्रह')}
+                  </th>
+                  <th className="text-left p-2 font-semibold text-orange-800">
+                    {getTranslation('Sign', 'राशि')}
+                  </th>
+                  <th className="text-left p-2 font-semibold text-orange-800">
+                    {getTranslation('Degree', 'अंश')}
+                  </th>
+                  <th className="text-left p-2 font-semibold text-orange-800">
+                    {getTranslation('Nakshatra', 'नक्षत्र')}
+                  </th>
+                  <th className="text-left p-2 font-semibold text-orange-800">
+                    {getTranslation('House', 'भाव')}
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {Object.entries(planets).map(([planetId, planet]) => {
+                  const planetDetail = planetInfo[planetId as keyof typeof planetInfo];
+                  const houseNumber = Math.floor(((planet.rashi - lagna.sign + 12) % 12)) + 1;
+                  
+                  return (
+                    <tr key={planetId} className="border-b border-gray-100 hover:bg-orange-50">
+                      <td className="p-2">
+                        <div className="flex items-center gap-2">
+                          <span className={`${planetDetail?.color} text-lg`}>
+                            {planetDetail?.symbol}
+                          </span>
+                          <span className="font-medium">{planetDetail?.name}</span>
+                        </div>
+                      </td>
+                      <td className="p-2">{planet.rashiName}</td>
+                      <td className="p-2">{planet.degree.toFixed(2)}°</td>
+                      <td className="p-2">{planet.nakshatraName}</td>
+                      <td className="p-2">{houseNumber}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
-          <div className="grid grid-cols-3 gap-x-4 gap-y-1 text-xs">
-            {Object.entries(planetSymbols).map(([planetId, symbol]) => (
-              <div key={planetId} className="flex items-center">
-                <span className={`font-bold ${getPlanetColor(planetId)}`}>{symbol}</span>
-                <span className="ml-1 text-gray-700">: {planets[planetId]?.name || planetId}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 
