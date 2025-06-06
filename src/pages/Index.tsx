@@ -66,16 +66,16 @@ const Index = () => {
             .eq('user_id', user.id)
             .maybeSingle();
 
-          // Use raw insert to bypass TypeScript type issues
+          // Use direct insert without array brackets
           const { error: insertError } = await supabase
             .from('kundali_reports')
-            .insert([{
+            .insert({
               user_id: user.id,
               profile_id: profile?.id || null,
               name: birthData.name,
               birth_data: enhancedBirthData,
               kundali_data: result
-            }]);
+            });
 
           if (insertError) {
             console.error('Error saving kundali:', insertError);
