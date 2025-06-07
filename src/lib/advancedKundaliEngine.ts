@@ -17,6 +17,10 @@ export interface BirthData {
   timezone?: number;
 }
 
+export interface EnhancedBirthData extends BirthData {
+  fullName: string;
+}
+
 export interface ComprehensiveKundaliData {
   birthData: BirthData & { fullName: string };
   enhancedCalculations: {
@@ -128,6 +132,7 @@ export interface ComprehensiveKundaliData {
         planet: string;
         metal: string;
         finger: string;
+        day: string;
       }>;
       mantras: Array<{
         mantra: string;
@@ -171,7 +176,7 @@ export function generateAdvancedKundali(birthData: BirthData): ComprehensiveKund
         rashiName: preciseKundali.lagna.rashiName,
         degree: preciseKundali.lagna.degree,
         longitude: preciseKundali.lagna.longitude,
-        sign: preciseKundali.lagna.sign
+        sign: Math.floor(preciseKundali.lagna.longitude / 30)
       },
       planets: Object.keys(preciseKundali.planets).reduce((acc, planetId) => {
         const planet = preciseKundali.planets[planetId];
@@ -181,10 +186,10 @@ export function generateAdvancedKundali(birthData: BirthData): ComprehensiveKund
           nakshatraName: planet.nakshatraName,
           nakshatraPada: planet.nakshatraPada || 1,
           degree: planet.degree,
-          degreeInSign: planet.degreeInSign,
+          degreeInSign: planet.degree % 30,
           longitude: planet.longitude,
           house: planet.house,
-          rashi: planet.rashi,
+          rashi: Math.floor(planet.longitude / 30),
           isRetrograde: planet.isRetrograde,
           shadbala: planet.shadbala || 50,
           dignity: planet.dignity || 'Neutral',
@@ -225,7 +230,7 @@ export function generateAdvancedKundali(birthData: BirthData): ComprehensiveKund
         significance: house.significance || []
       })),
       accuracy: preciseKundali.accuracy,
-      julianDay: preciseKundali.julianDay
+      julianDay: preciseKundali.julianDay || 0
     };
     
     // Generate interpretations
@@ -245,6 +250,9 @@ export function generateAdvancedKundali(birthData: BirthData): ComprehensiveKund
     throw new Error('Failed to generate accurate Kundali. Please check your birth details.');
   }
 }
+
+// Export as generateComprehensiveKundali for backward compatibility
+export const generateComprehensiveKundali = generateAdvancedKundali;
 
 function generateInterpretations(kundali: PreciseKundaliResult) {
   const sun = kundali.planets.SU;
@@ -312,7 +320,8 @@ function generateInterpretations(kundali: PreciseKundaliResult) {
       weight: '5-7 carats',
       planet: 'Sun',
       metal: 'Gold',
-      finger: 'Ring finger'
+      finger: 'Ring finger',
+      day: 'Sunday'
     });
   }
   if (moon.shadbala < 50) {
@@ -321,7 +330,8 @@ function generateInterpretations(kundali: PreciseKundaliResult) {
       weight: '3-5 carats',
       planet: 'Moon',
       metal: 'Silver',
-      finger: 'Little finger'
+      finger: 'Little finger',
+      day: 'Monday'
     });
   }
   
@@ -425,6 +435,3 @@ function getCompatibleSigns(rashiName: string): string[] {
   
   return compatibility[rashiName] || ['Compatible signs based on detailed analysis'];
 }
-
-// Export the existing interface for backward compatibility
-export { ComprehensiveKundaliData };
