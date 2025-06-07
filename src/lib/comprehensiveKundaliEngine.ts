@@ -1,5 +1,5 @@
 
-import { ComprehensiveKundaliData, EnhancedBirthData } from './advancedKundaliEngine';
+import { ComprehensiveKundaliData, EnhancedBirthData, generateComprehensiveKundali } from './advancedKundaliEngine';
 import { zodiacSignsHindi, nakshatrasHindi, planetsHindi, housesHindi } from './zodiacMappings';
 
 export interface ComprehensiveAstrologicalData extends ComprehensiveKundaliData {
@@ -159,7 +159,7 @@ export interface ComprehensiveAstrologicalData extends ComprehensiveKundaliData 
 
 export const generateComprehensiveAstrologicalData = (birthData: EnhancedBirthData): ComprehensiveAstrologicalData => {
   // Generate comprehensive kundali with enhanced features
-  const baseKundali = generateEnhancedKundali(birthData);
+  const baseKundali = generateComprehensiveKundali(birthData);
   
   // Add comprehensive features
   const comprehensiveData: ComprehensiveAstrologicalData = {
@@ -181,11 +181,6 @@ export const generateComprehensiveAstrologicalData = (birthData: EnhancedBirthDa
 };
 
 // Helper functions (simplified implementations)
-function generateEnhancedKundali(birthData: EnhancedBirthData) {
-  // This would use the existing enhanced kundali engine
-  return {} as any;
-}
-
 function generateDivisionalCharts(birthData: EnhancedBirthData) {
   return {
     navamsa: calculateNavamsa(birthData),

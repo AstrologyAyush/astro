@@ -177,7 +177,7 @@ const EnhancedKundaliPDFExport: React.FC<EnhancedKundaliPDFExportProps> = ({
       doc.setFont('helvetica', 'normal');
       doc.text(`${language === 'hi' ? 'अवधि:' : 'Period:'} ${dasha.startDate.toLocaleDateString()} - ${dasha.endDate.toLocaleDateString()}`, margin, yPosition);
       yPosition += 5;
-      doc.text(`${language === 'hi' ? 'कुल समय:' : 'Duration:'} ${dasha.years} ${language === 'hi' ? 'वर्ष' : 'years'} ${dasha.months} ${language === 'hi' ? 'महीने' : 'months'}`, margin, yPosition);
+      doc.text(`${language === 'hi' ? 'कुल समय:' : 'Duration:'} ${dasha.years} ${language === 'hi' ? 'वर्ष' : 'years'}${dasha.months ? ` ${dasha.months} ${language === 'hi' ? 'महीने' : 'months'}` : ''}`, margin, yPosition);
       yPosition += 8;
     });
     
@@ -331,8 +331,6 @@ const EnhancedKundaliPDFExport: React.FC<EnhancedKundaliPDFExportProps> = ({
         doc.text(`${language === 'hi' ? 'वजन:' : 'Weight:'} ${gem.weight}, ${language === 'hi' ? 'धातु:' : 'Metal:'} ${gem.metal}`, margin + 5, yPosition);
         yPosition += 4;
         doc.text(`${language === 'hi' ? 'उंगली:' : 'Finger:'} ${gem.finger}, ${language === 'hi' ? 'दिन:' : 'Day:'} ${gem.day}`, margin + 5, yPosition);
-        yPosition += 4;
-        doc.text(`${language === 'hi' ? 'मंत्र:' : 'Mantra:'} ${gem.mantra}`, margin + 5, yPosition);
         yPosition += 6;
       });
     }

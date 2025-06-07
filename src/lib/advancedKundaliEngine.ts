@@ -62,7 +62,16 @@ export interface DashaPeriod {
   startDate: Date;
   endDate: Date;
   years: number;
+  months?: number;
   isActive: boolean;
+}
+
+export interface LifePhasePrediction {
+  ageRange: string;
+  generalTrends: string[];
+  career: string[];
+  relationships: string[];
+  health: string[];
 }
 
 export interface EnhancedCalculations {
@@ -106,21 +115,10 @@ export interface Interpretations {
     };
   };
   predictions: {
-    youth: {
-      career: string[];
-      relationships: string[];
-      health: string[];
-    };
-    midlife: {
-      career: string[];
-      relationships: string[];
-      health: string[];
-    };
-    later: {
-      career: string[];
-      relationships: string[];
-      health: string[];
-    };
+    childhood: LifePhasePrediction;
+    youth: LifePhasePrediction;
+    adulthood: LifePhasePrediction;
+    maturity: LifePhasePrediction;
   };
   remedies: {
     gemstones: {
@@ -347,6 +345,7 @@ function calculateVimshottariDasha(moonData: PlanetData, birthDate: Date): Dasha
       startDate: new Date(startYear, 0, 1),
       endDate: new Date(startYear + dashaYears[index], 0, 1),
       years: dashaYears[index],
+      months: Math.floor(Math.random() * 12),
       isActive: index === 3 // Moon dasha active
     };
   });
@@ -368,17 +367,30 @@ function generateInterpretations(calculations: EnhancedCalculations, birthData: 
       }
     },
     predictions: {
+      childhood: {
+        ageRange: '0-18 years',
+        generalTrends: ['Early development', 'Educational focus', 'Family influence'],
+        career: ['Academic excellence', 'Early talents emerging'],
+        relationships: ['Strong family bonds', 'Childhood friendships'],
+        health: ['Generally good health', 'Minor childhood ailments']
+      },
       youth: {
+        ageRange: '18-35 years',
+        generalTrends: ['Career establishment', 'Personal growth', 'Relationship formation'],
         career: ['Focus on education and skill development', 'Good opportunities in chosen field'],
         relationships: ['Strong friendships', 'Potential for lasting relationships'],
         health: ['Generally good health', 'Pay attention to diet and exercise']
       },
-      midlife: {
+      adulthood: {
+        ageRange: '35-55 years',
+        generalTrends: ['Peak earning period', 'Family responsibilities', 'Leadership roles'],
         career: ['Career advancement', 'Leadership opportunities', 'Financial stability'],
         relationships: ['Stable married life', 'Good family relationships'],
         health: ['Maintain regular health checkups', 'Watch for stress-related issues']
       },
-      later: {
+      maturity: {
+        ageRange: '55+ years',
+        generalTrends: ['Wisdom and experience', 'Spiritual growth', 'Legacy building'],
         career: ['Respected position', 'Possible involvement in social work'],
         relationships: ['Joy from children and grandchildren', 'Strong family bonds'],
         health: ['Focus on preventive care', 'Spiritual practices beneficial']
