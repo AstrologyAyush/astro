@@ -109,6 +109,30 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
 
               {/* Desktop Navigation */}
               <div className="hidden md:flex items-center gap-2">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => navigate('/kundali')} 
+                  className="h-8 px-3 rounded-full text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
+                >
+                  {t('kundali')}
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => navigate('/personality-test')} 
+                  className="h-8 px-3 rounded-full text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
+                >
+                  {t('personality_test')}
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => navigate('/daily-horoscope')} 
+                  className="h-8 px-3 rounded-full text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
+                >
+                  {t('daily_horoscope')}
+                </Button>
                 {!isLoggedIn && (
                   <Button 
                     variant="default" 
