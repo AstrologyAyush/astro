@@ -1,5 +1,4 @@
-
-import { calculateBasicKundali } from './kundaliEngine';
+import { calculateBasicKundali } from './kundaliUtils';
 
 export interface EnhancedBirthData {
   fullName: string;
@@ -48,6 +47,7 @@ export interface HouseData {
 
 export interface Yoga {
   name: string;
+  sanskritName?: string;
   description: string;
   strength: number;
   isActive: boolean;
@@ -61,6 +61,7 @@ export interface DashaData {
   startDate: Date;
   endDate: Date;
   years: number;
+  months?: number;
   isActive: boolean;
 }
 
@@ -108,6 +109,29 @@ export interface ComprehensiveKundaliData {
     };
     predictions: {
       youth: {
+        ageRange: string;
+        generalTrends: string[];
+        career: string[];
+        relationships: string[];
+        health: string[];
+      };
+      childhood: {
+        ageRange: string;
+        generalTrends: string[];
+        career: string[];
+        relationships: string[];
+        health: string[];
+      };
+      adulthood: {
+        ageRange: string;
+        generalTrends: string[];
+        career: string[];
+        relationships: string[];
+        health: string[];
+      };
+      maturity: {
+        ageRange: string;
+        generalTrends: string[];
         career: string[];
         relationships: string[];
         health: string[];
@@ -120,10 +144,15 @@ export interface ComprehensiveKundaliData {
         planet: string;
         metal: string;
         finger: string;
+        day?: string;
+        count?: number;
+        duration?: string;
       }>;
       mantras: Array<{
         mantra: string;
         planet: string;
+        count?: number;
+        duration?: string;
       }>;
       charities: Array<{
         item: string;
@@ -174,6 +203,7 @@ export const generateComprehensiveKundali = (birthData: EnhancedBirthData): Comp
         planets.find(p => p.id === 'MO' && [1, 4, 7, 10].includes(p.house))) {
       yogas.push({
         name: 'Adhi Yoga',
+        sanskritName: 'आधि योग',
         description: 'Auspicious yoga for wealth and happiness',
         strength: 80,
         isActive: true,
@@ -188,6 +218,7 @@ export const generateComprehensiveKundali = (birthData: EnhancedBirthData): Comp
     if (moon && jupiter) {
       yogas.push({
         name: 'Gaja Kesari Yoga',
+        sanskritName: 'गज केसरी योग',
         description: 'Moon and Jupiter in favorable positions',
         strength: 75,
         isActive: true,
@@ -250,6 +281,7 @@ export const generateComprehensiveKundali = (birthData: EnhancedBirthData): Comp
       startDate: new Date('2020-01-01'),
       endDate: new Date('2036-01-01'),
       years: 16,
+      months: 0,
       isActive: true
     },
     {
@@ -258,6 +290,7 @@ export const generateComprehensiveKundali = (birthData: EnhancedBirthData): Comp
       startDate: new Date('2036-01-01'),
       endDate: new Date('2055-01-01'),
       years: 19,
+      months: 0,
       isActive: false
     }
   ];
@@ -299,9 +332,32 @@ export const generateComprehensiveKundali = (birthData: EnhancedBirthData): Comp
     },
     predictions: {
       youth: {
+        ageRange: '18-25 years',
+        generalTrends: ['Exploration and learning', 'Building foundations'],
         career: ['Strong potential for success in chosen field', 'Leadership opportunities will arise'],
         relationships: ['Meaningful partnerships likely', 'Family support will be strong'],
         health: ['Generally good health', 'Need to manage stress levels']
+      },
+      childhood: {
+        ageRange: '0-12 years',
+        generalTrends: ['Rapid growth and development', 'Strong family bonds'],
+        career: ['Early signs of talents', 'Good academic performance'],
+        relationships: ['Close family relationships', 'Making lifelong friends'],
+        health: ['Strong immunity', 'Active lifestyle']
+      },
+      adulthood: {
+        ageRange: '25-50 years',
+        generalTrends: ['Career establishment', 'Family building'],
+        career: ['Professional growth', 'Leadership roles'],
+        relationships: ['Marriage and partnership', 'Growing family'],
+        health: ['Maintaining wellness', 'Regular health checkups']
+      },
+      maturity: {
+        ageRange: '50+ years',
+        generalTrends: ['Wisdom and experience', 'Spiritual growth'],
+        career: ['Mentoring others', 'Legacy building'],
+        relationships: ['Deep partnerships', 'Grandparent role'],
+        health: ['Focus on prevention', 'Holistic wellness']
       }
     },
     remedies: {
@@ -311,13 +367,18 @@ export const generateComprehensiveKundali = (birthData: EnhancedBirthData): Comp
           weight: '3-5 carats',
           planet: 'Jupiter',
           metal: 'Gold',
-          finger: 'Index finger'
+          finger: 'Index finger',
+          day: 'Thursday',
+          count: 108,
+          duration: '3 months'
         }
       ],
       mantras: [
         {
           mantra: 'Om Namah Shivaya',
-          planet: 'All planets'
+          planet: 'All planets',
+          count: 108,
+          duration: 'Daily'
         }
       ],
       charities: [

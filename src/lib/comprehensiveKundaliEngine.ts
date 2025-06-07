@@ -101,6 +101,7 @@ export interface ComprehensiveAstrologicalData extends ComprehensiveKundaliData 
       childrenProspects: string[];
     };
   };
+  // Update the remedialMeasures type to match the base interface
   remedialMeasures: {
     gemstones: {
       primary: string;
