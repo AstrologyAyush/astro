@@ -101,8 +101,8 @@ export interface ComprehensiveAstrologicalData extends ComprehensiveKundaliData 
       childrenProspects: string[];
     };
   };
-  // Update the remedialMeasures type to match the base interface
-  remedialMeasures: {
+  // Override the remedialMeasures type to be more comprehensive
+  comprehensiveRemedialMeasures: {
     gemstones: {
       primary: string;
       weight: string;
@@ -172,7 +172,7 @@ export const generateComprehensiveAstrologicalData = (birthData: EnhancedBirthDa
     transitAnalysis: calculateTransits(baseKundali),
     annualHoroscope: generateAnnualHoroscope(baseKundali),
     lifeAreaAnalysis: analyzeLifeAreas(baseKundali),
-    remedialMeasures: generateRemedialMeasures(baseKundali),
+    comprehensiveRemedialMeasures: generateComprehensiveRemedialMeasures(baseKundali),
     auspiciousTimings: calculateAuspiciousTimings(baseKundali),
     numerology: calculateNumerology(birthData)
   };
@@ -338,7 +338,7 @@ function analyzeLifeAreas(kundali: any) {
   };
 }
 
-function generateRemedialMeasures(kundali: any) {
+function generateComprehensiveRemedialMeasures(kundali: any) {
   return {
     gemstones: [
       {

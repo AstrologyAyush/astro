@@ -1,4 +1,4 @@
-import { calculateBasicKundali } from './kundaliUtils';
+import { generateKundaliChart } from './kundaliUtils';
 
 export interface EnhancedBirthData {
   fullName: string;
@@ -178,16 +178,19 @@ interface PlanetPosition {
 export const generateComprehensiveKundali = (birthData: EnhancedBirthData): ComprehensiveKundaliData => {
   console.log('Generating comprehensive Kundali with enhanced calculations...');
   
-  // Calculate basic Kundali data
-  const basicKundaliData = calculateBasicKundali(
-    birthData.date,
-    birthData.time,
-    birthData.latitude,
-    birthData.longitude
-  );
+  // Calculate basic Kundali data using the correct function
+  const basicKundaliData = generateKundaliChart({
+    fullName: birthData.fullName,
+    date: birthData.date,
+    time: birthData.time,
+    place: birthData.place,
+    latitude: birthData.latitude,
+    longitude: birthData.longitude,
+    timezone: birthData.timezone
+  });
 
-  const lagna = basicKundaliData.ascendant.sign;
-  const planets: PlanetPosition[] = basicKundaliData.planets;
+  const lagna = basicKundaliData.ascendant;
+  const planets: any[] = Object.values(basicKundaliData.planets);
 
   // Function to calculate Shadbala (planetary strength)
   const calculateShadbala = (planet: any, lagna: number): number => {
@@ -300,8 +303,8 @@ export const generateComprehensiveKundali = (birthData: EnhancedBirthData): Comp
     lagna: {
       sign: lagna,
       signName: getZodiacSignName(lagna),
-      degree: basicKundaliData.ascendant.degree,
-      longitude: basicKundaliData.ascendant.degree
+      degree: basicKundaliData.ascendant,
+      longitude: basicKundaliData.ascendant
     },
     planets: enhancedPlanets,
     houses: houses,
