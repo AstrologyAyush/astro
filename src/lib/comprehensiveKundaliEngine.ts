@@ -377,13 +377,11 @@ function generateRemedialMeasures(kundali: any) {
       foods: ['Vegetarian diet', 'Turmeric', 'Ghee'],
       activities: ['Morning prayers', 'Reading scriptures', 'Helping others']
     },
-    fasting: [
-      {
-        days: ['Thursday'],
-        deities: ['Lord Vishnu', 'Jupiter'],
-        benefits: ['Wisdom', 'Wealth', 'Knowledge']
-      }
-    ]
+    fasting: {
+      days: ['Thursday'],
+      deities: ['Lord Vishnu', 'Jupiter'],
+      benefits: ['Wisdom', 'Wealth', 'Knowledge']
+    }
   };
 }
 
