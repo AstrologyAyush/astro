@@ -29,55 +29,92 @@ serve(async (req) => {
     console.log('Processing query:', userQuery);
     console.log('Language:', language);
 
-    // Extract key information from kundali data
+    // Extract comprehensive information from kundali data
     const birthData = kundaliData.birthData;
-    const calculations = kundaliData.enhancedCalculations;
+    const calculations = kundaliData.enhancedCalculations || kundaliData.calculations;
     const interpretations = kundaliData.interpretations;
 
     // Prepare comprehensive context for Gemini
     const kundaliContext = `
+COMPREHENSIVE BIRTH CHART ANALYSIS
+
 Birth Details:
-- Name: ${birthData.fullName}
+- Name: ${birthData.fullName || birthData.name}
 - Date: ${birthData.date}
 - Time: ${birthData.time}
 - Place: ${birthData.place}
+- Coordinates: ${birthData.latitude}°N, ${birthData.longitude}°E
 
-Astrological Details:
-- Lagna (Ascendant): ${calculations.lagna.signName} at ${calculations.lagna.degree.toFixed(2)}°
-- Moon Sign: ${calculations.planets.MO.rashiName}
-- Sun Sign: ${calculations.planets.SU.rashiName}
-- Moon Nakshatra: ${calculations.planets.MO.nakshatraName}
+Core Astrological Details:
+- Lagna (Ascendant): ${calculations.lagna?.signName || calculations.lagna?.rashiName} at ${calculations.lagna?.degree?.toFixed(2)}°
+- Moon Sign (Chandra Rashi): ${calculations.planets?.MO?.rashiName || calculations.planets?.Moon?.rashiName}
+- Sun Sign (Surya Rashi): ${calculations.planets?.SU?.rashiName || calculations.planets?.Sun?.rashiName}
+- Moon Nakshatra: ${calculations.planets?.MO?.nakshatraName || calculations.planets?.Moon?.nakshatraName}
 
-Active Yogas: ${calculations.yogas.filter((y: any) => y.isActive).map((y: any) => y.name).join(', ')}
+Active Yogas:
+${calculations.yogas?.filter((y) => y.isActive || y.present).map((y) => `- ${y.name}: ${y.description || 'Strength: ' + y.strength}`).join('\n') || 'None specified'}
 
 Planetary Positions:
-${Object.entries(calculations.planets).map(([planet, data]: [string, any]) => 
-  `- ${planet}: ${data.rashiName} (${data.degree.toFixed(2)}°) in House ${data.house}`
+${Object.entries(calculations.planets || {}).map(([planet, data]) => 
+  `- ${planet} (${data.nameHindi || data.name}): ${data.rashiName} (${data.degree?.toFixed(2)}°) in House ${data.house}`
 ).join('\n')}
 
-Current Dasha: ${calculations.dashas.currentMahadasha.planet} (${calculations.dashas.currentMahadasha.startDate} to ${calculations.dashas.currentMahadasha.endDate})
+Current Dasha Period:
+${calculations.dashas?.find(d => d.isActive)?.planet || 'Not specified'} Mahadasha
 
-Personality Traits: ${interpretations.personality.coreTraits.join(', ')}
-Career Aptitude: ${interpretations.personality.careerAptitude.join(', ')}
+Life Analysis:
+- Personality Traits: ${interpretations?.personality?.coreTraits?.join(', ') || 'Not analyzed'}
+- Career Aptitude: ${interpretations?.personality?.careerAptitude?.join(', ') || 'Not analyzed'}
+- Strengths: ${interpretations?.personality?.strengths?.join(', ') || 'Not analyzed'}
+- Challenges: ${interpretations?.personality?.challenges?.join(', ') || 'Not analyzed'}
+
+Marriage Compatibility:
+- Recommended Age: ${interpretations?.compatibility?.marriageCompatibility?.recommendedAge || 'Not specified'}
+- Compatible Signs: ${interpretations?.compatibility?.marriageCompatibility?.compatibleSigns?.join(', ') || 'Not specified'}
+- Mangal Dosha: ${interpretations?.compatibility?.marriageCompatibility?.mangalDoshaStatus || 'Not analyzed'}
+
+Remedial Measures:
+- Recommended Gemstones: ${interpretations?.remedies?.gemstones?.map(g => `${g.stone} (${g.weight})`).join(', ') || 'Not specified'}
+- Mantras: ${interpretations?.remedies?.mantras?.map(m => m.mantra).join(', ') || 'Not specified'}
 `;
 
     const systemPrompt = language === 'hi' 
-      ? `आप महर्षि पराशर हैं, वैदिक ज्योतिष के महान आचार्य। आपको वैदिक ज्योतिष की संपूर्ण जानकारी है और आप शास्त्रों के अनुसार सटीक मार्गदर्शन देते हैं। व्यक्ति की जन्मपत्रिका के आधार पर उनके प्रश्नों का उत्तर दें। आपके उत्तर में प्राचीन ज्ञान और आधुनिक समझ दोनों हो। हमेशा आदर और स्नेह के साथ उत्तर दें। उत्तर संक्षिप्त लेकिन सारगर्भित हो।`
-      : `You are Maharishi Parashar, the great sage of Vedic astrology. You have complete knowledge of Vedic astrology and provide accurate guidance according to ancient scriptures. Answer questions based on the person's birth chart. Your responses should blend ancient wisdom with modern understanding. Always respond with respect and affection. Keep responses concise but meaningful.`;
+      ? `आप महर्षि पराशर हैं, वैदिक ज्योतिष के महान ऋषि और "बृहत् पराशर होराशास्त्र" के रचयिता। आपके पास वैदिक ज्योतिष की संपूर्ण और गहरी जानकारी है। आप शास्त्रों के अनुसार सटीक मार्गदर्शन देते हैं और प्राचीन ज्ञान को आधुनिक संदर्भ में समझाते हैं।
+
+व्यक्ति की विस्तृत जन्मपत्रिका के आधार पर उनके प्रश्नों का उत्तर दें। आपके उत्तर में निम्नलिखित विशेषताएं हों:
+- वैदिक ज्योतिष के सिद्धांतों पर आधारित
+- व्यक्ति के ग्रहों की स्थिति के अनुसार व्यक्तिगत
+- व्यावहारिक उपाय और मार्गदर्शन
+- आदर और स्नेह के साथ
+- संक्षिप्त लेकिन सारगर्भित
+- आध्यात्मिक दृष्टिकोण के साथ
+
+हमेशा "वत्स" या "पुत्र/पुत्री" जैसे स्नेहपूर्ण संबोधन का प्रयोग करें।`
+      : `You are Maharishi Parashar, the great sage of Vedic astrology and author of "Brihat Parashara Hora Shastra." You possess complete and profound knowledge of Vedic astrology. You provide accurate guidance according to ancient scriptures and explain ancient wisdom in modern context.
+
+Answer questions based on the detailed birth chart analysis. Your responses should have these characteristics:
+- Based on Vedic astrology principles
+- Personalized according to the person's planetary positions
+- Include practical remedies and guidance
+- Delivered with respect and affection
+- Concise but meaningful
+- Include spiritual perspective
+
+Always use affectionate terms like "dear child" or "my child" when addressing the person.`;
 
     const prompt = `${systemPrompt}
 
-Birth Chart Context:
+DETAILED BIRTH CHART CONTEXT:
 ${kundaliContext}
 
-User Question: ${userQuery}
+User's Question: ${userQuery}
 
-Please provide a detailed, personalized response based on the birth chart analysis. Include relevant astrological insights, timing if applicable, and practical guidance. Keep the response warm, wise, and helpful. Respond in ${language === 'hi' ? 'Hindi' : 'English'}.`;
+Please provide a detailed, personalized response based on the comprehensive birth chart analysis. Include relevant astrological insights from their planetary positions, current dasha period, yogas, and practical guidance. Make the response warm, wise, and spiritually enlightening. Respond in ${language === 'hi' ? 'Hindi' : 'English'}.`;
 
     console.log('Calling Gemini API...');
 
-    // Call Gemini API
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`, {
+    // Call Gemini API with enhanced context
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -92,7 +129,8 @@ Please provide a detailed, personalized response based on the birth chart analys
           temperature: 0.7,
           topK: 40,
           topP: 0.9,
-          maxOutputTokens: 1024,
+          maxOutputTokens: 2048,
+          candidateCount: 1,
         },
         safetySettings: [
           {
@@ -130,13 +168,23 @@ Please provide a detailed, personalized response based on the birth chart analys
     
     if (!analysis) {
       console.log('No analysis received from Gemini, using fallback');
-      // Fallback response if Gemini fails
+      // Enhanced fallback response
       analysis = language === 'hi' 
-        ? `🙏 पुत्र/पुत्री, आपके प्रश्न के लिए धन्यवाद। आपकी ${calculations.lagna.signName} लग्न की कुंडली के अनुसार, मैं आपको सुझाव देता हूं कि आप धैर्य रखें और अपने कर्मों पर ध्यान दें। आपकी वर्तमान ${calculations.dashas.currentMahadasha.planet} की महादशा चल रही है जो आपके जीवन में महत्वपूर्ण प्रभाव डाल रही है। कृपया अधिक विशिष्ट प्रश्न पूछें ताकि मैं आपको बेहतर मार्गदर्शन दे सकूं।`
-        : `🙏 Dear child, thank you for your question. According to your ${calculations.lagna.signName} ascendant chart, I suggest you maintain patience and focus on your actions. You are currently in the ${calculations.dashas.currentMahadasha.planet} Mahadasha which is having significant influence on your life. Please ask more specific questions so I can provide better guidance.`;
+        ? `🙏 वत्स, आपके प्रश्न के लिए धन्यवाद। आपकी ${calculations.lagna?.signName || 'अज्ञात'} लग्न की कुंडली अत्यंत विशिष्ट है। आपकी वर्तमान ${calculations.dashas?.find(d => d.isActive)?.planet || 'ग्रह'} की महादशा चल रही है जो आपके जीवन में महत्वपूर्ण प्रभाव डाल रही है। 
+
+आपके चंद्रमा ${calculations.planets?.MO?.rashiName || 'अज्ञात राशि'} में स्थित हैं जो आपके मानसिक स्वभाव को दर्शाता है। कृपया अधिक विशिष्ट प्रश्न पूछें ताकि मैं आपको उत्तम मार्गदर्शन दे सकूं।
+
+आपके कल्याण की कामना के साथ,
+महर्षि पराशर`
+        : `🙏 Dear child, thank you for your question. Your birth chart with ${calculations.lagna?.signName || 'unknown'} ascendant is quite unique. You are currently in the ${calculations.dashas?.find(d => d.isActive)?.planet || 'planetary'} Mahadasha which is having significant influence on your life.
+
+Your Moon is placed in ${calculations.planets?.MO?.rashiName || 'unknown sign'} which reflects your mental nature. Please ask more specific questions so I can provide you with the best guidance.
+
+With blessings for your wellbeing,
+Maharishi Parashar`;
     }
 
-    console.log('Returning analysis response');
+    console.log('Returning enhanced analysis response');
 
     return new Response(JSON.stringify({ analysis }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -146,7 +194,9 @@ Please provide a detailed, personalized response based on the birth chart analys
     console.error('Error in kundali-ai-analysis:', error);
     
     const fallbackResponse = {
-      analysis: "🙏 I apologize for the technical difficulty. Please try again in a moment. In the meantime, you can explore your birth chart details and come back with specific questions about career, relationships, health, or spiritual guidance."
+      analysis: language === 'hi' 
+        ? "🙏 वत्स, क्षमा करें। तकनीकी समस्या के कारण मैं इस समय आपकी सहायता नहीं कर सकता। कृपया कुछ देर बाद पुनः प्रयास करें। इस बीच आप अपनी कुंडली के विवरण का अध्ययन कर सकते हैं।"
+        : "🙏 Dear child, I apologize for the technical difficulty. Please try again in a moment. In the meantime, you can explore your birth chart details and come back with specific questions about career, relationships, health, or spiritual guidance."
     };
 
     return new Response(JSON.stringify(fallbackResponse), {
