@@ -14,6 +14,14 @@ const EnhancedKundaliPDFExport: React.FC<EnhancedKundaliPDFExportProps> = ({
   kundaliData, 
   language 
 }) => {
+  // Helper function to safely format date
+  const formatDate = (date: string | Date): string => {
+    if (typeof date === 'string') {
+      return new Date(date).toLocaleDateString();
+    }
+    return date.toLocaleDateString();
+  };
+
   const generateComprehensivePDF = () => {
     const doc = new jsPDF();
     let yPosition = 20;
@@ -58,7 +66,7 @@ const EnhancedKundaliPDFExport: React.FC<EnhancedKundaliPDFExportProps> = ({
     
     const birthDetails = [
       `${language === 'hi' ? 'नाम:' : 'Name:'} ${kundaliData.birthData.fullName}`,
-      `${language === 'hi' ? 'जन्म तिथि:' : 'Date of Birth:'} ${kundaliData.birthData.date.toLocaleDateString()}`,
+      `${language === 'hi' ? 'जन्म तिथि:' : 'Date of Birth:'} ${formatDate(kundaliData.birthData.date)}`,
       `${language === 'hi' ? 'समय:' : 'Time:'} ${kundaliData.birthData.time}`,
       `${language === 'hi' ? 'स्थान:' : 'Place:'} ${kundaliData.birthData.place}`,
       `${language === 'hi' ? 'अक्षांश:' : 'Latitude:'} ${kundaliData.birthData.latitude.toFixed(4)}°`,

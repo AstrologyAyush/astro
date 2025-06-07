@@ -19,6 +19,14 @@ const DetailedKundaliDisplay: React.FC<DetailedKundaliDisplayProps> = ({
 }) => {
   const { enhancedCalculations, interpretations, birthData } = kundaliData;
   
+  // Helper function to safely format date
+  const formatDate = (date: string | Date): string => {
+    if (typeof date === 'string') {
+      return new Date(date).toLocaleDateString();
+    }
+    return date.toLocaleDateString();
+  };
+  
   return (
     <div className="w-full max-w-6xl mx-auto p-4 md:p-6 space-y-6">
       {/* Enhanced Header with Personal Information */}
@@ -32,7 +40,7 @@ const DetailedKundaliDisplay: React.FC<DetailedKundaliDisplayProps> = ({
             <p className="text-lg font-semibold">{birthData.fullName}</p>
             <p>
               {language === 'hi' ? 'जन्म: ' : 'Born: '}
-              {birthData.date.toLocaleDateString()} {language === 'hi' ? 'को ' : 'at '}
+              {formatDate(birthData.date)} {language === 'hi' ? 'को ' : 'at '}
               {birthData.time}
             </p>
             <p>{language === 'hi' ? 'स्थान: ' : 'Place: '}{birthData.place}</p>
@@ -257,9 +265,7 @@ const DetailedKundaliDisplay: React.FC<DetailedKundaliDisplayProps> = ({
                       <strong>{language === 'hi' ? 'राशि:' : 'Sign:'}</strong> {planet.rashiName}
                     </div>
                     <div>
-                      <strong>{language === 'hi' ? 'भाव:' : 'House:'}</strong> {
-                        Math.floor(((planet.rashi - enhancedCalculations.lagna.sign + 12) % 12) + 1)
-                      }
+                      <strong>{language === 'hi' ? 'भाव:' : 'House:'}</strong> {planet.house}
                     </div>
                     <div>
                       <strong>{language === 'hi' ? 'अंश:' : 'Degree:'}</strong> {planet.degreeInSign.toFixed(2)}°
