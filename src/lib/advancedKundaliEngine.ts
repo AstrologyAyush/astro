@@ -192,26 +192,26 @@ export function generateAdvancedKundali(birthData: BirthData): ComprehensiveKund
           rashi: Math.floor(planet.longitude / 30),
           isRetrograde: planet.isRetrograde,
           shadbala: planet.shadbala || 50,
-          dignity: planet.dignity || 'Neutral',
-          exaltation: planet.exaltation || false,
-          debilitation: planet.debilitation || false,
-          ownSign: planet.ownSign || false
+          dignity: (planet as any).dignity || 'Neutral',
+          exaltation: (planet as any).exaltation || false,
+          debilitation: (planet as any).debilitation || false,
+          ownSign: (planet as any).ownSign || false
         };
         return acc;
       }, {} as Record<string, any>),
       yogas: preciseKundali.yogas.map(yoga => ({
         name: yoga.name,
-        sanskritName: yoga.sanskritName || yoga.name,
+        sanskritName: (yoga as any).sanskritName || yoga.name,
         isActive: yoga.isActive,
         present: yoga.isActive,
         strength: yoga.strength,
         description: yoga.description,
-        effects: yoga.effects || [yoga.description],
-        type: yoga.type || 'neutral'
+        effects: (yoga as any).effects || [yoga.description],
+        type: (yoga as any).type || 'neutral'
       })),
       dashas: preciseKundali.dashas.map(dasha => ({
         planet: dasha.planet,
-        planetSanskrit: dasha.planetSanskrit || dasha.planet,
+        planetSanskrit: (dasha as any).planetSanskrit || dasha.planet,
         isActive: dasha.isActive,
         startDate: dasha.startDate,
         endDate: dasha.endDate,
@@ -226,11 +226,11 @@ export function generateAdvancedKundali(birthData: BirthData): ComprehensiveKund
         signName: house.rashiName,
         lord: house.lord,
         planetsInHouse: house.planetsInHouse,
-        cusp: house.cusp || 0,
-        significance: house.significance || []
+        cusp: (house as any).cusp || 0,
+        significance: (house as any).significance || []
       })),
       accuracy: preciseKundali.accuracy,
-      julianDay: preciseKundali.julianDay || 0
+      julianDay: (preciseKundali as any).julianDay || calculateJulianDay(preciseData.date, preciseData.time)
     };
     
     // Generate interpretations

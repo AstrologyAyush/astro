@@ -53,7 +53,7 @@ const Index = () => {
         place: birthData.placeOfBirth,
         latitude: birthData.latitude,
         longitude: birthData.longitude,
-        timezone: '5.5'
+        timezone: 5.5 // Changed from string to number
       };
 
       // Enhanced loading time for Swiss Ephemeris-level calculations
@@ -240,7 +240,6 @@ const Index = () => {
             <TabsContent value="horoscope">
               <EnhancedDailyHoroscope 
                 kundaliData={null} 
-                language={language} 
               />
             </TabsContent>
           </Tabs>

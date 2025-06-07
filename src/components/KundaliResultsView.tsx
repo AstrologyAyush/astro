@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -66,7 +65,6 @@ const KundaliResultsView: React.FC<KundaliResultsViewProps> = ({
         <div className="flex justify-center">
           <EnhancedDailyHoroscope 
             kundaliData={kundaliData} 
-            language={language} 
           />
         </div>
       </div>
