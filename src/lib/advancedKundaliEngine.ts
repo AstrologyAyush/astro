@@ -230,7 +230,7 @@ export function generateAdvancedKundali(birthData: BirthData): ComprehensiveKund
         significance: (house as any).significance || []
       })),
       accuracy: preciseKundali.accuracy,
-      julianDay: (preciseKundali as any).julianDay || calculateJulianDay(preciseData.date, preciseData.time)
+      julianDay: (preciseKundali as any).julianDay || calculateJulianDay(preciseData.date, preciseData.time, preciseData.timezone || 0)
     };
     
     // Generate interpretations
