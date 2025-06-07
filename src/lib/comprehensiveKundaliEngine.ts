@@ -1,4 +1,3 @@
-
 import { ComprehensiveKundaliData, EnhancedBirthData, generateComprehensiveKundali } from './advancedKundaliEngine';
 import { zodiacSignsHindi, nakshatrasHindi, planetsHindi, housesHindi } from './zodiacMappings';
 
@@ -405,7 +404,7 @@ function calculateNumerology(birthData: EnhancedBirthData) {
   const month = birthDate.getMonth() + 1;
   const year = birthDate.getFullYear();
   
-  const lifePathNumber = (day + month + year).toString().split('').reduce((a, b) => parseInt(a) + parseInt(b), 0);
+  const lifePathNumber = (day + month + year).toString().split('').reduce((a, b) => parseInt(a.toString()) + parseInt(b.toString()), 0);
   
   return {
     lifePathNumber: lifePathNumber > 9 ? lifePathNumber - 9 : lifePathNumber,
