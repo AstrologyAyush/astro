@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -8,9 +7,19 @@ import AppLogo from './AppLogo';
 
 interface HeroSectionProps {
   language: 'hi' | 'en';
+  onKundaliClick?: () => void;
+  onNumerologyClick?: () => void;
+  onPersonalityClick?: () => void;
+  onHoroscopeClick?: () => void;
 }
 
-const HeroSection: React.FC<HeroSectionProps> = ({ language }) => {
+const HeroSection: React.FC<HeroSectionProps> = ({ 
+  language, 
+  onKundaliClick,
+  onNumerologyClick,
+  onPersonalityClick,
+  onHoroscopeClick
+}) => {
   const navigate = useNavigate();
 
   const getTranslation = (en: string, hi: string) => {
@@ -18,13 +27,21 @@ const HeroSection: React.FC<HeroSectionProps> = ({ language }) => {
   };
 
   const handleGetStarted = () => {
-    // Navigate to kundali page directly
-    navigate('/kundali');
+    if (onKundaliClick) {
+      onKundaliClick();
+    } else {
+      // Navigate to kundali page directly
+      navigate('/kundali');
+    }
   };
 
   const handleTryEngine = () => {
-    // Navigate to kundali page directly
-    navigate('/kundali');
+    if (onKundaliClick) {
+      onKundaliClick();
+    } else {
+      // Navigate to kundali page directly
+      navigate('/kundali');
+    }
   };
 
   return (

@@ -252,14 +252,10 @@ const Index = () => {
           />
         )}
 
-        {/* Feature Cards with enhanced CTA handlers */}
+        {/* Feature Cards without CTA handlers */}
         <FeatureCards 
           language={language} 
           kundaliData={kundaliData} 
-          onKundaliClick={handleKundaliCTA}
-          onNumerologyClick={handleNumerologyCTA}
-          onPersonalityClick={handlePersonalityCTA}
-          onHoroscopeClick={handleHoroscopeCTA}
         />
 
         {/* Accuracy Statement */}
