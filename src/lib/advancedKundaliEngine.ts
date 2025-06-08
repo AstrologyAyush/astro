@@ -1,11 +1,9 @@
 
 import { 
-  PreciseBirthData, 
-  PreciseKundaliResult, 
-  generatePreciseKundali,
-  calculateJulianDay,
-  calculateLahiriAyanamsa
-} from './preciseKundaliEngine';
+  VedicBirthData, 
+  VedicKundaliResult, 
+  generatePreciseVedicKundali
+} from './preciseVedicKundaliEngine';
 
 export interface BirthData {
   fullName: string;
@@ -153,10 +151,10 @@ export interface ComprehensiveKundaliData {
 // Main function to generate enhanced Kundali using precise calculations
 export function generateAdvancedKundali(birthData: BirthData): ComprehensiveKundaliData {
   try {
-    console.log('Generating advanced Kundali using precise calculations');
+    console.log('🚀 Generating advanced Kundali using precise Vedic calculations');
     
     // Convert to precise birth data format
-    const preciseData: PreciseBirthData = {
+    const preciseData: VedicBirthData = {
       fullName: birthData.fullName,
       date: typeof birthData.date === 'string' ? birthData.date : birthData.date.toISOString().split('T')[0],
       time: birthData.time,
@@ -166,8 +164,8 @@ export function generateAdvancedKundali(birthData: BirthData): ComprehensiveKund
       timezone: birthData.timezone || 0
     };
     
-    // Generate precise Kundali
-    const preciseKundali = generatePreciseKundali(preciseData);
+    // Generate precise Vedic Kundali
+    const preciseKundali = generatePreciseVedicKundali(preciseData);
     
     // Convert to enhanced format for compatibility
     const enhancedCalculations = {
@@ -176,7 +174,7 @@ export function generateAdvancedKundali(birthData: BirthData): ComprehensiveKund
         rashiName: preciseKundali.lagna.rashiName,
         degree: preciseKundali.lagna.degree,
         longitude: preciseKundali.lagna.longitude,
-        sign: Math.floor(preciseKundali.lagna.longitude / 30)
+        sign: preciseKundali.lagna.rashi
       },
       planets: Object.keys(preciseKundali.planets).reduce((acc, planetId) => {
         const planet = preciseKundali.planets[planetId];
@@ -184,34 +182,34 @@ export function generateAdvancedKundali(birthData: BirthData): ComprehensiveKund
           name: planet.name,
           rashiName: planet.rashiName,
           nakshatraName: planet.nakshatraName,
-          nakshatraPada: planet.nakshatraPada || 1,
+          nakshatraPada: planet.nakshatraPada,
           degree: planet.degree,
-          degreeInSign: planet.degree % 30,
+          degreeInSign: planet.degree,
           longitude: planet.longitude,
           house: planet.house,
-          rashi: Math.floor(planet.longitude / 30),
+          rashi: planet.rashi,
           isRetrograde: planet.isRetrograde,
-          shadbala: planet.shadbala || 50,
-          dignity: (planet as any).dignity || 'Neutral',
-          exaltation: (planet as any).exaltation || false,
-          debilitation: (planet as any).debilitation || false,
-          ownSign: (planet as any).ownSign || false
+          shadbala: planet.shadbala,
+          dignity: planet.isExalted ? 'Exalted' : planet.isDebilitated ? 'Debilitated' : planet.isOwnSign ? 'Own Sign' : 'Neutral',
+          exaltation: planet.isExalted,
+          debilitation: planet.isDebilitated,
+          ownSign: planet.isOwnSign
         };
         return acc;
       }, {} as Record<string, any>),
       yogas: preciseKundali.yogas.map(yoga => ({
         name: yoga.name,
-        sanskritName: (yoga as any).sanskritName || yoga.name,
+        sanskritName: yoga.sanskritName,
         isActive: yoga.isActive,
         present: yoga.isActive,
         strength: yoga.strength,
         description: yoga.description,
-        effects: (yoga as any).effects || [yoga.description],
-        type: (yoga as any).type || 'neutral'
+        effects: yoga.effects,
+        type: yoga.type
       })),
       dashas: preciseKundali.dashas.map(dasha => ({
         planet: dasha.planet,
-        planetSanskrit: (dasha as any).planetSanskrit || dasha.planet,
+        planetSanskrit: dasha.planetHindi,
         isActive: dasha.isActive,
         startDate: dasha.startDate,
         endDate: dasha.endDate,
@@ -226,15 +224,17 @@ export function generateAdvancedKundali(birthData: BirthData): ComprehensiveKund
         signName: house.rashiName,
         lord: house.lord,
         planetsInHouse: house.planetsInHouse,
-        cusp: (house as any).cusp || 0,
-        significance: (house as any).significance || []
+        cusp: house.cusp,
+        significance: house.significations
       })),
       accuracy: preciseKundali.accuracy,
-      julianDay: (preciseKundali as any).julianDay || calculateJulianDay(preciseData.date, preciseData.time, preciseData.timezone || 0)
+      julianDay: preciseKundali.calculations.julianDay
     };
     
     // Generate interpretations
     const interpretations = generateInterpretations(preciseKundali);
+    
+    console.log('✅ Advanced Kundali generated with maximum accuracy');
     
     return {
       birthData: {
@@ -246,7 +246,7 @@ export function generateAdvancedKundali(birthData: BirthData): ComprehensiveKund
     };
     
   } catch (error) {
-    console.error('Error generating advanced Kundali:', error);
+    console.error('❌ Error generating advanced Kundali:', error);
     throw new Error('Failed to generate accurate Kundali. Please check your birth details.');
   }
 }
@@ -254,7 +254,7 @@ export function generateAdvancedKundali(birthData: BirthData): ComprehensiveKund
 // Export as generateComprehensiveKundali for backward compatibility
 export const generateComprehensiveKundali = generateAdvancedKundali;
 
-function generateInterpretations(kundali: PreciseKundaliResult) {
+function generateInterpretations(kundali: VedicKundaliResult) {
   const sun = kundali.planets.SU;
   const moon = kundali.planets.MO;
   const lagna = kundali.lagna;
@@ -268,34 +268,76 @@ function generateInterpretations(kundali: PreciseKundaliResult) {
   // Lagna-based traits
   switch (lagna.rashiName) {
     case 'Aries':
-      strengths.push('Natural leadership', 'Courage', 'Initiative');
-      coreTraits.push('Bold', 'Energetic', 'Independent');
-      careerAptitude.push('Leadership roles', 'Sports', 'Military');
+      strengths.push('Natural leadership', 'Courage', 'Initiative', 'Pioneering spirit');
+      coreTraits.push('Bold', 'Energetic', 'Independent', 'Action-oriented');
+      careerAptitude.push('Leadership roles', 'Sports', 'Military', 'Entrepreneurship');
+      challenges.push('Impatience', 'Impulsiveness');
       break;
     case 'Taurus':
-      strengths.push('Stability', 'Persistence', 'Practical approach');
-      coreTraits.push('Reliable', 'Patient', 'Artistic');
-      careerAptitude.push('Finance', 'Arts', 'Agriculture');
+      strengths.push('Stability', 'Persistence', 'Practical approach', 'Artistic sense');
+      coreTraits.push('Reliable', 'Patient', 'Artistic', 'Material-focused');
+      careerAptitude.push('Finance', 'Arts', 'Agriculture', 'Banking');
+      challenges.push('Stubbornness', 'Resistance to change');
       break;
     case 'Gemini':
-      strengths.push('Communication', 'Adaptability', 'Intelligence');
-      coreTraits.push('Curious', 'Versatile', 'Social');
-      careerAptitude.push('Media', 'Teaching', 'Sales');
+      strengths.push('Communication', 'Adaptability', 'Intelligence', 'Versatility');
+      coreTraits.push('Curious', 'Versatile', 'Social', 'Quick-thinking');
+      careerAptitude.push('Media', 'Teaching', 'Sales', 'Writing');
+      challenges.push('Inconsistency', 'Superficiality');
       break;
     case 'Cancer':
-      strengths.push('Emotional intelligence', 'Nurturing nature', 'Intuition');
-      coreTraits.push('Caring', 'Protective', 'Sensitive');
-      careerAptitude.push('Healthcare', 'Hospitality', 'Real estate');
+      strengths.push('Emotional intelligence', 'Nurturing nature', 'Intuition', 'Memory');
+      coreTraits.push('Caring', 'Protective', 'Sensitive', 'Home-oriented');
+      careerAptitude.push('Healthcare', 'Hospitality', 'Real estate', 'Psychology');
+      challenges.push('Over-sensitivity', 'Mood swings');
       break;
     case 'Leo':
-      strengths.push('Confidence', 'Creativity', 'Natural authority');
-      coreTraits.push('Generous', 'Dramatic', 'Loyal');
-      careerAptitude.push('Entertainment', 'Management', 'Politics');
+      strengths.push('Confidence', 'Creativity', 'Natural authority', 'Generosity');
+      coreTraits.push('Generous', 'Dramatic', 'Loyal', 'Charismatic');
+      careerAptitude.push('Entertainment', 'Management', 'Politics', 'Creative arts');
+      challenges.push('Ego issues', 'Attention-seeking');
       break;
     case 'Virgo':
-      strengths.push('Attention to detail', 'Analytical skills', 'Service orientation');
-      coreTraits.push('Practical', 'Organized', 'Helpful');
-      careerAptitude.push('Research', 'Healthcare', 'Administration');
+      strengths.push('Attention to detail', 'Analytical skills', 'Service orientation', 'Perfectionism');
+      coreTraits.push('Practical', 'Organized', 'Helpful', 'Methodical');
+      careerAptitude.push('Research', 'Healthcare', 'Administration', 'Quality control');
+      challenges.push('Over-criticism', 'Perfectionism');
+      break;
+    case 'Libra':
+      strengths.push('Diplomacy', 'Aesthetic sense', 'Balance', 'Social skills');
+      coreTraits.push('Diplomatic', 'Artistic', 'Social', 'Justice-oriented');
+      careerAptitude.push('Law', 'Arts', 'Diplomacy', 'Fashion');
+      challenges.push('Indecisiveness', 'People-pleasing');
+      break;
+    case 'Scorpio':
+      strengths.push('Intensity', 'Research ability', 'Transformation', 'Depth');
+      coreTraits.push('Intense', 'Mysterious', 'Transformative', 'Investigative');
+      careerAptitude.push('Research', 'Investigation', 'Occult sciences', 'Surgery');
+      challenges.push('Jealousy', 'Vindictiveness');
+      break;
+    case 'Sagittarius':
+      strengths.push('Optimism', 'Philosophy', 'Adventure', 'Higher learning');
+      coreTraits.push('Optimistic', 'Philosophical', 'Adventurous', 'Truth-seeking');
+      careerAptitude.push('Teaching', 'Publishing', 'Travel', 'Religion');
+      challenges.push('Over-confidence', 'Restlessness');
+      break;
+    case 'Capricorn':
+      strengths.push('Discipline', 'Ambition', 'Responsibility', 'Endurance');
+      coreTraits.push('Disciplined', 'Ambitious', 'Practical', 'Status-conscious');
+      careerAptitude.push('Administration', 'Government', 'Construction', 'Traditional business');
+      challenges.push('Pessimism', 'Rigidity');
+      break;
+    case 'Aquarius':
+      strengths.push('Innovation', 'Humanitarian spirit', 'Independence', 'Future vision');
+      coreTraits.push('Innovative', 'Humanitarian', 'Independent', 'Unconventional');
+      careerAptitude.push('Technology', 'Social work', 'Science', 'Innovation');
+      challenges.push('Detachment', 'Unpredictability');
+      break;
+    case 'Pisces':
+      strengths.push('Compassion', 'Spirituality', 'Imagination', 'Intuition');
+      coreTraits.push('Compassionate', 'Spiritual', 'Artistic', 'Intuitive');
+      careerAptitude.push('Arts', 'Spirituality', 'Healing', 'Service');
+      challenges.push('Over-emotionalism', 'Escapism');
       break;
     default:
       strengths.push('Balanced approach', 'Good judgment');
@@ -303,18 +345,13 @@ function generateInterpretations(kundali: PreciseKundaliResult) {
       careerAptitude.push('Consulting', 'Advisory roles');
   }
   
-  // Moon-based emotional traits
-  if (moon.isRetrograde) {
-    challenges.push('Emotional complexity');
-  }
-  
   // Check for doshas
   const mangalDosha = kundali.doshas.find(d => d.name === 'Mangal Dosha');
-  const mangalDoshaStatus = mangalDosha?.isPresent ? 'Present' : 'Absent';
+  const mangalDoshaStatus = mangalDosha?.isPresent ? `Present (${mangalDosha.severity})` : 'Absent';
   
-  // Generate gemstone recommendations
+  // Generate gemstone recommendations based on weak planets
   const gemstones = [];
-  if (sun.shadbala < 50) {
+  if (sun.shadbala < 60) {
     gemstones.push({ 
       stone: 'Ruby', 
       weight: '5-7 carats',
@@ -324,7 +361,7 @@ function generateInterpretations(kundali: PreciseKundaliResult) {
       day: 'Sunday'
     });
   }
-  if (moon.shadbala < 50) {
+  if (moon.shadbala < 60) {
     gemstones.push({ 
       stone: 'Pearl', 
       weight: '3-5 carats',
@@ -335,10 +372,11 @@ function generateInterpretations(kundali: PreciseKundaliResult) {
     });
   }
   
-  // Generate mantras
+  // Generate mantras based on planetary strengths
   const mantras = [];
-  const activeYogas = kundali.yogas.filter(y => y.isActive);
-  if (activeYogas.length > 0) {
+  const weakPlanets = Object.values(kundali.planets).filter(p => p.shadbala < 50);
+  
+  if (weakPlanets.length > 0) {
     mantras.push({ 
       mantra: 'Om Gam Ganapataye Namaha',
       planet: 'Jupiter',
@@ -346,6 +384,7 @@ function generateInterpretations(kundali: PreciseKundaliResult) {
       duration: '40 days'
     });
   }
+  
   mantras.push({ 
     mantra: 'Gayatri Mantra',
     planet: 'Sun',
@@ -353,35 +392,51 @@ function generateInterpretations(kundali: PreciseKundaliResult) {
     duration: 'Daily'
   });
 
-  // Generate predictions for different life phases
+  // Enhanced predictions for different life phases
   const predictions = {
     childhood: {
       ageRange: '0-12 years',
-      generalTrends: ['Early development influenced by family environment', 'Natural talents begin to emerge'],
-      career: ['Focus on education and skill development'],
-      relationships: ['Strong bond with family members'],
-      health: ['Generally good health with proper care']
+      generalTrends: [
+        'Early development influenced by family environment',
+        'Natural talents begin to emerge',
+        lagna.rashiName === 'Cancer' ? 'Strong emotional bonds with mother' : 'Good family support'
+      ],
+      career: ['Focus on education and skill development', 'Early signs of natural abilities'],
+      relationships: ['Strong bond with family members', 'Childhood friendships form'],
+      health: ['Generally good health with proper care', 'Need attention to diet and routine']
     },
     youth: {
       ageRange: '13-25 years',
-      generalTrends: ['Period of exploration and self-discovery', 'Important life decisions'],
-      career: ['Educational achievements and career foundation'],
-      relationships: ['First romantic relationships and friendships'],
-      health: ['High energy levels, maintain good habits']
+      generalTrends: [
+        'Period of exploration and self-discovery',
+        'Important life decisions regarding education and career',
+        kundali.yogas.some(y => y.isActive) ? 'Favorable planetary combinations support growth' : 'Steady progress expected'
+      ],
+      career: ['Educational achievements and career foundation', 'Skills development phase'],
+      relationships: ['First romantic relationships and friendships', 'Social circle expansion'],
+      health: ['High energy levels, maintain good habits', 'Sports and physical activities beneficial']
     },
     adulthood: {
       ageRange: '26-50 years',
-      generalTrends: ['Career establishment and family building', 'Material success opportunities'],
-      career: ['Professional growth and recognition'],
-      relationships: ['Marriage and family responsibilities'],
-      health: ['Need to balance work and health']
+      generalTrends: [
+        'Career establishment and family building',
+        'Material success opportunities',
+        'Prime earning period'
+      ],
+      career: ['Professional growth and recognition', 'Leadership opportunities'],
+      relationships: ['Marriage and family responsibilities', 'Long-term partnerships'],
+      health: ['Need to balance work and health', 'Regular health checkups recommended']
     },
     maturity: {
       ageRange: '51+ years',
-      generalTrends: ['Wisdom and spiritual growth', 'Mentoring others'],
-      career: ['Leadership roles and legacy building'],
-      relationships: ['Deeper, more meaningful connections'],
-      health: ['Focus on preventive healthcare']
+      generalTrends: [
+        'Wisdom and spiritual growth',
+        'Mentoring others and sharing knowledge',
+        'Focus on legacy building'
+      ],
+      career: ['Leadership roles and legacy building', 'Consulting and advisory roles'],
+      relationships: ['Deeper, more meaningful connections', 'Grandparent role and family elder'],
+      health: ['Focus on preventive healthcare', 'Emphasis on mental and spiritual well-being']
     }
   };
   
@@ -406,12 +461,14 @@ function generateInterpretations(kundali: PreciseKundaliResult) {
       charities: [
         { item: 'Food to the needy' },
         { item: 'Books to students' },
-        { item: 'Water facilities' }
+        { item: 'Water facilities' },
+        { item: 'Clothes to the poor' }
       ],
       rituals: [
         { ritual: 'Daily meditation and prayer' },
         { ritual: 'Weekly temple visits' },
-        { ritual: 'Monthly charity work' }
+        { ritual: 'Monthly charity work' },
+        { ritual: 'Annual spiritual pilgrimage' }
       ]
     }
   };
@@ -419,18 +476,18 @@ function generateInterpretations(kundali: PreciseKundaliResult) {
 
 function getCompatibleSigns(rashiName: string): string[] {
   const compatibility: Record<string, string[]> = {
-    'Aries': ['Leo', 'Sagittarius', 'Gemini'],
-    'Taurus': ['Virgo', 'Capricorn', 'Cancer'],
-    'Gemini': ['Libra', 'Aquarius', 'Aries'],
-    'Cancer': ['Scorpio', 'Pisces', 'Taurus'],
-    'Leo': ['Aries', 'Sagittarius', 'Gemini'],
-    'Virgo': ['Taurus', 'Capricorn', 'Cancer'],
-    'Libra': ['Gemini', 'Aquarius', 'Leo'],
-    'Scorpio': ['Cancer', 'Pisces', 'Virgo'],
-    'Sagittarius': ['Aries', 'Leo', 'Libra'],
-    'Capricorn': ['Taurus', 'Virgo', 'Scorpio'],
-    'Aquarius': ['Gemini', 'Libra', 'Sagittarius'],
-    'Pisces': ['Cancer', 'Scorpio', 'Capricorn']
+    'Aries': ['Leo', 'Sagittarius', 'Gemini', 'Aquarius'],
+    'Taurus': ['Virgo', 'Capricorn', 'Cancer', 'Pisces'],
+    'Gemini': ['Libra', 'Aquarius', 'Aries', 'Leo'],
+    'Cancer': ['Scorpio', 'Pisces', 'Taurus', 'Virgo'],
+    'Leo': ['Aries', 'Sagittarius', 'Gemini', 'Libra'],
+    'Virgo': ['Taurus', 'Capricorn', 'Cancer', 'Scorpio'],
+    'Libra': ['Gemini', 'Aquarius', 'Leo', 'Sagittarius'],
+    'Scorpio': ['Cancer', 'Pisces', 'Virgo', 'Capricorn'],
+    'Sagittarius': ['Aries', 'Leo', 'Libra', 'Aquarius'],
+    'Capricorn': ['Taurus', 'Virgo', 'Scorpio', 'Pisces'],
+    'Aquarius': ['Gemini', 'Libra', 'Sagittarius', 'Aries'],
+    'Pisces': ['Cancer', 'Scorpio', 'Capricorn', 'Taurus']
   };
   
   return compatibility[rashiName] || ['Compatible signs based on detailed analysis'];
