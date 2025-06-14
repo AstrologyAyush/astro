@@ -63,25 +63,25 @@ const LandingPage = () => {
       {/* Hero Section */}
       <div className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-orange-600/10 to-red-600/10"></div>
-        <div className="relative px-4 pt-6 pb-8 sm:px-6 sm:pt-8 sm:pb-12 lg:px-8 lg:pt-12 lg:pb-16">
+        <div className="relative px-3 pt-4 pb-6 sm:px-4 sm:pt-6 sm:pb-8 lg:px-8 lg:pt-8 lg:pb-12">
           <div className="max-w-4xl mx-auto text-center">
-            <Badge className="mb-3 bg-orange-100 text-orange-800 border-orange-200 text-xs px-2 py-1">
+            <Badge className="mb-2 bg-orange-100 text-orange-800 border-orange-200 text-[10px] px-1.5 py-0.5 sm:text-xs sm:px-2 sm:py-1">
               ✨ Completely FREE - Limited Time Launch Offer
             </Badge>
-            <h1 className="text-xl font-bold text-gray-900 mb-2 leading-tight sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl">
+            <h1 className="text-lg font-bold text-gray-900 mb-2 leading-tight px-2 sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl">
               Discover Your Destiny with
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-red-600 block mt-1"> AyushAstro</span>
             </h1>
-            <p className="text-sm text-gray-600 mb-4 max-w-3xl mx-auto leading-relaxed sm:text-base md:text-lg lg:text-xl">
+            <p className="text-xs text-gray-600 mb-3 max-w-2xl mx-auto leading-relaxed px-3 sm:text-sm md:text-base lg:text-lg">
               Get your complete Vedic astrology analysis with detailed life predictions, 
               personality insights, and AI-powered guidance - absolutely FREE!
             </p>
             
-            <div className="flex flex-col gap-2 justify-center mb-6 max-w-xs mx-auto sm:max-w-sm sm:gap-3 sm:mb-8 md:mb-12">
+            <div className="flex flex-col gap-2 justify-center mb-4 max-w-xs mx-auto sm:max-w-sm sm:gap-2 sm:mb-6 md:mb-8">
               <Button 
                 size="lg"
                 onClick={() => navigate('/kundali')}
-                className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white px-4 py-3 text-sm font-semibold min-h-[44px] w-full rounded-lg sm:px-6 sm:py-4 sm:text-base"
+                className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white px-3 py-2.5 text-xs font-semibold min-h-[40px] w-full rounded-lg sm:px-4 sm:py-3 sm:text-sm sm:min-h-[44px]"
               >
                 Generate Free Kundali
               </Button>
@@ -89,13 +89,13 @@ const LandingPage = () => {
                 variant="outline" 
                 size="lg"
                 onClick={() => navigate('/personality-test')}
-                className="border-orange-600 text-orange-600 hover:bg-orange-50 px-4 py-3 text-sm font-semibold min-h-[44px] w-full rounded-lg sm:px-6 sm:py-4 sm:text-base"
+                className="border-orange-600 text-orange-600 hover:bg-orange-50 px-3 py-2.5 text-xs font-semibold min-h-[40px] w-full rounded-lg sm:px-4 sm:py-3 sm:text-sm sm:min-h-[44px]"
               >
                 Take Personality Test
               </Button>
             </div>
 
-            <div className="max-w-xs mx-auto mb-6 sm:max-w-sm sm:mb-8 md:mb-12">
+            <div className="max-w-xs mx-auto mb-4 sm:max-w-sm sm:mb-6 md:mb-8">
               <CountdownTimer />
             </div>
           </div>
@@ -103,28 +103,28 @@ const LandingPage = () => {
       </div>
 
       {/* Features Section */}
-      <div className="py-8 px-4 sm:py-12 sm:px-6 md:py-16 lg:py-20 lg:px-8">
+      <div className="py-6 px-3 sm:py-8 sm:px-4 md:py-12 lg:py-16 lg:px-8">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-8 sm:mb-12 md:mb-16">
-            <h2 className="text-lg font-bold text-gray-900 mb-3 leading-tight sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl">
+          <div className="text-center mb-6 sm:mb-8 md:mb-12">
+            <h2 className="text-base font-bold text-gray-900 mb-2 leading-tight px-2 sm:text-lg md:text-xl lg:text-2xl xl:text-3xl">
               Complete Astrology Solutions
             </h2>
-            <p className="text-sm text-gray-600 max-w-2xl mx-auto sm:text-base md:text-lg lg:text-xl">
+            <p className="text-xs text-gray-600 max-w-xl mx-auto px-3 sm:text-sm md:text-base lg:text-lg">
               Everything you need to understand your cosmic blueprint
             </p>
           </div>
           
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 md:gap-8">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 md:gap-6">
             {features.map((feature, index) => (
               <Card key={index} className="border-gray-200 hover:shadow-lg transition-all duration-300 hover:border-orange-200">
-                <CardHeader className="pb-2 px-4 sm:pb-3 sm:px-6">
-                  <div className="flex items-start gap-2 mb-1 sm:gap-3 sm:mb-2">
+                <CardHeader className="pb-1.5 px-3 sm:pb-2 sm:px-4">
+                  <div className="flex items-start gap-2 mb-1 sm:gap-2 sm:mb-1.5">
                     {feature.icon}
-                    <CardTitle className="text-sm text-gray-900 leading-tight flex-1 sm:text-base md:text-lg">{feature.title}</CardTitle>
+                    <CardTitle className="text-xs text-gray-900 leading-tight flex-1 sm:text-sm md:text-base">{feature.title}</CardTitle>
                   </div>
                 </CardHeader>
-                <CardContent className="pt-0 px-4 sm:px-6">
-                  <p className="text-xs text-gray-600 leading-relaxed sm:text-sm md:text-base">{feature.description}</p>
+                <CardContent className="pt-0 px-3 sm:px-4">
+                  <p className="text-[10px] text-gray-600 leading-relaxed sm:text-xs md:text-sm">{feature.description}</p>
                 </CardContent>
               </Card>
             ))}
@@ -133,22 +133,22 @@ const LandingPage = () => {
       </div>
 
       {/* What You Get Section */}
-      <div className="py-8 px-4 bg-gradient-to-r from-orange-50 to-red-50 sm:py-12 sm:px-6 md:py-16 lg:py-20 lg:px-8">
+      <div className="py-6 px-3 bg-gradient-to-r from-orange-50 to-red-50 sm:py-8 sm:px-4 md:py-12 lg:py-16 lg:px-8">
         <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-8 sm:mb-12 md:mb-16">
-            <h2 className="text-lg font-bold text-gray-900 mb-3 leading-tight sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl">
+          <div className="text-center mb-6 sm:mb-8 md:mb-12">
+            <h2 className="text-base font-bold text-gray-900 mb-2 leading-tight px-2 sm:text-lg md:text-xl lg:text-2xl xl:text-3xl">
               What's Included in Your FREE Analysis
             </h2>
-            <p className="text-sm text-gray-600 max-w-2xl mx-auto sm:text-base md:text-lg lg:text-xl">
+            <p className="text-xs text-gray-600 max-w-xl mx-auto px-3 sm:text-sm md:text-base lg:text-lg">
               Get comprehensive insights worth thousands of rupees - completely free
             </p>
           </div>
           
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 sm:gap-3 md:gap-6">
+          <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2 sm:gap-2 md:gap-4">
             {benefits.map((benefit, index) => (
-              <div key={index} className="flex items-start gap-2 py-2 sm:gap-3 sm:py-3">
-                <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0 sm:h-5 sm:w-5" />
-                <span className="text-xs text-gray-700 leading-relaxed sm:text-sm md:text-base">{benefit}</span>
+              <div key={index} className="flex items-start gap-2 py-1.5 px-2 sm:gap-2 sm:py-2">
+                <CheckCircle className="h-3 w-3 text-green-600 mt-0.5 flex-shrink-0 sm:h-4 sm:w-4" />
+                <span className="text-[10px] text-gray-700 leading-relaxed sm:text-xs md:text-sm">{benefit}</span>
               </div>
             ))}
           </div>
@@ -156,12 +156,12 @@ const LandingPage = () => {
       </div>
 
       {/* CTA Section */}
-      <div className="py-8 px-4 sm:py-12 sm:px-6 md:py-16 lg:py-20 lg:px-8">
+      <div className="py-6 px-3 sm:py-8 sm:px-4 md:py-12 lg:py-16 lg:px-8">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-lg font-bold text-gray-900 mb-3 leading-tight sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl">
+          <h2 className="text-base font-bold text-gray-900 mb-2 leading-tight px-2 sm:text-lg md:text-xl lg:text-2xl xl:text-3xl">
             Ready to Unlock Your Cosmic Secrets?
           </h2>
-          <p className="text-sm text-gray-600 mb-6 max-w-2xl mx-auto sm:text-base sm:mb-8 md:text-lg md:mb-10 lg:text-xl">
+          <p className="text-xs text-gray-600 mb-4 max-w-xl mx-auto px-3 sm:text-sm sm:mb-6 md:text-base md:mb-8 lg:text-lg">
             Join thousands who have discovered their true potential through Vedic astrology
           </p>
           
@@ -169,13 +169,13 @@ const LandingPage = () => {
             <Button 
               size="lg"
               onClick={() => navigate('/kundali')}
-              className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white px-6 py-3 text-sm font-semibold min-h-[44px] w-full rounded-lg sm:px-8 sm:py-4 sm:text-base lg:text-lg"
+              className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white px-4 py-2.5 text-xs font-semibold min-h-[40px] w-full rounded-lg sm:px-6 sm:py-3 sm:text-sm sm:min-h-[44px] lg:text-base"
             >
               Start Your Free Analysis Now
             </Button>
           </div>
           
-          <p className="text-xs text-gray-500 mt-3 sm:text-sm sm:mt-4 md:mt-6">
+          <p className="text-[10px] text-gray-500 mt-2 px-2 sm:text-xs sm:mt-3 md:mt-4">
             No payment required • No hidden charges • Complete analysis in minutes
           </p>
         </div>
