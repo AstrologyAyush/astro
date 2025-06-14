@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -6,7 +5,7 @@ import { ComprehensiveKundaliData } from '@/lib/advancedKundaliEngine';
 import EnhancedVisualKundaliChart from './EnhancedVisualKundaliChart';
 import EnhancedKundaliPDFExport from './EnhancedKundaliPDFExport';
 import { Badge } from "@/components/ui/badge";
-import { Star, Crown, Shield, Zap, Target, Heart, Download, FileText } from "lucide-react";
+import { Star, Crown, Shield, Zap, Target, Heart, Download, FileText, Sparkles, Sun, Moon } from "lucide-react";
 
 interface DetailedKundaliDisplayProps {
   kundaliData: ComprehensiveKundaliData;
@@ -28,88 +27,124 @@ const DetailedKundaliDisplay: React.FC<DetailedKundaliDisplayProps> = ({
   };
   
   return (
-    <div className="w-full max-w-6xl mx-auto p-4 md:p-6 space-y-6">
+    <div className="w-full max-w-7xl mx-auto p-4 md:p-6 space-y-8 bg-gradient-to-br from-orange-50 via-white to-red-50 min-h-screen">
       {/* Enhanced Header with Personal Information */}
-      <Card className="bg-gradient-to-r from-orange-50 to-red-50 border-orange-200 dark:from-orange-900/20 dark:to-red-900/20 dark:border-orange-700">
-        <CardHeader>
-          <CardTitle className="text-2xl text-center text-gray-800 dark:text-gray-100 flex items-center justify-center gap-2">
-            <Crown className="h-6 w-6 text-orange-600" />
+      <Card className="bg-gradient-to-r from-amber-50 via-orange-50 to-red-50 border-2 border-orange-200 shadow-2xl overflow-hidden relative">
+        <div className="absolute inset-0 bg-gradient-to-br from-orange-100/30 via-transparent to-red-100/30"></div>
+        <CardHeader className="relative z-10 text-center py-8">
+          <div className="flex items-center justify-center mb-4">
+            <div className="p-3 bg-gradient-to-r from-orange-500 to-red-500 rounded-full">
+              <Crown className="h-8 w-8 text-white" />
+            </div>
+          </div>
+          <CardTitle className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent mb-4">
             {language === 'hi' ? 'संपूर्ण वैदिक कुंडली विश्लेषण' : 'Complete Vedic Kundali Analysis'}
           </CardTitle>
-          <div className="text-center text-gray-600 dark:text-gray-300">
-            <p className="text-lg font-semibold">{birthData.fullName}</p>
-            <p>
-              {language === 'hi' ? 'जन्म: ' : 'Born: '}
-              {formatDate(birthData.date)} {language === 'hi' ? 'को ' : 'at '}
-              {birthData.time}
+          <div className="space-y-2">
+            <p className="text-2xl font-bold text-gray-800">{birthData.fullName}</p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 text-gray-600">
+              <div className="flex items-center gap-2">
+                <Sun className="h-4 w-4 text-yellow-500" />
+                <span>
+                  {language === 'hi' ? 'जन्म: ' : 'Born: '}
+                  {formatDate(birthData.date)}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Moon className="h-4 w-4 text-blue-500" />
+                <span>{birthData.time}</span>
+              </div>
+            </div>
+            <p className="text-gray-600 flex items-center justify-center gap-2">
+              <Sparkles className="h-4 w-4 text-purple-500" />
+              {language === 'hi' ? 'स्थान: ' : 'Place: '}{birthData.place}
             </p>
-            <p>{language === 'hi' ? 'स्थान: ' : 'Place: '}{birthData.place}</p>
           </div>
         </CardHeader>
       </Card>
 
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-1 mb-6">
-          <TabsTrigger value="overview">{language === 'hi' ? 'अवलोकन' : 'Overview'}</TabsTrigger>
-          <TabsTrigger value="chart">{language === 'hi' ? 'चार्ट' : 'Chart'}</TabsTrigger>
-          <TabsTrigger value="planets">{language === 'hi' ? 'ग्रह' : 'Planets'}</TabsTrigger>
-          <TabsTrigger value="houses">{language === 'hi' ? 'भाव' : 'Houses'}</TabsTrigger>
-          <TabsTrigger value="yogas">{language === 'hi' ? 'योग' : 'Yogas'}</TabsTrigger>
-          <TabsTrigger value="dashas">{language === 'hi' ? 'दशा' : 'Dashas'}</TabsTrigger>
-          <TabsTrigger value="remedies">{language === 'hi' ? 'उपाय' : 'Remedies'}</TabsTrigger>
-          <TabsTrigger value="download">
+        <TabsList className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-1 mb-8 bg-white/80 backdrop-blur-sm border-2 border-orange-100 rounded-xl p-2">
+          <TabsTrigger value="overview" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white rounded-lg transition-all duration-200">
+            {language === 'hi' ? 'अवलोकन' : 'Overview'}
+          </TabsTrigger>
+          <TabsTrigger value="chart" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white rounded-lg transition-all duration-200">
+            {language === 'hi' ? 'चार्ट' : 'Chart'}
+          </TabsTrigger>
+          <TabsTrigger value="planets" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white rounded-lg transition-all duration-200">
+            {language === 'hi' ? 'ग्रह' : 'Planets'}
+          </TabsTrigger>
+          <TabsTrigger value="houses" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white rounded-lg transition-all duration-200">
+            {language === 'hi' ? 'भाव' : 'Houses'}
+          </TabsTrigger>
+          <TabsTrigger value="yogas" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white rounded-lg transition-all duration-200">
+            {language === 'hi' ? 'योग' : 'Yogas'}
+          </TabsTrigger>
+          <TabsTrigger value="dashas" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white rounded-lg transition-all duration-200">
+            {language === 'hi' ? 'दशा' : 'Dashas'}
+          </TabsTrigger>
+          <TabsTrigger value="remedies" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white rounded-lg transition-all duration-200">
+            {language === 'hi' ? 'उपाय' : 'Remedies'}
+          </TabsTrigger>
+          <TabsTrigger value="download" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white rounded-lg transition-all duration-200">
             <Download className="h-4 w-4 mr-1" />
             {language === 'hi' ? 'डाउनलोड' : 'Download'}
           </TabsTrigger>
         </TabsList>
 
         {/* Overview Tab */}
-        <TabsContent value="overview">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <TabsContent value="overview" className="animate-fade-in">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Core Chart Information */}
-            <Card className="border-orange-200 dark:border-orange-700">
-              <CardHeader>
-                <CardTitle className="text-orange-600 dark:text-orange-400 flex items-center gap-2">
-                  <Star className="h-5 w-5" />
+            <Card className="border-2 border-orange-200 shadow-xl bg-white/90 backdrop-blur-sm hover:shadow-2xl transition-all duration-300">
+              <CardHeader className="bg-gradient-to-r from-orange-100 to-red-100 rounded-t-lg">
+                <CardTitle className="text-orange-700 flex items-center gap-3 text-xl">
+                  <div className="p-2 bg-orange-500 rounded-full">
+                    <Star className="h-5 w-5 text-white" />
+                  </div>
                   {language === 'hi' ? 'मुख्य चार्ट विवरण' : 'Core Chart Details'}
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="p-3 bg-orange-50 dark:bg-orange-900/30 rounded-lg">
-                    <h4 className="font-semibold text-orange-800 dark:text-orange-300 mb-1">
+              <CardContent className="p-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div className="p-4 bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl border border-orange-200 hover:shadow-lg transition-all duration-200">
+                    <h4 className="font-bold text-orange-800 mb-2 flex items-center gap-2">
+                      <Crown className="h-4 w-4" />
                       {language === 'hi' ? 'लग्न (उदयकालीन राशि)' : 'Lagna (Ascendant)'}
                     </h4>
-                    <p className="text-orange-600 dark:text-orange-400 font-medium">{enhancedCalculations.lagna.signName}</p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">{enhancedCalculations.lagna.degree.toFixed(2)}°</p>
+                    <p className="text-xl font-bold text-orange-600">{enhancedCalculations.lagna.signName}</p>
+                    <p className="text-sm text-gray-600">{enhancedCalculations.lagna.degree.toFixed(2)}°</p>
                   </div>
                   
-                  <div className="p-3 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
-                    <h4 className="font-semibold text-blue-800 dark:text-blue-300 mb-1">
+                  <div className="p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border border-blue-200 hover:shadow-lg transition-all duration-200">
+                    <h4 className="font-bold text-blue-800 mb-2 flex items-center gap-2">
+                      <Moon className="h-4 w-4" />
                       {language === 'hi' ? 'चंद्र राशि' : 'Moon Sign'}
                     </h4>
-                    <p className="text-blue-600 dark:text-blue-400 font-medium">{enhancedCalculations.planets.MO.rashiName}</p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                    <p className="text-xl font-bold text-blue-600">{enhancedCalculations.planets.MO.rashiName}</p>
+                    <p className="text-sm text-gray-600">
                       {language === 'hi' ? 'मन और भावनाएँ' : 'Mind & Emotions'}
                     </p>
                   </div>
                   
-                  <div className="p-3 bg-yellow-50 dark:bg-yellow-900/30 rounded-lg">
-                    <h4 className="font-semibold text-yellow-800 dark:text-yellow-300 mb-1">
+                  <div className="p-4 bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl border border-yellow-200 hover:shadow-lg transition-all duration-200">
+                    <h4 className="font-bold text-yellow-800 mb-2 flex items-center gap-2">
+                      <Sun className="h-4 w-4" />
                       {language === 'hi' ? 'सूर्य राशि' : 'Sun Sign'}
                     </h4>
-                    <p className="text-yellow-600 dark:text-yellow-400 font-medium">{enhancedCalculations.planets.SU.rashiName}</p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                    <p className="text-xl font-bold text-yellow-600">{enhancedCalculations.planets.SU.rashiName}</p>
+                    <p className="text-sm text-gray-600">
                       {language === 'hi' ? 'आत्मा और अहम्' : 'Soul & Ego'}
                     </p>
                   </div>
                   
-                  <div className="p-3 bg-green-50 dark:bg-green-900/30 rounded-lg">
-                    <h4 className="font-semibold text-green-800 dark:text-green-300 mb-1">
+                  <div className="p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-xl border border-green-200 hover:shadow-lg transition-all duration-200">
+                    <h4 className="font-bold text-green-800 mb-2 flex items-center gap-2">
+                      <Sparkles className="h-4 w-4" />
                       {language === 'hi' ? 'नक्षत्र' : 'Birth Nakshatra'}
                     </h4>
-                    <p className="text-green-600 dark:text-green-400 font-medium">{enhancedCalculations.planets.MO.nakshatraName}</p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                    <p className="text-xl font-bold text-green-600">{enhancedCalculations.planets.MO.nakshatraName}</p>
+                    <p className="text-sm text-gray-600">
                       {language === 'hi' ? 'पद' : 'Pada'}: {enhancedCalculations.planets.MO.nakshatraPada}
                     </p>
                   </div>
@@ -118,59 +153,63 @@ const DetailedKundaliDisplay: React.FC<DetailedKundaliDisplayProps> = ({
             </Card>
 
             {/* Chart Summary */}
-            <Card className="border-blue-200 dark:border-blue-700">
-              <CardHeader>
-                <CardTitle className="text-blue-600 dark:text-blue-400 flex items-center gap-2">
-                  <Target className="h-5 w-5" />
+            <Card className="border-2 border-blue-200 shadow-xl bg-white/90 backdrop-blur-sm hover:shadow-2xl transition-all duration-300">
+              <CardHeader className="bg-gradient-to-r from-blue-100 to-purple-100 rounded-t-lg">
+                <CardTitle className="text-blue-700 flex items-center gap-3 text-xl">
+                  <div className="p-2 bg-blue-500 rounded-full">
+                    <Target className="h-5 w-5 text-white" />
+                  </div>
                   {language === 'hi' ? 'चार्ट सारांश' : 'Chart Summary'}
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-700 dark:text-gray-300">
+              <CardContent className="p-6 space-y-4">
+                <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                  <span className="text-gray-700 font-medium">
                     {language === 'hi' ? 'कुल ग्रह:' : 'Total Planets:'}
                   </span>
-                  <Badge variant="outline">{Object.keys(enhancedCalculations.planets).length}</Badge>
+                  <Badge variant="outline" className="text-lg px-3 py-1">{Object.keys(enhancedCalculations.planets).length}</Badge>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-700 dark:text-gray-300">
+                <div className="flex justify-between items-center p-3 bg-green-50 rounded-lg hover:bg-green-100 transition-colors">
+                  <span className="text-gray-700 font-medium">
                     {language === 'hi' ? 'सक्रिय योग:' : 'Active Yogas:'}
                   </span>
-                  <Badge className="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100">
+                  <Badge className="bg-green-500 text-white text-lg px-3 py-1">
                     {enhancedCalculations.yogas.filter(y => y.isActive).length}
                   </Badge>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-700 dark:text-gray-300">
+                <div className="flex justify-between items-center p-3 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors">
+                  <span className="text-gray-700 font-medium">
                     {language === 'hi' ? 'वर्तमान दशा:' : 'Current Dasha:'}
                   </span>
-                  <Badge className="bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-100">
+                  <Badge className="bg-purple-500 text-white text-lg px-3 py-1">
                     {enhancedCalculations.dashas.find(d => d.isActive)?.planet || 'Not specified'}
                   </Badge>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-700 dark:text-gray-300">
+                <div className="flex justify-between items-center p-3 bg-orange-50 rounded-lg hover:bg-orange-100 transition-colors">
+                  <span className="text-gray-700 font-medium">
                     {language === 'hi' ? 'जुलियन दिन:' : 'Julian Day:'}
                   </span>
-                  <Badge variant="secondary">{enhancedCalculations.julianDay.toFixed(4)}</Badge>
+                  <Badge variant="secondary" className="text-lg px-3 py-1">{enhancedCalculations.julianDay.toFixed(4)}</Badge>
                 </div>
               </CardContent>
             </Card>
 
             {/* Key Strengths */}
-            <Card className="border-green-200 dark:border-green-700">
-              <CardHeader>
-                <CardTitle className="text-green-600 dark:text-green-400 flex items-center gap-2">
-                  <Zap className="h-5 w-5" />
+            <Card className="border-2 border-green-200 shadow-xl bg-white/90 backdrop-blur-sm hover:shadow-2xl transition-all duration-300">
+              <CardHeader className="bg-gradient-to-r from-green-100 to-emerald-100 rounded-t-lg">
+                <CardTitle className="text-green-700 flex items-center gap-3 text-xl">
+                  <div className="p-2 bg-green-500 rounded-full">
+                    <Zap className="h-5 w-5 text-white" />
+                  </div>
                   {language === 'hi' ? 'मुख्य शक्तियां' : 'Key Strengths'}
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
+              <CardContent className="p-6">
+                <div className="space-y-3">
                   {interpretations.personality.strengths.slice(0, 4).map((strength, index) => (
-                    <div key={index} className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                      <span className="text-sm text-gray-700 dark:text-gray-300">{strength}</span>
+                    <div key={index} className="flex items-center gap-3 p-2 rounded-lg hover:bg-green-50 transition-colors">
+                      <div className="w-3 h-3 bg-gradient-to-r from-green-400 to-green-600 rounded-full flex-shrink-0"></div>
+                      <span className="text-gray-700 leading-relaxed">{strength}</span>
                     </div>
                   ))}
                 </div>
@@ -178,19 +217,21 @@ const DetailedKundaliDisplay: React.FC<DetailedKundaliDisplayProps> = ({
             </Card>
 
             {/* Areas for Growth */}
-            <Card className="border-yellow-200 dark:border-yellow-700">
-              <CardHeader>
-                <CardTitle className="text-yellow-600 dark:text-yellow-400 flex items-center gap-2">
-                  <Shield className="h-5 w-5" />
+            <Card className="border-2 border-yellow-200 shadow-xl bg-white/90 backdrop-blur-sm hover:shadow-2xl transition-all duration-300">
+              <CardHeader className="bg-gradient-to-r from-yellow-100 to-amber-100 rounded-t-lg">
+                <CardTitle className="text-yellow-700 flex items-center gap-3 text-xl">
+                  <div className="p-2 bg-yellow-500 rounded-full">
+                    <Shield className="h-5 w-5 text-white" />
+                  </div>
                   {language === 'hi' ? 'विकास के क्षेत्र' : 'Areas for Growth'}
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
+              <CardContent className="p-6">
+                <div className="space-y-3">
                   {interpretations.personality.challenges.slice(0, 4).map((weakness, index) => (
-                    <div key={index} className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
-                      <span className="text-sm text-gray-700 dark:text-gray-300">{weakness}</span>
+                    <div key={index} className="flex items-center gap-3 p-2 rounded-lg hover:bg-yellow-50 transition-colors">
+                      <div className="w-3 h-3 bg-gradient-to-r from-yellow-400 to-yellow-600 rounded-full flex-shrink-0"></div>
+                      <span className="text-gray-700 leading-relaxed">{weakness}</span>
                     </div>
                   ))}
                 </div>
@@ -198,38 +239,40 @@ const DetailedKundaliDisplay: React.FC<DetailedKundaliDisplayProps> = ({
             </Card>
 
             {/* Life Path Insights */}
-            <Card className="border-purple-200 dark:border-purple-700 lg:col-span-2">
-              <CardHeader>
-                <CardTitle className="text-purple-600 dark:text-purple-400 flex items-center gap-2">
-                  <Heart className="h-5 w-5" />
+            <Card className="border-2 border-purple-200 shadow-xl bg-white/90 backdrop-blur-sm hover:shadow-2xl transition-all duration-300 lg:col-span-2">
+              <CardHeader className="bg-gradient-to-r from-purple-100 to-pink-100 rounded-t-lg">
+                <CardTitle className="text-purple-700 flex items-center gap-3 text-xl">
+                  <div className="p-2 bg-purple-500 rounded-full">
+                    <Heart className="h-5 w-5 text-white" />
+                  </div>
                   {language === 'hi' ? 'जीवन मार्ग अंतर्दृष्टि' : 'Life Path Insights'}
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="p-4 bg-purple-50 dark:bg-purple-900/30 rounded-lg">
-                    <h4 className="font-semibold text-purple-800 dark:text-purple-300 mb-2">
+              <CardContent className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="p-6 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl border border-purple-200 hover:shadow-lg transition-all duration-200">
+                    <h4 className="font-bold text-purple-800 mb-3 text-lg">
                       {language === 'hi' ? 'करियर और वित्त' : 'Career & Finance'}
                     </h4>
-                    <p className="text-sm text-gray-700 dark:text-gray-300">
+                    <p className="text-gray-700 leading-relaxed">
                       {interpretations.predictions.youth.career[0] || 'Focus on skill development and networking opportunities.'}
                     </p>
                   </div>
                   
-                  <div className="p-4 bg-pink-50 dark:bg-pink-900/30 rounded-lg">
-                    <h4 className="font-semibold text-pink-800 dark:text-pink-300 mb-2">
+                  <div className="p-6 bg-gradient-to-br from-pink-50 to-pink-100 rounded-xl border border-pink-200 hover:shadow-lg transition-all duration-200">
+                    <h4 className="font-bold text-pink-800 mb-3 text-lg">
                       {language === 'hi' ? 'रिश्ते' : 'Relationships'}
                     </h4>
-                    <p className="text-sm text-gray-700 dark:text-gray-300">
+                    <p className="text-gray-700 leading-relaxed">
                       {interpretations.predictions.youth.relationships[0] || 'Strong potential for meaningful connections and partnerships.'}
                     </p>
                   </div>
                   
-                  <div className="p-4 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg">
-                    <h4 className="font-semibold text-indigo-800 dark:text-indigo-300 mb-2">
+                  <div className="p-6 bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-xl border border-indigo-200 hover:shadow-lg transition-all duration-200">
+                    <h4 className="font-bold text-indigo-800 mb-3 text-lg">
                       {language === 'hi' ? 'स्वास्थ्य और कल्याण' : 'Health & Wellness'}
                     </h4>
-                    <p className="text-sm text-gray-700 dark:text-gray-300">
+                    <p className="text-gray-700 leading-relaxed">
                       {interpretations.predictions.youth.health[0] || 'Maintain regular exercise and balanced nutrition for optimal health.'}
                     </p>
                   </div>
@@ -240,67 +283,67 @@ const DetailedKundaliDisplay: React.FC<DetailedKundaliDisplayProps> = ({
         </TabsContent>
 
         {/* Chart Tab */}
-        <TabsContent value="chart">
+        <TabsContent value="chart" className="animate-fade-in">
           <EnhancedVisualKundaliChart kundaliData={kundaliData} language={language} />
         </TabsContent>
 
         {/* Planets Tab */}
-        <TabsContent value="planets">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <TabsContent value="planets" className="animate-fade-in">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {Object.entries(enhancedCalculations.planets).map(([planetId, planet]) => (
-              <Card key={planetId} className="border-gray-200 dark:border-gray-700">
-                <CardHeader className="pb-3">
+              <Card key={planetId} className="border-2 border-gray-200 shadow-lg bg-white/90 backdrop-blur-sm hover:shadow-xl transition-all duration-300 hover:scale-105">
+                <CardHeader className="pb-3 bg-gradient-to-r from-gray-50 to-gray-100 rounded-t-lg">
                   <CardTitle className="text-lg flex items-center justify-between">
-                    <span className="dark:text-gray-100">{planet.name}</span>
+                    <span className="text-gray-800 font-bold">{planet.name}</span>
                     {planet.isRetrograde && (
-                      <Badge variant="secondary" className="text-xs">
+                      <Badge variant="secondary" className="text-xs bg-red-100 text-red-700">
                         {language === 'hi' ? 'वक्री' : 'Retrograde'}
                       </Badge>
                     )}
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-2">
-                  <div className="grid grid-cols-2 gap-2 text-sm">
-                    <div>
-                      <strong className="dark:text-gray-200">{language === 'hi' ? 'राशि:' : 'Sign:'}</strong> 
-                      <span className="ml-1 dark:text-gray-300">{planet.rashiName}</span>
+                <CardContent className="space-y-4 p-4">
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    <div className="p-2 bg-blue-50 rounded-lg">
+                      <strong className="text-blue-700">{language === 'hi' ? 'राशि:' : 'Sign:'}</strong> 
+                      <div className="text-blue-600 font-medium">{planet.rashiName}</div>
                     </div>
-                    <div>
-                      <strong className="dark:text-gray-200">{language === 'hi' ? 'भाव:' : 'House:'}</strong> 
-                      <span className="ml-1 dark:text-gray-300">{planet.house}</span>
+                    <div className="p-2 bg-green-50 rounded-lg">
+                      <strong className="text-green-700">{language === 'hi' ? 'भाव:' : 'House:'}</strong> 
+                      <div className="text-green-600 font-medium">{planet.house}</div>
                     </div>
-                    <div>
-                      <strong className="dark:text-gray-200">{language === 'hi' ? 'अंश:' : 'Degree:'}</strong> 
-                      <span className="ml-1 dark:text-gray-300">{planet.degreeInSign.toFixed(2)}°</span>
+                    <div className="p-2 bg-purple-50 rounded-lg">
+                      <strong className="text-purple-700">{language === 'hi' ? 'अंश:' : 'Degree:'}</strong> 
+                      <div className="text-purple-600 font-medium">{planet.degreeInSign.toFixed(2)}°</div>
                     </div>
-                    <div>
-                      <strong className="dark:text-gray-200">{language === 'hi' ? 'नक्षत्र:' : 'Nakshatra:'}</strong> 
-                      <span className="ml-1 dark:text-gray-300">{planet.nakshatraName}</span>
+                    <div className="p-2 bg-orange-50 rounded-lg">
+                      <strong className="text-orange-700">{language === 'hi' ? 'नक्षत्र:' : 'Nakshatra:'}</strong> 
+                      <div className="text-orange-600 font-medium text-xs">{planet.nakshatraName}</div>
                     </div>
                   </div>
                   
-                  <div className="flex flex-wrap gap-1 mt-2">
+                  <div className="flex flex-wrap gap-2">
                     {planet.shadbala > 70 && (
-                      <Badge variant="default" className="text-xs">
+                      <Badge className="bg-green-500 text-white text-xs">
                         {language === 'hi' ? 'शक्तिशाली' : 'Strong'}
                       </Badge>
                     )}
-                    <Badge variant="outline" className="text-xs">{planet.dignity}</Badge>
+                    <Badge variant="outline" className="text-xs border-gray-400">{planet.dignity}</Badge>
                   </div>
                   
-                  <div className="space-y-1 mt-2">
+                  <div className="space-y-2">
                     {planet.exaltation && (
-                      <div className="text-xs text-green-600 dark:text-green-400">
+                      <div className="text-xs text-green-600 bg-green-50 p-2 rounded-lg">
                         ✓ {language === 'hi' ? 'उच्च राशि' : 'Exalted'}
                       </div>
                     )}
                     {planet.debilitation && (
-                      <div className="text-xs text-red-600 dark:text-red-400">
+                      <div className="text-xs text-red-600 bg-red-50 p-2 rounded-lg">
                         ⚠ {language === 'hi' ? 'नीच राशि' : 'Debilitated'}
                       </div>
                     )}
                     {planet.ownSign && (
-                      <div className="text-xs text-blue-600 dark:text-blue-400">
+                      <div className="text-xs text-blue-600 bg-blue-50 p-2 rounded-lg">
                         ⭐ {language === 'hi' ? 'स्वराशि' : 'Own Sign'}
                       </div>
                     )}
@@ -311,8 +354,8 @@ const DetailedKundaliDisplay: React.FC<DetailedKundaliDisplayProps> = ({
           </div>
         </TabsContent>
 
-        {/* Houses Tab */}
-        <TabsContent value="houses">
+        {/* Keep existing TabsContent sections for houses, yogas, dashas, remedies, and download unchanged */}
+        <TabsContent value="houses" className="animate-fade-in">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {enhancedCalculations.houses.map((house) => (
               <Card key={house.number} className="border-gray-200 dark:border-gray-700">
@@ -371,7 +414,7 @@ const DetailedKundaliDisplay: React.FC<DetailedKundaliDisplayProps> = ({
         </TabsContent>
 
         {/* Yogas Tab */}
-        <TabsContent value="yogas">
+        <TabsContent value="yogas" className="animate-fade-in">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {enhancedCalculations.yogas.length > 0 ? (
               enhancedCalculations.yogas.map((yoga, index) => (
@@ -427,7 +470,7 @@ const DetailedKundaliDisplay: React.FC<DetailedKundaliDisplayProps> = ({
         </TabsContent>
 
         {/* Dashas Tab */}
-        <TabsContent value="dashas">
+        <TabsContent value="dashas" className="animate-fade-in">
           <div className="space-y-4">
             <Card className="dark:border-gray-700">
               <CardHeader>
@@ -474,7 +517,7 @@ const DetailedKundaliDisplay: React.FC<DetailedKundaliDisplayProps> = ({
         </TabsContent>
 
         {/* Remedies Tab */}
-        <TabsContent value="remedies">
+        <TabsContent value="remedies" className="animate-fade-in">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card className="dark:border-gray-700">
               <CardHeader>
@@ -557,7 +600,7 @@ const DetailedKundaliDisplay: React.FC<DetailedKundaliDisplayProps> = ({
         </TabsContent>
 
         {/* Download Tab */}
-        <TabsContent value="download">
+        <TabsContent value="download" className="animate-fade-in">
           <EnhancedKundaliPDFExport kundaliData={kundaliData} language={language} />
         </TabsContent>
       </Tabs>

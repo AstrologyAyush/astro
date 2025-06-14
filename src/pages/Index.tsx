@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -17,7 +18,7 @@ import { getGeminiKundaliAnalysis } from '@/lib/geminiKundaliAnalysis';
 import { saveEnhancedKundali } from '@/lib/supabaseKundaliStorage';
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobile, useViewportHeight } from '@/hooks/use-mobile';
-import { Star, Sun, Calculator, Crown, Hash } from 'lucide-react';
+import { Star, Sun, Calculator, Crown, Hash, Sparkles } from 'lucide-react';
 import RishiParasharOverview from '@/components/RishiParasharOverview';
 import LifePathReport from '@/components/LifePathReport';
 
@@ -25,14 +26,14 @@ const Index = () => {
   const [kundaliData, setKundaliData] = useState<ComprehensiveKundaliData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [language, setLanguage] = useState<'hi' | 'en'>('en');
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
   const isMobile = useIsMobile();
   const viewportHeight = useViewportHeight();
+  
   const getTranslation = (en: string, hi: string) => {
     return language === 'hi' ? hi : en;
   };
+  
   const handleKundaliGeneration = async (birthData: any) => {
     setIsLoading(true);
     try {
@@ -93,41 +94,51 @@ const Index = () => {
   const handleKundaliCTA = () => {
     const kundaliSection = document.querySelector('[data-testid="kundali-section"]');
     if (kundaliSection) {
-      kundaliSection.scrollIntoView({
-        behavior: 'smooth'
-      });
+      kundaliSection.scrollIntoView({ behavior: 'smooth' });
     }
   };
+  
   const handleNumerologyCTA = () => {
     const numerologyTab = document.querySelector('[value="numerology"]');
     if (numerologyTab) {
       (numerologyTab as HTMLElement).click();
     }
   };
+  
   const handlePersonalityCTA = () => {
     const personalityTab = document.querySelector('[value="personality"]');
     if (personalityTab) {
       (personalityTab as HTMLElement).click();
     }
   };
+  
   const handleHoroscopeCTA = () => {
     const horoscopeTab = document.querySelector('[value="horoscope"]');
     if (horoscopeTab) {
       (horoscopeTab as HTMLElement).click();
     }
   };
-  return <div className="min-h-screen-mobile bg-gradient-to-br from-orange-50 via-white to-red-50 touch-manipulation">
-      <div className="container mx-auto px-2 sm:px-4 md:px-6 lg:px-8 py-2 md:py-8 max-w-7xl safe-area-pt">
-        {/* Astrological Background Image */}
-        <div className="relative w-full h-32 sm:h-40 md:h-48 lg:h-56 xl:h-64 mb-4 md:mb-6 overflow-hidden rounded-lg">
-          <img src="/lovable-uploads/18da27cd-3784-4fde-a3ba-199421c6eb86.png" alt="Astrological Chart and Galaxy" className="w-full h-full object-cover object-center" />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/20 via-transparent to-black/20"></div>
+  
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 touch-manipulation">
+      <div className="container mx-auto px-4 md:px-6 lg:px-8 py-4 md:py-8 max-w-7xl">
+        {/* Enhanced Astrological Background Image with Better Styling */}
+        <div className="relative w-full h-40 sm:h-48 md:h-56 lg:h-64 xl:h-72 mb-6 md:mb-8 overflow-hidden rounded-2xl shadow-2xl">
+          <img 
+            src="/lovable-uploads/18da27cd-3784-4fde-a3ba-199421c6eb86.png" 
+            alt="Astrological Chart and Galaxy" 
+            className="w-full h-full object-cover object-center transform hover:scale-105 transition-transform duration-700" 
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-black/40"></div>
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="text-center text-white">
-              <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-bold mb-1 md:mb-2 drop-shadow-lg text-pink-700">
+            <div className="text-center text-white p-6 rounded-xl bg-black/20 backdrop-blur-sm">
+              <div className="flex items-center justify-center mb-4">
+                <Sparkles className="h-8 w-8 md:h-12 md:w-12 text-yellow-300 animate-pulse" />
+              </div>
+              <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold mb-2 md:mb-4 drop-shadow-2xl bg-gradient-to-r from-yellow-200 to-orange-200 bg-clip-text text-transparent">
                 {getTranslation('Vedic Astrology Portal', 'वैदिक ज्योतिष पोर्टल')}
               </h1>
-              <p className="text-xs sm:text-sm md:text-base lg:text-lg opacity-90 drop-shadow-md text-red-200">
+              <p className="text-sm sm:text-base md:text-lg lg:text-xl drop-shadow-lg text-orange-100">
                 {getTranslation('Discover Your Cosmic Blueprint', 'अपना ब्रह्मांडीय खाका खोजें')}
               </p>
             </div>
@@ -135,61 +146,82 @@ const Index = () => {
         </div>
 
         {/* Enhanced Header with CTA integration */}
-        <HeroSection language={language} onKundaliClick={handleKundaliCTA} onNumerologyClick={handleNumerologyCTA} onPersonalityClick={handlePersonalityCTA} onHoroscopeClick={handleHoroscopeCTA} />
+        <HeroSection 
+          language={language} 
+          onKundaliClick={handleKundaliCTA} 
+          onNumerologyClick={handleNumerologyCTA} 
+          onPersonalityClick={handlePersonalityCTA} 
+          onHoroscopeClick={handleHoroscopeCTA} 
+        />
 
-        {/* Language Toggle */}
-        <div className="mb-4 md:mb-6">
+        {/* Language Toggle with Better Styling */}
+        <div className="mb-6 md:mb-8">
           <LanguageToggle language={language} onLanguageChange={setLanguage} />
         </div>
 
         {/* Rishi Parashar's Profound Thoughts on Kundali */}
-        <div className="mb-6 md:mb-8">
+        <div className="mb-8 md:mb-10">
           <RishiParasharOverview language={language} />
         </div>
 
-        {/* Main Content */}
-        {!kundaliData ? <Tabs defaultValue="kundali" className="w-full">
-            <TabsList className={`grid w-full grid-cols-2 md:grid-cols-4 mb-4 md:mb-6 mx-1 md:mx-0 ${isMobile ? 'h-auto gap-1' : 'h-auto'}`}>
-              <TabsTrigger value="kundali" className="flex flex-col items-center gap-1 text-xs sm:text-sm px-2 py-3 min-h-[60px] tap-highlight-none">
-                <Star className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
-                <span className="text-center leading-tight">
+        {/* Enhanced Main Content */}
+        {!kundaliData ? (
+          <Tabs defaultValue="kundali" className="w-full">
+            <TabsList className={`grid w-full grid-cols-2 md:grid-cols-4 mb-6 md:mb-8 mx-1 md:mx-0 bg-white/90 backdrop-blur-sm border-2 border-orange-100 rounded-xl p-2 shadow-lg ${isMobile ? 'h-auto gap-1' : 'h-auto'}`}>
+              <TabsTrigger 
+                value="kundali" 
+                className="flex flex-col items-center gap-2 text-xs sm:text-sm px-3 py-4 min-h-[70px] rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white transition-all duration-200 hover:shadow-md"
+              >
+                <Star className="h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0" />
+                <span className="text-center leading-tight font-medium">
                   {isMobile ? getTranslation('Kundali', 'कुंडली') : getTranslation('Precision Vedic Kundali', 'सटीक वैदिक कुंडली')}
                 </span>
               </TabsTrigger>
-              <TabsTrigger value="numerology" className="flex flex-col items-center gap-1 text-xs sm:text-sm px-2 py-3 min-h-[60px] tap-highlight-none">
-                <Hash className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
-                <span className="text-center leading-tight">
+              <TabsTrigger 
+                value="numerology" 
+                className="flex flex-col items-center gap-2 text-xs sm:text-sm px-3 py-4 min-h-[70px] rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white transition-all duration-200 hover:shadow-md"
+              >
+                <Hash className="h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0" />
+                <span className="text-center leading-tight font-medium">
                   {isMobile ? getTranslation('Numbers', 'अंक') : getTranslation('Numerology', 'न्यूमेरोलॉजी')}
                 </span>
               </TabsTrigger>
-              <TabsTrigger value="personality" className="flex flex-col items-center gap-1 text-xs sm:text-sm px-2 py-3 min-h-[60px] tap-highlight-none">
-                <Calculator className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
-                <span className="text-center leading-tight">
+              <TabsTrigger 
+                value="personality" 
+                className="flex flex-col items-center gap-2 text-xs sm:text-sm px-3 py-4 min-h-[70px] rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white transition-all duration-200 hover:shadow-md"
+              >
+                <Calculator className="h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0" />
+                <span className="text-center leading-tight font-medium">
                   {isMobile ? getTranslation('Test', 'परीक्षण') : getTranslation('Personality Test', 'व्यक्तित्व परीक्षण')}
                 </span>
               </TabsTrigger>
-              <TabsTrigger value="horoscope" className="flex flex-col items-center gap-1 text-xs sm:text-sm px-2 py-3 min-h-[60px] tap-highlight-none">
-                <Sun className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
-                <span className="text-center leading-tight">
+              <TabsTrigger 
+                value="horoscope" 
+                className="flex flex-col items-center gap-2 text-xs sm:text-sm px-3 py-4 min-h-[70px] rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white transition-all duration-200 hover:shadow-md"
+              >
+                <Sun className="h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0" />
+                <span className="text-center leading-tight font-medium">
                   {isMobile ? getTranslation('Daily', 'दैनिक') : getTranslation('Daily Horoscope', 'दैनिक राशिफल')}
                 </span>
               </TabsTrigger>
             </TabsList>
 
             <TabsContent value="kundali" data-testid="kundali-section" className="animate-fade-in">
-              <Card className="max-w-2xl mx-auto shadow-lg">
-                <CardHeader className="bg-gradient-to-r from-orange-100 to-red-100 p-3 sm:p-4 md:p-6">
-                  <CardTitle className="text-center text-lg sm:text-xl md:text-2xl text-gray-800 flex items-center justify-center gap-2">
-                    <Crown className="h-5 w-5 sm:h-6 sm:w-6 text-orange-600 flex-shrink-0" />
+              <Card className="max-w-3xl mx-auto shadow-2xl border-2 border-orange-200 bg-white/95 backdrop-blur-sm">
+                <CardHeader className="bg-gradient-to-r from-orange-100 via-amber-50 to-red-100 p-4 sm:p-6 md:p-8 rounded-t-lg">
+                  <CardTitle className="text-center text-xl sm:text-2xl md:text-3xl text-gray-800 flex items-center justify-center gap-3">
+                    <div className="p-2 bg-gradient-to-r from-orange-500 to-red-500 rounded-full">
+                      <Crown className="h-6 w-6 sm:h-7 sm:w-7 text-white flex-shrink-0" />
+                    </div>
                     <span className="text-center leading-tight">
                       {getTranslation('Precision Vedic Kundali', 'सटीक वैदिक कुंडली')}
                     </span>
                   </CardTitle>
-                  <p className="text-center text-gray-600 mt-2 text-xs sm:text-sm md:text-base px-2">
+                  <p className="text-center text-gray-600 mt-4 text-sm sm:text-base md:text-lg px-4 leading-relaxed">
                     {getTranslation('Traditional calculations with Swiss Ephemeris precision - 100+ page detailed analysis', 'Swiss Ephemeris सटीकता के साथ पारंपरिक गणना - 100+ पेज का विस्तृत विश्लेषण')}
                   </p>
                 </CardHeader>
-                <CardContent className="p-3 sm:p-4 md:p-6">
+                <CardContent className="p-4 sm:p-6 md:p-8">
                   <BirthDataForm onSubmit={handleKundaliGeneration} isLoading={isLoading} language={language} />
                   
                   {isLoading && <LoadingSpinner language={language} />}
@@ -208,38 +240,48 @@ const Index = () => {
             <TabsContent value="horoscope" className="animate-fade-in">
               <EnhancedDailyHoroscope kundaliData={null} />
             </TabsContent>
-          </Tabs> : <div className="animate-slide-up space-y-6">
+          </Tabs>
+        ) : (
+          <div className="animate-slide-up space-y-8">
             <KundaliResultsView kundaliData={kundaliData} language={language} onBack={() => setKundaliData(null)} />
             
             {/* Life Path Report */}
             <LifePathReport kundaliData={kundaliData} language={language} />
-          </div>}
+          </div>
+        )}
 
-        {/* Feature Cards */}
-        <div className="mt-6 md:mt-8">
+        {/* Enhanced Feature Cards */}
+        <div className="mt-8 md:mt-12">
           <FeatureCards language={language} kundaliData={kundaliData} />
         </div>
 
         {/* Enhanced Accuracy Statement */}
-        <div className="mt-6 md:mt-8">
+        <div className="mt-8 md:mt-12">
           <AccuracyStatement language={language} kundaliData={kundaliData} />
         </div>
 
-        {/* Footer */}
-        <footer className="mt-8 md:mt-12 text-center py-4 md:py-6 border-t border-gray-200 mx-2 sm:mx-4 safe-area-pb">
-          <p className="text-gray-600 text-xs sm:text-sm">
-            © 2025 AyuAstro - Precision Vedic Astrology. All rights reserved.
-          </p>
-          <p className="text-gray-500 text-xs mt-1">
-            {getTranslation('Powered by Swiss Ephemeris & Traditional Vedic Calculations', 'Swiss Ephemeris और पारंपरिक वैदिक गणनाओं द्वारा संचालित')}
-          </p>
+        {/* Enhanced Footer */}
+        <footer className="mt-12 md:mt-16 text-center py-6 md:py-8 border-t-2 border-orange-200 mx-2 sm:mx-4 bg-gradient-to-r from-orange-50 to-red-50 rounded-t-2xl">
+          <div className="space-y-3">
+            <p className="text-gray-700 text-sm sm:text-base font-medium">
+              © 2025 AyuAstro - Precision Vedic Astrology. All rights reserved.
+            </p>
+            <p className="text-gray-600 text-xs sm:text-sm">
+              {getTranslation('Powered by Swiss Ephemeris & Traditional Vedic Calculations', 'Swiss Ephemeris और पारंपरिक वैदिक गणनाओं द्वारा संचालित')}
+            </p>
+            <div className="flex justify-center">
+              <Sparkles className="h-4 w-4 text-orange-500" />
+            </div>
+          </div>
         </footer>
       </div>
 
-      {/* Enhanced Floating Chatbot with mobile positioning */}
-      <div className={`fixed ${isMobile ? 'bottom-20 right-4' : 'bottom-6 right-6'} z-50`}>
+      {/* Enhanced Floating Chatbot with better positioning */}
+      <div className={`fixed ${isMobile ? 'bottom-24 right-4' : 'bottom-8 right-8'} z-50`}>
         <FloatingChatbot kundaliData={kundaliData} numerologyData={null} />
       </div>
-    </div>;
+    </div>
+  );
 };
+
 export default Index;
