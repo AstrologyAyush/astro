@@ -17,6 +17,21 @@
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    /* Mobile optimizations */
+    -webkit-text-size-adjust: 100%;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+
+  /* Allow text selection for specific elements */
+  input, textarea, [contenteditable], .selectable-text {
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -54,6 +69,12 @@
     .readable-text {
       @apply mobile-readable;
     }
+    
+    /* Improved mobile font sizes */
+    h1 { font-size: 1.75rem; }
+    h2 { font-size: 1.5rem; }
+    h3 { font-size: 1.25rem; }
+    h4 { font-size: 1.125rem; }
   }
 }
 
@@ -83,6 +104,9 @@
   --chart-3: 197 37% 24%;
   --chart-4: 43 74% 66%;
   --chart-5: 27 87% 67%;
+  
+  /* Mobile viewport height fix */
+  --vh: 1vh;
 }
 
 .dark {
@@ -130,17 +154,20 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Enhanced button and form styles */
+/* Enhanced button and form styles for mobile */
 .btn-primary {
   font-weight: 600;
   letter-spacing: 0.025em;
+  min-height: 44px; /* Apple's recommended touch target size */
+  min-width: 44px;
 }
 
-/* Improved input styles */
+/* Mobile-optimized input styles */
 input, textarea, select {
-  font-size: 16px !important;
+  font-size: 16px !important; /* Prevents zoom on iOS */
   font-weight: 500;
   line-height: 1.5;
+  min-height: 44px; /* Touch-friendly size */
 }
 
 /* Better contrast for dark mode */
@@ -153,14 +180,55 @@ input, textarea, select {
   color: hsl(var(--foreground));
 }
 
+/* Mobile-specific improvements */
+@media (max-width: 768px) {
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  /* Touch-friendly spacing */
+  .space-y-2 > * + * {
+    margin-top: 0.75rem;
+  }
+  
+  .space-y-4 > * + * {
+    margin-top: 1.25rem;
+  }
+  
+  /* Mobile buttons */
+  button {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Mobile cards */
+  .card {
+    margin: 0.5rem;
+    border-radius: 0.75rem;
+  }
+}
+
 /* Safe area for mobile devices */
 .safe-area-pb {
   padding-bottom: env(safe-area-inset-bottom);
 }
 
-/* Custom scrollbar */
+.safe-area-pt {
+  padding-top: env(safe-area-inset-top);
+}
+
+.safe-area-pl {
+  padding-left: env(safe-area-inset-left);
+}
+
+.safe-area-pr {
+  padding-right: env(safe-area-inset-right);
+}
+
+/* Mobile-optimized scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 4px;
 }
 
 ::-webkit-scrollbar-track {
@@ -169,21 +237,76 @@ input, textarea, select {
 
 ::-webkit-scrollbar-thumb {
   background: hsl(var(--muted-foreground));
-  border-radius: 3px;
+  border-radius: 2px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background: hsl(var(--foreground));
 }
 
-/* Animation improvements */
+/* Mobile animations - reduced motion for performance */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Enhanced animations for mobile */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes slideUp {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes bounce {
+  0%, 20%, 53%, 80%, 100% { transform: translate3d(0,0,0); }
+  40%, 43% { transform: translate3d(0,-10px,0); }
+  70% { transform: translate3d(0,-5px,0); }
+  90% { transform: translate3d(0,-2px,0); }
+}
+
 .animate-fade-in {
   animation: fadeIn 0.3s ease-out;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.4s ease-out;
+}
+
+.animate-bounce-gentle {
+  animation: bounce 2s infinite;
+}
+
+/* Mobile-specific utility classes */
+.touch-manipulation {
+  touch-action: manipulation;
+}
+
+.tap-highlight-none {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.momentum-scroll {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Mobile viewport height utility */
+.h-screen-mobile {
+  height: 100vh;
+  height: calc(var(--vh, 1vh) * 100);
+}
+
+.min-h-screen-mobile {
+  min-height: 100vh;
+  min-height: calc(var(--vh, 1vh) * 100);
 }
 
 /* Print styles */
@@ -193,5 +316,32 @@ input, textarea, select {
     line-height: 1.4;
     color: black;
     background: white;
+  }
+  
+  .no-print {
+    display: none !important;
+  }
+}
+
+/* High DPI display optimizations */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .gradient-heading {
+    background-size: 200% 200%;
+  }
+}
+
+/* Focus styles for better accessibility */
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+}
+
+/* Mobile keyboard handling */
+@media (max-height: 500px) {
+  .mobile-keyboard-adjust {
+    padding-bottom: 0;
   }
 }

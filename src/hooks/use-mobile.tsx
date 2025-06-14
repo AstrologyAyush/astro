@@ -1,14 +1,14 @@
 
 import * as React from "react"
 
-// Updated with multiple breakpoints for more fluid responsiveness
+// Enhanced breakpoints for more comprehensive mobile support
 const BREAKPOINTS = {
-  xs: 480,
-  sm: 640,
-  md: 768,
-  lg: 1024,
-  xl: 1280,
-  "2xl": 1400
+  xs: 375,    // Small phones
+  sm: 640,    // Large phones
+  md: 768,    // Tablets
+  lg: 1024,   // Small laptops
+  xl: 1280,   // Large laptops
+  "2xl": 1400 // Desktops
 } as const;
 
 export function useIsMobile() {
@@ -27,7 +27,7 @@ export function useIsMobile() {
   return !!isMobile
 }
 
-// New hook for more granular responsive design
+// Enhanced hook for better mobile detection and responsive design
 export function useBreakpoint() {
   const [breakpoint, setBreakpoint] = React.useState<keyof typeof BREAKPOINTS | 'xxs' | null>(null);
 
@@ -53,4 +53,39 @@ export function useBreakpoint() {
   }, []);
 
   return breakpoint;
+}
+
+// New hook for viewport height handling (mobile browsers)
+export function useViewportHeight() {
+  const [viewportHeight, setViewportHeight] = React.useState<number>(0);
+
+  React.useEffect(() => {
+    const updateHeight = () => {
+      setViewportHeight(window.innerHeight);
+      // Set CSS custom property for mobile viewport height
+      document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
+    };
+
+    updateHeight();
+    window.addEventListener('resize', updateHeight);
+    window.addEventListener('orientationchange', updateHeight);
+
+    return () => {
+      window.removeEventListener('resize', updateHeight);
+      window.removeEventListener('orientationchange', updateHeight);
+    };
+  }, []);
+
+  return viewportHeight;
+}
+
+// Touch detection hook
+export function useIsTouchDevice() {
+  const [isTouch, setIsTouch] = React.useState(false);
+
+  React.useEffect(() => {
+    setIsTouch('ontouchstart' in window || navigator.maxTouchPoints > 0);
+  }, []);
+
+  return isTouch;
 }
