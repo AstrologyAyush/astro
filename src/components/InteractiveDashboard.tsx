@@ -1,11 +1,10 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ComprehensiveKundaliData } from '@/lib/advancedKundaliEngine';
-import { Star, Crown, Shield, Target, TrendingUp, Heart, Briefcase, Home } from "lucide-react";
+import { Star, Globe, Clock, TrendingUp, Heart, Briefcase, Home, Users } from 'lucide-react';
 
 interface InteractiveDashboardProps {
   kundaliData: ComprehensiveKundaliData;
@@ -14,349 +13,386 @@ interface InteractiveDashboardProps {
 
 const InteractiveDashboard: React.FC<InteractiveDashboardProps> = ({ kundaliData, language }) => {
   const [selectedPlanet, setSelectedPlanet] = useState<string | null>(null);
+  const [activeView, setActiveView] = useState<'overview' | 'planets' | 'houses' | 'yogas'>('overview');
 
-  const lagna = kundaliData.enhancedCalculations.lagna;
-  const planets = kundaliData.enhancedCalculations.planets;
-  const yogas = kundaliData.enhancedCalculations.yogas;
-  const currentDasha = kundaliData.enhancedCalculations.dashas.find(d => d.isActive);
+  const getTranslation = (en: string, hi: string) => language === 'hi' ? hi : en;
 
-  // Calculate personality traits from chart
-  const personalityTraits = [
-    { 
-      name: language === 'hi' ? 'नेतृत्व' : 'Leadership', 
-      value: planets.SU.shadbala,
-      color: 'from-yellow-400 to-orange-500',
-      icon: <Crown className="h-4 w-4" />
-    },
-    { 
-      name: language === 'hi' ? 'भावनात्मक' : 'Emotional', 
-      value: planets.MO.shadbala,
-      color: 'from-blue-400 to-indigo-500',
-      icon: <Heart className="h-4 w-4" />
-    },
-    { 
-      name: language === 'hi' ? 'बुद्धि' : 'Intelligence', 
-      value: planets.ME.shadbala,
-      color: 'from-green-400 to-teal-500',
-      icon: <Star className="h-4 w-4" />
-    },
-    { 
-      name: language === 'hi' ? 'साहस' : 'Courage', 
-      value: planets.MA.shadbala,
-      color: 'from-red-400 to-pink-500',
-      icon: <Shield className="h-4 w-4" />
-    },
-    { 
-      name: language === 'hi' ? 'ज्ञान' : 'Wisdom', 
-      value: planets.JU.shadbala,
-      color: 'from-purple-400 to-violet-500',
-      icon: <Target className="h-4 w-4" />
-    }
-  ];
+  const planetSymbols: Record<string, string> = {
+    'SU': '☉', 'MO': '☽', 'MA': '♂', 'ME': '☿', 
+    'JU': '♃', 'VE': '♀', 'SA': '♄', 'RA': '☊', 'KE': '☋'
+  };
 
-  // Life areas analysis
-  const lifeAreas = [
-    {
-      name: language === 'hi' ? 'करियर' : 'Career',
-      house: 10,
-      strength: Math.floor(Math.random() * 40) + 60,
-      color: 'bg-gradient-to-r from-blue-500 to-cyan-500',
-      icon: <Briefcase className="h-5 w-5" />,
-      prediction: language === 'hi' 
-        ? 'अगले 6 महीने में करियर में उन्नति के अवसर'
-        : 'Career advancement opportunities in next 6 months'
-    },
-    {
-      name: language === 'hi' ? 'रिश्ते' : 'Relationships',
-      house: 7,
-      strength: Math.floor(Math.random() * 40) + 60,
-      color: 'bg-gradient-to-r from-pink-500 to-rose-500',
-      icon: <Heart className="h-5 w-5" />,
-      prediction: language === 'hi' 
-        ? 'शुक्र की मजबूत स्थिति से संबंधों में मधुरता'
-        : 'Strong Venus position brings harmony in relationships'
-    },
-    {
-      name: language === 'hi' ? 'स्वास्थ्य' : 'Health',
-      house: 6,
-      strength: Math.floor(Math.random() * 40) + 60,
-      color: 'bg-gradient-to-r from-green-500 to-emerald-500',
-      icon: <Shield className="h-5 w-5" />,
-      prediction: language === 'hi' 
-        ? 'नियमित योग और प्राणायाम से लाभ'
-        : 'Regular yoga and pranayama will benefit health'
-    },
-    {
-      name: language === 'hi' ? 'धन' : 'Wealth',
-      house: 2,
-      strength: Math.floor(Math.random() * 40) + 60,
-      color: 'bg-gradient-to-r from-yellow-500 to-orange-500',
-      icon: <TrendingUp className="h-5 w-5" />,
-      prediction: language === 'hi' 
-        ? 'धन संचय के लिए शुभ समय आ रहा है'
-        : 'Auspicious time for wealth accumulation coming'
-    },
-    {
-      name: language === 'hi' ? 'घर-परिवार' : 'Family',
-      house: 4,
-      strength: Math.floor(Math.random() * 40) + 60,
-      color: 'bg-gradient-to-r from-indigo-500 to-purple-500',
-      icon: <Home className="h-5 w-5" />,
-      prediction: language === 'hi' 
-        ? 'पारिवारिक खुशी और घर में शांति'
-        : 'Family happiness and peace at home'
-    }
-  ];
+  const planetColors: Record<string, string> = {
+    'SU': 'text-yellow-600 bg-yellow-100',
+    'MO': 'text-blue-600 bg-blue-100',
+    'MA': 'text-red-600 bg-red-100',
+    'ME': 'text-green-600 bg-green-100',
+    'JU': 'text-purple-600 bg-purple-100',
+    'VE': 'text-pink-600 bg-pink-100',
+    'SA': 'text-gray-600 bg-gray-100',
+    'RA': 'text-indigo-600 bg-indigo-100',
+    'KE': 'text-orange-600 bg-orange-100'
+  };
+
+  const houseSignifications = {
+    1: { icon: Users, title: 'Self & Personality', hindi: 'स्व और व्यक्तित्व' },
+    2: { icon: TrendingUp, title: 'Wealth & Family', hindi: 'धन और परिवार' },
+    3: { icon: Users, title: 'Siblings & Communication', hindi: 'भाई-बहन और संवाद' },
+    4: { icon: Home, title: 'Home & Mother', hindi: 'घर और माता' },
+    5: { icon: Heart, title: 'Children & Education', hindi: 'संतान और शिक्षा' },
+    6: { icon: Briefcase, title: 'Service & Health', hindi: 'सेवा और स्वास्थ्य' },
+    7: { icon: Heart, title: 'Marriage & Partnership', hindi: 'विवाह और साझेदारी' },
+    8: { icon: Clock, title: 'Transformation', hindi: 'परिवर्तन' },
+    9: { icon: Star, title: 'Religion & Fortune', hindi: 'धर्म और भाग्य' },
+    10: { icon: Briefcase, title: 'Career & Status', hindi: 'करियर और प्रतिष्ठा' },
+    11: { icon: TrendingUp, title: 'Gains & Friends', hindi: 'लाभ और मित्र' },
+    12: { icon: Globe, title: 'Loss & Spirituality', hindi: 'हानि और आध्यात्म' }
+  };
+
+  const renderPlanetInfo = (planetId: string, planet: any) => {
+    return (
+      <Card 
+        key={planetId}
+        className={`cursor-pointer transition-all hover:shadow-md ${
+          selectedPlanet === planetId ? 'ring-2 ring-orange-500' : ''
+        }`}
+        onClick={() => setSelectedPlanet(selectedPlanet === planetId ? null : planetId)}
+      >
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <span className={`text-2xl p-2 rounded-full ${planetColors[planetId]}`}>
+                {planetSymbols[planetId]}
+              </span>
+              <div>
+                <h3 className="font-semibold">{planet.name}</h3>
+                <p className="text-sm text-gray-600">{planet.nameHindi}</p>
+              </div>
+            </div>
+            <Badge variant={planet.isExalted ? 'default' : planet.isDebilitated ? 'destructive' : 'secondary'}>
+              {planet.dignity}
+            </Badge>
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex justify-between text-sm">
+              <span>{getTranslation('Sign:', 'राशि:')}</span>
+              <span className="font-medium">{planet.rashiName}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span>{getTranslation('House:', 'भाव:')}</span>
+              <span className="font-medium">{planet.house}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span>{getTranslation('Degree:', 'अंश:')}</span>
+              <span className="font-medium">{planet.longitude.toFixed(2)}°</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span>{getTranslation('Nakshatra:', 'नक्षत्र:')}</span>
+              <span className="font-medium">{planet.nakshatraName}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span>{getTranslation('Strength:', 'शक्ति:')}</span>
+              <div className="flex items-center gap-2">
+                <div className="w-16 h-2 bg-gray-200 rounded-full">
+                  <div 
+                    className="h-2 bg-green-500 rounded-full" 
+                    style={{ width: `${planet.shadbala}%` }}
+                  ></div>
+                </div>
+                <span className="text-xs">{planet.shadbala.toFixed(0)}%</span>
+              </div>
+            </div>
+          </div>
+
+          {selectedPlanet === planetId && (
+            <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+              <h4 className="font-semibold text-sm mb-2">
+                {getTranslation('Additional Details', 'अतिरिक्त विवरण')}
+              </h4>
+              <div className="space-y-1 text-sm">
+                <div className="flex justify-between">
+                  <span>{getTranslation('Retrograde:', 'वक्री:')}</span>
+                  <span>{planet.isRetrograde ? 
+                    getTranslation('Yes', 'हाँ') : 
+                    getTranslation('No', 'नहीं')
+                  }</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>{getTranslation('Speed:', 'गति:')}</span>
+                  <span>{planet.speed.toFixed(3)}°/day</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>{getTranslation('Pada:', 'पाद:')}</span>
+                  <span>{planet.nakshatraPada}</span>
+                </div>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    );
+  };
+
+  const renderHouseInfo = (house: any) => {
+    const houseInfo = houseSignifications[house.number as keyof typeof houseSignifications];
+    const IconComponent = houseInfo.icon;
+
+    return (
+      <Card key={house.number} className="hover:shadow-md transition-all">
+        <CardContent className="p-4">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="p-2 bg-orange-100 rounded-full">
+              <IconComponent className="h-5 w-5 text-orange-600" />
+            </div>
+            <div>
+              <h3 className="font-semibold">
+                {getTranslation('House', 'भाव')} {house.number}
+              </h3>
+              <p className="text-sm text-gray-600">
+                {getTranslation(houseInfo.title, houseInfo.hindi)}
+              </p>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex justify-between text-sm">
+              <span>{getTranslation('Sign:', 'राशि:')}</span>
+              <span className="font-medium">{house.signName}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span>{getTranslation('Lord:', 'स्वामी:')}</span>
+              <span className="font-medium">{house.lord}</span>
+            </div>
+            {house.planetsInHouse.length > 0 && (
+              <div>
+                <p className="text-sm font-medium mb-1">
+                  {getTranslation('Planets:', 'ग्रह:')}
+                </p>
+                <div className="flex flex-wrap gap-1">
+                  {house.planetsInHouse.map((planet: string, index: number) => (
+                    <Badge key={index} variant="outline" className="text-xs">
+                      {planet}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
+
+  const renderYogaInfo = (yoga: any) => {
+    return (
+      <Card key={yoga.name} className="hover:shadow-md transition-all">
+        <CardContent className="p-4">
+          <div className="flex items-start justify-between mb-3">
+            <div>
+              <h3 className="font-semibold">{yoga.name}</h3>
+              <p className="text-sm text-gray-600">{yoga.sanskritName}</p>
+            </div>
+            <Badge 
+              variant={yoga.type === 'benefic' ? 'default' : 'destructive'}
+              className="ml-2"
+            >
+              {yoga.type}
+            </Badge>
+          </div>
+
+          <p className="text-sm text-gray-700 mb-3">{yoga.description}</p>
+
+          <div className="space-y-2">
+            <div className="flex justify-between text-sm">
+              <span>{getTranslation('Strength:', 'शक्ति:')}</span>
+              <div className="flex items-center gap-2">
+                <div className="w-16 h-2 bg-gray-200 rounded-full">
+                  <div 
+                    className="h-2 bg-green-500 rounded-full" 
+                    style={{ width: `${yoga.strength}%` }}
+                  ></div>
+                </div>
+                <span className="text-xs">{yoga.strength}%</span>
+              </div>
+            </div>
+            <div>
+              <p className="text-sm font-medium mb-1">
+                {getTranslation('Effects:', 'प्रभाव:')}
+              </p>
+              <div className="flex flex-wrap gap-1">
+                {yoga.effects.map((effect: string, index: number) => (
+                  <Badge key={index} variant="outline" className="text-xs">
+                    {effect}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+            <div>
+              <p className="text-sm font-medium mb-1">
+                {getTranslation('Forming Planets:', 'योग बनाने वाले ग्रह:')}
+              </p>
+              <div className="flex flex-wrap gap-1">
+                {yoga.formingPlanets.map((planet: string, index: number) => (
+                  <Badge key={index} variant="secondary" className="text-xs">
+                    {planet}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
 
   return (
     <div className="space-y-6">
-      {/* Header Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="bg-gradient-to-br from-orange-400 to-red-500 text-white border-0">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-orange-100 text-sm">{language === 'hi' ? 'लग्न' : 'Lagna'}</p>
-                <p className="text-2xl font-bold">{lagna.signName}</p>
-                <p className="text-orange-100 text-xs">{lagna.degree.toFixed(1)}°</p>
-              </div>
-              <Crown className="h-8 w-8 text-orange-200" />
-            </div>
-          </CardContent>
-        </Card>
+      {/* Header */}
+      <Card className="bg-gradient-to-r from-orange-50 to-red-50 border-orange-200">
+        <CardHeader>
+          <CardTitle className="text-center text-orange-800">
+            {getTranslation('Interactive Kundali Dashboard', 'इंटरैक्टिव कुंडली डैशबोर्ड')}
+          </CardTitle>
+          <p className="text-center text-orange-600 text-sm">
+            {getTranslation(
+              'Explore your birth chart interactively', 
+              'अपनी जन्म कुंडली को इंटरैक्टिव रूप से देखें'
+            )}
+          </p>
+        </CardHeader>
+      </Card>
 
-        <Card className="bg-gradient-to-br from-blue-400 to-indigo-500 text-white border-0">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-blue-100 text-sm">{language === 'hi' ? 'चंद्र राशि' : 'Moon Sign'}</p>
-                <p className="text-2xl font-bold">{planets.MO.rashiName}</p>
-                <p className="text-blue-100 text-xs">{planets.MO.nakshatraName}</p>
-              </div>
-              <Star className="h-8 w-8 text-blue-200" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-green-400 to-teal-500 text-white border-0">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-green-100 text-sm">{language === 'hi' ? 'योग' : 'Yogas'}</p>
-                <p className="text-2xl font-bold">{yogas.filter(y => y.isActive).length}</p>
-                <p className="text-green-100 text-xs">{language === 'hi' ? 'सक्रिय योग' : 'Active'}</p>
-              </div>
-              <Shield className="h-8 w-8 text-green-200" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-purple-400 to-pink-500 text-white border-0">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-purple-100 text-sm">{language === 'hi' ? 'वर्तमान दशा' : 'Current Dasha'}</p>
-                <p className="text-xl font-bold">{currentDasha?.planet || 'N/A'}</p>
-                <p className="text-purple-100 text-xs">
-                  {currentDasha ? `${currentDasha.years} ${language === 'hi' ? 'वर्ष' : 'years'}` : ''}
-                </p>
-              </div>
-              <Target className="h-8 w-8 text-purple-200" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Tabs defaultValue="personality" className="w-full">
+      {/* Navigation Tabs */}
+      <Tabs value={activeView} onValueChange={(value) => setActiveView(value as any)} className="w-full">
         <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="personality">{language === 'hi' ? 'व्यक्तित्व' : 'Personality'}</TabsTrigger>
-          <TabsTrigger value="lifeAreas">{language === 'hi' ? 'जीवन क्षेत्र' : 'Life Areas'}</TabsTrigger>
-          <TabsTrigger value="planets">{language === 'hi' ? 'ग्रह शक्ति' : 'Planet Strength'}</TabsTrigger>
-          <TabsTrigger value="predictions">{language === 'hi' ? 'भविष्यवाणी' : 'Predictions'}</TabsTrigger>
+          <TabsTrigger value="overview">{getTranslation('Overview', 'अवलोकन')}</TabsTrigger>
+          <TabsTrigger value="planets">{getTranslation('Planets', 'ग्रह')}</TabsTrigger>
+          <TabsTrigger value="houses">{getTranslation('Houses', 'भाव')}</TabsTrigger>
+          <TabsTrigger value="yogas">{getTranslation('Yogas', 'योग')}</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="personality" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Star className="h-5 w-5 text-yellow-500" />
-                {language === 'hi' ? 'व्यक्तित्व विश्लेषण' : 'Personality Analysis'}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {personalityTraits.map((trait, index) => (
-                  <Card key={index} className="border-gray-200 hover:shadow-lg transition-shadow">
-                    <CardContent className="p-4">
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center gap-2">
-                          <div className={`p-2 rounded-lg bg-gradient-to-r ${trait.color} text-white`}>
-                            {trait.icon}
-                          </div>
-                          <span className="font-medium">{trait.name}</span>
-                        </div>
-                        <span className="text-lg font-bold">{trait.value.toFixed(0)}%</span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div 
-                          className={`h-2 rounded-full bg-gradient-to-r ${trait.color} transition-all duration-1000`}
-                          style={{ width: `${trait.value}%` }}
-                        ></div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="lifeAreas" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {lifeAreas.map((area, index) => (
-              <Card key={index} className="hover:shadow-lg transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className={`p-3 rounded-lg ${area.color} text-white`}>
-                      {area.icon}
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="font-bold text-lg">{area.name}</h3>
-                      <p className="text-sm text-gray-600">
-                        {language === 'hi' ? 'भाव' : 'House'} {area.house}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-2xl font-bold text-green-600">{area.strength}%</div>
-                      <div className="text-xs text-gray-500">{language === 'hi' ? 'शक्ति' : 'Strength'}</div>
-                    </div>
-                  </div>
-                  
-                  <div className="mb-4">
-                    <Progress value={area.strength} className="h-2" />
-                  </div>
-                  
-                  <p className="text-sm text-gray-700 bg-gray-50 p-3 rounded-lg">
-                    {area.prediction}
-                  </p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="planets" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Target className="h-5 w-5 text-purple-500" />
-                {language === 'hi' ? 'ग्रह शक्ति विश्लेषण' : 'Planetary Strength Analysis'}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {Object.entries(planets).map(([planetId, planet]) => (
-                  <Card 
-                    key={planetId} 
-                    className={`cursor-pointer transition-all hover:shadow-lg ${
-                      selectedPlanet === planetId ? 'ring-2 ring-blue-500' : ''
-                    }`}
-                    onClick={() => setSelectedPlanet(selectedPlanet === planetId ? null : planetId)}
-                  >
-                    <CardContent className="p-4">
-                      <div className="text-center space-y-3">
-                        <div className="text-2xl font-bold text-gray-800">{planet.name}</div>
-                        <div className="text-lg font-semibold text-blue-600">{planet.rashiName}</div>
-                        <div className="space-y-2">
-                          <div className="flex justify-between text-sm">
-                            <span>{language === 'hi' ? 'शक्ति:' : 'Strength:'}</span>
-                            <span className="font-bold">{planet.shadbala.toFixed(0)}%</span>
-                          </div>
-                          <Progress value={planet.shadbala} className="h-2" />
-                        </div>
-                        
-                        {selectedPlanet === planetId && (
-                          <div className="mt-4 p-3 bg-blue-50 rounded-lg text-left">
-                            <div className="space-y-1 text-sm">
-                              <div><strong>{language === 'hi' ? 'राशि:' : 'Sign:'}</strong> {planet.rashiName}</div>
-                              <div><strong>{language === 'hi' ? 'नक्षत्र:' : 'Nakshatra:'}</strong> {planet.nakshatraName}</div>
-                              <div><strong>{language === 'hi' ? 'अंश:' : 'Degree:'}</strong> {planet.degree.toFixed(2)}°</div>
-                              {planet.isRetrograde && (
-                                <Badge variant="destructive" className="text-xs">
-                                  {language === 'hi' ? 'वक्री' : 'Retrograde'}
-                                </Badge>
-                              )}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="predictions" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Current Period */}
-            <Card className="bg-gradient-to-br from-indigo-50 to-purple-50 border-indigo-200">
+        <TabsContent value="overview" className="mt-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <Card>
               <CardHeader>
-                <CardTitle className="text-indigo-800 flex items-center gap-2">
-                  <Target className="h-5 w-5" />
-                  {language === 'hi' ? 'वर्तमान काल' : 'Current Period'}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {currentDasha && (
-                  <div>
-                    <h3 className="font-bold text-lg text-indigo-900">
-                      {currentDasha.planet} {language === 'hi' ? 'महादशा' : 'Mahadasha'}
-                    </h3>
-                    <p className="text-sm text-indigo-700">
-                      {language === 'hi' ? 'समाप्ति:' : 'Ends:'} {currentDasha.endDate.toLocaleDateString()}
-                    </p>
-                    <p className="text-sm text-gray-600 mt-2">
-                      {language === 'hi' 
-                        ? 'इस दशा में धैर्य और कड़ी मेहनत आवश्यक है।'
-                        : 'This period requires patience and hard work.'}
-                    </p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Yogas */}
-            <Card className="bg-gradient-to-br from-green-50 to-teal-50 border-green-200">
-              <CardHeader>
-                <CardTitle className="text-green-800 flex items-center gap-2">
-                  <Shield className="h-5 w-5" />
-                  {language === 'hi' ? 'सक्रिय योग' : 'Active Yogas'}
+                <CardTitle className="text-lg">
+                  {getTranslation('Birth Details', 'जन्म विवरण')}
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
-                  {yogas.filter(y => y.isActive).slice(0, 3).map((yoga, index) => (
-                    <div key={index} className="p-3 bg-white rounded-lg border border-green-200">
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1">
-                          <h4 className="font-semibold text-green-800">{yoga.name}</h4>
-                          <p className="text-xs text-gray-600">{yoga.description.substring(0, 80)}...</p>
-                        </div>
-                        <Badge 
-                          variant={yoga.type === 'benefic' ? 'default' : 'destructive'}
-                          className="ml-2"
-                        >
-                          {yoga.strength}%
-                        </Badge>
-                      </div>
-                    </div>
-                  ))}
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span>{getTranslation('Name:', 'नाम:')}</span>
+                    <span className="font-medium">{kundaliData.birthData.fullName}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>{getTranslation('Place:', 'स्थान:')}</span>
+                    <span className="font-medium">{kundaliData.birthData.place}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>{getTranslation('Date:', 'दिनांक:')}</span>
+                    <span className="font-medium">{kundaliData.birthData.date}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>{getTranslation('Time:', 'समय:')}</span>
+                    <span className="font-medium">{kundaliData.birthData.time}</span>
+                  </div>
                 </div>
               </CardContent>
             </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">
+                  {getTranslation('Primary Chart Details', 'मुख्य चार्ट विवरण')}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span>{getTranslation('Ascendant:', 'लग्न:')}</span>
+                    <span className="font-medium">{kundaliData.enhancedCalculations.lagna.signName}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>{getTranslation('Moon Sign:', 'चन्द्र राशि:')}</span>
+                    <span className="font-medium">{kundaliData.enhancedCalculations.planets.MO.rashiName}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>{getTranslation('Sun Sign:', 'सूर्य राशि:')}</span>
+                    <span className="font-medium">{kundaliData.enhancedCalculations.planets.SU.rashiName}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>{getTranslation('Birth Nakshatra:', 'जन्म नक्षत्र:')}</span>
+                    <span className="font-medium">{kundaliData.enhancedCalculations.planets.MO.nakshatraName}</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">
+                  {getTranslation('Current Dasha', 'वर्तमान दशा')}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {kundaliData.enhancedCalculations.dashas.find(d => d.isActive) ? (
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span>{getTranslation('Planet:', 'ग्रह:')}</span>
+                      <span className="font-medium">
+                        {kundaliData.enhancedCalculations.dashas.find(d => d.isActive)?.planet}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>{getTranslation('Duration:', 'अवधि:')}</span>
+                      <span className="font-medium">
+                        {kundaliData.enhancedCalculations.dashas.find(d => d.isActive)?.years} years
+                      </span>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-sm text-gray-600">
+                    {getTranslation('No active dasha period found', 'कोई सक्रिय दशा अवधि नहीं मिली')}
+                  </p>
+                )}
+              </CardContent>
+            </Card>
           </div>
+        </TabsContent>
+
+        <TabsContent value="planets" className="mt-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {Object.entries(kundaliData.enhancedCalculations.planets).map(([planetId, planet]) =>
+              renderPlanetInfo(planetId, planet)
+            )}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="houses" className="mt-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {kundaliData.enhancedCalculations.houses.map(house => renderHouseInfo(house))}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="yogas" className="mt-6">
+          {kundaliData.enhancedCalculations.yogas.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {kundaliData.enhancedCalculations.yogas.map(yoga => renderYogaInfo(yoga))}
+            </div>
+          ) : (
+            <Card>
+              <CardContent className="p-8 text-center">
+                <p className="text-gray-600">
+                  {getTranslation(
+                    'No specific yogas found in your chart', 
+                    'आपके चार्ट में कोई विशिष्ट योग नहीं मिला'
+                  )}
+                </p>
+              </CardContent>
+            </Card>
+          )}
         </TabsContent>
       </Tabs>
     </div>

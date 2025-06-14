@@ -1,4 +1,3 @@
-
 /**
  * Advanced Vedic Kundali Engine
  * Comprehensive astrological calculations including all traditional elements
@@ -20,6 +19,7 @@ export interface PlanetData {
   nameHindi: string;
   longitude: number; // Sidereal longitude
   latitude: number;
+  degree: number; // Add degree property
   degreeInSign: number; // 0-30
   rashi: number; // 1-12
   rashiName: string;
@@ -41,6 +41,7 @@ export interface PlanetData {
 
 export interface LagnaDetails {
   signName: string;
+  sign: number; // Add sign property
   degree: number;
   nakshatra: string;
   nakshatraPada: number;
@@ -73,6 +74,7 @@ export interface DashaDetails {
   startDate: Date;
   endDate: Date;
   years: number;
+  months?: number; // Add months property
   isActive: boolean;
   remainingTime?: string;
 }
@@ -120,6 +122,8 @@ export interface PersonalityAnalysis {
   strengths: string[];
   challenges: string[];
   character: string[];
+  coreTraits: string[]; // Add coreTraits property
+  careerAptitude: string[]; // Add careerAptitude property
   temperament: string;
   mentalMakeup: string[];
 }
@@ -135,13 +139,33 @@ export interface LifeAreaPredictions {
   children: string[];
 }
 
+export interface LifePhasePredictions {
+  ageRange: string;
+  generalTrends: string[];
+  career: string[];
+  finance: string[];
+  relationships: string[];
+  health: string[];
+}
+
 export interface PredictiveAnalysis {
-  youth: LifeAreaPredictions;
-  middle: LifeAreaPredictions;
-  later: LifeAreaPredictions;
+  childhood: LifePhasePredictions;
+  youth: LifePhasePredictions;
+  adulthood: LifePhasePredictions;
+  maturity: LifePhasePredictions;
   annual: string[];
   favorable_periods: string[];
   challenging_periods: string[];
+}
+
+export interface MarriageCompatibility {
+  mangalDoshaStatus: string;
+  recommendedAge: string;
+  compatibleSigns: string[];
+}
+
+export interface CompatibilityAnalysis {
+  marriageCompatibility: MarriageCompatibility;
 }
 
 export interface RemedialMeasures {
@@ -151,13 +175,16 @@ export interface RemedialMeasures {
     weight: string;
     metal: string;
     finger: string;
+    day: string; // Add day property
     benefits: string[];
   }>;
   mantras: Array<{
     mantra: string;
     planet: string;
     repetitions: string;
+    count: number; // Add count property
     timing: string;
+    duration: string; // Add duration property
   }>;
   charities: Array<{
     item: string;
@@ -180,6 +207,7 @@ export interface RemedialMeasures {
 export interface DetailedInterpretations {
   personality: PersonalityAnalysis;
   predictions: PredictiveAnalysis;
+  compatibility: CompatibilityAnalysis; // Add compatibility property
   remedies: RemedialMeasures;
   auspiciousTimes: string[];
   doshaRemedies: Record<string, string[]>;
@@ -308,6 +336,7 @@ export function calculateLagna(jd: number, latitude: number, longitude: number, 
   
   return {
     signName: ZODIAC_SIGNS[sign - 1].name,
+    sign, // Add sign number
     degree,
     nakshatra: NAKSHATRAS[nakshatra - 1].name,
     nakshatraPada: pada,
@@ -384,6 +413,7 @@ export function calculatePlanetaryPositions(jd: number, ayanamsa: number): Recor
       nameHindi: planet.hindi,
       longitude: siderealLongitude,
       latitude: 0,
+      degree: siderealLongitude, // Add degree property
       degreeInSign,
       rashi,
       rashiName: ZODIAC_SIGNS[rashi - 1].name,
@@ -641,6 +671,7 @@ export function calculateVimshottariDasha(jd: number, moon: PlanetData): DashaDe
     const lordIndex = (nakshatraLord + i) % 9;
     const planet = dashaLords[lordIndex];
     const years = dashaYears[lordIndex];
+    const months = (years * 12) % 12; // Add months calculation
     
     const endDate = new Date(currentDate.getTime() + (years * 365.25 * 24 * 60 * 60 * 1000));
     const now = new Date();
@@ -651,6 +682,7 @@ export function calculateVimshottariDasha(jd: number, moon: PlanetData): DashaDe
       startDate: new Date(currentDate),
       endDate,
       years,
+      months, // Add months property
       isActive: currentDate <= now && now <= endDate
     });
     
@@ -709,6 +741,18 @@ export function generateInterpretations(planets: Record<string, PlanetData>, hou
         'Intellectually curious',
         'Values relationships highly'
       ],
+      coreTraits: [ // Add coreTraits
+        'Determined',
+        'Analytical',
+        'Creative',
+        'Compassionate'
+      ],
+      careerAptitude: [ // Add careerAptitude
+        'Business and entrepreneurship',
+        'Creative arts and design',
+        'Teaching and counseling',
+        'Technology and innovation'
+      ],
       temperament: 'Balanced with strong emotional intelligence',
       mentalMakeup: [
         'Analytical mind with creative flair',
@@ -717,39 +761,48 @@ export function generateInterpretations(planets: Record<string, PlanetData>, hou
       ]
     },
     predictions: {
+      childhood: {
+        ageRange: '0-18 years',
+        generalTrends: ['Happy childhood', 'Good family support', 'Academic success'],
+        career: ['Focus on education', 'Develop talents'],
+        finance: ['Family provides well', 'Learn money values'],
+        relationships: ['Strong family bonds', 'Good friendships'],
+        health: ['Generally good health', 'Active lifestyle']
+      },
       youth: {
+        ageRange: '18-35 years',
+        generalTrends: ['Career establishment', 'Personal growth', 'Relationship formation'],
         career: ['Early success in chosen field', 'Multiple opportunities for growth'],
         finance: ['Gradual financial improvement', 'Good savings potential'],
-        relationships: ['Meaningful friendships', 'Potential for early romance'],
-        marriage: ['Marriage around 24-28 years', 'Compatible partner'],
-        health: ['Generally good health', 'Need to watch diet'],
-        education: ['Academic success', 'Higher education beneficial'],
-        family: ['Strong family bonds', 'Support from elders'],
-        children: ['Blessed with children', 'Good relationship with offspring']
+        relationships: ['Meaningful friendships', 'Potential for romance'],
+        health: ['Good health with exercise', 'Watch diet']
       },
-      middle: {
-        career: ['Peak career phase', 'Leadership positions'],
+      adulthood: {
+        ageRange: '35-55 years',
+        generalTrends: ['Peak career phase', 'Family responsibilities', 'Wealth accumulation'],
+        career: ['Leadership positions', 'Professional recognition'],
         finance: ['Financial stability', 'Investment opportunities'],
-        relationships: ['Stable relationships', 'Social recognition'],
-        marriage: ['Harmonious married life', 'Mutual understanding'],
-        health: ['Maintain regular exercise', 'Preventive health care'],
-        education: ['Continued learning', 'Professional development'],
-        family: ['Family expansion', 'Increased responsibilities'],
-        children: ['Children\'s achievements', 'Educational support needed']
+        relationships: ['Stable relationships', 'Family focus'],
+        health: ['Maintain regular exercise', 'Preventive care']
       },
-      later: {
+      maturity: {
+        ageRange: '55+ years',
+        generalTrends: ['Wisdom phase', 'Spiritual growth', 'Legacy building'],
         career: ['Advisory roles', 'Mentoring others'],
         finance: ['Secure financial position', 'Legacy planning'],
-        relationships: ['Wisdom sharing', 'Community involvement'],
-        marriage: ['Deep companionship', 'Mutual support'],
-        health: ['Regular health monitoring', 'Wellness focus'],
-        education: ['Spiritual learning', 'Teaching others'],
-        family: ['Grandchildren joy', 'Family guidance'],
-        children: ['Children\'s success', 'Independent achievements']
+        relationships: ['Deep companionship', 'Community involvement'],
+        health: ['Regular monitoring', 'Wellness focus']
       },
       annual: ['This year brings new opportunities', 'Focus on health and relationships'],
       favorable_periods: ['March-May', 'September-November'],
       challenging_periods: ['June-August', 'December-February']
+    },
+    compatibility: { // Add compatibility
+      marriageCompatibility: {
+        mangalDoshaStatus: 'No Mangal Dosha',
+        recommendedAge: '25-30 years',
+        compatibleSigns: ['Taurus', 'Cancer', 'Virgo', 'Scorpio']
+      }
     },
     remedies: {
       gemstones: [
@@ -759,6 +812,7 @@ export function generateInterpretations(planets: Record<string, PlanetData>, hou
           weight: '3-6 carats',
           metal: 'Gold',
           finger: 'Ring finger',
+          day: 'Sunday', // Add day
           benefits: ['Confidence', 'Leadership', 'Health']
         },
         {
@@ -767,6 +821,7 @@ export function generateInterpretations(planets: Record<string, PlanetData>, hou
           weight: '4-7 carats',
           metal: 'Silver',
           finger: 'Little finger',
+          day: 'Monday', // Add day
           benefits: ['Peace of mind', 'Emotional balance', 'Intuition']
         }
       ],
@@ -775,13 +830,17 @@ export function generateInterpretations(planets: Record<string, PlanetData>, hou
           mantra: 'ॐ सूर्याय नमः',
           planet: 'Sun',
           repetitions: '108 times',
-          timing: 'Morning'
+          count: 108, // Add count
+          timing: 'Morning',
+          duration: '40 days' // Add duration
         },
         {
           mantra: 'ॐ चंद्राय नमः',
           planet: 'Moon',
           repetitions: '108 times',
-          timing: 'Evening'
+          count: 108, // Add count
+          timing: 'Evening',
+          duration: '40 days' // Add duration
         }
       ],
       charities: [
@@ -828,58 +887,41 @@ export function generateInterpretations(planets: Record<string, PlanetData>, hou
       'Full moon nights for spiritual practices'
     ],
     doshaRemedies: {
-      'Mangal Dosha': [
-        'Visit Hanuman temple on Tuesdays',
-        'Chant Hanuman Chalisa',
-        'Wear red coral after consultation'
-      ]
+      'Mangal Dosha': ['Worship Hanuman', 'Chant Mangal mantra', 'Wear red coral']
     }
   };
 }
 
 // Main function to generate comprehensive Kundali
 export function generateAdvancedKundali(birthData: EnhancedBirthData): ComprehensiveKundaliData {
-  console.log('🌟 Generating comprehensive Vedic Kundali with all traditional elements...');
+  console.log('🔮 Generating comprehensive Vedic Kundali with all traditional elements...');
   
   // Calculate Julian Day
   const jd = calculateJulianDay(birthData.date, birthData.time, birthData.timezone);
-  console.log('📅 Julian Day calculated:', jd);
   
   // Calculate Ayanamsa
   const ayanamsa = calculateLahiriAyanamsa(jd);
-  console.log('🌌 Ayanamsa calculated:', ayanamsa.toFixed(6));
-  
-  // Calculate Local Sidereal Time
-  const lst = calculateLocalSiderealTime(jd, birthData.longitude);
-  console.log('⏰ Local Sidereal Time:', lst.toFixed(6));
   
   // Calculate Lagna
   const lagna = calculateLagna(jd, birthData.latitude, birthData.longitude, ayanamsa);
-  console.log('🏠 Lagna calculated:', lagna.signName, lagna.degree.toFixed(4));
   
-  // Calculate Planetary Positions
+  // Calculate planetary positions
   const planets = calculatePlanetaryPositions(jd, ayanamsa);
-  console.log('🪐 Planetary positions calculated');
   
-  // Calculate Houses
+  // Calculate houses
   const houses = calculateHouses(lagna, planets);
-  console.log('🏘️ Houses calculated');
   
-  // Calculate Yogas
+  // Calculate yogas
   const yogas = calculateYogas(planets, lagna);
-  console.log('🧘 Yogas identified:', yogas.length);
   
-  // Calculate Dashas
+  // Calculate dashas
   const dashas = calculateVimshottariDasha(jd, planets['MO']);
-  console.log('📊 Dasha periods calculated');
   
-  // Calculate Doshas
+  // Calculate doshas
   const doshas = calculateDoshas(planets);
-  console.log('⚠️ Doshas analyzed');
   
   // Generate interpretations
   const interpretations = generateInterpretations(planets, houses);
-  console.log('📖 Interpretations generated');
   
   const result: ComprehensiveKundaliData = {
     birthData,
@@ -890,17 +932,20 @@ export function generateAdvancedKundali(birthData: EnhancedBirthData): Comprehen
       yogas,
       dashas,
       doshas,
-      divisionalCharts: [], // To be implemented
-      transits: [], // To be implemented
+      divisionalCharts: [], // Placeholder for future implementation
+      transits: [], // Placeholder for future implementation
       julianDay: jd,
       ayanamsa,
-      localSiderealTime: lst
+      localSiderealTime: calculateLocalSiderealTime(jd, birthData.longitude)
     },
     interpretations,
-    accuracy: 'Swiss Ephemeris Level Precision - Traditional Vedic Calculations',
+    accuracy: 'Swiss Ephemeris level precision with traditional Vedic calculations',
     generatedAt: new Date()
   };
   
   console.log('✅ Comprehensive Vedic Kundali generated successfully');
   return result;
 }
+
+// Export the main function for compatibility
+export const generateComprehensiveKundali = generateAdvancedKundali;
