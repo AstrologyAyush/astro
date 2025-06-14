@@ -38,18 +38,18 @@ export async function saveEnhancedKundali(
       .eq('user_id', user.id)
       .maybeSingle();
 
-    // Combine all calculation data for the existing schema
-    const combinedKundaliData = {
+    // Combine all calculation data for the existing schema - properly serialize to JSON
+    const combinedKundaliData = JSON.parse(JSON.stringify({
       vedic_calculations: vedicResult,
       gemini_analysis: geminiAnalysis || null,
       accuracy_level: 'Swiss Ephemeris Precision - Traditional Vedic'
-    };
+    }));
 
     const kundaliData = {
       user_id: user.id,
       profile_id: profile?.id || null,
       name: birthData.fullName || birthData.name,
-      birth_data: birthData,
+      birth_data: JSON.parse(JSON.stringify(birthData)), // Serialize to JSON
       kundali_data: combinedKundaliData
     };
 
@@ -95,7 +95,7 @@ export async function getUserKundalis(userId?: string): Promise<StoredKundaliDat
       return [];
     }
 
-    return data || [];
+    return (data || []) as StoredKundaliData[];
 
   } catch (error) {
     console.error('Error in getUserKundalis:', error);
@@ -116,7 +116,7 @@ export async function getKundaliById(id: string): Promise<StoredKundaliData | nu
       return null;
     }
 
-    return data;
+    return data as StoredKundaliData;
 
   } catch (error) {
     console.error('Error in getKundaliById:', error);
@@ -141,11 +141,12 @@ export async function updateKundaliAnalysis(
       return false;
     }
 
-    // Update the kundali_data with new Gemini analysis
-    const updatedKundaliData = {
-      ...existingData.kundali_data,
+    // Update the kundali_data with new Gemini analysis - properly handle JSON
+    const existingKundaliData = existingData.kundali_data as any;
+    const updatedKundaliData = JSON.parse(JSON.stringify({
+      ...existingKundaliData,
       gemini_analysis: geminiAnalysis
-    };
+    }));
 
     const { error } = await supabase
       .from('kundali_reports')
@@ -199,17 +200,19 @@ export async function logCalculationAccuracy(
   }
 ): Promise<void> {
   try {
-    // Log to user_activities table since calculation_logs doesn't exist
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    // Log to user_activities table - properly serialize the data
     const { error } = await supabase
       .from('user_activities')
       .insert({
-        user_id: (await supabase.auth.getUser()).data.user?.id || null,
+        user_id: user?.id || null,
         activity_type: 'kundali_calculation',
-        activity_data: {
+        activity_data: JSON.parse(JSON.stringify({
           kundali_id: kundaliId,
           accuracy_metrics: accuracyMetrics,
           timestamp: new Date().toISOString()
-        }
+        }))
       });
 
     if (error) {
