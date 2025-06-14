@@ -10,28 +10,23 @@ import { calculateNumerologyProfile, checkCompatibility, NumerologyProfile } fro
 import CompatibilityChecker from './CompatibilityChecker';
 import NumerologyInsights from './NumerologyInsights';
 import { AlertCircle, Star, Heart, Shield, Gem, BookOpen, Lightbulb } from 'lucide-react';
-
 interface NumerologyCalculatorProps {
   language: 'hi' | 'en';
 }
-
-const NumerologyCalculator: React.FC<NumerologyCalculatorProps> = ({ language }) => {
+const NumerologyCalculator: React.FC<NumerologyCalculatorProps> = ({
+  language
+}) => {
   const [name, setName] = useState('');
   const [birthDate, setBirthDate] = useState('');
   const [profile, setProfile] = useState<NumerologyProfile | null>(null);
-
   const handleCalculate = () => {
     if (!name || !birthDate) return;
-    
     const date = new Date(birthDate);
     const numerologyProfile = calculateNumerologyProfile(name, date);
     setProfile(numerologyProfile);
   };
-
   const getText = (hi: string, en: string) => language === 'hi' ? hi : en;
-
-  return (
-    <div className="space-y-6">
+  return <div className="space-y-6">
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -45,23 +40,13 @@ const NumerologyCalculator: React.FC<NumerologyCalculatorProps> = ({ language })
               <Label htmlFor="name">
                 {getText("पूरा नाम", "Full Name")}
               </Label>
-              <Input
-                id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder={getText("अपना पूरा नाम दर्ज करें", "Enter your full name")}
-              />
+              <Input id="name" value={name} onChange={e => setName(e.target.value)} placeholder={getText("अपना पूरा नाम दर्ज करें", "Enter your full name")} />
             </div>
             <div>
               <Label htmlFor="birthDate">
                 {getText("जन्म तिथि", "Birth Date")}
               </Label>
-              <Input
-                id="birthDate"
-                type="date"
-                value={birthDate}
-                onChange={(e) => setBirthDate(e.target.value)}
-              />
+              <Input id="birthDate" type="date" value={birthDate} onChange={e => setBirthDate(e.target.value)} />
             </div>
           </div>
           <Button onClick={handleCalculate} className="w-full">
@@ -70,8 +55,7 @@ const NumerologyCalculator: React.FC<NumerologyCalculatorProps> = ({ language })
         </CardContent>
       </Card>
 
-      {profile && (
-        <Tabs defaultValue="insights" className="w-full">
+      {profile && <Tabs defaultValue="insights" className="w-full">
           <TabsList className="grid w-full grid-cols-2 md:grid-cols-6">
             <TabsTrigger value="insights">{getText("अंतर्दृष्टि", "Insights")}</TabsTrigger>
             <TabsTrigger value="core">{getText("मुख्य", "Core")}</TabsTrigger>
@@ -84,7 +68,7 @@ const NumerologyCalculator: React.FC<NumerologyCalculatorProps> = ({ language })
           <TabsContent value="insights" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle className="text-blue-600 flex items-center gap-2">
+                <CardTitle className="text-blue-600 flex items-center gap-2 text-base font-bold text-center px-[2px] py-[6px]">
                   <Lightbulb className="h-5 w-5" />
                   {getText("व्यक्तिगत मार्गदर्शन और अंतर्दृष्टि", "Personal Guidance & Insights")}
                 </CardTitle>
@@ -174,11 +158,9 @@ const NumerologyCalculator: React.FC<NumerologyCalculatorProps> = ({ language })
                       {getText("शिखर संख्याएं (जीवन चरण)", "Pinnacle Numbers (Life Phases)")}
                     </h4>
                     <div className="flex gap-2 flex-wrap">
-                      {profile.pinnacles.map((pinnacle, index) => (
-                        <Badge key={index} variant="outline" className="bg-blue-50">
+                      {profile.pinnacles.map((pinnacle, index) => <Badge key={index} variant="outline" className="bg-blue-50">
                           {getText(`चरण ${index + 1}`, `Phase ${index + 1}`)}: {pinnacle}
-                        </Badge>
-                      ))}
+                        </Badge>)}
                     </div>
                   </div>
 
@@ -188,11 +170,9 @@ const NumerologyCalculator: React.FC<NumerologyCalculatorProps> = ({ language })
                       {getText("चुनौती संख्याएं", "Challenge Numbers")}
                     </h4>
                     <div className="flex gap-2 flex-wrap">
-                      {profile.challenges.map((challenge, index) => (
-                        <Badge key={index} variant="secondary">
+                      {profile.challenges.map((challenge, index) => <Badge key={index} variant="secondary">
                           {getText(`चुनौती ${index + 1}`, `Challenge ${index + 1}`)}: {challenge}
-                        </Badge>
-                      ))}
+                        </Badge>)}
                     </div>
                   </div>
 
@@ -236,12 +216,10 @@ const NumerologyCalculator: React.FC<NumerologyCalculatorProps> = ({ language })
                       {getText("शक्तियां", "Strengths")}
                     </h4>
                     <ul className="space-y-1">
-                      {profile.personalityArchetype.strengths.map((strength, index) => (
-                        <li key={index} className="text-sm text-green-700 flex items-start gap-2">
+                      {profile.personalityArchetype.strengths.map((strength, index) => <li key={index} className="text-sm text-green-700 flex items-start gap-2">
                           <span className="text-green-500 mt-1">•</span>
                           {strength}
-                        </li>
-                      ))}
+                        </li>)}
                     </ul>
                   </div>
 
@@ -250,12 +228,10 @@ const NumerologyCalculator: React.FC<NumerologyCalculatorProps> = ({ language })
                       {getText("छाया पक्ष", "Shadow Aspects")}
                     </h4>
                     <ul className="space-y-1">
-                      {profile.personalityArchetype.shadows.map((shadow, index) => (
-                        <li key={index} className="text-sm text-orange-700 flex items-start gap-2">
+                      {profile.personalityArchetype.shadows.map((shadow, index) => <li key={index} className="text-sm text-orange-700 flex items-start gap-2">
                           <span className="text-orange-500 mt-1">•</span>
                           {shadow}
-                        </li>
-                      ))}
+                        </li>)}
                     </ul>
                   </div>
                 </div>
@@ -266,11 +242,9 @@ const NumerologyCalculator: React.FC<NumerologyCalculatorProps> = ({ language })
                       {getText("आदर्श करियर", "Ideal Careers")}
                     </h4>
                     <div className="flex flex-wrap gap-2">
-                      {profile.personalityArchetype.idealCareers.map((career, index) => (
-                        <Badge key={index} variant="outline" className="bg-purple-100 text-purple-700">
+                      {profile.personalityArchetype.idealCareers.map((career, index) => <Badge key={index} variant="outline" className="bg-purple-100 text-purple-700">
                           {career}
-                        </Badge>
-                      ))}
+                        </Badge>)}
                     </div>
                   </div>
 
@@ -296,37 +270,30 @@ const NumerologyCalculator: React.FC<NumerologyCalculatorProps> = ({ language })
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {profile.karmicDebt.hasKarmicDebt ? (
-                  <div className="bg-red-50 p-4 rounded-lg border border-red-200">
+                {profile.karmicDebt.hasKarmicDebt ? <div className="bg-red-50 p-4 rounded-lg border border-red-200">
                     <h4 className="font-semibold text-red-800 mb-2">
                       {getText("कर्मिक ऋण मौजूद", "Karmic Debt Present")}
                     </h4>
                     <div className="space-y-2">
-                      {profile.karmicDebt.debtNumbers.map((debt, index) => (
-                        <div key={index} className="bg-white p-3 rounded border border-red-100">
+                      {profile.karmicDebt.debtNumbers.map((debt, index) => <div key={index} className="bg-white p-3 rounded border border-red-100">
                           <div className="font-medium text-red-700">
                             {getText("ऋण संख्या", "Debt Number")}: {debt}
                           </div>
                           <div className="text-sm text-red-600 mt-1">
                             {profile.karmicDebt.descriptions[index]}
                           </div>
-                        </div>
-                      ))}
+                        </div>)}
                     </div>
-                  </div>
-                ) : (
-                  <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+                  </div> : <div className="bg-green-50 p-4 rounded-lg border border-green-200">
                     <h4 className="font-semibold text-green-800">
                       {getText("कोई मुख्य कर्मिक ऋण नहीं", "No Major Karmic Debt")}
                     </h4>
                     <p className="text-green-700 text-sm mt-1">
                       {getText("आपके पास साफ कर्मिक स्लेट है", "You have a clear karmic slate")}
                     </p>
-                  </div>
-                )}
+                  </div>}
 
-                {profile.missingNumbers.length > 0 && (
-                  <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                {profile.missingNumbers.length > 0 && <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
                     <h4 className="font-semibold text-yellow-800 mb-2">
                       {getText("गुम संख्याएं", "Missing Numbers")}
                     </h4>
@@ -334,14 +301,11 @@ const NumerologyCalculator: React.FC<NumerologyCalculatorProps> = ({ language })
                       {getText("आपके नाम में ये संख्याएं गायब हैं, जो कमजोर क्षेत्रों को दर्शाती हैं", "These numbers are missing from your name, indicating areas of weakness")}
                     </p>
                     <div className="flex flex-wrap gap-2">
-                      {profile.missingNumbers.map((num, index) => (
-                        <Badge key={index} variant="outline" className="bg-yellow-100 text-yellow-800">
+                      {profile.missingNumbers.map((num, index) => <Badge key={index} variant="outline" className="bg-yellow-100 text-yellow-800">
                           {num}
-                        </Badge>
-                      ))}
+                        </Badge>)}
                     </div>
-                  </div>
-                )}
+                  </div>}
               </CardContent>
             </Card>
           </TabsContent>
@@ -355,10 +319,8 @@ const NumerologyCalculator: React.FC<NumerologyCalculatorProps> = ({ language })
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                {profile.remedies.length > 0 ? (
-                  <div className="space-y-4">
-                    {profile.remedies.map((remedy, index) => (
-                      <div key={index} className="bg-green-50 p-4 rounded-lg border border-green-200">
+                {profile.remedies.length > 0 ? <div className="space-y-4">
+                    {profile.remedies.map((remedy, index) => <div key={index} className="bg-green-50 p-4 rounded-lg border border-green-200">
                         <div className="flex items-start gap-3">
                           <div className="bg-green-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">
                             {remedy.number}
@@ -375,12 +337,10 @@ const NumerologyCalculator: React.FC<NumerologyCalculatorProps> = ({ language })
                                   {getText("उपाय", "Remedies")}:
                                 </h5>
                                 <ul className="text-sm text-green-700">
-                                  {remedy.remedies.map((r, i) => (
-                                    <li key={i} className="flex items-start gap-1">
+                                  {remedy.remedies.map((r, i) => <li key={i} className="flex items-start gap-1">
                                       <span className="text-green-500 mt-1">•</span>
                                       {r}
-                                    </li>
-                                  ))}
+                                    </li>)}
                                 </ul>
                               </div>
                               
@@ -404,10 +364,9 @@ const NumerologyCalculator: React.FC<NumerologyCalculatorProps> = ({ language })
                                   </Badge>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                  <div 
-                                    className="w-4 h-4 rounded border"
-                                    style={{ backgroundColor: remedy.color.toLowerCase() }}
-                                  ></div>
+                                  <div className="w-4 h-4 rounded border" style={{
+                            backgroundColor: remedy.color.toLowerCase()
+                          }}></div>
                                   <span className="text-sm font-medium text-green-800">
                                     {getText("रंग", "Color")}:
                                   </span>
@@ -417,34 +376,23 @@ const NumerologyCalculator: React.FC<NumerologyCalculatorProps> = ({ language })
                             </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
+                      </div>)}
+                  </div> : <div className="text-center py-8">
                     <div className="text-gray-500">
                       {getText("कोई विशेष उपाय की आवश्यकता नहीं", "No specific remedies needed")}
                     </div>
                     <p className="text-sm text-gray-400 mt-2">
                       {getText("आपकी संख्या संरचना संतुलित है", "Your number structure is well balanced")}
                     </p>
-                  </div>
-                )}
+                  </div>}
               </CardContent>
             </Card>
           </TabsContent>
 
           <TabsContent value="compatibility" className="space-y-4">
-            <CompatibilityChecker 
-              language={language}
-              currentProfile={profile}
-              currentName={name}
-            />
+            <CompatibilityChecker language={language} currentProfile={profile} currentName={name} />
           </TabsContent>
-        </Tabs>
-      )}
-    </div>
-  );
+        </Tabs>}
+    </div>;
 };
-
 export default NumerologyCalculator;
