@@ -16,7 +16,7 @@ const NumerologyCalculator: React.FC = () => {
   const [name, setName] = useState('');
   const [birthDate, setBirthDate] = useState('');
   const [profile, setProfile] = useState<NumerologyProfile | null>(null);
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
 
   const handleCalculate = () => {
     if (!name || !birthDate) return;
