@@ -279,10 +279,54 @@ const PLANETS = [
   { id: 'KE', name: 'Ketu', hindi: 'केतु', symbol: '☋' }
 ];
 
-// Enhanced Julian Day calculation
-export function calculateJulianDay(date: string, time: string, timezone: number): number {
-  const [year, month, day] = date.split('-').map(Number);
-  const [hour, minute, second = 0] = time.split(':').map(Number);
+// Enhanced Julian Day calculation with better error handling
+export function calculateJulianDay(date: string | Date, time: string, timezone: number): number {
+  // Convert Date object to string if needed
+  let dateString: string;
+  if (date instanceof Date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    dateString = `${year}-${month}-${day}`;
+  } else if (typeof date === 'string') {
+    dateString = date;
+  } else {
+    throw new Error('Invalid date format. Expected string (YYYY-MM-DD) or Date object.');
+  }
+
+  // Validate date string format
+  if (!dateString || typeof dateString !== 'string' || !dateString.includes('-')) {
+    throw new Error('Date must be in YYYY-MM-DD format');
+  }
+
+  const dateParts = dateString.split('-');
+  if (dateParts.length !== 3) {
+    throw new Error('Date must be in YYYY-MM-DD format');
+  }
+
+  const [year, month, day] = dateParts.map(Number);
+  
+  // Validate parsed values
+  if (isNaN(year) || isNaN(month) || isNaN(day)) {
+    throw new Error('Invalid date values');
+  }
+  
+  // Validate time string
+  if (!time || typeof time !== 'string') {
+    throw new Error('Time must be provided as HH:MM or HH:MM:SS');
+  }
+
+  const timeParts = time.split(':');
+  if (timeParts.length < 2 || timeParts.length > 3) {
+    throw new Error('Time must be in HH:MM or HH:MM:SS format');
+  }
+
+  const [hour, minute, second = 0] = timeParts.map(Number);
+  
+  // Validate time values
+  if (isNaN(hour) || isNaN(minute) || isNaN(second)) {
+    throw new Error('Invalid time values');
+  }
   
   const utcHour = hour - timezone;
   const decimalTime = utcHour + (minute / 60.0) + (second / 3600.0);
@@ -347,8 +391,7 @@ export function calculateLagna(jd: number, latitude: number, longitude: number, 
 function calculateLocalSiderealTime(jd: number, longitude: number): number {
   const t = (jd - 2451545.0) / 36525.0;
   
-  let gmst = 280.46061837 + 360.98564736629 * (jd - 2451545.0) +
-             0.000387933 * t * t - t * t * t / 38710000.0;
+  let gmst = 280.46061837 + 36000.76983421 * t + 0.0003032 * t * t - t * t * t / 38710000.0;
   
   return (gmst + longitude) % 360;
 }
@@ -892,59 +935,97 @@ export function generateInterpretations(planets: Record<string, PlanetData>, hou
   };
 }
 
-// Main function to generate comprehensive Kundali
+// Main function to generate comprehensive Kundali with enhanced error handling
 export function generateAdvancedKundali(birthData: EnhancedBirthData): ComprehensiveKundaliData {
-  console.log('🔮 Generating comprehensive Vedic Kundali with all traditional elements...');
-  
-  // Calculate Julian Day
-  const jd = calculateJulianDay(birthData.date, birthData.time, birthData.timezone);
-  
-  // Calculate Ayanamsa
-  const ayanamsa = calculateLahiriAyanamsa(jd);
-  
-  // Calculate Lagna
-  const lagna = calculateLagna(jd, birthData.latitude, birthData.longitude, ayanamsa);
-  
-  // Calculate planetary positions
-  const planets = calculatePlanetaryPositions(jd, ayanamsa);
-  
-  // Calculate houses
-  const houses = calculateHouses(lagna, planets);
-  
-  // Calculate yogas
-  const yogas = calculateYogas(planets, lagna);
-  
-  // Calculate dashas
-  const dashas = calculateVimshottariDasha(jd, planets['MO']);
-  
-  // Calculate doshas
-  const doshas = calculateDoshas(planets);
-  
-  // Generate interpretations
-  const interpretations = generateInterpretations(planets, houses);
-  
-  const result: ComprehensiveKundaliData = {
-    birthData,
-    enhancedCalculations: {
-      lagna,
-      planets,
-      houses,
-      yogas,
-      dashas,
-      doshas,
-      divisionalCharts: [], // Placeholder for future implementation
-      transits: [], // Placeholder for future implementation
-      julianDay: jd,
-      ayanamsa,
-      localSiderealTime: calculateLocalSiderealTime(jd, birthData.longitude)
-    },
-    interpretations,
-    accuracy: 'Swiss Ephemeris level precision with traditional Vedic calculations',
-    generatedAt: new Date()
-  };
-  
-  console.log('✅ Comprehensive Vedic Kundali generated successfully');
-  return result;
+  try {
+    console.log('🔮 Generating comprehensive Vedic Kundali with all traditional elements...');
+    
+    // Validate input data
+    if (!birthData) {
+      throw new Error('Birth data is required');
+    }
+    
+    if (!birthData.date) {
+      throw new Error('Birth date is required');
+    }
+    
+    if (!birthData.time) {
+      throw new Error('Birth time is required');
+    }
+    
+    if (typeof birthData.latitude !== 'number' || typeof birthData.longitude !== 'number') {
+      throw new Error('Valid latitude and longitude are required');
+    }
+    
+    console.log('📅 Birth data validation passed:', {
+      date: birthData.date,
+      time: birthData.time,
+      place: birthData.place
+    });
+    
+    // Calculate Julian Day with enhanced error handling
+    const jd = calculateJulianDay(birthData.date, birthData.time, birthData.timezone);
+    console.log('📅 Julian Day calculated:', jd);
+    
+    // Calculate Ayanamsa
+    const ayanamsa = calculateLahiriAyanamsa(jd);
+    console.log('🌌 Ayanamsa calculated:', ayanamsa);
+    
+    // Calculate Lagna
+    const lagna = calculateLagna(jd, birthData.latitude, birthData.longitude, ayanamsa);
+    console.log('🏠 Lagna calculated:', lagna);
+    
+    // Calculate planetary positions
+    const planets = calculatePlanetaryPositions(jd, ayanamsa);
+    console.log('🪐 Planetary positions calculated');
+    
+    // Calculate houses
+    const houses = calculateHouses(lagna, planets);
+    console.log('🏘️ Houses calculated');
+    
+    // Calculate yogas
+    const yogas = calculateYogas(planets, lagna);
+    console.log('🧘 Yogas calculated');
+    
+    // Calculate dashas
+    const dashas = calculateVimshottariDasha(jd, planets['MO']);
+    console.log('📊 Dashas calculated');
+    
+    // Calculate doshas
+    const doshas = calculateDoshas(planets);
+    console.log('⚠️ Doshas calculated');
+    
+    // Generate interpretations
+    const interpretations = generateInterpretations(planets, houses);
+    console.log('📝 Interpretations generated');
+    
+    const result: ComprehensiveKundaliData = {
+      birthData,
+      enhancedCalculations: {
+        lagna,
+        planets,
+        houses,
+        yogas,
+        dashas,
+        doshas,
+        divisionalCharts: [], // Placeholder for future implementation
+        transits: [], // Placeholder for future implementation
+        julianDay: jd,
+        ayanamsa,
+        localSiderealTime: calculateLocalSiderealTime(jd, birthData.longitude)
+      },
+      interpretations,
+      accuracy: 'Swiss Ephemeris level precision with traditional Vedic calculations',
+      generatedAt: new Date()
+    };
+    
+    console.log('✅ Comprehensive Vedic Kundali generated successfully');
+    return result;
+    
+  } catch (error) {
+    console.error('❌ Error in generateAdvancedKundali:', error);
+    throw new Error(`Kundali generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
 }
 
 // Export the main function for compatibility

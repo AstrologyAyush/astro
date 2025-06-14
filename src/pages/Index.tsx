@@ -38,15 +38,31 @@ const Index = () => {
     setIsLoading(true);
     try {
       console.log('🚀 Starting comprehensive Vedic Kundali generation...');
+      console.log('📝 Input birth data:', birthData);
+      
+      // Ensure proper data formatting
       const enhancedBirthData: EnhancedBirthData = {
-        fullName: birthData.name,
-        date: birthData.dateOfBirth,
-        time: birthData.timeOfBirth,
-        place: birthData.placeOfBirth,
-        latitude: birthData.latitude,
-        longitude: birthData.longitude,
+        fullName: birthData.name || birthData.fullName || 'Unknown',
+        date: typeof birthData.dateOfBirth === 'string' ? birthData.dateOfBirth : birthData.date || '',
+        time: typeof birthData.timeOfBirth === 'string' ? birthData.timeOfBirth : birthData.time || '12:00:00',
+        place: birthData.placeOfBirth || birthData.place || 'Unknown',
+        latitude: Number(birthData.latitude) || 0,
+        longitude: Number(birthData.longitude) || 0,
         timezone: 5.5 // IST timezone
       };
+
+      console.log('✅ Enhanced birth data prepared:', enhancedBirthData);
+
+      // Validate required fields
+      if (!enhancedBirthData.date) {
+        throw new Error('Birth date is required');
+      }
+      if (!enhancedBirthData.time) {
+        throw new Error('Birth time is required');
+      }
+      if (!enhancedBirthData.latitude || !enhancedBirthData.longitude) {
+        throw new Error('Birth location coordinates are required');
+      }
 
       // Show detailed loading progress
       toast({
@@ -82,7 +98,10 @@ const Index = () => {
       console.error('❌ Error generating comprehensive Kundali:', error);
       toast({
         title: getTranslation("Error", "त्रुटि"),
-        description: getTranslation("There was an error generating your Kundali. Please verify your birth details and try again.", "कुंडली बनाने में त्रुटि हुई है। कृपया अपने जन्म विवरण की जांच करें और पुनः प्रयास करें।"),
+        description: getTranslation(
+          `There was an error generating your Kundali: ${error instanceof Error ? error.message : 'Unknown error'}. Please verify your birth details and try again.`, 
+          `कुंडली बनाने में त्रुटि हुई है: ${error instanceof Error ? error.message : 'अज्ञात त्रुटि'}। कृपया अपने जन्म विवरण की जांच करें और पुनः प्रयास करें।`
+        ),
         variant: "destructive"
       });
     } finally {
