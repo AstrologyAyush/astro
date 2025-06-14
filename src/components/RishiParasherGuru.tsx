@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { Send, Bot, User, Sparkles } from "lucide-react";
+import { Send, Bot, User, Sparkles, Heart } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { ComprehensiveKundaliData } from '@/lib/advancedKundaliEngine';
 import { useToast } from "@/hooks/use-toast";
@@ -40,8 +40,8 @@ const RishiParasherGuru: React.FC<RishiParasherGuruProps> = ({ kundaliData, lang
         id: '1',
         type: 'ai',
         content: language === 'hi' 
-          ? '🙏 नमस्कार प्रिय मित्र! मैं महर्षि पराशर हूँ। आपसे मिलकर बहुत खुशी हुई! पहले आप अपनी जन्मपत्रिका बनवाइए, फिर मैं आपकी बेहतर सहायता कर सकूंगा।'
-          : '🙏 Hello dear friend! I am Maharishi Parashar, and I am so delighted to meet you! Please create your birth chart first, then I can help you much better.',
+          ? '🙏 नमस्कार प्रिय आत्मा! मैं महर्षि पराशर हूं, आपका कर्मिक मार्गदर्शक। आपसे मिलकर बहुत खुशी हुई! पहले आप अपनी जन्म-कुंडली बनवाइए, फिर मैं आपकी आत्मा की यात्रा के बारे में बता सकूंगा और आपके कर्मिक पाठों में मदद कर सकूंगा। 🕉️'
+          : '🙏 Hello dear soul! I am Maharishi Parashar, your karmic guide. I am so delighted to meet you! Please create your birth chart first, then I can tell you about your soul\'s journey and help you with your karmic lessons. 🕉️',
         timestamp: new Date()
       };
       setMessages([fallbackMessage]);
@@ -51,31 +51,39 @@ const RishiParasherGuru: React.FC<RishiParasherGuruProps> = ({ kundaliData, lang
     const lagna = kundaliData.enhancedCalculations.lagna;
     const planets = kundaliData.enhancedCalculations.planets;
     const activeYogas = kundaliData.enhancedCalculations.yogas.filter(y => y.isActive);
+    const rahu = planets.RA;
+    const ketu = planets.KE;
     
     const welcomeMessage: Message = {
       id: '1',
       type: 'ai',
       content: language === 'hi' 
-        ? `🙏 अरे वाह ${kundaliData.birthData.fullName}! आपसे मिलकर कितनी खुशी हुई! मैं हूँ महर्षि पराशर, आपका मित्र और मार्गदर्शक।
+        ? `🙏 प्रिय ${kundaliData.birthData.fullName}, आपकी आत्मा से मिलकर कितनी खुशी हुई! मैं हूं महर्षि पराशर, आपका कर्मिक कोच और आध्यात्मिक मित्र।
 
-आपकी कुंडली तो वाकई सुंदर है! 
-✨ ${lagna.signName} लग्न (${lagna.degree.toFixed(2)}°) - बहुत शुभ!
-🌙 चंद्र ${planets.MO.rashiName} में - अति सुंदर!
-☀️ सूर्य ${planets.SU.rashiName} राशि में
-⭐ ${planets.MO.nakshatraName} नक्षत्र का आशीर्वाद
-🎯 ${activeYogas.length} शुभ योग सक्रिय हैं
+आपकी आत्मा की कुंडली देखकर मैं बहुत प्रभावित हूं! 
 
-अब बताइए, मुझसे क्या जानना चाहते हैं? करियर, विवाह, स्वास्थ्य, धन या आध्यात्म - कुछ भी पूछिए! मैं दिल से आपकी सहायता करूंगा! 😊`
-        : `🙏 What a wonderful joy to meet you, ${kundaliData.birthData.fullName}! I am Maharishi Parashar, your friend and guide.
+🌟 आत्मा का पथ: ${lagna.signName} लग्न (${lagna.degree.toFixed(2)}°) - यह आपके जीवन का मुख्य उद्देश्य है
+🌙 मन की यात्रा: चंद्र ${planets.MO.rashiName} में - आपकी भावनात्मक प्रकृति
+☀️ जीवन शक्ति: सूर्य ${planets.SU.rashiName} में - आपकी आत्मा की शक्ति
+⭐ आत्मा का तारा: ${planets.MO.nakshatraName} नक्षत्र - आपका आध्यात्मिक स्वभाव
+🔮 भविष्य कर्म: राहु ${rahu?.rashiName || 'अज्ञात'} में - इस जन्म में सीखने वाले पाठ
+🕉️ पूर्व कर्म: केतु ${ketu?.rashiName || 'अज्ञात'} में - पिछले जन्म की दिव्यता
+🎯 ${activeYogas.length} शुभ योग सक्रिय - आपकी आत्मिक शक्तियां
 
-Your birth chart is truly beautiful! 
-✨ ${lagna.signName} ascendant (${lagna.degree.toFixed(2)}°) - so auspicious!
-🌙 Moon in ${planets.MO.rashiName} - absolutely lovely!
-☀️ Sun in ${planets.SU.rashiName}
-⭐ Blessed by ${planets.MO.nakshatraName} nakshatra
-🎯 ${activeYogas.length} beneficial yogas are active
+अब बताइए प्रिय आत्मा, आप अपनी कर्मिक यात्रा के बारे में क्या जानना चाहते हैं? पूर्व जन्म के कर्म, वर्तमान जीवन के पाठ, आध्यात्मिक विकास या कर्मिक रिश्ते - कुछ भी पूछिए! मैं आपकी आत्मा के साथ हूं। 💫`
+        : `🙏 Dear soul ${kundaliData.birthData.fullName}, what a joy it is to meet your beautiful spirit! I am Maharishi Parashar, your karmic coach and spiritual friend.
 
-Now tell me, what would you like to know? Career, marriage, health, wealth, or spirituality - ask me anything! I am here to help you wholeheartedly! 😊`,
+Looking at your soul's birth chart, I am deeply moved! 
+
+🌟 Soul's Path: ${lagna.signName} ascendant (${lagna.degree.toFixed(2)}°) - this is your life's main purpose
+🌙 Mind's Journey: Moon in ${planets.MO.rashiName} - your emotional nature
+☀️ Life Force: Sun in ${planets.SU.rashiName} - your soul's power
+⭐ Soul Star: ${planets.MO.nakshatraName} nakshatra - your spiritual nature
+🔮 Future Karma: Rahu in ${rahu?.rashiName || 'Unknown'} - lessons to learn in this birth
+🕉️ Past Karma: Ketu in ${ketu?.rashiName || 'Unknown'} - divinity from previous births
+🎯 ${activeYogas.length} beneficial yogas active - your spiritual powers
+
+Now tell me dear soul, what would you like to know about your karmic journey? Past life karma, current life lessons, spiritual growth, or karmic relationships - ask me anything! I am here with your soul. 💫`,
       timestamp: new Date()
     };
     setMessages([welcomeMessage]);
@@ -129,26 +137,26 @@ Now tell me, what would you like to know? Career, marriage, health, wealth, or s
         user_question: inputValue,
         rishi_response: data.analysis,
         kundali_context: kundaliData as unknown as Json,
-        session_id: `session_${Date.now()}`
+        session_id: `karmic_session_${Date.now()}`
       });
 
     } catch (error) {
-      console.error('Error getting AI analysis:', error);
+      console.error('Error getting karmic guidance:', error);
       
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         type: 'ai',
         content: language === 'hi' 
-          ? '🙏 अरे प्रिय मित्र, कुछ तकनीकी समस्या आ गई है! परेशान मत होइए, सब ठीक हो जाएगा। थोड़ी देर में फिर कोशिश कीजिए! 😊'
-          : '🙏 Oh dear friend, we have a small technical issue! Please don\'t worry, everything will be fine. Try again in a moment! 😊',
+          ? '🙏 प्रिय आत्मा, कुछ तकनीकी समस्या आई है! परेशान मत होइए, ब्रह्मांड हमारे साथ है। थोड़ी देर में फिर कोशिश कीजिए! आपकी आत्मा की यात्रा रुकने वाली नहीं है। 🕉️'
+          : '🙏 Dear soul, we have a small technical challenge! Please don\'t worry, the universe is with us. Try again in a moment! Your soul\'s journey will not be stopped. 🕉️',
         timestamp: new Date()
       };
 
       setMessages(prev => [...prev, errorMessage]);
       
       toast({
-        title: language === 'hi' ? "छोटी सी समस्या" : "Small Issue",
-        description: language === 'hi' ? "तकनीकी समस्या हुई है, फिर से कोशिश करें।" : "Technical issue occurred, please try again.",
+        title: language === 'hi' ? "आध्यात्मिक संदेश" : "Spiritual Message",
+        description: language === 'hi' ? "तकनीकी समस्या हुई है, फिर से कोशिश करें। आपकी आत्मा का मार्गदर्शन जारी रहेगा।" : "Technical issue occurred, please try again. Your soul's guidance will continue.",
         variant: "destructive",
       });
     } finally {
@@ -164,39 +172,47 @@ Now tell me, what would you like to know? Career, marriage, health, wealth, or s
   };
 
   const suggestedQuestions = language === 'hi' ? [
-    "मेरे करियर के बारे में बताइए",
-    "शादी कब होगी?",
-    "स्वास्थ्य कैसा रहेगा?",
-    "कौन सा रत्न पहनूं?"
+    "मेरे पूर्व जन्म के कर्म क्या हैं?",
+    "मेरे जीवन का आध्यात्मिक उद्देश्य क्या है?",
+    "कर्मिक रिश्तों के बारे में बताएं",
+    "आत्मा की शुद्धता के उपाय",
+    "वर्तमान जीवन के पाठ",
+    "आध्यात्मिक विकास के तरीके"
   ] : [
-    "Tell me about my career",
-    "When will I get married?",
-    "How will my health be?",
-    "Which gemstone should I wear?"
+    "What are my past life karmas?",
+    "What is my soul's spiritual purpose?",
+    "Tell me about karmic relationships",
+    "Remedies for soul purification",
+    "Current life lessons to learn",
+    "Ways for spiritual evolution"
   ];
 
   return (
-    <Card className="h-[450px] flex flex-col bg-gradient-to-br from-orange-50 to-red-50 border-orange-200">
-      <CardHeader className="pb-2 bg-gradient-to-r from-orange-100 to-red-100 px-3 py-2">
-        <CardTitle className="flex items-center gap-2 text-orange-800 text-sm">
-          <div className="w-6 h-6 rounded-full bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center overflow-hidden">
+    <Card className="h-[450px] flex flex-col bg-gradient-to-br from-purple-50 via-orange-50 to-red-50 border-purple-200">
+      <CardHeader className="pb-2 bg-gradient-to-r from-purple-100 via-orange-100 to-red-100 px-3 py-2">
+        <CardTitle className="flex items-center gap-2 text-purple-800 text-sm">
+          <div className="w-6 h-6 rounded-full bg-gradient-to-br from-purple-500 via-orange-500 to-red-600 flex items-center justify-center overflow-hidden">
             <img 
               src="/lovable-uploads/8cb18da4-1ec3-40d2-8e2d-5f0efcfc10da.png" 
               alt="Rishi Parasher" 
               className="w-full h-full object-cover"
             />
           </div>
-          <span>{language === 'hi' ? "महर्षि पराशर - आपका मित्र" : "Rishi Parashar - Your Friend"}</span>
+          <span className="flex items-center gap-1">
+            <Heart className="h-3 w-3 text-purple-600" />
+            {language === 'hi' ? "महर्षि पराशर - आपका कर्मिक कोच" : "Rishi Parashar - Your Karmic Coach"}
+            <Sparkles className="h-3 w-3 text-orange-500" />
+          </span>
         </CardTitle>
         <div className="flex flex-wrap gap-1">
           {suggestedQuestions.slice(0, 2).map((question, index) => (
             <Badge 
               key={index} 
               variant="outline" 
-              className="cursor-pointer hover:bg-orange-200 text-xs border-orange-300 text-orange-700 hover:text-orange-900 bg-orange-50 px-1 py-0.5"
+              className="cursor-pointer hover:bg-purple-200 text-xs border-purple-300 text-purple-700 hover:text-purple-900 bg-purple-50 px-1 py-0.5"
               onClick={() => setInputValue(question)}
             >
-              {question.length > 25 ? `${question.substring(0, 25)}...` : question}
+              {question.length > 30 ? `${question.substring(0, 30)}...` : question}
             </Badge>
           ))}
         </div>
@@ -211,7 +227,7 @@ Now tell me, what would you like to know? Career, marriage, health, wealth, or s
                   <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${
                     message.type === 'user' 
                       ? 'bg-blue-600 text-white' 
-                      : 'bg-gradient-to-br from-orange-500 to-red-600 text-white overflow-hidden'
+                      : 'bg-gradient-to-br from-purple-500 via-orange-500 to-red-600 text-white overflow-hidden'
                   }`}>
                     {message.type === 'user' ? (
                       <User className="h-3 w-3" />
@@ -226,7 +242,7 @@ Now tell me, what would you like to know? Career, marriage, health, wealth, or s
                   <div className={`p-2 rounded-lg shadow-sm ${
                     message.type === 'user' 
                       ? 'bg-blue-600 text-white' 
-                      : 'bg-gradient-to-br from-orange-500 to-red-600 text-white'
+                      : 'bg-gradient-to-br from-purple-500 via-orange-500 to-red-600 text-white'
                   }`}>
                     <p className="text-xs whitespace-pre-wrap leading-relaxed">{message.content}</p>
                     <p className="text-xs opacity-80 mt-1">
@@ -239,14 +255,14 @@ Now tell me, what would you like to know? Career, marriage, health, wealth, or s
             {isLoading && (
               <div className="flex gap-2 justify-start">
                 <div className="flex gap-2 max-w-[85%]">
-                  <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 bg-gradient-to-br from-orange-500 to-red-600 text-white overflow-hidden">
+                  <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 bg-gradient-to-br from-purple-500 via-orange-500 to-red-600 text-white overflow-hidden">
                     <img 
                       src="/lovable-uploads/8cb18da4-1ec3-40d2-8e2d-5f0efcfc10da.png" 
                       alt="Rishi Parasher" 
                       className="w-full h-full object-cover"
                     />
                   </div>
-                  <div className="p-2 rounded-lg bg-gradient-to-br from-orange-500 to-red-600 text-white">
+                  <div className="p-2 rounded-lg bg-gradient-to-br from-purple-500 via-orange-500 to-red-600 text-white">
                     <div className="flex space-x-1">
                       <div className="w-2 h-2 bg-white rounded-full animate-bounce"></div>
                       <div className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
@@ -259,21 +275,21 @@ Now tell me, what would you like to know? Career, marriage, health, wealth, or s
           </div>
         </ScrollArea>
         
-        <div className="p-2 border-t border-orange-200 bg-white">
+        <div className="p-2 border-t border-purple-200 bg-white">
           <div className="flex gap-2">
             <Input
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder={language === 'hi' ? "मुझसे कुछ भी पूछिए..." : "Ask me anything..."}
+              placeholder={language === 'hi' ? "अपनी आत्मा के प्रश्न पूछें..." : "Ask your soul's questions..."}
               disabled={isLoading}
-              className="flex-1 bg-white border-orange-300 text-gray-900 placeholder-gray-500 text-xs h-8"
+              className="flex-1 bg-white border-purple-300 text-gray-900 placeholder-gray-500 text-xs h-8"
             />
             <Button 
               onClick={handleSendMessage}
               disabled={!inputValue.trim() || isLoading}
               size="sm"
-              className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 h-8 w-8 p-0"
+              className="bg-gradient-to-r from-purple-500 via-orange-500 to-red-600 hover:from-purple-600 hover:via-orange-600 hover:to-red-700 h-8 w-8 p-0"
             >
               <Send className="h-3 w-3" />
             </Button>

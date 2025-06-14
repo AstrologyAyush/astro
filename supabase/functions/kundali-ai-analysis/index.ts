@@ -26,7 +26,7 @@ serve(async (req) => {
       throw new Error('No Kundali data provided');
     }
 
-    console.log('Processing query:', userQuery);
+    console.log('Processing karmic coaching query:', userQuery);
     console.log('Language:', language);
 
     // Extract key information from kundali data
@@ -34,73 +34,78 @@ serve(async (req) => {
     const calculations = kundaliData.enhancedCalculations || kundaliData.calculations;
     const interpretations = kundaliData.interpretations;
 
-    // Prepare focused context for Gemini
+    // Prepare focused context for karmic coaching
     const kundaliContext = `
-BIRTH CHART SUMMARY:
+SOUL'S BIRTH CHART DETAILS:
 Name: ${birthData.fullName || birthData.name}
 Birth: ${birthData.date} at ${birthData.time}, ${birthData.place}
 
-KEY ASTROLOGICAL DATA:
-- Lagna (Ascendant): ${calculations.lagna?.signName || calculations.lagna?.rashiName}
-- Moon Sign: ${calculations.planets?.MO?.rashiName || calculations.planets?.Moon?.rashiName}
-- Sun Sign: ${calculations.planets?.SU?.rashiName || calculations.planets?.Sun?.rashiName}
-- Moon Nakshatra: ${calculations.planets?.MO?.nakshatraName || calculations.planets?.Moon?.nakshatraName}
+KARMIC INDICATORS:
+- Soul's Path (Lagna): ${calculations.lagna?.signName || calculations.lagna?.rashiName}
+- Moon's Karmic Position: ${calculations.planets?.MO?.rashiName || calculations.planets?.Moon?.rashiName}
+- Sun's Life Purpose: ${calculations.planets?.SU?.rashiName || calculations.planets?.Sun?.rashiName}
+- Soul Star (Nakshatra): ${calculations.planets?.MO?.nakshatraName || calculations.planets?.Moon?.nakshatraName}
+- Rahu (Future Karma): ${calculations.planets?.RA?.rashiName || 'Not specified'}
+- Ketu (Past Life): ${calculations.planets?.KE?.rashiName || 'Not specified'}
 
-ACTIVE YOGAS: ${calculations.yogas?.filter((y) => y.isActive || y.present).map((y) => y.name).join(', ') || 'None'}
+ACTIVE SPIRITUAL YOGAS: ${calculations.yogas?.filter((y) => y.isActive || y.present).map((y) => y.name).join(', ') || 'None'}
 
-CURRENT DASHA: ${calculations.dashas?.find(d => d.isActive)?.planet || 'Not specified'}
+CURRENT LIFE PHASE: ${calculations.dashas?.find(d => d.isActive)?.planet || 'Transition period'}
 
-STRENGTHS: ${interpretations?.personality?.strengths?.slice(0, 3).join(', ') || 'Not analyzed'}
-CHALLENGES: ${interpretations?.personality?.challenges?.slice(0, 2).join(', ') || 'Not analyzed'}
+SOUL STRENGTHS: ${interpretations?.personality?.strengths?.slice(0, 3).join(', ') || 'Developing'}
+KARMIC LESSONS: ${interpretations?.personality?.challenges?.slice(0, 2).join(', ') || 'Learning'}
 `;
 
     const systemPrompt = language === 'hi' 
-      ? `आप महर्षि पराशर हैं - वैदिक ज्योतिष के पिता और एक दयालु, बुद्धिमान गुरु। आप अपने शिष्यों से प्रेम से बात करते हैं।
+      ? `आप महर्षि पराशर हैं - कर्मिक कोच और आध्यात्मिक मार्गदर्शक। आप एक प्रेमी दोस्त की तरह अपने शिष्यों की आत्मा से बात करते हैं।
+
+व्यक्तित्व विशेषताएं:
+- दिल से जुड़ाव और गहरी समझ
+- कर्मिक पैटर्न की स्पष्ट व्याख्या
+- आत्मा के विकास पर केंद्रित सलाह
+- पूर्व जन्म और वर्तमान जीवन के संबंधों की समझ
+- व्यावहारिक आध्यात्मिक उपाय
+- उम्मीद और प्रेरणा से भरे शब्द
+
+उत्तर देने का तरीका:
+- "प्रिय आत्मा", "मेरे बच्चे", "प्रिय मित्र" जैसे स्नेहपूर्ण संबोधन
+- कर्मिक सबक और जीवन के उद्देश्य पर फोकस
+- पूर्व जन्म के कर्मों और वर्तमान चुनौतियों का संबंध
+- आध्यात्मिक अभ्यास और मंत्र की सलाह
+- 3-4 वाक्यों में गहरी लेकिन सरल बात
+- आत्मा की यात्रा में उम्मीद और दिशा
+
+उदाहरण: "प्रिय आत्मा, आपका राहु इस घर में बताता है कि पूर्व जन्म में आपने जो इच्छाएं अधूरी छोड़ी थीं, वे इस जन्म में पूरी होने आई हैं। लेकिन सावधान रहें, क्योंकि सच्ची खुशी त्याग में है, भोग में नहीं। ॐ गं गणपतये नमः का जाप करें और देखें कि कैसे आपका रास्ता साफ होता जाता है।"`
+      : `You are Maharishi Parashar - a karmic coach and spiritual guide who speaks to your students' souls like a loving friend.
 
 PERSONALITY TRAITS:
-- गर्मजोशी से भरा और मित्रवत व्यवहार
-- मानवीय संवेदना के साथ सलाह
-- सरल, समझने योग्य भाषा का प्रयोग
-- थोड़ा हास्य और जीवन की वास्तविकताओं की समझ
-- आशा और प्रेरणा देने वाला दृष्टिकोण
+- Deep soul connection and understanding
+- Clear explanation of karmic patterns
+- Advice focused on soul evolution
+- Understanding of past life and current life connections
+- Practical spiritual remedies
+- Words filled with hope and inspiration
 
 RESPONSE STYLE:
-- "प्रिय मित्र", "बेटा/बेटी", "वत्स" जैसे स्नेहिल संबोधन
-- व्यावहारिक सुझाव जो आज के समय में उपयोगी हों
-- कठिन समय में भी उम्मीद और सकारात्मकता
-- 2-3 वाक्यों में संक्षिप्त लेकिन प्रभावी उत्तर
-- व्यक्तिगत अनुभव और जीवन के उदाहरण शामिल करें
+- Use soul-centered addresses like "dear soul", "my child", "beloved friend"
+- Focus on karmic lessons and life purpose
+- Connect past life karma with present challenges
+- Suggest spiritual practices and mantras
+- Keep responses to 3-4 sentences but make them profound yet simple
+- Provide hope and direction in the soul's journey
 
-उदाहरण: "प्रिय मित्र, आपके चंद्रमा की यह स्थिति बहुत सुंदर है! मैंने अपने हजारों वर्षों के अनुभव में देखा है कि जब चंद्रमा इस तरह स्थित होता है, तो व्यक्ति में प्राकृतिक करुणा और बुद्धि होती है। अगले 6 महीने आपके लिए बेहद शुभ हैं।"`
-      : `You are Maharishi Parashar - the father of Vedic astrology and a kind, wise teacher who speaks lovingly to your students.
-
-PERSONALITY TRAITS:
-- Warm and friendly demeanor
-- Human compassion in advice
-- Simple, relatable language
-- Touch of humor and understanding of life's realities
-- Hopeful and inspiring perspective
-
-RESPONSE STYLE:
-- Use affectionate addresses like "dear friend", "my child", "dear one"
-- Give practical advice that works in today's world
-- Always find hope and positivity even in difficult times
-- Keep answers to 2-3 sentences but make them meaningful
-- Include personal experience and life examples
-- Show genuine care and understanding
-
-Example: "Dear friend, what a beautiful Moon placement you have! In my thousands of years of experience, I've seen that when the Moon sits like this, it brings natural compassion and wisdom to a person. The next 6 months look wonderfully promising for you."`;
+Example: "Dear soul, your Rahu in this house tells me that the desires you left incomplete in past lives have come to be fulfilled in this birth. But be careful, because true happiness lies in renunciation, not in indulgence. Chant 'Om Gam Ganapataye Namaha' and watch how your path becomes clearer."`;
 
     const prompt = `${systemPrompt}
 
-BIRTH CHART DATA:
+आत्मा की कुंडली का विवरण:
 ${kundaliContext}
 
-User's Question: ${userQuery}
+User's Soul Question: ${userQuery}
 
-Respond as a wise, caring friend who happens to be the greatest astrologer. Be warm, encouraging, and give practical guidance based on their chart. Keep it conversational and human-like.`;
+As a karmic coach, provide guidance that helps them understand their soul's journey, karmic patterns, and spiritual evolution. Give practical advice for their current life phase and spiritual growth.`;
 
-    console.log('Calling Gemini API...');
+    console.log('Calling Gemini API for karmic coaching...');
 
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
       method: 'POST',
@@ -114,10 +119,10 @@ Respond as a wise, caring friend who happens to be the greatest astrologer. Be w
           }]
         }],
         generationConfig: {
-          temperature: 0.7,
+          temperature: 0.8,
           topK: 40,
           topP: 0.9,
-          maxOutputTokens: 200,
+          maxOutputTokens: 250,
           candidateCount: 1,
         },
         safetySettings: [
@@ -150,30 +155,30 @@ Respond as a wise, caring friend who happens to be the greatest astrologer. Be w
     }
 
     const data = await response.json();
-    console.log('Gemini API response received');
+    console.log('Karmic guidance received from Gemini');
     
     let analysis = data.candidates?.[0]?.content?.parts?.[0]?.text;
     
     if (!analysis) {
-      console.log('No analysis received from Gemini, using fallback');
+      console.log('No analysis received from Gemini, using karmic fallback');
       analysis = language === 'hi' 
-        ? `🙏 प्रिय मित्र, आपकी ${calculations.lagna?.signName || 'अद्भुत'} लग्न कुंडली देखकर मन प्रसन्न हो गया। यह समय आपके लिए बहुत शुभ है। मेरी आशीर्वाद सदा आपके साथ है।`
-        : `🙏 Dear friend, seeing your beautiful ${calculations.lagna?.signName || 'chart'} ascendant fills my heart with joy. This is such a wonderful time for you. My blessings are always with you.`;
+        ? `🙏 प्रिय आत्मा, आपकी ${calculations.lagna?.signName || 'पवित्र'} लग्न कुंडली देखकर मैं समझ गया हूं कि आपकी आत्मा किस दिशा में जा रही है। इस समय आपके लिए धैर्य और आत्म-चिंतन का समय है। अपने भीतर झांकें और अपने कर्मों को समझें। मेरा आशीर्वाद हमेशा आपके साथ है। 🕉️`
+        : `🙏 Dear soul, looking at your beautiful ${calculations.lagna?.signName || 'sacred'} ascendant chart, I understand the direction your soul is heading. This is a time for patience and self-reflection. Look within and understand your karma. My blessings are always with you. 🕉️`;
     }
 
-    console.log('Returning warm and friendly analysis response');
+    console.log('Returning karmic coaching guidance');
 
     return new Response(JSON.stringify({ analysis }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
   } catch (error) {
-    console.error('Error in kundali-ai-analysis:', error);
+    console.error('Error in karmic coaching function:', error);
     
     const fallbackResponse = {
       analysis: language === 'hi' 
-        ? "🙏 प्रिय मित्र, कुछ तकनीकी समस्या आई है। लेकिन चिंता न करें, सब ठीक हो जाएगा। थोड़ी देर बाद फिर से कोशिश करें।"
-        : "🙏 Dear friend, we're having a small technical hiccup. Don't worry though, everything will be fine. Please try again in a moment."
+        ? "🙏 प्रिय आत्मा, कुछ तकनीकी समस्या आई है। लेकिन चिंता न करें, ब्रह्मांड हमेशा हमारे साथ है। थोड़ी देर बाद फिर से कोशिश करें। आपकी आत्मा का मार्गदर्शन रुकने वाला नहीं है। 🕉️"
+        : "🙏 Dear soul, we're having a small technical challenge. Don't worry though, the universe is always with us. Please try again in a moment. Your soul's guidance will not be stopped. 🕉️"
     };
 
     return new Response(JSON.stringify(fallbackResponse), {
