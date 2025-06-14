@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,59 +11,58 @@ import { calculateNumerologyProfile, checkCompatibility, NumerologyProfile } fro
 import CompatibilityChecker from './CompatibilityChecker';
 import NumerologyInsights from './NumerologyInsights';
 import { AlertCircle, Star, Heart, Shield, Gem, BookOpen, Lightbulb } from 'lucide-react';
-interface NumerologyCalculatorProps {
-  language: 'hi' | 'en';
-}
-const NumerologyCalculator: React.FC<NumerologyCalculatorProps> = ({
-  language
-}) => {
+import { useLanguage } from '@/contexts/LanguageContext';
+
+const NumerologyCalculator: React.FC = () => {
   const [name, setName] = useState('');
   const [birthDate, setBirthDate] = useState('');
   const [profile, setProfile] = useState<NumerologyProfile | null>(null);
+  const { t, language } = useLanguage();
+
   const handleCalculate = () => {
     if (!name || !birthDate) return;
     const date = new Date(birthDate);
     const numerologyProfile = calculateNumerologyProfile(name, date);
     setProfile(numerologyProfile);
   };
-  const getText = (hi: string, en: string) => language === 'hi' ? hi : en;
+
   return <div className="space-y-6">
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Star className="h-5 w-5 text-orange-500" />
-            {getText("उन्नत न्यूमेरोलॉजी कैलकुलेटर", "Advanced Numerology Calculator")}
+            {t('advanced_numerology_calculator')}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="name">
-                {getText("पूरा नाम", "Full Name")}
+                {t('full_name')}
               </Label>
-              <Input id="name" value={name} onChange={e => setName(e.target.value)} placeholder={getText("अपना पूरा नाम दर्ज करें", "Enter your full name")} />
+              <Input id="name" value={name} onChange={e => setName(e.target.value)} placeholder={t('enter_full_name')} />
             </div>
             <div>
               <Label htmlFor="birthDate">
-                {getText("जन्म तिथि", "Birth Date")}
+                {t('birth_date')}
               </Label>
               <Input id="birthDate" type="date" value={birthDate} onChange={e => setBirthDate(e.target.value)} />
             </div>
           </div>
           <Button onClick={handleCalculate} className="w-full">
-            {getText("विस्तृत न्यूमेरोलॉजी विश्लेषण करें", "Generate Detailed Numerology Analysis")}
+            {t('generate_detailed_analysis')}
           </Button>
         </CardContent>
       </Card>
 
       {profile && <Tabs defaultValue="insights" className="w-full">
           <TabsList className="grid w-full grid-cols-2 md:grid-cols-6">
-            <TabsTrigger value="insights">{getText("अंतर्दृष्टि", "Insights")}</TabsTrigger>
-            <TabsTrigger value="core">{getText("मुख्य", "Core")}</TabsTrigger>
-            <TabsTrigger value="personality">{getText("व्यक्तित्व", "Personality")}</TabsTrigger>
-            <TabsTrigger value="karmic">{getText("कर्मिक", "Karmic")}</TabsTrigger>
-            <TabsTrigger value="remedies">{getText("उपाय", "Remedies")}</TabsTrigger>
-            <TabsTrigger value="compatibility">{getText("संगतता", "Compatibility")}</TabsTrigger>
+            <TabsTrigger value="insights">{t('insights')}</TabsTrigger>
+            <TabsTrigger value="core">{t('core')}</TabsTrigger>
+            <TabsTrigger value="personality">{t('personality')}</TabsTrigger>
+            <TabsTrigger value="karmic">{t('karmic')}</TabsTrigger>
+            <TabsTrigger value="remedies">{t('remedies')}</TabsTrigger>
+            <TabsTrigger value="compatibility">{t('compatibility')}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="insights" className="space-y-4">
@@ -70,7 +70,7 @@ const NumerologyCalculator: React.FC<NumerologyCalculatorProps> = ({
               <CardHeader>
                 <CardTitle className="text-blue-600 flex items-center gap-2 text-base font-bold text-center px-[2px] py-[6px]">
                   <Lightbulb className="h-5 w-5" />
-                  {getText("व्यक्तिगत मार्गदर्शन और अंतर्दृष्टि", "Personal Guidance & Insights")}
+                  {t('personal_guidance_insights')}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -83,7 +83,7 @@ const NumerologyCalculator: React.FC<NumerologyCalculatorProps> = ({
             <Card>
               <CardHeader>
                 <CardTitle className="text-orange-600">
-                  {getText("मुख्य संख्याएं", "Core Numbers")}
+                  {t('core_numbers')}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -91,60 +91,60 @@ const NumerologyCalculator: React.FC<NumerologyCalculatorProps> = ({
                   <div className="text-center p-4 bg-orange-50 rounded-lg">
                     <div className="text-3xl font-bold text-orange-600">{profile.lifePath}</div>
                     <div className="text-sm font-medium text-gray-700">
-                      {getText("जीवन पथ", "Life Path")}
+                      {t('life_path')}
                     </div>
                     <div className="text-xs text-gray-600 mt-1">
-                      {getText("आपका जीवन उद्देश्य", "Your life purpose")}
+                      {t('your_life_purpose')}
                     </div>
                   </div>
                   
                   <div className="text-center p-4 bg-blue-50 rounded-lg">
                     <div className="text-3xl font-bold text-blue-600">{profile.expression}</div>
                     <div className="text-sm font-medium text-gray-700">
-                      {getText("अभिव्यक्ति", "Expression")}
+                      {t('expression')}
                     </div>
                     <div className="text-xs text-gray-600 mt-1">
-                      {getText("प्राकृतिक प्रतिभा", "Natural talents")}
+                      {t('natural_talents')}
                     </div>
                   </div>
                   
                   <div className="text-center p-4 bg-pink-50 rounded-lg">
                     <div className="text-3xl font-bold text-pink-600">{profile.soulUrge}</div>
                     <div className="text-sm font-medium text-gray-700">
-                      {getText("आत्मा की इच्छा", "Soul Urge")}
+                      {t('soul_urge')}
                     </div>
                     <div className="text-xs text-gray-600 mt-1">
-                      {getText("अंतर प्रेरणा", "Inner motivation")}
+                      {t('inner_motivation')}
                     </div>
                   </div>
                   
                   <div className="text-center p-4 bg-green-50 rounded-lg">
                     <div className="text-3xl font-bold text-green-600">{profile.personality}</div>
                     <div className="text-sm font-medium text-gray-700">
-                      {getText("व्यक्तित्व", "Personality")}
+                      {t('personality')}
                     </div>
                     <div className="text-xs text-gray-600 mt-1">
-                      {getText("बाहरी छवि", "Outer image")}
+                      {t('outer_image')}
                     </div>
                   </div>
                   
                   <div className="text-center p-4 bg-purple-50 rounded-lg">
                     <div className="text-3xl font-bold text-purple-600">{profile.birthday}</div>
                     <div className="text-sm font-medium text-gray-700">
-                      {getText("जन्मदिन", "Birthday")}
+                      {t('birthday')}
                     </div>
                     <div className="text-xs text-gray-600 mt-1">
-                      {getText("विशेष उपहार", "Special gift")}
+                      {t('special_gift')}
                     </div>
                   </div>
                   
                   <div className="text-center p-4 bg-yellow-50 rounded-lg">
                     <div className="text-3xl font-bold text-yellow-600">{profile.maturity}</div>
                     <div className="text-sm font-medium text-gray-700">
-                      {getText("परिपक्वता", "Maturity")}
+                      {t('maturity')}
                     </div>
                     <div className="text-xs text-gray-600 mt-1">
-                      {getText("जीवन का दूसरा भाग", "Later life focus")}
+                      {t('later_life_focus')}
                     </div>
                   </div>
                 </div>
@@ -155,11 +155,11 @@ const NumerologyCalculator: React.FC<NumerologyCalculatorProps> = ({
                   <div>
                     <h4 className="font-medium text-gray-800 mb-2 flex items-center gap-2">
                       <Shield className="h-4 w-4 text-blue-500" />
-                      {getText("शिखर संख्याएं (जीवन चरण)", "Pinnacle Numbers (Life Phases)")}
+                      {t('pinnacle_numbers')}
                     </h4>
                     <div className="flex gap-2 flex-wrap">
                       {profile.pinnacles.map((pinnacle, index) => <Badge key={index} variant="outline" className="bg-blue-50">
-                          {getText(`चरण ${index + 1}`, `Phase ${index + 1}`)}: {pinnacle}
+                          {t('phase')} {index + 1}: {pinnacle}
                         </Badge>)}
                     </div>
                   </div>
@@ -167,18 +167,18 @@ const NumerologyCalculator: React.FC<NumerologyCalculatorProps> = ({
                   <div>
                     <h4 className="font-medium text-gray-800 mb-2 flex items-center gap-2">
                       <AlertCircle className="h-4 w-4 text-orange-500" />
-                      {getText("चुनौती संख्याएं", "Challenge Numbers")}
+                      {t('challenge_numbers')}
                     </h4>
                     <div className="flex gap-2 flex-wrap">
                       {profile.challenges.map((challenge, index) => <Badge key={index} variant="secondary">
-                          {getText(`चुनौती ${index + 1}`, `Challenge ${index + 1}`)}: {challenge}
+                          {t('challenge')} {index + 1}: {challenge}
                         </Badge>)}
                     </div>
                   </div>
 
                   <div>
                     <h4 className="font-medium text-gray-800 mb-2">
-                      {getText("व्यक्तिगत वर्ष 2025", "Personal Year 2025")}
+                      {t('personal_year_2025')}
                     </h4>
                     <Badge className="bg-purple-100 text-purple-800 text-lg px-4 py-2">
                       {profile.personalYear}
@@ -194,7 +194,7 @@ const NumerologyCalculator: React.FC<NumerologyCalculatorProps> = ({
               <CardHeader>
                 <CardTitle className="text-blue-600 flex items-center gap-2">
                   <Heart className="h-5 w-5" />
-                  {getText("व्यक्तित्व प्रकार", "Personality Archetype")}
+                  {t('personality_archetype')}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -206,14 +206,14 @@ const NumerologyCalculator: React.FC<NumerologyCalculatorProps> = ({
                     {profile.personalityArchetype.description}
                   </p>
                   <p className="text-sm text-blue-700 font-medium">
-                    {getText("जीवन विषय", "Life Theme")}: {profile.personalityArchetype.lifeTheme}
+                    {t('life_theme')}: {profile.personalityArchetype.lifeTheme}
                   </p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="bg-green-50 p-4 rounded-lg">
                     <h4 className="font-semibold text-green-800 mb-2">
-                      {getText("शक्तियां", "Strengths")}
+                      {t('strengths')}
                     </h4>
                     <ul className="space-y-1">
                       {profile.personalityArchetype.strengths.map((strength, index) => <li key={index} className="text-sm text-green-700 flex items-start gap-2">
@@ -225,7 +225,7 @@ const NumerologyCalculator: React.FC<NumerologyCalculatorProps> = ({
 
                   <div className="bg-orange-50 p-4 rounded-lg">
                     <h4 className="font-semibold text-orange-800 mb-2">
-                      {getText("छाया पक्ष", "Shadow Aspects")}
+                      {t('shadow_aspects')}
                     </h4>
                     <ul className="space-y-1">
                       {profile.personalityArchetype.shadows.map((shadow, index) => <li key={index} className="text-sm text-orange-700 flex items-start gap-2">
@@ -239,7 +239,7 @@ const NumerologyCalculator: React.FC<NumerologyCalculatorProps> = ({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="bg-purple-50 p-4 rounded-lg">
                     <h4 className="font-semibold text-purple-800 mb-2">
-                      {getText("आदर्श करियर", "Ideal Careers")}
+                      {t('ideal_careers')}
                     </h4>
                     <div className="flex flex-wrap gap-2">
                       {profile.personalityArchetype.idealCareers.map((career, index) => <Badge key={index} variant="outline" className="bg-purple-100 text-purple-700">
@@ -250,7 +250,7 @@ const NumerologyCalculator: React.FC<NumerologyCalculatorProps> = ({
 
                   <div className="bg-pink-50 p-4 rounded-lg">
                     <h4 className="font-semibold text-pink-800 mb-2">
-                      {getText("रिश्ते में स्टाइल", "Relationship Style")}
+                      {t('relationship_style')}
                     </h4>
                     <p className="text-sm text-pink-700">
                       {profile.personalityArchetype.relationshipStyle}
@@ -266,18 +266,18 @@ const NumerologyCalculator: React.FC<NumerologyCalculatorProps> = ({
               <CardHeader>
                 <CardTitle className="text-red-600 flex items-center gap-2">
                   <AlertCircle className="h-5 w-5" />
-                  {getText("कर्मिक विश्लेषण", "Karmic Analysis")}
+                  {t('karmic_analysis')}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 {profile.karmicDebt.hasKarmicDebt ? <div className="bg-red-50 p-4 rounded-lg border border-red-200">
                     <h4 className="font-semibold text-red-800 mb-2">
-                      {getText("कर्मिक ऋण मौजूद", "Karmic Debt Present")}
+                      {t('karmic_debt_present')}
                     </h4>
                     <div className="space-y-2">
                       {profile.karmicDebt.debtNumbers.map((debt, index) => <div key={index} className="bg-white p-3 rounded border border-red-100">
                           <div className="font-medium text-red-700">
-                            {getText("ऋण संख्या", "Debt Number")}: {debt}
+                            {t('debt_number')}: {debt}
                           </div>
                           <div className="text-sm text-red-600 mt-1">
                             {profile.karmicDebt.descriptions[index]}
@@ -286,19 +286,19 @@ const NumerologyCalculator: React.FC<NumerologyCalculatorProps> = ({
                     </div>
                   </div> : <div className="bg-green-50 p-4 rounded-lg border border-green-200">
                     <h4 className="font-semibold text-green-800">
-                      {getText("कोई मुख्य कर्मिक ऋण नहीं", "No Major Karmic Debt")}
+                      {t('no_major_karmic_debt')}
                     </h4>
                     <p className="text-green-700 text-sm mt-1">
-                      {getText("आपके पास साफ कर्मिक स्लेट है", "You have a clear karmic slate")}
+                      {t('clear_karmic_slate')}
                     </p>
                   </div>}
 
                 {profile.missingNumbers.length > 0 && <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
                     <h4 className="font-semibold text-yellow-800 mb-2">
-                      {getText("गुम संख्याएं", "Missing Numbers")}
+                      {t('missing_numbers')}
                     </h4>
                     <p className="text-sm text-yellow-700 mb-3">
-                      {getText("आपके नाम में ये संख्याएं गायब हैं, जो कमजोर क्षेत्रों को दर्शाती हैं", "These numbers are missing from your name, indicating areas of weakness")}
+                      {t('missing_numbers_description')}
                     </p>
                     <div className="flex flex-wrap gap-2">
                       {profile.missingNumbers.map((num, index) => <Badge key={index} variant="outline" className="bg-yellow-100 text-yellow-800">
@@ -315,7 +315,7 @@ const NumerologyCalculator: React.FC<NumerologyCalculatorProps> = ({
               <CardHeader>
                 <CardTitle className="text-green-600 flex items-center gap-2">
                   <Gem className="h-5 w-5" />
-                  {getText("व्यक्तिगत उपाय", "Personalized Remedies")}
+                  {t('personalized_remedies')}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -327,14 +327,14 @@ const NumerologyCalculator: React.FC<NumerologyCalculatorProps> = ({
                           </div>
                           <div className="flex-1">
                             <h4 className="font-semibold text-green-800 mb-1">
-                              {getText("संख्या", "Number")} {remedy.number} {getText("की कमी", "Deficiency")}
+                              {t('number')} {remedy.number} {t('deficiency')}
                             </h4>
                             <p className="text-sm text-green-700 mb-3">{remedy.deficiency}</p>
                             
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               <div>
                                 <h5 className="font-medium text-green-800 mb-1">
-                                  {getText("उपाय", "Remedies")}:
+                                  {t('remedies')}:
                                 </h5>
                                 <ul className="text-sm text-green-700">
                                   {remedy.remedies.map((r, i) => <li key={i} className="flex items-start gap-1">
@@ -348,7 +348,7 @@ const NumerologyCalculator: React.FC<NumerologyCalculatorProps> = ({
                                 <div className="flex items-center gap-2">
                                   <BookOpen className="h-4 w-4 text-green-600" />
                                   <span className="text-sm font-medium text-green-800">
-                                    {getText("मंत्र", "Mantra")}:
+                                    {t('mantra')}:
                                   </span>
                                   <code className="text-xs bg-green-100 px-2 py-1 rounded">
                                     {remedy.mantra}
@@ -357,7 +357,7 @@ const NumerologyCalculator: React.FC<NumerologyCalculatorProps> = ({
                                 <div className="flex items-center gap-2">
                                   <Gem className="h-4 w-4 text-green-600" />
                                   <span className="text-sm font-medium text-green-800">
-                                    {getText("रत्न", "Gemstone")}:
+                                    {t('gemstone')}:
                                   </span>
                                   <Badge variant="outline" className="bg-green-100">
                                     {remedy.gemstone}
@@ -368,7 +368,7 @@ const NumerologyCalculator: React.FC<NumerologyCalculatorProps> = ({
                             backgroundColor: remedy.color.toLowerCase()
                           }}></div>
                                   <span className="text-sm font-medium text-green-800">
-                                    {getText("रंग", "Color")}:
+                                    {t('color')}:
                                   </span>
                                   <span className="text-sm text-green-700">{remedy.color}</span>
                                 </div>
@@ -379,10 +379,10 @@ const NumerologyCalculator: React.FC<NumerologyCalculatorProps> = ({
                       </div>)}
                   </div> : <div className="text-center py-8">
                     <div className="text-gray-500">
-                      {getText("कोई विशेष उपाय की आवश्यकता नहीं", "No specific remedies needed")}
+                      {t('no_specific_remedies')}
                     </div>
                     <p className="text-sm text-gray-400 mt-2">
-                      {getText("आपकी संख्या संरचना संतुलित है", "Your number structure is well balanced")}
+                      {t('well_balanced_structure')}
                     </p>
                   </div>}
               </CardContent>
