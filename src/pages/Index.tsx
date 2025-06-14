@@ -156,6 +156,26 @@ const Index = () => {
   return (
     <div className="min-h-screen-mobile bg-gradient-to-br from-orange-50 via-white to-red-50 touch-manipulation">
       <div className="container mx-auto px-2 sm:px-4 md:px-6 lg:px-8 py-2 md:py-8 max-w-7xl safe-area-pt">
+        {/* Astrological Background Image */}
+        <div className="relative w-full h-32 sm:h-40 md:h-48 lg:h-56 xl:h-64 mb-4 md:mb-6 overflow-hidden rounded-lg">
+          <img 
+            src="/lovable-uploads/18da27cd-3784-4fde-a3ba-199421c6eb86.png"
+            alt="Astrological Chart and Galaxy"
+            className="w-full h-full object-cover object-center"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/20 via-transparent to-black/20"></div>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="text-center text-white">
+              <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-bold mb-1 md:mb-2 drop-shadow-lg">
+                {getTranslation('Vedic Astrology Portal', 'वैदिक ज्योतिष पोर्टल')}
+              </h1>
+              <p className="text-xs sm:text-sm md:text-base lg:text-lg opacity-90 drop-shadow-md">
+                {getTranslation('Discover Your Cosmic Blueprint', 'अपना ब्रह्मांडीय खाका खोजें')}
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* Enhanced Header with CTA integration */}
         <HeroSection 
           language={language} 
