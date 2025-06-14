@@ -9,6 +9,7 @@ import AppLayout from '@/components/AppLayout';
 import LandingPage from '@/components/LandingPage';
 import Index from '@/pages/Index';
 import AboutUs from '@/pages/AboutUs';
+import FAQ from '@/pages/FAQ';
 import MobileLogin from '@/components/MobileLogin';
 import MobileProfile from '@/components/MobileProfile';
 import StandalonePersonalityTest from '@/components/StandalonePersonalityTest';
@@ -23,6 +24,7 @@ function AppContent() {
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/about" element={<AboutUs />} />
+          <Route path="/faq" element={<FAQ />} />
           <Route path="/kundali" element={<Index />} />
           <Route path="/personality-test" element={<StandalonePersonalityTest />} />
           <Route path="/daily-horoscope" element={<DailyHoroscopeWithGuru />} />

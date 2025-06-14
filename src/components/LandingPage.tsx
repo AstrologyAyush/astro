@@ -5,6 +5,7 @@ import { Crown, Target, Star, Play, CheckCircle, Clock, Users, Sparkles, Brain, 
 import { useNavigate } from 'react-router-dom';
 import AppLogo from './AppLogo';
 import { useLanguage } from '@/contexts/LanguageContext';
+
 const LandingPage = () => {
   const navigate = useNavigate();
   const {
@@ -267,6 +268,13 @@ const LandingPage = () => {
             </Button>
             <Button 
               variant="link" 
+              onClick={() => navigate('/faq')}
+              className="text-gray-400 hover:text-white p-0 h-auto"
+            >
+              FAQ
+            </Button>
+            <Button 
+              variant="link" 
               onClick={() => navigate('/kundali')}
               className="text-gray-400 hover:text-white p-0 h-auto"
             >
@@ -287,4 +295,5 @@ const LandingPage = () => {
       </footer>
     </div>;
 };
+
 export default LandingPage;
