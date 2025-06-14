@@ -102,35 +102,37 @@ const NumerologyInsights: React.FC<NumerologyInsightsProps> = ({ profile, langua
   const lifePathInsights = getLifePathInsights(profile.lifePath);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3 md:space-y-6 px-1 md:px-0">
       {/* Life Purpose & Destiny */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-purple-700">
-            <Star className="h-5 w-5" />
-            {getText("आपका जीवन उद्देश्य", "Your Life Purpose")}
+      <Card className="shadow-md">
+        <CardHeader className="p-3 md:p-6">
+          <CardTitle className="flex items-center gap-2 text-purple-700 text-base md:text-lg">
+            <Star className="h-4 w-4 md:h-5 md:w-5 flex-shrink-0" />
+            <span className="text-sm md:text-base">
+              {getText("आपका जीवन उद्देश्य", "Your Life Purpose")}
+            </span>
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="bg-purple-50 p-4 rounded-lg">
-            <h4 className="font-semibold text-purple-800 mb-2">
+        <CardContent className="p-3 md:p-6 pt-0 md:pt-0">
+          <div className="bg-purple-50 p-3 md:p-4 rounded-lg">
+            <h4 className="font-semibold text-purple-800 mb-2 text-sm md:text-base">
               {getText("जीवन पथ", "Life Path")} {profile.lifePath}: {getText("आपका मुख्य उद्देश्य", "Your Main Purpose")}
             </h4>
-            <p className="text-purple-700 text-sm mb-3">
+            <p className="text-purple-700 text-xs md:text-sm mb-3 leading-relaxed">
               {lifePathInsights.purpose}
             </p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3">
               <div>
-                <h5 className="font-medium text-green-700 mb-1">
+                <h5 className="font-medium text-green-700 mb-1 text-xs md:text-sm">
                   {getText("आपकी शक्तियां", "Your Strengths")}
                 </h5>
-                <p className="text-sm text-green-600">{lifePathInsights.strengths}</p>
+                <p className="text-xs md:text-sm text-green-600">{lifePathInsights.strengths}</p>
               </div>
               <div>
-                <h5 className="font-medium text-orange-700 mb-1">
+                <h5 className="font-medium text-orange-700 mb-1 text-xs md:text-sm">
                   {getText("चुनौतियां", "Challenges to Overcome")}
                 </h5>
-                <p className="text-sm text-orange-600">{lifePathInsights.challenges}</p>
+                <p className="text-xs md:text-sm text-orange-600">{lifePathInsights.challenges}</p>
               </div>
             </div>
           </div>
@@ -138,26 +140,28 @@ const NumerologyInsights: React.FC<NumerologyInsightsProps> = ({ profile, langua
       </Card>
 
       {/* Career & Money Guidance */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-green-700">
-            <Briefcase className="h-5 w-5" />
-            {getText("करियर और पैसा मार्गदर्शन", "Career & Money Guidance")}
+      <Card className="shadow-md">
+        <CardHeader className="p-3 md:p-6">
+          <CardTitle className="flex items-center gap-2 text-green-700 text-base md:text-lg">
+            <Briefcase className="h-4 w-4 md:h-5 md:w-5 flex-shrink-0" />
+            <span className="text-sm md:text-base">
+              {getText("करियर और पैसा मार्गदर्शन", "Career & Money Guidance")}
+            </span>
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="bg-green-50 p-4 rounded-lg">
-            <h4 className="font-semibold text-green-800 mb-2">
+        <CardContent className="p-3 md:p-6 pt-0 md:pt-0">
+          <div className="bg-green-50 p-3 md:p-4 rounded-lg">
+            <h4 className="font-semibold text-green-800 mb-2 text-sm md:text-base">
               {getText("आदर्श करियर पथ", "Ideal Career Path")}
             </h4>
-            <p className="text-green-700 text-sm mb-3">
+            <p className="text-green-700 text-xs md:text-sm mb-3 leading-relaxed">
               {lifePathInsights.careerPath}
             </p>
             <div className="bg-yellow-50 p-3 rounded border border-yellow-200">
-              <h5 className="font-medium text-yellow-800 mb-1">
+              <h5 className="font-medium text-yellow-800 mb-1 text-xs md:text-sm">
                 {getText("धन संबंधी सलाह", "Money Advice")}
               </h5>
-              <p className="text-sm text-yellow-700">
+              <p className="text-xs md:text-sm text-yellow-700">
                 {profile.lifePath === 8 ? 
                   getText("आपको व्यापार और निवेश में सफलता मिलेगी", "You'll succeed in business and investments") :
                   profile.lifePath === 4 ?
@@ -171,39 +175,41 @@ const NumerologyInsights: React.FC<NumerologyInsightsProps> = ({ profile, langua
       </Card>
 
       {/* Love & Relationships */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-pink-700">
-            <Heart className="h-5 w-5" />
-            {getText("प्रेम और रिश्ते", "Love & Relationships")}
+      <Card className="shadow-md">
+        <CardHeader className="p-3 md:p-6">
+          <CardTitle className="flex items-center gap-2 text-pink-700 text-base md:text-lg">
+            <Heart className="h-4 w-4 md:h-5 md:w-5 flex-shrink-0" />
+            <span className="text-sm md:text-base">
+              {getText("प्रेम और रिश्ते", "Love & Relationships")}
+            </span>
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="bg-pink-50 p-4 rounded-lg">
-            <h4 className="font-semibold text-pink-800 mb-2">
+        <CardContent className="p-3 md:p-6 pt-0 md:pt-0">
+          <div className="bg-pink-50 p-3 md:p-4 rounded-lg">
+            <h4 className="font-semibold text-pink-800 mb-2 text-sm md:text-base">
               {getText("आपकी प्रेम शैली", "Your Love Style")}
             </h4>
-            <p className="text-pink-700 text-sm mb-3">
+            <p className="text-pink-700 text-xs md:text-sm mb-3 leading-relaxed">
               {lifePathInsights.loveStyle}
             </p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3">
               <div className="bg-red-50 p-3 rounded">
-                <h5 className="font-medium text-red-700 mb-1">
+                <h5 className="font-medium text-red-700 mb-1 text-xs md:text-sm">
                   {getText("सबसे अच्छा मैच", "Best Match")}
                 </h5>
-                <div className="flex gap-1">
+                <div className="flex gap-1 flex-wrap">
                   {getCompatibleNumbers(profile.lifePath).map(num => (
-                    <Badge key={num} variant="outline" className="bg-red-100 text-red-700">
+                    <Badge key={num} variant="outline" className="bg-red-100 text-red-700 text-xs">
                       {num}
                     </Badge>
                   ))}
                 </div>
               </div>
               <div className="bg-blue-50 p-3 rounded">
-                <h5 className="font-medium text-blue-700 mb-1">
+                <h5 className="font-medium text-blue-700 mb-1 text-xs md:text-sm">
                   {getText("रिश्ते में सलाह", "Relationship Advice")}
                 </h5>
-                <p className="text-xs text-blue-600">
+                <p className="text-xs text-blue-600 leading-relaxed">
                   {getRelationshipAdvice(profile.lifePath, language)}
                 </p>
               </div>
@@ -213,26 +219,28 @@ const NumerologyInsights: React.FC<NumerologyInsightsProps> = ({ profile, langua
       </Card>
 
       {/* Current Year Guidance */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-blue-700">
-            <Clock className="h-5 w-5" />
-            {getText("2025 का मार्गदर्शन", "2025 Guidance")}
+      <Card className="shadow-md">
+        <CardHeader className="p-3 md:p-6">
+          <CardTitle className="flex items-center gap-2 text-blue-700 text-base md:text-lg">
+            <Clock className="h-4 w-4 md:h-5 md:w-5 flex-shrink-0" />
+            <span className="text-sm md:text-base">
+              {getText("2025 का मार्गदर्शन", "2025 Guidance")}
+            </span>
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="bg-blue-50 p-4 rounded-lg">
-            <h4 className="font-semibold text-blue-800 mb-2">
+        <CardContent className="p-3 md:p-6 pt-0 md:pt-0">
+          <div className="bg-blue-50 p-3 md:p-4 rounded-lg">
+            <h4 className="font-semibold text-blue-800 mb-2 text-sm md:text-base">
               {getText("व्यक्तिगत वर्ष", "Personal Year")} {profile.personalYear}
             </h4>
-            <p className="text-blue-700 text-sm mb-3">
+            <p className="text-blue-700 text-xs md:text-sm mb-3 leading-relaxed">
               {getPersonalYearGuidance(profile.personalYear)}
             </p>
             <div className="bg-indigo-50 p-3 rounded border border-indigo-200">
-              <h5 className="font-medium text-indigo-800 mb-1">
+              <h5 className="font-medium text-indigo-800 mb-1 text-xs md:text-sm">
                 {getText("महत्वपूर्ण महीने", "Important Months")}
               </h5>
-              <p className="text-sm text-indigo-700">
+              <p className="text-xs md:text-sm text-indigo-700">
                 {getText("मार्च, जून, सितंबर - महत्वपूर्ण अवसर", "March, June, September - Key opportunities")}
               </p>
             </div>
@@ -241,38 +249,40 @@ const NumerologyInsights: React.FC<NumerologyInsightsProps> = ({ profile, langua
       </Card>
 
       {/* Daily Life Guidance */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-orange-700">
-            <TrendingUp className="h-5 w-5" />
-            {getText("दैनिक जीवन मार्गदर्शन", "Daily Life Guidance")}
+      <Card className="shadow-md">
+        <CardHeader className="p-3 md:p-6">
+          <CardTitle className="flex items-center gap-2 text-orange-700 text-base md:text-lg">
+            <TrendingUp className="h-4 w-4 md:h-5 md:w-5 flex-shrink-0" />
+            <span className="text-sm md:text-base">
+              {getText("दैनिक जीवन मार्गदर्शन", "Daily Life Guidance")}
+            </span>
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-orange-50 p-4 rounded-lg">
-              <h4 className="font-semibold text-orange-800 mb-2">
+        <CardContent className="p-3 md:p-6 pt-0 md:pt-0">
+          <div className="grid grid-cols-1 gap-3 md:gap-4">
+            <div className="bg-orange-50 p-3 md:p-4 rounded-lg">
+              <h4 className="font-semibold text-orange-800 mb-2 text-sm md:text-base">
                 {getText("भाग्यशाली दिन", "Lucky Days")}
               </h4>
-              <div className="flex gap-1 mb-2">
+              <div className="flex gap-1 mb-2 flex-wrap">
                 {getLuckyDays(profile.lifePath).map(day => (
-                  <Badge key={day} className="bg-orange-200 text-orange-800">{day}</Badge>
+                  <Badge key={day} className="bg-orange-200 text-orange-800 text-xs">{day}</Badge>
                 ))}
               </div>
-              <p className="text-xs text-orange-600">
+              <p className="text-xs text-orange-600 leading-relaxed">
                 {getText("इन दिनों महत्वपूर्ण निर्णय लें", "Make important decisions on these days")}
               </p>
             </div>
-            <div className="bg-teal-50 p-4 rounded-lg">
-              <h4 className="font-semibold text-teal-800 mb-2">
+            <div className="bg-teal-50 p-3 md:p-4 rounded-lg">
+              <h4 className="font-semibold text-teal-800 mb-2 text-sm md:text-base">
                 {getText("भाग्यशाली रंग", "Lucky Colors")}
               </h4>
               <div className="flex gap-1 mb-2">
                 {getLuckyColors(profile.lifePath).map(color => (
-                  <div key={color} className="w-6 h-6 rounded border" style={{backgroundColor: color.toLowerCase()}}></div>
+                  <div key={color} className="w-5 h-5 md:w-6 md:h-6 rounded border" style={{backgroundColor: color.toLowerCase()}}></div>
                 ))}
               </div>
-              <p className="text-xs text-teal-600">
+              <p className="text-xs text-teal-600 leading-relaxed">
                 {getText("इन रंगों का प्रयोग करें", "Use these colors in your daily life")}
               </p>
             </div>
