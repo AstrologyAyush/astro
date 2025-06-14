@@ -16,8 +16,8 @@ const DetailedDashaDisplay: React.FC<DetailedDashaDisplayProps> = ({ kundaliData
     return language === 'hi' ? hi : en;
   };
 
-  const enhancedCalculations = kundaliData.enhancedCalculations || kundaliData.calculations;
-  const dashas = enhancedCalculations?.dashas || [];
+  // Fix: Access dashas directly from kundaliData or use enhancedCalculations
+  const dashas = kundaliData.enhancedCalculations?.dashas || kundaliData.dashas || [];
   const currentDasha = dashas.find(d => d.isActive) || dashas[0];
 
   const planetNames = {

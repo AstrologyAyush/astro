@@ -42,8 +42,8 @@ const DivisionalCharts: React.FC<DivisionalChartsProps> = ({ kundaliData, langua
     }
   };
 
-  const enhancedCalculations = kundaliData.enhancedCalculations || kundaliData.calculations;
-  const planets = enhancedCalculations?.planets || {};
+  // Fix: Access planets directly from kundaliData or use enhancedCalculations
+  const planets = kundaliData.enhancedCalculations?.planets || kundaliData.planets || {};
 
   // Generate divisional chart data
   const generateDivisionalChart = (division: number) => {
