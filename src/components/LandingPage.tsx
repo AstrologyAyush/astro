@@ -88,7 +88,7 @@ const LandingPage = () => {
 
         {/* Main CTA Buttons */}
         <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center mb-6 md:mb-8 px-4 max-w-4xl mx-auto">
-          <Button onClick={handleKundaliGeneration} className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white text-sm md:text-lg px-6 md:px-8 py-3 md:py-4 rounded-full shadow-lg flex-1 max-w-sm mx-auto sm:mx-0">
+          <Button onClick={handleKundaliGeneration} className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white md:text-lg md:px-8 md:py-4 shadow-lg flex-1 max-w-sm sm:mx-0 rounded-3xl font-bold py-[5px] text-sm px-[100px] my-[3px] mx-[4px] text-center">
             <Play className="mr-2 h-4 w-4 md:h-5 md:w-5" />
             Get Your Free Astro Report in 60 Seconds
           </Button>
