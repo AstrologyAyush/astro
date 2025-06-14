@@ -1,11 +1,15 @@
+
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Crown } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ArrowLeft, Crown, Star, Grid, Clock } from 'lucide-react';
 import InteractiveDashboard from './InteractiveDashboard';
 import KundaliConsultationView from './KundaliConsultationView';
 import EnhancedDailyHoroscope from './EnhancedDailyHoroscope';
 import EnhancedKundaliPDFExport from './EnhancedKundaliPDFExport';
+import DivisionalCharts from './DivisionalCharts';
+import DetailedDashaDisplay from './DetailedDashaDisplay';
 
 interface KundaliResultsViewProps {
   kundaliData: any;
@@ -50,12 +54,58 @@ const KundaliResultsView: React.FC<KundaliResultsViewProps> = ({
           <InteractiveDashboard kundaliData={kundaliData} language={language} />
         </CardContent>
       </Card>
-      
-      {/* Display comprehensive Kundali */}
-      <KundaliConsultationView 
-        kundaliData={kundaliData}
-        language={language}
-      />
+
+      {/* Enhanced Kundali Analysis with Tabs */}
+      <Card className="w-full border-purple-200 shadow-lg">
+        <CardHeader className="bg-gradient-to-r from-purple-100 to-indigo-100 p-4 md:p-6">
+          <CardTitle className="text-purple-800 flex items-center gap-2 text-lg md:text-xl">
+            <Star className="h-4 w-4 md:h-5 md:w-5 text-purple-600" />
+            {getTranslation('Complete Vedic Analysis', 'संपूर्ण वैदिक विश्लेषण')}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-4 md:p-6">
+          <Tabs defaultValue="charts" className="w-full">
+            <TabsList className="grid w-full grid-cols-3 mb-6 bg-purple-50">
+              <TabsTrigger 
+                value="charts" 
+                className="flex items-center gap-2 data-[state=active]:bg-purple-600 data-[state=active]:text-white"
+              >
+                <Grid className="h-4 w-4" />
+                {getTranslation('D1-D10 Charts', 'D1-D10 चार्ट')}
+              </TabsTrigger>
+              <TabsTrigger 
+                value="dashas" 
+                className="flex items-center gap-2 data-[state=active]:bg-purple-600 data-[state=active]:text-white"
+              >
+                <Clock className="h-4 w-4" />
+                {getTranslation('Dasha Periods', 'दशा काल')}
+              </TabsTrigger>
+              <TabsTrigger 
+                value="consultation" 
+                className="flex items-center gap-2 data-[state=active]:bg-purple-600 data-[state=active]:text-white"
+              >
+                <Star className="h-4 w-4" />
+                {getTranslation('Full Analysis', 'पूर्ण विश्लेषण')}
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="charts">
+              <DivisionalCharts kundaliData={kundaliData} language={language} />
+            </TabsContent>
+
+            <TabsContent value="dashas">
+              <DetailedDashaDisplay kundaliData={kundaliData} language={language} />
+            </TabsContent>
+
+            <TabsContent value="consultation">
+              <KundaliConsultationView 
+                kundaliData={kundaliData}
+                language={language}
+              />
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
       
       {/* Personalized horoscope */}
       <div className="mt-6 md:mt-8">
