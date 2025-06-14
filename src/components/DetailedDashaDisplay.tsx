@@ -31,13 +31,23 @@ const DetailedDashaDisplay: React.FC<DetailedDashaDisplayProps> = ({ kundaliData
     }
   };
 
-  const getYearFromDate = (dateString: string) => {
-    return new Date(dateString).getFullYear();
+  const getYearFromDate = (date: string | Date) => {
+    if (!date) return new Date().getFullYear();
+    const dateObj = typeof date === 'string' ? new Date(date) : date;
+    return dateObj.getFullYear();
   };
 
-  const calculateProgress = (startDate: string, endDate: string) => {
-    const start = new Date(startDate).getTime();
-    const end = new Date(endDate).getTime();
+  const formatDateString = (date: string | Date) => {
+    if (!date) return '';
+    const dateObj = typeof date === 'string' ? new Date(date) : date;
+    return dateObj.toISOString();
+  };
+
+  const calculateProgress = (startDate: string | Date, endDate: string | Date) => {
+    if (!startDate || !endDate) return 0;
+    
+    const start = (typeof startDate === 'string' ? new Date(startDate) : startDate).getTime();
+    const end = (typeof endDate === 'string' ? new Date(endDate) : endDate).getTime();
     const now = new Date().getTime();
     
     if (now < start) return 0;
@@ -46,6 +56,14 @@ const DetailedDashaDisplay: React.FC<DetailedDashaDisplayProps> = ({ kundaliData
     const total = end - start;
     const elapsed = now - start;
     return Math.round((elapsed / total) * 100);
+  };
+
+  const calculateRemainingYears = (endDate: string | Date) => {
+    if (!endDate) return 0;
+    const end = (typeof endDate === 'string' ? new Date(endDate) : endDate).getTime();
+    const now = new Date().getTime();
+    const remainingMs = end - now;
+    return Math.max(0, remainingMs / (365.25 * 24 * 60 * 60 * 1000));
   };
 
   return (
@@ -69,7 +87,7 @@ const DetailedDashaDisplay: React.FC<DetailedDashaDisplayProps> = ({ kundaliData
               </Badge>
               <div className="flex items-center gap-2 text-sm text-purple-600">
                 <Clock className="h-4 w-4" />
-                <span>{currentDasha.remainingYears?.toFixed(1)} {getTranslation('years left', 'साल बचे')}</span>
+                <span>{calculateRemainingYears(currentDasha.endDate)?.toFixed(1)} {getTranslation('years left', 'साल बचे')}</span>
               </div>
             </div>
             
@@ -137,11 +155,11 @@ const DetailedDashaDisplay: React.FC<DetailedDashaDisplayProps> = ({ kundaliData
                     <div className={`text-sm font-medium ${
                       dasha.isActive ? 'text-purple-600' : 'text-gray-500'
                     }`}>
-                      {dasha.totalYears} {getTranslation('years', 'वर्ष')}
+                      {dasha.years || 0} {getTranslation('years', 'वर्ष')}
                     </div>
-                    {dasha.remainingYears && (
+                    {dasha.isActive && (
                       <div className="text-xs text-gray-500">
-                        {dasha.remainingYears.toFixed(1)} {getTranslation('left', 'बचे')}
+                        {calculateRemainingYears(dasha.endDate).toFixed(1)} {getTranslation('left', 'बचे')}
                       </div>
                     )}
                   </div>
