@@ -64,7 +64,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
             </span>
           </h1>
           <div className="flex items-center justify-center gap-1 md:gap-2 mt-1 md:mt-2 flex-wrap px-2">
-            <Sparkles className="h-3 w-3 md:h-4 md:w-4 text-orange-500 flex-shrink-0" />
+            <Sparkles className="h-3 w-3 md:h-4 md:w-4 text-orange-500 flex-shrink-0 font-bold" />
             <span className="text-xs md:text-sm text-orange-600 font-medium text-center leading-tight">
               {getTranslation('Based on Rishi Parasher Principles', 'पं. ऋषि पराशर के सिद्धांतों पर आधारित')}
             </span>
@@ -81,15 +81,15 @@ const HeroSection: React.FC<HeroSectionProps> = ({
       <div className="flex flex-wrap justify-center gap-1 sm:gap-2 mt-3 md:mt-4 px-2">
         <div className="bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300 px-2 md:px-3 py-1 rounded-full text-xs md:text-sm font-medium flex items-center gap-1">
           <Crown className="h-3 w-3 flex-shrink-0" />
-          <span className="whitespace-nowrap text-red-600">{getTranslation('Swiss Ephemeris Accuracy', 'Swiss Ephemeris सटीकता')}</span>
+          <span className="whitespace-nowrap">{getTranslation('Swiss Ephemeris Accuracy', 'Swiss Ephemeris सटीकता')}</span>
         </div>
         <div className="bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 px-2 md:px-3 py-1 rounded-full text-xs md:text-sm font-medium flex items-center gap-1">
           <Target className="h-3 w-3 flex-shrink-0" />
-          <span className="whitespace-nowrap text-rose-600">{getTranslation('Rishi Parasher Guidance', 'पं. ऋषि पराशर मार्गदर्शन')}</span>
+          <span className="whitespace-nowrap">{getTranslation('Rishi Parasher Guidance', 'पं. ऋषि पराशर मार्गदर्शन')}</span>
         </div>
         <div className="bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 px-2 md:px-3 py-1 rounded-full text-xs md:text-sm font-medium flex items-center gap-1">
           <Star className="h-3 w-3 flex-shrink-0" />
-          <span className="whitespace-nowrap text-rose-600">{getTranslation('Comprehensive Analysis', 'संपूर्ण विश्लेषण')}</span>
+          <span className="whitespace-nowrap">{getTranslation('Comprehensive Analysis', 'संपूर्ण विश्लेषण')}</span>
         </div>
       </div>
 
