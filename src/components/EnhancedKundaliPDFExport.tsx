@@ -1,9 +1,8 @@
-
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Download, FileText } from "lucide-react";
 import jsPDF from 'jspdf';
-import { ComprehensiveKundaliData } from '@/lib/advancedKundaliEngine';
+import { ComprehensiveKundaliData, LifePhasePredictions } from '@/lib/advancedKundaliEngine';
 
 interface EnhancedKundaliPDFExportProps {
   kundaliData: ComprehensiveKundaliData;
@@ -20,6 +19,11 @@ const EnhancedKundaliPDFExport: React.FC<EnhancedKundaliPDFExportProps> = ({
       return new Date(date).toLocaleDateString();
     }
     return date.toLocaleDateString();
+  };
+
+  // Helper function to check if a value is LifePhasePredictions
+  const isLifePhasePredictions = (value: any): value is LifePhasePredictions => {
+    return value && typeof value === 'object' && 'ageRange' in value && 'generalTrends' in value;
   };
 
   const generateComprehensivePDF = () => {
@@ -273,6 +277,11 @@ const EnhancedKundaliPDFExport: React.FC<EnhancedKundaliPDFExportProps> = ({
     phases.forEach(phase => {
       checkPageBreak(40);
       const phaseData = kundaliData.interpretations.predictions[phase.key as keyof typeof kundaliData.interpretations.predictions];
+      
+      // Only proceed if we have valid LifePhasePredictions data
+      if (!isLifePhasePredictions(phaseData)) {
+        return;
+      }
       
       doc.setFontSize(14);
       doc.setFont('helvetica', 'bold');
