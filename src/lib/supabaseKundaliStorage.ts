@@ -14,11 +14,8 @@ export interface StoredKundaliData {
   profile_id?: string;
   name: string;
   birth_data: any;
-  vedic_calculations: VedicKundaliResult;
-  gemini_analysis?: EnhancedKundaliAnalysis;
-  accuracy_level: string;
+  kundali_data: any; // Using existing schema field
   created_at: string;
-  updated_at: string;
 }
 
 export async function saveEnhancedKundali(
@@ -41,18 +38,23 @@ export async function saveEnhancedKundali(
       .eq('user_id', user.id)
       .maybeSingle();
 
-    const kundaliData = {
-      user_id: user.id,
-      profile_id: profile?.id || null,
-      name: birthData.fullName || birthData.name,
-      birth_data: birthData,
+    // Combine all calculation data for the existing schema
+    const combinedKundaliData = {
       vedic_calculations: vedicResult,
       gemini_analysis: geminiAnalysis || null,
       accuracy_level: 'Swiss Ephemeris Precision - Traditional Vedic'
     };
 
+    const kundaliData = {
+      user_id: user.id,
+      profile_id: profile?.id || null,
+      name: birthData.fullName || birthData.name,
+      birth_data: birthData,
+      kundali_data: combinedKundaliData
+    };
+
     const { data, error } = await supabase
-      .from('enhanced_kundali_reports')
+      .from('kundali_reports')
       .insert(kundaliData)
       .select('id')
       .single();
@@ -74,7 +76,7 @@ export async function saveEnhancedKundali(
 export async function getUserKundalis(userId?: string): Promise<StoredKundaliData[]> {
   try {
     let query = supabase
-      .from('enhanced_kundali_reports')
+      .from('kundali_reports')
       .select('*')
       .order('created_at', { ascending: false });
 
@@ -104,7 +106,7 @@ export async function getUserKundalis(userId?: string): Promise<StoredKundaliDat
 export async function getKundaliById(id: string): Promise<StoredKundaliData | null> {
   try {
     const { data, error } = await supabase
-      .from('enhanced_kundali_reports')
+      .from('kundali_reports')
       .select('*')
       .eq('id', id)
       .single();
@@ -127,11 +129,28 @@ export async function updateKundaliAnalysis(
   geminiAnalysis: EnhancedKundaliAnalysis
 ): Promise<boolean> {
   try {
+    // Get existing data first
+    const { data: existingData, error: fetchError } = await supabase
+      .from('kundali_reports')
+      .select('kundali_data')
+      .eq('id', id)
+      .single();
+
+    if (fetchError) {
+      console.error('Error fetching existing Kundali data:', fetchError);
+      return false;
+    }
+
+    // Update the kundali_data with new Gemini analysis
+    const updatedKundaliData = {
+      ...existingData.kundali_data,
+      gemini_analysis: geminiAnalysis
+    };
+
     const { error } = await supabase
-      .from('enhanced_kundali_reports')
+      .from('kundali_reports')
       .update({ 
-        gemini_analysis: geminiAnalysis,
-        updated_at: new Date().toISOString()
+        kundali_data: updatedKundaliData
       })
       .eq('id', id);
 
@@ -152,7 +171,7 @@ export async function updateKundaliAnalysis(
 export async function deleteKundali(id: string): Promise<boolean> {
   try {
     const { error } = await supabase
-      .from('enhanced_kundali_reports')
+      .from('kundali_reports')
       .delete()
       .eq('id', id);
 
@@ -180,12 +199,17 @@ export async function logCalculationAccuracy(
   }
 ): Promise<void> {
   try {
+    // Log to user_activities table since calculation_logs doesn't exist
     const { error } = await supabase
-      .from('calculation_logs')
+      .from('user_activities')
       .insert({
-        kundali_id: kundaliId,
-        accuracy_metrics: accuracyMetrics,
-        timestamp: new Date().toISOString()
+        user_id: (await supabase.auth.getUser()).data.user?.id || null,
+        activity_type: 'kundali_calculation',
+        activity_data: {
+          kundali_id: kundaliId,
+          accuracy_metrics: accuracyMetrics,
+          timestamp: new Date().toISOString()
+        }
       });
 
     if (error) {
@@ -206,8 +230,8 @@ export async function getKundaliStatistics(): Promise<{
 }> {
   try {
     const { data: calculations, error } = await supabase
-      .from('enhanced_kundali_reports')
-      .select('vedic_calculations');
+      .from('kundali_reports')
+      .select('kundali_data');
 
     if (error || !calculations) {
       return {
@@ -224,19 +248,22 @@ export async function getKundaliStatistics(): Promise<{
     const dashaCounts: Record<string, number> = {};
 
     calculations.forEach(calc => {
-      const vedic = calc.vedic_calculations as VedicKundaliResult;
+      const kundaliData = calc.kundali_data as any;
+      const vedic = kundaliData?.vedic_calculations as VedicKundaliResult;
       
-      // Count yogas
-      vedic.yogas?.forEach(yoga => {
-        if (yoga.isActive) {
-          yogaCounts[yoga.name] = (yogaCounts[yoga.name] || 0) + 1;
-        }
-      });
+      if (vedic) {
+        // Count yogas
+        vedic.yogas?.forEach(yoga => {
+          if (yoga.isActive) {
+            yogaCounts[yoga.name] = (yogaCounts[yoga.name] || 0) + 1;
+          }
+        });
 
-      // Count current dashas
-      const currentDasha = vedic.dashas?.find(d => d.isActive);
-      if (currentDasha) {
-        dashaCounts[currentDasha.planet] = (dashaCounts[currentDasha.planet] || 0) + 1;
+        // Count current dashas
+        const currentDasha = vedic.dashas?.find(d => d.isActive);
+        if (currentDasha) {
+          dashaCounts[currentDasha.planet] = (dashaCounts[currentDasha.planet] || 0) + 1;
+        }
       }
     });
 
