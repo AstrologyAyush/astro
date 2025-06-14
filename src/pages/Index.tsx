@@ -18,6 +18,9 @@ import { saveEnhancedKundali } from '@/lib/supabaseKundaliStorage';
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobile, useViewportHeight } from '@/hooks/use-mobile';
 import { Star, Sun, Calculator, Crown, Hash } from 'lucide-react';
+import RishiParasharOverview from '@/components/RishiParasharOverview';
+import LifePathReport from '@/components/LifePathReport';
+
 const Index = () => {
   const [kundaliData, setKundaliData] = useState<ComprehensiveKundaliData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -157,6 +160,11 @@ const Index = () => {
           <LanguageToggle language={language} onLanguageChange={setLanguage} />
         </div>
 
+        {/* Rishi Parashar's Profound Thoughts on Kundali */}
+        <div className="mb-6 md:mb-8">
+          <RishiParasharOverview language={language} />
+        </div>
+
         {/* Main Content */}
         {!kundaliData ? <Tabs defaultValue="kundali" className="w-full">
             <TabsList className={`grid w-full grid-cols-2 md:grid-cols-4 mb-4 md:mb-6 mx-1 md:mx-0 ${isMobile ? 'h-auto gap-1' : 'h-auto'}`}>
@@ -218,8 +226,11 @@ const Index = () => {
             <TabsContent value="horoscope" className="animate-fade-in">
               <EnhancedDailyHoroscope kundaliData={null} />
             </TabsContent>
-          </Tabs> : <div className="animate-slide-up">
+          </Tabs> : <div className="animate-slide-up space-y-6">
             <KundaliResultsView kundaliData={kundaliData} language={language} onBack={() => setKundaliData(null)} />
+            
+            {/* Life Path Report */}
+            <LifePathReport kundaliData={kundaliData} language={language} />
           </div>}
 
         {/* Feature Cards */}
