@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -42,8 +41,8 @@ const DivisionalCharts: React.FC<DivisionalChartsProps> = ({ kundaliData, langua
     }
   };
 
-  // Fix: Access planets directly from kundaliData or use enhancedCalculations
-  const planets = kundaliData.enhancedCalculations?.planets || kundaliData.planets || {};
+  // Fix: Access planets from enhancedCalculations only
+  const planets = kundaliData.enhancedCalculations?.planets || {};
 
   // Generate divisional chart data
   const generateDivisionalChart = (division: number) => {
