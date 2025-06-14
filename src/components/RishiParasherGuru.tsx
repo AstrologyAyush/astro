@@ -40,8 +40,8 @@ const RishiParasherGuru: React.FC<RishiParasherGuruProps> = ({ kundaliData, lang
         id: '1',
         type: 'ai',
         content: language === 'hi' 
-          ? '🙏 नमस्कार मित्र! मैं महर्षि पराशर हूँ। मुझसे बात करके बहुत खुशी होगी! पहले आप अपनी जन्मपत्रिका बनवा लें, फिर मैं आपकी बेहतर मदद कर सकूंगा।'
-          : '🙏 Hello dear friend! I am Maharishi Parashar, and I'm so happy to meet you! Please create your birth chart first, then I can help you much better.',
+          ? '🙏 नमस्कार प्रिय मित्र! मैं महर्षि पराशर हूँ। आपसे मिलकर बहुत खुशी हुई! पहले आप अपनी जन्मपत्रिका बनवाइए, फिर मैं आपकी बेहतर सहायता कर सकूंगा।'
+          : '🙏 Hello dear friend! I am Maharishi Parashar, and I am so delighted to meet you! Please create your birth chart first, then I can help you much better.',
         timestamp: new Date()
       };
       setMessages([fallbackMessage]);
@@ -58,24 +58,24 @@ const RishiParasherGuru: React.FC<RishiParasherGuruProps> = ({ kundaliData, lang
       content: language === 'hi' 
         ? `🙏 अरे वाह ${kundaliData.birthData.fullName}! आपसे मिलकर कितनी खुशी हुई! मैं हूँ महर्षि पराशर, आपका मित्र और मार्गदर्शक।
 
-आपकी कुंडली तो बहुत सुंदर है! 
-✨ ${lagna.signName} लग्न (${lagna.degree.toFixed(2)}°) - वाह!
-🌙 चंद्र ${planets.MO.rashiName} में - बहुत शुभ!
+आपकी कुंडली तो वाकई सुंदर है! 
+✨ ${lagna.signName} लग्न (${lagna.degree.toFixed(2)}°) - बहुत शुभ!
+🌙 चंद्र ${planets.MO.rashiName} में - अति सुंदर!
 ☀️ सूर्य ${planets.SU.rashiName} राशि में
 ⭐ ${planets.MO.nakshatraName} नक्षत्र का आशीर्वाद
 🎯 ${activeYogas.length} शुभ योग सक्रिय हैं
 
-मुझसे कुछ भी पूछिए - करियर, शादी, स्वास्थ्य, पैसा या आध्यात्म। मैं दिल से आपकी मदद करूंगा! 😊`
-        : `🙏 What a joy to meet you, ${kundaliData.birthData.fullName}! I'm Maharishi Parashar, your friend and guide.
+अब बताइए, मुझसे क्या जानना चाहते हैं? करियर, विवाह, स्वास्थ्य, धन या आध्यात्म - कुछ भी पूछिए! मैं दिल से आपकी सहायता करूंगा! 😊`
+        : `🙏 What a wonderful joy to meet you, ${kundaliData.birthData.fullName}! I am Maharishi Parashar, your friend and guide.
 
-Your birth chart is absolutely beautiful! 
-✨ ${lagna.signName} ascendant (${lagna.degree.toFixed(2)}°) - wonderful!
-🌙 Moon in ${planets.MO.rashiName} - very auspicious!
+Your birth chart is truly beautiful! 
+✨ ${lagna.signName} ascendant (${lagna.degree.toFixed(2)}°) - so auspicious!
+🌙 Moon in ${planets.MO.rashiName} - absolutely lovely!
 ☀️ Sun in ${planets.SU.rashiName}
 ⭐ Blessed by ${planets.MO.nakshatraName} nakshatra
 🎯 ${activeYogas.length} beneficial yogas are active
 
-Ask me anything - career, marriage, health, wealth, or spirituality. I'm here to help you with all my heart! 😊`,
+Now tell me, what would you like to know? Career, marriage, health, wealth, or spirituality - ask me anything! I am here to help you wholeheartedly! 😊`,
       timestamp: new Date()
     };
     setMessages([welcomeMessage]);
@@ -139,8 +139,8 @@ Ask me anything - career, marriage, health, wealth, or spirituality. I'm here to
         id: (Date.now() + 1).toString(),
         type: 'ai',
         content: language === 'hi' 
-          ? '🙏 अरे यार, कुछ तकनीकी गड़बड़ हो गई है! परेशान मत होइए, थोड़ी देर में सब ठीक हो जाएगा। फिर से कोशिश कीजिए! 😊'
-          : '🙏 Oh dear, something technical went wrong! Don\'t worry though, it\'ll be fine soon. Please try again! 😊',
+          ? '🙏 अरे प्रिय मित्र, कुछ तकनीकी समस्या आ गई है! परेशान मत होइए, सब ठीक हो जाएगा। थोड़ी देर में फिर कोशिश कीजिए! 😊'
+          : '🙏 Oh dear friend, we have a small technical issue! Please don\'t worry, everything will be fine. Try again in a moment! 😊',
         timestamp: new Date()
       };
 
