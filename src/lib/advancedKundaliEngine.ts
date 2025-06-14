@@ -4,7 +4,7 @@
  */
 
 import { 
-  calculateVimshottariDasha, 
+  calculateVimshottariDasha as calculateTraditionalDasha, 
   calculateAntardasha,
   formatDashaPeriod,
   getDashaEffects,
@@ -432,7 +432,7 @@ export function calculateLahiriAyanamsa(jd: number): number {
 export function calculateLagna(jd: number, latitude: number, longitude: number, ayanamsa: number): LagnaDetails {
   const t = (jd - 2451545.0) / 36525.0;
   const lst = calculateLocalSiderealTime(jd, longitude);
-  const obliquity = 23.439291 - 46.8150 * t / 3600.0;
+  const obliquity = 23.439291 - 46.815050 * t / 3600.0;
   
   const latRad = latitude * Math.PI / 180;
   const oblRad = obliquity * Math.PI / 180;
@@ -773,14 +773,14 @@ export function calculateYogas(planets: Record<string, PlanetData>, lagna: Lagna
 }
 
 // Calculate Vimshottari Dasha
-export function calculateVimshottariDasha(jd: number, moon: PlanetData): DashaDetails[] {
+export function calculateVimshottariDashaForAdvanced(jd: number, moon: PlanetData): DashaDetails[] {
   console.log('🔮 Using Traditional Vimshottari Dasha Engine');
   
   // Convert Julian Day to JavaScript Date
   const birthDate = new Date((jd - 2440587.5) * 86400000);
   
   // Use the traditional calculation
-  const dashaResult = calculateVimshottariDasha(birthDate, moon.longitude, moon.nakshatra);
+  const dashaResult: DetailedDashaResult = calculateTraditionalDasha(birthDate, moon.longitude, moon.nakshatra);
   
   // Convert to the expected format
   const dashas: DashaDetails[] = dashaResult.allMahadashas.map(dasha => ({
@@ -1056,8 +1056,8 @@ export function generateAdvancedKundali(birthData: EnhancedBirthData): Comprehen
     const yogas = calculateYogas(planets, lagna);
     console.log('🧘 Yogas calculated');
     
-    // Calculate dashas
-    const dashas = calculateVimshottariDasha(jd, planets['MO']);
+    // Calculate dashas using the renamed function
+    const dashas = calculateVimshottariDashaForAdvanced(jd, planets['MO']);
     console.log('📊 Dashas calculated');
     
     // Calculate doshas
