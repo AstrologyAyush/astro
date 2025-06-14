@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -8,11 +7,10 @@ import { useLanguage } from '@/contexts/LanguageContext';
 
 interface NumerologyInsightsProps {
   profile: NumerologyProfile;
-  language: 'hi' | 'en';
 }
 
-const NumerologyInsights: React.FC<NumerologyInsightsProps> = ({ profile, language }) => {
-  const { t } = useLanguage();
+const NumerologyInsights: React.FC<NumerologyInsightsProps> = ({ profile }) => {
+  const { t, language } = useLanguage();
 
   const getLifePathInsights = (number: number) => {
     const insights = {

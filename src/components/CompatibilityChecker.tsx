@@ -12,18 +12,18 @@ import { Heart, Users, Calculator, Star, AlertCircle, Lightbulb, TrendingUp } fr
 import { calculateNumerologyProfile, NumerologyProfile } from '@/lib/numerologyUtils';
 import { calculateCompatibility, CompatibilityResult } from '@/lib/numerologyCompatibility';
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface CompatibilityCheckerProps {
-  language: 'hi' | 'en';
   currentProfile?: NumerologyProfile;
   currentName?: string;
 }
 
 const CompatibilityChecker: React.FC<CompatibilityCheckerProps> = ({ 
-  language, 
   currentProfile, 
   currentName 
 }) => {
+  const { language } = useLanguage();
   const [partnerData, setPartnerData] = useState({
     name: '',
     date: ''
