@@ -279,67 +279,131 @@ const PLANETS = [
   { id: 'KE', name: 'Ketu', hindi: 'केतु', symbol: '☋' }
 ];
 
-// Enhanced Julian Day calculation with better error handling
-export function calculateJulianDay(date: string | Date, time: string, timezone: number): number {
-  // Convert Date object to string if needed
-  let dateString: string;
-  if (date instanceof Date) {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    dateString = `${year}-${month}-${day}`;
-  } else if (typeof date === 'string') {
-    dateString = date;
-  } else {
-    throw new Error('Invalid date format. Expected string (YYYY-MM-DD) or Date object.');
-  }
+// Enhanced Julian Day calculation with robust error handling
+export function calculateJulianDay(dateInput: string | Date, timeInput: string, timezone: number): number {
+  console.log('🔍 Julian Day calculation input:', { dateInput, timeInput, timezone });
+  
+  try {
+    // Handle different date input types
+    let dateString: string;
+    
+    if (dateInput instanceof Date) {
+      // Convert Date object to YYYY-MM-DD string
+      const year = dateInput.getFullYear();
+      const month = String(dateInput.getMonth() + 1).padStart(2, '0');
+      const day = String(dateInput.getDate()).padStart(2, '0');
+      dateString = `${year}-${month}-${day}`;
+      console.log('📅 Converted Date object to string:', dateString);
+    } else if (typeof dateInput === 'string') {
+      dateString = dateInput;
+      console.log('📅 Using string date directly:', dateString);
+    } else {
+      throw new Error(`Invalid date type: ${typeof dateInput}. Expected string or Date object.`);
+    }
 
-  // Validate date string format
-  if (!dateString || typeof dateString !== 'string' || !dateString.includes('-')) {
-    throw new Error('Date must be in YYYY-MM-DD format');
-  }
+    // Validate date string format
+    if (!dateString || typeof dateString !== 'string') {
+      throw new Error('Date string is required');
+    }
 
-  const dateParts = dateString.split('-');
-  if (dateParts.length !== 3) {
-    throw new Error('Date must be in YYYY-MM-DD format');
-  }
+    // Handle multiple date formats
+    let dateParts: number[];
+    if (dateString.includes('-')) {
+      const parts = dateString.split('-');
+      if (parts.length !== 3) {
+        throw new Error(`Invalid date format: ${dateString}. Expected YYYY-MM-DD`);
+      }
+      dateParts = parts.map(Number);
+    } else if (dateString.includes('/')) {
+      const parts = dateString.split('/');
+      if (parts.length !== 3) {
+        throw new Error(`Invalid date format: ${dateString}. Expected MM/DD/YYYY`);
+      }
+      // Assume MM/DD/YYYY format
+      dateParts = [Number(parts[2]), Number(parts[0]), Number(parts[1])];
+    } else {
+      throw new Error(`Unsupported date format: ${dateString}`);
+    }
 
-  const [year, month, day] = dateParts.map(Number);
-  
-  // Validate parsed values
-  if (isNaN(year) || isNaN(month) || isNaN(day)) {
-    throw new Error('Invalid date values');
-  }
-  
-  // Validate time string
-  if (!time || typeof time !== 'string') {
-    throw new Error('Time must be provided as HH:MM or HH:MM:SS');
-  }
+    const [year, month, day] = dateParts;
+    
+    // Validate parsed date values
+    if (isNaN(year) || isNaN(month) || isNaN(day)) {
+      throw new Error(`Invalid date values: year=${year}, month=${month}, day=${day}`);
+    }
+    
+    if (year < 1900 || year > 2100) {
+      throw new Error(`Year ${year} is out of valid range (1900-2100)`);
+    }
+    
+    if (month < 1 || month > 12) {
+      throw new Error(`Month ${month} is out of valid range (1-12)`);
+    }
+    
+    if (day < 1 || day > 31) {
+      throw new Error(`Day ${day} is out of valid range (1-31)`);
+    }
 
-  const timeParts = time.split(':');
-  if (timeParts.length < 2 || timeParts.length > 3) {
-    throw new Error('Time must be in HH:MM or HH:MM:SS format');
-  }
+    // Handle time input
+    let timeString: string;
+    if (typeof timeInput === 'string') {
+      timeString = timeInput;
+    } else {
+      throw new Error(`Invalid time type: ${typeof timeInput}. Expected string.`);
+    }
 
-  const [hour, minute, second = 0] = timeParts.map(Number);
-  
-  // Validate time values
-  if (isNaN(hour) || isNaN(minute) || isNaN(second)) {
-    throw new Error('Invalid time values');
+    if (!timeString) {
+      timeString = '12:00:00'; // Default to noon
+      console.log('⏰ Using default time: 12:00:00');
+    }
+
+    // Parse time
+    const timeParts = timeString.split(':');
+    if (timeParts.length < 2 || timeParts.length > 3) {
+      throw new Error(`Invalid time format: ${timeString}. Expected HH:MM or HH:MM:SS`);
+    }
+
+    const hour = Number(timeParts[0]);
+    const minute = Number(timeParts[1]);
+    const second = timeParts.length > 2 ? Number(timeParts[2]) : 0;
+    
+    // Validate time values
+    if (isNaN(hour) || isNaN(minute) || isNaN(second)) {
+      throw new Error(`Invalid time values: hour=${hour}, minute=${minute}, second=${second}`);
+    }
+    
+    if (hour < 0 || hour > 23) {
+      throw new Error(`Hour ${hour} is out of valid range (0-23)`);
+    }
+    
+    if (minute < 0 || minute > 59) {
+      throw new Error(`Minute ${minute} is out of valid range (0-59)`);
+    }
+    
+    if (second < 0 || second > 59) {
+      throw new Error(`Second ${second} is out of valid range (0-59)`);
+    }
+
+    // Calculate UTC time
+    const utcHour = hour - (timezone || 0);
+    const decimalTime = utcHour + (minute / 60.0) + (second / 3600.0);
+    
+    // Julian Day calculation
+    let a = Math.floor((14 - month) / 12);
+    let y = year + 4800 - a;
+    let m = month + 12 * a - 3;
+    
+    const julianDay = day + Math.floor((153 * m + 2) / 5) + 365 * y + 
+                     Math.floor(y / 4) - Math.floor(y / 100) + Math.floor(y / 400) - 
+                     32045 + (decimalTime - 12.0) / 24.0;
+    
+    console.log('✅ Julian Day calculated successfully:', julianDay);
+    return julianDay;
+    
+  } catch (error) {
+    console.error('❌ Error in calculateJulianDay:', error);
+    throw new Error(`Julian Day calculation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
-  
-  const utcHour = hour - timezone;
-  const decimalTime = utcHour + (minute / 60.0) + (second / 3600.0);
-  
-  let a = Math.floor((14 - month) / 12);
-  let y = year + 4800 - a;
-  let m = month + 12 * a - 3;
-  
-  const julianDay = day + Math.floor((153 * m + 2) / 5) + 365 * y + 
-                   Math.floor(y / 4) - Math.floor(y / 100) + Math.floor(y / 400) - 
-                   32045 + (decimalTime - 12.0) / 24.0;
-  
-  return julianDay;
 }
 
 // Enhanced Ayanamsa calculation
@@ -938,7 +1002,8 @@ export function generateInterpretations(planets: Record<string, PlanetData>, hou
 // Main function to generate comprehensive Kundali with enhanced error handling
 export function generateAdvancedKundali(birthData: EnhancedBirthData): ComprehensiveKundaliData {
   try {
-    console.log('🔮 Generating comprehensive Vedic Kundali with all traditional elements...');
+    console.log('🔮 Starting comprehensive Vedic Kundali generation...');
+    console.log('📝 Input data:', JSON.stringify(birthData, null, 2));
     
     // Validate input data
     if (!birthData) {
@@ -957,11 +1022,11 @@ export function generateAdvancedKundali(birthData: EnhancedBirthData): Comprehen
       throw new Error('Valid latitude and longitude are required');
     }
     
-    console.log('📅 Birth data validation passed:', {
-      date: birthData.date,
-      time: birthData.time,
-      place: birthData.place
-    });
+    if (birthData.latitude === 0 && birthData.longitude === 0) {
+      throw new Error('Location coordinates cannot be zero. Please select a valid location.');
+    }
+    
+    console.log('✅ Birth data validation passed');
     
     // Calculate Julian Day with enhanced error handling
     const jd = calculateJulianDay(birthData.date, birthData.time, birthData.timezone);

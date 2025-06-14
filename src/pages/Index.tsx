@@ -36,32 +36,76 @@ const Index = () => {
   
   const handleKundaliGeneration = async (birthData: any) => {
     setIsLoading(true);
+    
     try {
       console.log('🚀 Starting comprehensive Vedic Kundali generation...');
       console.log('📝 Input birth data:', birthData);
       
-      // Ensure proper data formatting
-      const enhancedBirthData: EnhancedBirthData = {
-        fullName: birthData.name || birthData.fullName || 'Unknown',
-        date: typeof birthData.dateOfBirth === 'string' ? birthData.dateOfBirth : birthData.date || '',
-        time: typeof birthData.timeOfBirth === 'string' ? birthData.timeOfBirth : birthData.time || '12:00:00',
-        place: birthData.placeOfBirth || birthData.place || 'Unknown',
-        latitude: Number(birthData.latitude) || 0,
-        longitude: Number(birthData.longitude) || 0,
-        timezone: 5.5 // IST timezone
-      };
-
-      console.log('✅ Enhanced birth data prepared:', enhancedBirthData);
-
-      // Validate required fields
-      if (!enhancedBirthData.date) {
-        throw new Error('Birth date is required');
-      }
-      if (!enhancedBirthData.time) {
-        throw new Error('Birth time is required');
-      }
-      if (!enhancedBirthData.latitude || !enhancedBirthData.longitude) {
-        throw new Error('Birth location coordinates are required');
+      // Enhanced data processing with better validation
+      let processedBirthData: EnhancedBirthData;
+      
+      try {
+        // Handle different date formats
+        let dateString: string;
+        let timeString: string;
+        
+        if (birthData.dateOfBirth instanceof Date) {
+          // Convert Date object to string
+          const year = birthData.dateOfBirth.getFullYear();
+          const month = String(birthData.dateOfBirth.getMonth() + 1).padStart(2, '0');
+          const day = String(birthData.dateOfBirth.getDate()).padStart(2, '0');
+          dateString = `${year}-${month}-${day}`;
+        } else if (typeof birthData.dateOfBirth === 'string') {
+          dateString = birthData.dateOfBirth;
+        } else if (birthData.date) {
+          dateString = birthData.date;
+        } else {
+          throw new Error('Birth date is required and must be a valid date');
+        }
+        
+        // Handle time format
+        if (typeof birthData.timeOfBirth === 'string') {
+          timeString = birthData.timeOfBirth;
+          // Ensure time has seconds
+          if (timeString.split(':').length === 2) {
+            timeString += ':00';
+          }
+        } else if (birthData.time) {
+          timeString = birthData.time;
+          if (timeString.split(':').length === 2) {
+            timeString += ':00';
+          }
+        } else {
+          timeString = '12:00:00'; // Default time
+        }
+        
+        // Validate coordinates
+        const latitude = Number(birthData.latitude);
+        const longitude = Number(birthData.longitude);
+        
+        if (isNaN(latitude) || isNaN(longitude)) {
+          throw new Error('Invalid coordinates. Please select a valid location.');
+        }
+        
+        if (latitude === 0 && longitude === 0) {
+          throw new Error('Location coordinates are required. Please select your birth place.');
+        }
+        
+        processedBirthData = {
+          fullName: birthData.name || birthData.fullName || 'Unknown',
+          date: dateString,
+          time: timeString,
+          place: birthData.placeOfBirth || birthData.place || 'Unknown',
+          latitude: latitude,
+          longitude: longitude,
+          timezone: 5.5 // IST timezone
+        };
+        
+        console.log('✅ Enhanced birth data prepared:', processedBirthData);
+        
+      } catch (processingError) {
+        console.error('❌ Error processing birth data:', processingError);
+        throw new Error(`Data processing failed: ${processingError instanceof Error ? processingError.message : 'Invalid data format'}`);
       }
 
       // Show detailed loading progress
@@ -75,13 +119,17 @@ const Index = () => {
 
       // Generate comprehensive Kundali with all traditional elements
       console.log('🔯 Generating comprehensive Vedic calculations...');
-      const result = generateAdvancedKundali(enhancedBirthData);
+      const result = generateAdvancedKundali(processedBirthData);
+
+      if (!result) {
+        throw new Error('Failed to generate Kundali data');
+      }
 
       setKundaliData(result);
 
       // Save to Supabase with enhanced error handling
       try {
-        const kundaliId = await saveEnhancedKundali(enhancedBirthData, result as any, undefined);
+        const kundaliId = await saveEnhancedKundali(processedBirthData, result as any, undefined);
         if (kundaliId) {
           console.log('💾 Comprehensive Kundali saved to Supabase:', kundaliId);
         }
@@ -94,13 +142,21 @@ const Index = () => {
         title: getTranslation("Success", "सफलता"),
         description: getTranslation("Your comprehensive Vedic Kundali with all traditional elements has been generated!", "आपकी संपूर्ण वैदिक कुंडली सभी पारंपरिक तत्वों के साथ तैयार हो गई है!")
       });
+      
     } catch (error) {
       console.error('❌ Error generating comprehensive Kundali:', error);
+      
+      // Enhanced error messaging
+      let errorMessage = 'Unknown error occurred';
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      
       toast({
         title: getTranslation("Error", "त्रुटि"),
         description: getTranslation(
-          `There was an error generating your Kundali: ${error instanceof Error ? error.message : 'Unknown error'}. Please verify your birth details and try again.`, 
-          `कुंडली बनाने में त्रुटि हुई है: ${error instanceof Error ? error.message : 'अज्ञात त्रुटि'}। कृपया अपने जन्म विवरण की जांच करें और पुनः प्रयास करें।`
+          `There was an error generating your Kundali: ${errorMessage}. Please verify your birth details and try again.`, 
+          `कुंडली बनाने में त्रुटि हुई है: ${errorMessage}। कृपया अपने जन्म विवरण की जांच करें और पुनः प्रयास करें।`
         ),
         variant: "destructive"
       });
