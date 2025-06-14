@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,7 +8,8 @@ import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { calculateNumerologyProfile, checkCompatibility, NumerologyProfile } from '@/lib/numerologyUtils';
 import CompatibilityChecker from './CompatibilityChecker';
-import { AlertCircle, Star, Heart, Shield, Gem, BookOpen } from 'lucide-react';
+import NumerologyInsights from './NumerologyInsights';
+import { AlertCircle, Star, Heart, Shield, Gem, BookOpen, Lightbulb } from 'lucide-react';
 
 interface NumerologyCalculatorProps {
   language: 'hi' | 'en';
@@ -71,14 +71,29 @@ const NumerologyCalculator: React.FC<NumerologyCalculatorProps> = ({ language })
       </Card>
 
       {profile && (
-        <Tabs defaultValue="core" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-5">
+        <Tabs defaultValue="insights" className="w-full">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-6">
+            <TabsTrigger value="insights">{getText("अंतर्दृष्टि", "Insights")}</TabsTrigger>
             <TabsTrigger value="core">{getText("मुख्य", "Core")}</TabsTrigger>
             <TabsTrigger value="personality">{getText("व्यक्तित्व", "Personality")}</TabsTrigger>
             <TabsTrigger value="karmic">{getText("कर्मिक", "Karmic")}</TabsTrigger>
             <TabsTrigger value="remedies">{getText("उपाय", "Remedies")}</TabsTrigger>
             <TabsTrigger value="compatibility">{getText("संगतता", "Compatibility")}</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="insights" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-blue-600 flex items-center gap-2">
+                  <Lightbulb className="h-5 w-5" />
+                  {getText("व्यक्तिगत मार्गदर्शन और अंतर्दृष्टि", "Personal Guidance & Insights")}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <NumerologyInsights profile={profile} language={language} />
+              </CardContent>
+            </Card>
+          </TabsContent>
 
           <TabsContent value="core" className="space-y-4">
             <Card>
