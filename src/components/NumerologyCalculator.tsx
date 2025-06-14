@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -18,9 +17,6 @@ const NumerologyCalculator: React.FC<NumerologyCalculatorProps> = ({ language })
   const [name, setName] = useState('');
   const [birthDate, setBirthDate] = useState('');
   const [profile, setProfile] = useState<NumerologyProfile | null>(null);
-  const [partnerName, setPartnerName] = useState('');
-  const [partnerBirthDate, setPartnerBirthDate] = useState('');
-  const [compatibility, setCompatibility] = useState<any>(null);
 
   const handleCalculate = () => {
     if (!name || !birthDate) return;
@@ -28,15 +24,6 @@ const NumerologyCalculator: React.FC<NumerologyCalculatorProps> = ({ language })
     const date = new Date(birthDate);
     const numerologyProfile = calculateNumerologyProfile(name, date);
     setProfile(numerologyProfile);
-  };
-
-  const handleCompatibilityCheck = () => {
-    if (!profile || !partnerName || !partnerBirthDate) return;
-    
-    const partnerDate = new Date(partnerBirthDate);
-    const partnerProfile = calculateNumerologyProfile(partnerName, partnerDate);
-    const compatibilityResult = checkCompatibility(profile, partnerProfile);
-    setCompatibility(compatibilityResult);
   };
 
   const getText = (hi: string, en: string) => language === 'hi' ? hi : en;
@@ -431,69 +418,11 @@ const NumerologyCalculator: React.FC<NumerologyCalculatorProps> = ({ language })
           </TabsContent>
 
           <TabsContent value="compatibility" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-pink-600">
-                  {getText("संगतता जांच", "Compatibility Check")}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="partnerName">
-                      {getText("साथी का नाम", "Partner's Name")}
-                    </Label>
-                    <Input
-                      id="partnerName"
-                      value={partnerName}
-                      onChange={(e) => setPartnerName(e.target.value)}
-                      placeholder={getText("साथी का नाम दर्ज करें", "Enter partner's name")}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="partnerBirthDate">
-                      {getText("साथी की जन्म तिथि", "Partner's Birth Date")}
-                    </Label>
-                    <Input
-                      id="partnerBirthDate"
-                      type="date"
-                      value={partnerBirthDate}
-                      onChange={(e) => setPartnerBirthDate(e.target.value)}
-                    />
-                  </div>
-                </div>
-                <Button onClick={handleCompatibilityCheck} className="w-full">
-                  {getText("संगतता जांचें", "Check Compatibility")}
-                </Button>
-
-                {compatibility && (
-                  <div className="mt-4 p-4 bg-pink-50 rounded-lg border border-pink-200">
-                    <div className="text-center">
-                      <div className="text-4xl font-bold text-pink-600 mb-2">
-                        {compatibility.score}%
-                      </div>
-                      <div className="text-lg font-medium text-pink-800 mb-4">
-                        {compatibility.rating}
-                      </div>
-                      <div className="grid grid-cols-2 gap-2 text-sm">
-                        <div className="bg-white p-2 rounded">
-                          {getText("जीवन पथ मैच", "Life Path Match")}: {compatibility.details.lifePathMatch}%
-                        </div>
-                        <div className="bg-white p-2 rounded">
-                          {getText("आत्मा मैच", "Soul Urge Match")}: {compatibility.details.soulUrgeMatch}%
-                        </div>
-                        <div className="bg-white p-2 rounded">
-                          {getText("अभिव्यक्ति मैच", "Expression Match")}: {compatibility.details.expressionMatch}%
-                        </div>
-                        <div className="bg-white p-2 rounded">
-                          {getText("व्यक्तिगत वर्ष", "Personal Year")}: {compatibility.details.personalYearAlignment}%
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+            <CompatibilityChecker 
+              language={language}
+              currentProfile={profile}
+              currentName={name}
+            />
           </TabsContent>
         </Tabs>
       )}
