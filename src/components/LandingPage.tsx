@@ -257,6 +257,29 @@ const LandingPage = () => {
             <AppLogo size="md" className="mr-3" />
             <span className="text-lg md:text-xl font-bold">AyuAstro</span>
           </div>
+          <div className="flex justify-center gap-4 mb-4">
+            <Button 
+              variant="link" 
+              onClick={() => navigate('/about')}
+              className="text-gray-400 hover:text-white p-0 h-auto"
+            >
+              About Us
+            </Button>
+            <Button 
+              variant="link" 
+              onClick={() => navigate('/kundali')}
+              className="text-gray-400 hover:text-white p-0 h-auto"
+            >
+              Kundali
+            </Button>
+            <Button 
+              variant="link" 
+              onClick={() => navigate('/personality-test')}
+              className="text-gray-400 hover:text-white p-0 h-auto"
+            >
+              Personality Test
+            </Button>
+          </div>
           <p className="text-gray-400 text-sm md:text-base">
             © 2025 AyuAstro. All rights reserved.
           </p>
