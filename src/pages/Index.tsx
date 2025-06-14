@@ -255,7 +255,7 @@ const Index = () => {
             </TabsContent>
 
             <TabsContent value="numerology" className="animate-fade-in">
-              <NumerologyCalculator language={language} />
+              <NumerologyCalculator />
             </TabsContent>
 
             <TabsContent value="personality" className="animate-fade-in">

@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 interface LanguageContextType {
@@ -43,7 +44,7 @@ const translations = {
     'personal_guidance_insights': 'Personal Guidance & Insights',
     'core_numbers': 'Core Numbers',
     'life_path': 'Life Path',
-    'your_life_purpose': 'Your life purpose',
+    'life_purpose': 'Your life purpose',
     'expression': 'Expression',
     'natural_talents': 'Natural talents',
     'soul_urge': 'Soul Urge',
@@ -81,8 +82,7 @@ const translations = {
     'well_balanced_structure': 'Your number structure is well balanced',
     
     // Numerology Insights
-    'your_life_purpose': 'Your Life Purpose',
-    'your_main_purpose': 'Your Main Purpose',
+    'main_purpose': 'Your Main Purpose',
     'your_strengths': 'Your Strengths',
     'challenges_to_overcome': 'Challenges to Overcome',
     'career_money_guidance': 'Career & Money Guidance',
@@ -181,7 +181,7 @@ const translations = {
     'personal_guidance_insights': 'व्यक्तिगत मार्गदर्शन और अंतर्दृष्टि',
     'core_numbers': 'मुख्य संख्याएं',
     'life_path': 'जीवन पथ',
-    'your_life_purpose': 'आपका जीवन उद्देश्य',
+    'life_purpose': 'आपका जीवन उद्देश्य',
     'expression': 'अभिव्यक्ति',
     'natural_talents': 'प्राकृतिक प्रतिभा',
     'soul_urge': 'आत्मा की इच्छा',
@@ -219,8 +219,7 @@ const translations = {
     'well_balanced_structure': 'आपकी संख्या संरचना संतुलित है',
     
     // Numerology Insights
-    'your_life_purpose': 'आपका जीवन उद्देश्य',
-    'your_main_purpose': 'आपका मुख्य उद्देश्य',
+    'main_purpose': 'आपका मुख्य उद्देश्य',
     'your_strengths': 'आपकी शक्तियां',
     'challenges_to_overcome': 'चुनौतियां',
     'career_money_guidance': 'करियर और पैसा मार्गदर्शन',

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -74,7 +73,7 @@ const NumerologyCalculator: React.FC = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <NumerologyInsights profile={profile} language={language} />
+                <NumerologyInsights profile={profile} />
               </CardContent>
             </Card>
           </TabsContent>
@@ -390,7 +389,7 @@ const NumerologyCalculator: React.FC = () => {
           </TabsContent>
 
           <TabsContent value="compatibility" className="space-y-4">
-            <CompatibilityChecker language={language} currentProfile={profile} currentName={name} />
+            <CompatibilityChecker currentProfile={profile} currentName={name} />
           </TabsContent>
         </Tabs>}
     </div>;
