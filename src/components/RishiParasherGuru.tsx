@@ -35,7 +35,10 @@ const RishiParasherGuru: React.FC<RishiParasherGuruProps> = ({ kundaliData, lang
   };
 
   useEffect(() => {
+    console.log('RishiParasherGuru: Initializing with kundaliData:', kundaliData);
+    
     if (!kundaliData || !kundaliData.enhancedCalculations) {
+      console.log('RishiParasherGuru: No enhanced calculations available');
       const fallbackMessage: Message = {
         id: '1',
         type: 'ai',
@@ -50,35 +53,37 @@ const RishiParasherGuru: React.FC<RishiParasherGuruProps> = ({ kundaliData, lang
 
     const lagna = kundaliData.enhancedCalculations.lagna;
     const planets = kundaliData.enhancedCalculations.planets;
-    const activeYogas = kundaliData.enhancedCalculations.yogas.filter(y => y.isActive);
-    const rahu = planets.RA;
-    const ketu = planets.KE;
+    const activeYogas = kundaliData.enhancedCalculations.yogas?.filter(y => y.isActive) || [];
+    const rahu = planets?.RA;
+    const ketu = planets?.KE;
+    
+    console.log('RishiParasherGuru: Creating welcome message with data:', { lagna, planets, activeYogas });
     
     const welcomeMessage: Message = {
       id: '1',
       type: 'ai',
       content: language === 'hi' 
-        ? `🙏 प्रिय ${kundaliData.birthData.fullName}, आपकी आत्मा से मिलकर कितनी खुशी हुई! मैं हूं महर्षि पराशर, आपका कर्मिक कोच और आध्यात्मिक मित्र।
+        ? `🙏 प्रिय ${kundaliData.birthData?.fullName || 'आत्मा'}, आपकी आत्मा से मिलकर कितनी खुशी हुई! मैं हूं महर्षि पराशर, आपका कर्मिक कोच और आध्यात्मिक मित्र।
 
 आपकी आत्मा की कुंडली देखकर मैं बहुत प्रभावित हूं! 
 
-🌟 आत्मा का पथ: ${lagna.signName} लग्न (${lagna.degree.toFixed(2)}°) - यह आपके जीवन का मुख्य उद्देश्य है
-🌙 मन की यात्रा: चंद्र ${planets.MO.rashiName} में - आपकी भावनात्मक प्रकृति
-☀️ जीवन शक्ति: सूर्य ${planets.SU.rashiName} में - आपकी आत्मा की शक्ति
-⭐ आत्मा का तारा: ${planets.MO.nakshatraName} नक्षत्र - आपका आध्यात्मिक स्वभाव
+🌟 आत्मा का पथ: ${lagna?.signName || 'अज्ञात'} लग्न (${lagna?.degree?.toFixed(2) || '0'}°) - यह आपके जीवन का मुख्य उद्देश्य है
+🌙 मन की यात्रा: चंद्र ${planets?.MO?.rashiName || 'अज्ञात'} में - आपकी भावनात्मक प्रकृति
+☀️ जीवन शक्ति: सूर्य ${planets?.SU?.rashiName || 'अज्ञात'} में - आपकी आत्मा की शक्ति
+⭐ आत्मा का तारा: ${planets?.MO?.nakshatraName || 'अज्ञात'} नक्षत्र - आपका आध्यात्मिक स्वभाव
 🔮 भविष्य कर्म: राहु ${rahu?.rashiName || 'अज्ञात'} में - इस जन्म में सीखने वाले पाठ
 🕉️ पूर्व कर्म: केतु ${ketu?.rashiName || 'अज्ञात'} में - पिछले जन्म की दिव्यता
 🎯 ${activeYogas.length} शुभ योग सक्रिय - आपकी आत्मिक शक्तियां
 
 अब बताइए प्रिय आत्मा, आप अपनी कर्मिक यात्रा के बारे में क्या जानना चाहते हैं? पूर्व जन्म के कर्म, वर्तमान जीवन के पाठ, आध्यात्मिक विकास या कर्मिक रिश्ते - कुछ भी पूछिए! मैं आपकी आत्मा के साथ हूं। 💫`
-        : `🙏 Dear soul ${kundaliData.birthData.fullName}, what a joy it is to meet your beautiful spirit! I am Maharishi Parashar, your karmic coach and spiritual friend.
+        : `🙏 Dear soul ${kundaliData.birthData?.fullName || 'friend'}, what a joy it is to meet your beautiful spirit! I am Maharishi Parashar, your karmic coach and spiritual friend.
 
 Looking at your soul's birth chart, I am deeply moved! 
 
-🌟 Soul's Path: ${lagna.signName} ascendant (${lagna.degree.toFixed(2)}°) - this is your life's main purpose
-🌙 Mind's Journey: Moon in ${planets.MO.rashiName} - your emotional nature
-☀️ Life Force: Sun in ${planets.SU.rashiName} - your soul's power
-⭐ Soul Star: ${planets.MO.nakshatraName} nakshatra - your spiritual nature
+🌟 Soul's Path: ${lagna?.signName || 'Unknown'} ascendant (${lagna?.degree?.toFixed(2) || '0'}°) - this is your life's main purpose
+🌙 Mind's Journey: Moon in ${planets?.MO?.rashiName || 'Unknown'} - your emotional nature
+☀️ Life Force: Sun in ${planets?.SU?.rashiName || 'Unknown'} - your soul's power
+⭐ Soul Star: ${planets?.MO?.nakshatraName || 'Unknown'} nakshatra - your spiritual nature
 🔮 Future Karma: Rahu in ${rahu?.rashiName || 'Unknown'} - lessons to learn in this birth
 🕉️ Past Karma: Ketu in ${ketu?.rashiName || 'Unknown'} - divinity from previous births
 🎯 ${activeYogas.length} beneficial yogas active - your spiritual powers
@@ -98,6 +103,8 @@ Now tell me dear soul, what would you like to know about your karmic journey? Pa
   const handleSendMessage = async () => {
     if (!inputValue.trim() || isLoading) return;
 
+    console.log('RishiParasherGuru: Sending message:', inputValue);
+
     const userMessage: Message = {
       id: Date.now().toString(),
       type: 'user',
@@ -114,6 +121,8 @@ Now tell me dear soul, what would you like to know about your karmic journey? Pa
         throw new Error('No birth chart data available');
       }
       
+      console.log('RishiParasherGuru: Calling edge function with data:', kundaliData);
+      
       const { data, error } = await supabase.functions.invoke('kundali-ai-analysis', {
         body: {
           kundaliData,
@@ -122,7 +131,12 @@ Now tell me dear soul, what would you like to know about your karmic journey? Pa
         }
       });
 
-      if (error) throw error;
+      console.log('RishiParasherGuru: Edge function response:', { data, error });
+
+      if (error) {
+        console.error('RishiParasherGuru: Edge function error:', error);
+        throw error;
+      }
 
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
@@ -133,15 +147,20 @@ Now tell me dear soul, what would you like to know about your karmic journey? Pa
 
       setMessages(prev => [...prev, aiMessage]);
 
-      await supabase.from('rishi_parasher_conversations').insert({
-        user_question: inputValue,
-        rishi_response: data.analysis,
-        kundali_context: kundaliData as unknown as Json,
-        session_id: `karmic_session_${Date.now()}`
-      });
+      // Store conversation in database
+      try {
+        await supabase.from('rishi_parasher_conversations').insert({
+          user_question: inputValue,
+          rishi_response: data.analysis,
+          kundali_context: kundaliData as unknown as Json,
+          session_id: `karmic_session_${Date.now()}`
+        });
+      } catch (dbError) {
+        console.warn('RishiParasherGuru: Failed to store conversation:', dbError);
+      }
 
     } catch (error) {
-      console.error('Error getting karmic guidance:', error);
+      console.error('RishiParasherGuru: Error getting karmic guidance:', error);
       
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),

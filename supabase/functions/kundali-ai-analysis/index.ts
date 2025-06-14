@@ -17,6 +17,13 @@ serve(async (req) => {
   try {
     const { kundaliData, userQuery, language = 'en' } = await req.json();
 
+    console.log('Edge Function: Received request with data:', {
+      hasKundaliData: !!kundaliData,
+      userQuery,
+      language,
+      kundaliDataKeys: kundaliData ? Object.keys(kundaliData) : []
+    });
+
     if (!GEMINI_API_KEY) {
       console.error('GEMINI_API_KEY not found in environment variables');
       throw new Error('Gemini API key not configured');
@@ -29,32 +36,40 @@ serve(async (req) => {
     console.log('Processing karmic coaching query:', userQuery);
     console.log('Language:', language);
 
-    // Extract key information from kundali data
-    const birthData = kundaliData.birthData;
-    const calculations = kundaliData.enhancedCalculations || kundaliData.calculations;
-    const interpretations = kundaliData.interpretations;
+    // Extract key information from kundali data with safe fallbacks
+    const birthData = kundaliData.birthData || {};
+    const calculations = kundaliData.enhancedCalculations || kundaliData.calculations || {};
+    const interpretations = kundaliData.interpretations || {};
 
-    // Prepare focused context for karmic coaching
+    console.log('Extracted data:', {
+      birthData: Object.keys(birthData),
+      calculations: Object.keys(calculations),
+      interpretations: Object.keys(interpretations)
+    });
+
+    // Prepare focused context for karmic coaching with safe property access
     const kundaliContext = `
 SOUL'S BIRTH CHART DETAILS:
-Name: ${birthData.fullName || birthData.name}
-Birth: ${birthData.date} at ${birthData.time}, ${birthData.place}
+Name: ${birthData.fullName || birthData.name || 'Dear Soul'}
+Birth: ${birthData.date || 'Unknown date'} at ${birthData.time || 'Unknown time'}, ${birthData.place || 'Unknown place'}
 
 KARMIC INDICATORS:
-- Soul's Path (Lagna): ${calculations.lagna?.signName || calculations.lagna?.rashiName}
-- Moon's Karmic Position: ${calculations.planets?.MO?.rashiName || calculations.planets?.Moon?.rashiName}
-- Sun's Life Purpose: ${calculations.planets?.SU?.rashiName || calculations.planets?.Sun?.rashiName}
-- Soul Star (Nakshatra): ${calculations.planets?.MO?.nakshatraName || calculations.planets?.Moon?.nakshatraName}
-- Rahu (Future Karma): ${calculations.planets?.RA?.rashiName || 'Not specified'}
-- Ketu (Past Life): ${calculations.planets?.KE?.rashiName || 'Not specified'}
+- Soul's Path (Lagna): ${calculations.lagna?.signName || calculations.lagna?.rashiName || 'Unknown'}
+- Moon's Karmic Position: ${calculations.planets?.MO?.rashiName || calculations.planets?.Moon?.rashiName || 'Unknown'}
+- Sun's Life Purpose: ${calculations.planets?.SU?.rashiName || calculations.planets?.Sun?.rashiName || 'Unknown'}
+- Soul Star (Nakshatra): ${calculations.planets?.MO?.nakshatraName || calculations.planets?.Moon?.nakshatraName || 'Unknown'}
+- Rahu (Future Karma): ${calculations.planets?.RA?.rashiName || calculations.planets?.Rahu?.rashiName || 'Unknown'}
+- Ketu (Past Life): ${calculations.planets?.KE?.rashiName || calculations.planets?.Ketu?.rashiName || 'Unknown'}
 
-ACTIVE SPIRITUAL YOGAS: ${calculations.yogas?.filter((y) => y.isActive || y.present).map((y) => y.name).join(', ') || 'None'}
+ACTIVE SPIRITUAL YOGAS: ${calculations.yogas?.filter((y) => y.isActive || y.present)?.map((y) => y.name)?.join(', ') || 'Developing'}
 
 CURRENT LIFE PHASE: ${calculations.dashas?.find(d => d.isActive)?.planet || 'Transition period'}
 
-SOUL STRENGTHS: ${interpretations?.personality?.strengths?.slice(0, 3).join(', ') || 'Developing'}
-KARMIC LESSONS: ${interpretations?.personality?.challenges?.slice(0, 2).join(', ') || 'Learning'}
+SOUL STRENGTHS: ${interpretations.personality?.strengths?.slice(0, 3)?.join(', ') || 'Developing'}
+KARMIC LESSONS: ${interpretations.personality?.challenges?.slice(0, 2)?.join(', ') || 'Learning'}
 `;
+
+    console.log('Prepared kundali context:', kundaliContext);
 
     const systemPrompt = language === 'hi' 
       ? `आप महर्षि पराशर हैं - कर्मिक कोच और आध्यात्मिक मार्गदर्शक। आप एक प्रेमी दोस्त की तरह अपने शिष्यों की आत्मा से बात करते हैं।
