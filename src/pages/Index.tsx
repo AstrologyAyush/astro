@@ -36,7 +36,7 @@ const Index = () => {
   const handleKundaliGeneration = async (birthData: any) => {
     setIsLoading(true);
     try {
-      console.log('🚀 Starting precise Vedic Kundali generation...');
+      console.log('🚀 Starting comprehensive Vedic Kundali generation...');
       const enhancedBirthData: EnhancedBirthData = {
         fullName: birthData.name,
         date: birthData.dateOfBirth,
@@ -50,53 +50,35 @@ const Index = () => {
       // Show detailed loading progress
       toast({
         title: getTranslation("Processing", "प्रसंस्करण"),
-        description: getTranslation("Calculating planetary positions with Swiss Ephemeris precision...", "Swiss Ephemeris सटीकता के साथ ग्रहों की स्थिति की गणना की जा रही है...")
+        description: getTranslation("Calculating comprehensive astrological analysis...", "व्यापक ज्योतिषीय विश्लेषण की गणना की जा रही है...")
       });
 
-      // Enhanced loading time for Swiss Ephemeris-level calculations
+      // Enhanced loading time for comprehensive calculations
       await new Promise(resolve => setTimeout(resolve, 3000));
 
-      // Generate comprehensive Kundali with maximum accuracy
-      console.log('🔯 Generating precise Vedic calculations...');
+      // Generate comprehensive Kundali with all traditional elements
+      console.log('🔯 Generating comprehensive Vedic calculations...');
       const result = generateAdvancedKundali(enhancedBirthData);
 
-      // Enhanced yoga validation - only strong yogas marked as active
-      if (result.enhancedCalculations.yogas) {
-        result.enhancedCalculations.yogas = result.enhancedCalculations.yogas.map(yoga => ({
-          ...yoga,
-          isActive: yoga.strength > 75 && yoga.isActive // Higher threshold for accuracy
-        }));
-      }
       setKundaliData(result);
-
-      // Get enhanced Gemini analysis
-      toast({
-        title: getTranslation("Enhancing Analysis", "विश्लेषण बढ़ाया जा रहा है"),
-        description: getTranslation("Getting AI-powered detailed predictions...", "AI-संचालित विस्तृत भविष्यवाणी प्राप्त की जा रही है...")
-      });
-
-      // Note: Gemini analysis will be integrated when API key is available
-      console.log('🤖 Gemini analysis integration ready for API key configuration');
 
       // Save to Supabase with enhanced error handling
       try {
-        const kundaliId = await saveEnhancedKundali(enhancedBirthData, result as any,
-        // Type conversion for compatibility
-        undefined // Gemini analysis placeholder
-        );
+        const kundaliId = await saveEnhancedKundali(enhancedBirthData, result as any, undefined);
         if (kundaliId) {
-          console.log('💾 Enhanced Kundali saved to Supabase:', kundaliId);
+          console.log('💾 Comprehensive Kundali saved to Supabase:', kundaliId);
         }
       } catch (saveError) {
         console.error('Error saving Kundali:', saveError);
         // Don't fail the whole process if saving fails
       }
+      
       toast({
         title: getTranslation("Success", "सफलता"),
-        description: getTranslation("Your precision Vedic Kundali has been generated with maximum astronomical accuracy!", "आपकी सटीक वैदिक कुंडली अधिकतम खगोलीय सटीकता के साथ तैयार हो गई है!")
+        description: getTranslation("Your comprehensive Vedic Kundali with all traditional elements has been generated!", "आपकी संपूर्ण वैदिक कुंडली सभी पारंपरिक तत्वों के साथ तैयार हो गई है!")
       });
     } catch (error) {
-      console.error('❌ Error generating enhanced Kundali:', error);
+      console.error('❌ Error generating comprehensive Kundali:', error);
       toast({
         title: getTranslation("Error", "त्रुटि"),
         description: getTranslation("There was an error generating your Kundali. Please verify your birth details and try again.", "कुंडली बनाने में त्रुटि हुई है। कृपया अपने जन्म विवरण की जांच करें और पुनः प्रयास करें।"),
