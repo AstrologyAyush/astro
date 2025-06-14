@@ -15,32 +15,32 @@ const LandingPage = () => {
 
   const features = [
     {
-      icon: <Star className="h-5 w-5 text-orange-500 flex-shrink-0" />,
+      icon: <Star className="h-4 w-4 text-orange-500 flex-shrink-0" />,
       title: "Detailed Birth Chart Analysis",
       description: "Complete planetary positions, houses, and their influences on your life"
     },
     {
-      icon: <TrendingUp className="h-5 w-5 text-blue-500 flex-shrink-0" />,
+      icon: <TrendingUp className="h-4 w-4 text-blue-500 flex-shrink-0" />,
       title: "Life Predictions by Age Groups",
       description: "Detailed insights for different life phases: 0-14, 15-30, 31-45, 46-60, 60+"
     },
     {
-      icon: <Heart className="h-5 w-5 text-pink-500 flex-shrink-0" />,
+      icon: <Heart className="h-4 w-4 text-pink-500 flex-shrink-0" />,
       title: "Relationship Compatibility", 
       description: "Marriage timing, partner characteristics, and compatibility analysis"
     },
     {
-      icon: <Sparkles className="h-5 w-5 text-purple-500 flex-shrink-0" />,
+      icon: <Sparkles className="h-4 w-4 text-purple-500 flex-shrink-0" />,
       title: "AI-Powered Maharishi Parashar",
       description: "Chat with our AI sage for personalized guidance and remedies"
     },
     {
-      icon: <Users className="h-5 w-5 text-green-500 flex-shrink-0" />,
+      icon: <Users className="h-4 w-4 text-green-500 flex-shrink-0" />,
       title: "Personality Analysis",
       description: "Discover your true nature through our advanced personality test"
     },
     {
-      icon: <Gift className="h-5 w-5 text-red-500 flex-shrink-0" />,
+      icon: <Gift className="h-4 w-4 text-red-500 flex-shrink-0" />,
       title: "Daily Horoscope",
       description: "Personalized daily insights based on your birth chart"
     }
@@ -63,25 +63,25 @@ const LandingPage = () => {
       {/* Hero Section */}
       <div className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-orange-600/10 to-red-600/10"></div>
-        <div className="relative px-3 sm:px-4 md:px-6 lg:px-8 pt-4 sm:pt-8 lg:pt-12 pb-6 sm:pb-12 lg:pb-16">
+        <div className="relative px-4 pt-6 pb-8 sm:px-6 sm:pt-8 sm:pb-12 lg:px-8 lg:pt-12 lg:pb-16">
           <div className="max-w-4xl mx-auto text-center">
-            <Badge className="mb-3 sm:mb-4 bg-orange-100 text-orange-800 border-orange-200 text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-1.5">
+            <Badge className="mb-3 bg-orange-100 text-orange-800 border-orange-200 text-xs px-2 py-1">
               ✨ Completely FREE - Limited Time Launch Offer
             </Badge>
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-3 sm:mb-4 md:mb-6 leading-tight px-2">
+            <h1 className="text-xl font-bold text-gray-900 mb-2 leading-tight sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl">
               Discover Your Destiny with
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-red-600 block mt-1 sm:mt-2"> AyushAstro</span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-red-600 block mt-1"> AyushAstro</span>
             </h1>
-            <p className="text-base sm:text-lg md:text-xl text-gray-600 mb-4 sm:mb-6 md:mb-8 max-w-3xl mx-auto px-3 leading-relaxed">
+            <p className="text-sm text-gray-600 mb-4 max-w-3xl mx-auto leading-relaxed sm:text-base md:text-lg lg:text-xl">
               Get your complete Vedic astrology analysis with detailed life predictions, 
               personality insights, and AI-powered guidance - absolutely FREE!
             </p>
             
-            <div className="flex flex-col gap-3 justify-center mb-6 sm:mb-8 md:mb-12 px-3 max-w-sm mx-auto">
+            <div className="flex flex-col gap-2 justify-center mb-6 max-w-xs mx-auto sm:max-w-sm sm:gap-3 sm:mb-8 md:mb-12">
               <Button 
                 size="lg"
                 onClick={() => navigate('/kundali')}
-                className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-semibold min-h-[48px] w-full rounded-lg"
+                className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white px-4 py-3 text-sm font-semibold min-h-[44px] w-full rounded-lg sm:px-6 sm:py-4 sm:text-base"
               >
                 Generate Free Kundali
               </Button>
@@ -89,13 +89,13 @@ const LandingPage = () => {
                 variant="outline" 
                 size="lg"
                 onClick={() => navigate('/personality-test')}
-                className="border-orange-600 text-orange-600 hover:bg-orange-50 px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-semibold min-h-[48px] w-full rounded-lg"
+                className="border-orange-600 text-orange-600 hover:bg-orange-50 px-4 py-3 text-sm font-semibold min-h-[44px] w-full rounded-lg sm:px-6 sm:py-4 sm:text-base"
               >
                 Take Personality Test
               </Button>
             </div>
 
-            <div className="max-w-xs sm:max-w-sm mx-auto mb-6 sm:mb-8 md:mb-12 px-3">
+            <div className="max-w-xs mx-auto mb-6 sm:max-w-sm sm:mb-8 md:mb-12">
               <CountdownTimer />
             </div>
           </div>
@@ -103,28 +103,28 @@ const LandingPage = () => {
       </div>
 
       {/* Features Section */}
-      <div className="py-8 sm:py-12 md:py-16 lg:py-20 px-3 sm:px-4 md:px-6 lg:px-8">
+      <div className="py-8 px-4 sm:py-12 sm:px-6 md:py-16 lg:py-20 lg:px-8">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-8 sm:mb-12 md:mb-16 px-2">
-            <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-3 sm:mb-4 md:mb-6 leading-tight">
+          <div className="text-center mb-8 sm:mb-12 md:mb-16">
+            <h2 className="text-lg font-bold text-gray-900 mb-3 leading-tight sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl">
               Complete Astrology Solutions
             </h2>
-            <p className="text-base sm:text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
+            <p className="text-sm text-gray-600 max-w-2xl mx-auto sm:text-base md:text-lg lg:text-xl">
               Everything you need to understand your cosmic blueprint
             </p>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 md:gap-8">
             {features.map((feature, index) => (
               <Card key={index} className="border-gray-200 hover:shadow-lg transition-all duration-300 hover:border-orange-200">
-                <CardHeader className="pb-2 sm:pb-3 px-3 sm:px-4 md:px-6">
-                  <div className="flex items-start gap-2 sm:gap-3 mb-1 sm:mb-2">
+                <CardHeader className="pb-2 px-4 sm:pb-3 sm:px-6">
+                  <div className="flex items-start gap-2 mb-1 sm:gap-3 sm:mb-2">
                     {feature.icon}
-                    <CardTitle className="text-sm sm:text-base md:text-lg text-gray-900 leading-tight flex-1">{feature.title}</CardTitle>
+                    <CardTitle className="text-sm text-gray-900 leading-tight flex-1 sm:text-base md:text-lg">{feature.title}</CardTitle>
                   </div>
                 </CardHeader>
-                <CardContent className="pt-0 px-3 sm:px-4 md:px-6">
-                  <p className="text-sm sm:text-base text-gray-600 leading-relaxed">{feature.description}</p>
+                <CardContent className="pt-0 px-4 sm:px-6">
+                  <p className="text-xs text-gray-600 leading-relaxed sm:text-sm md:text-base">{feature.description}</p>
                 </CardContent>
               </Card>
             ))}
@@ -133,22 +133,22 @@ const LandingPage = () => {
       </div>
 
       {/* What You Get Section */}
-      <div className="py-8 sm:py-12 md:py-16 lg:py-20 px-3 sm:px-4 md:px-6 lg:px-8 bg-gradient-to-r from-orange-50 to-red-50">
+      <div className="py-8 px-4 bg-gradient-to-r from-orange-50 to-red-50 sm:py-12 sm:px-6 md:py-16 lg:py-20 lg:px-8">
         <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-8 sm:mb-12 md:mb-16 px-2">
-            <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-3 sm:mb-4 md:mb-6 leading-tight">
+          <div className="text-center mb-8 sm:mb-12 md:mb-16">
+            <h2 className="text-lg font-bold text-gray-900 mb-3 leading-tight sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl">
               What's Included in Your FREE Analysis
             </h2>
-            <p className="text-base sm:text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
+            <p className="text-sm text-gray-600 max-w-2xl mx-auto sm:text-base md:text-lg lg:text-xl">
               Get comprehensive insights worth thousands of rupees - completely free
             </p>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 md:gap-6 px-2">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 sm:gap-3 md:gap-6">
             {benefits.map((benefit, index) => (
-              <div key={index} className="flex items-start gap-2 sm:gap-3 py-2 sm:py-3">
-                <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-green-600 mt-0.5 flex-shrink-0" />
-                <span className="text-sm sm:text-base text-gray-700 leading-relaxed">{benefit}</span>
+              <div key={index} className="flex items-start gap-2 py-2 sm:gap-3 sm:py-3">
+                <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0 sm:h-5 sm:w-5" />
+                <span className="text-xs text-gray-700 leading-relaxed sm:text-sm md:text-base">{benefit}</span>
               </div>
             ))}
           </div>
@@ -156,26 +156,26 @@ const LandingPage = () => {
       </div>
 
       {/* CTA Section */}
-      <div className="py-8 sm:py-12 md:py-16 lg:py-20 px-3 sm:px-4 md:px-6 lg:px-8">
+      <div className="py-8 px-4 sm:py-12 sm:px-6 md:py-16 lg:py-20 lg:px-8">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-3 sm:mb-4 md:mb-6 leading-tight px-2">
+          <h2 className="text-lg font-bold text-gray-900 mb-3 leading-tight sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl">
             Ready to Unlock Your Cosmic Secrets?
           </h2>
-          <p className="text-base sm:text-lg md:text-xl text-gray-600 mb-6 sm:mb-8 md:mb-10 px-2 max-w-2xl mx-auto">
+          <p className="text-sm text-gray-600 mb-6 max-w-2xl mx-auto sm:text-base sm:mb-8 md:text-lg md:mb-10 lg:text-xl">
             Join thousands who have discovered their true potential through Vedic astrology
           </p>
           
-          <div className="px-3 max-w-sm mx-auto">
+          <div className="max-w-xs mx-auto sm:max-w-sm">
             <Button 
               size="lg"
               onClick={() => navigate('/kundali')}
-              className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold min-h-[48px] w-full rounded-lg"
+              className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white px-6 py-3 text-sm font-semibold min-h-[44px] w-full rounded-lg sm:px-8 sm:py-4 sm:text-base lg:text-lg"
             >
               Start Your Free Analysis Now
             </Button>
           </div>
           
-          <p className="text-xs sm:text-sm text-gray-500 mt-3 sm:mt-4 md:mt-6 px-2">
+          <p className="text-xs text-gray-500 mt-3 sm:text-sm sm:mt-4 md:mt-6">
             No payment required • No hidden charges • Complete analysis in minutes
           </p>
         </div>
