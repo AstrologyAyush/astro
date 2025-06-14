@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -6,27 +5,45 @@ import { Crown, Target, Star, Play, CheckCircle, Clock, Users, Sparkles, Brain, 
 import { useNavigate } from 'react-router-dom';
 import AppLogo from './AppLogo';
 import { useLanguage } from '@/contexts/LanguageContext';
-
 const LandingPage = () => {
   const navigate = useNavigate();
-  const { t } = useLanguage();
-  const [timeLeft, setTimeLeft] = useState({ hours: 6, minutes: 21, seconds: 0 });
-
+  const {
+    t
+  } = useLanguage();
+  const [timeLeft, setTimeLeft] = useState({
+    hours: 6,
+    minutes: 21,
+    seconds: 0
+  });
   useEffect(() => {
     const timer = setInterval(() => {
       setTimeLeft(prev => {
         if (prev.seconds > 0) {
-          return { ...prev, seconds: prev.seconds - 1 };
+          return {
+            ...prev,
+            seconds: prev.seconds - 1
+          };
         } else if (prev.minutes > 0) {
-          return { ...prev, minutes: prev.minutes - 1, seconds: 59 };
+          return {
+            ...prev,
+            minutes: prev.minutes - 1,
+            seconds: 59
+          };
         } else if (prev.hours > 0) {
-          return { hours: prev.hours - 1, minutes: 59, seconds: 59 };
+          return {
+            hours: prev.hours - 1,
+            minutes: 59,
+            seconds: 59
+          };
         } else {
-          return { hours: 6, minutes: 21, seconds: 0 }; // Reset timer
+          return {
+            hours: 6,
+            minutes: 21,
+            seconds: 0
+          }; // Reset timer
         }
       });
     }, 1000);
-
     return () => clearInterval(timer);
   }, []);
 
@@ -34,21 +51,16 @@ const LandingPage = () => {
   const handleGetStarted = () => {
     navigate('/kundali');
   };
-
   const handlePersonalityTest = () => {
     navigate('/personality-test');
   };
-
   const handleDailyHoroscope = () => {
     navigate('/daily-horoscope');
   };
-
   const handleKundaliGeneration = () => {
     navigate('/kundali');
   };
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+  return <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       {/* Hero Section */}
       <section className="container mx-auto px-4 py-8 md:py-16 text-center">
         <div className="flex items-center justify-center mb-6 md:mb-8">
@@ -76,10 +88,7 @@ const LandingPage = () => {
 
         {/* Main CTA Buttons */}
         <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center mb-6 md:mb-8 px-4 max-w-4xl mx-auto">
-          <Button 
-            onClick={handleKundaliGeneration}
-            className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white text-sm md:text-lg px-6 md:px-8 py-3 md:py-4 rounded-full shadow-lg flex-1 max-w-sm mx-auto sm:mx-0"
-          >
+          <Button onClick={handleKundaliGeneration} className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white text-sm md:text-lg px-6 md:px-8 py-3 md:py-4 rounded-full shadow-lg flex-1 max-w-sm mx-auto sm:mx-0">
             <Play className="mr-2 h-4 w-4 md:h-5 md:w-5" />
             Get Your Free Astro Report in 60 Seconds
           </Button>
@@ -87,29 +96,17 @@ const LandingPage = () => {
 
         {/* Feature Navigation Buttons */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 max-w-4xl mx-auto mb-6 md:mb-8 px-4">
-          <Button 
-            onClick={handlePersonalityTest}
-            variant="outline"
-            className="border-2 border-purple-500 text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/20 text-sm md:text-base px-4 md:px-6 py-3 md:py-4 rounded-xl"
-          >
+          <Button onClick={handlePersonalityTest} variant="outline" className="border-2 border-purple-500 text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/20 text-sm md:text-base px-4 md:px-6 py-3 md:py-4 rounded-xl">
             <Brain className="mr-2 h-4 w-4 md:h-5 md:w-5" />
             {t('personality_test') || 'Vedic Personality Test'}
           </Button>
           
-          <Button 
-            onClick={handleDailyHoroscope}
-            variant="outline"
-            className="border-2 border-blue-500 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-sm md:text-base px-4 md:px-6 py-3 md:py-4 rounded-xl"
-          >
+          <Button onClick={handleDailyHoroscope} variant="outline" className="border-2 border-blue-500 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-sm md:text-base px-4 md:px-6 py-3 md:py-4 rounded-xl">
             <Calendar className="mr-2 h-4 w-4 md:h-5 md:w-5" />
             {t('daily_horoscope') || 'Daily Horoscope'}
           </Button>
           
-          <Button 
-            onClick={handleGetStarted}
-            variant="outline"
-            className="border-2 border-green-500 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 text-sm md:text-base px-4 md:px-6 py-3 md:py-4 rounded-xl sm:col-span-2 lg:col-span-1"
-          >
+          <Button onClick={handleGetStarted} variant="outline" className="border-2 border-green-500 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 text-sm md:text-base px-4 md:px-6 py-3 md:py-4 rounded-xl sm:col-span-2 lg:col-span-1">
             <Crown className="mr-2 h-4 w-4 md:h-5 md:w-5" />
             Swiss Ephemeris Kundali
           </Button>
@@ -224,10 +221,7 @@ const LandingPage = () => {
             </div>
           </div>
 
-          <Button 
-            onClick={handleKundaliGeneration}
-            className="bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white text-lg md:text-xl px-8 md:px-10 py-3 md:py-4 rounded-full shadow-lg"
-          >
+          <Button onClick={handleKundaliGeneration} className="bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white text-lg md:text-xl px-8 md:px-10 py-3 md:py-4 rounded-full shadow-lg">
             Unlock My Vedic Report
           </Button>
         </div>
@@ -241,18 +235,11 @@ const LandingPage = () => {
           </h2>
           
           <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center mb-6 max-w-4xl mx-auto">
-            <Button 
-              onClick={handleKundaliGeneration}
-              className="bg-white text-orange-600 hover:bg-gray-100 text-lg md:text-xl px-8 md:px-10 py-3 md:py-4 rounded-full shadow-lg"
-            >
+            <Button onClick={handleKundaliGeneration} className="bg-white text-orange-600 hover:bg-gray-100 md:text-xl px-8 md:px-10 py-3 md:py-4 rounded-full shadow-lg mx-px text-base">
               Get Your Free Report – See What's Ahead
             </Button>
             
-            <Button 
-              onClick={handlePersonalityTest}
-              variant="outline"
-              className="border-2 border-white text-white hover:bg-white hover:text-orange-600 text-lg md:text-xl px-8 md:px-10 py-3 md:py-4 rounded-full"
-            >
+            <Button onClick={handlePersonalityTest} variant="outline" className="border-2 border-white hover:bg-white text-lg md:text-xl px-8 md:px-10 py-3 md:py-4 rounded-full text-red-500">
               Take Personality Test
             </Button>
           </div>
@@ -275,8 +262,6 @@ const LandingPage = () => {
           </p>
         </div>
       </footer>
-    </div>
-  );
+    </div>;
 };
-
 export default LandingPage;
