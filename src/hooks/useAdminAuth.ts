@@ -12,6 +12,17 @@ interface AdminAuthState {
   isLoading: boolean;
 }
 
+// For now, we'll use a simple email-based admin check
+// In production, you should use proper role management
+const ADMIN_EMAILS = [
+  'admin@yourdomain.com', // Replace with actual admin email
+  'owner@yourdomain.com'  // Replace with actual owner email
+];
+
+const STAFF_EMAILS = [
+  'staff@yourdomain.com'  // Replace with actual staff emails
+];
+
 export const useAdminAuth = (): AdminAuthState => {
   const [state, setState] = useState<AdminAuthState>({
     user: null,
@@ -40,27 +51,16 @@ export const useAdminAuth = (): AdminAuthState => {
           return;
         }
 
-        // Check user role
-        const { data: roleData, error: roleError } = await supabase
-          .from('user_roles')
-          .select('role')
-          .eq('user_id', user.id)
-          .maybeSingle();
-
-        if (roleError) {
-          console.error('Error fetching user role:', roleError);
-          if (mounted) {
-            setState({
-              user,
-              userRole: 'user',
-              isAdmin: false,
-              isLoading: false,
-            });
-          }
-          return;
+        // Check user role based on email
+        // TODO: Replace this with proper role checking once user_roles table is working
+        let userRole: UserRole = 'user';
+        
+        if (user.email && ADMIN_EMAILS.includes(user.email)) {
+          userRole = 'owner';
+        } else if (user.email && STAFF_EMAILS.includes(user.email)) {
+          userRole = 'staff';
         }
 
-        const userRole: UserRole = roleData?.role || 'user';
         const isAdmin = userRole === 'owner' || userRole === 'staff';
 
         if (mounted) {
