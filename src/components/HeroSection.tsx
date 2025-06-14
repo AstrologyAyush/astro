@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -28,6 +27,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
   };
 
   const handleGetStarted = () => {
+    console.log('Get Started clicked');
     if (onKundaliClick) {
       onKundaliClick();
     } else {
@@ -36,6 +36,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
   };
 
   const handlePersonalityTest = () => {
+    console.log('Personality Test clicked');
     if (onPersonalityClick) {
       onPersonalityClick();
     } else {
@@ -44,6 +45,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
   };
 
   const handleDailyHoroscope = () => {
+    console.log('Daily Horoscope clicked');
     if (onHoroscopeClick) {
       onHoroscopeClick();
     } else {
@@ -52,6 +54,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
   };
 
   const handleTryEngine = () => {
+    console.log('Try Engine clicked');
     if (onKundaliClick) {
       onKundaliClick();
     } else {
