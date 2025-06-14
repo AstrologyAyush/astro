@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { User } from '@supabase/supabase-js';
@@ -46,6 +45,22 @@ const defaultSettings: UserSettings = {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Helper function to track activities
+const trackActivity = async (activityType: string, activityData?: any) => {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await supabase.from('user_activities').insert({
+        user_id: user.id,
+        activity_type: activityType,
+        activity_data: activityData || null,
+      });
+    }
+  } catch (error) {
+    console.error('Error tracking activity:', error);
+  }
+};
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
@@ -68,6 +83,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(session?.user ?? null);
       if (session?.user) {
         await loadUserProfile(session.user);
+        
+        // Track login activity
+        if (event === 'SIGNED_IN') {
+          await trackActivity('login', { timestamp: new Date().toISOString() });
+        }
       } else {
         setUserProfile(null);
         setSettings(defaultSettings);
@@ -140,6 +160,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return false;
       }
 
+      // Track signup activity
+      await trackActivity('signup', { 
+        email, 
+        firstName, 
+        lastName, 
+        timestamp: new Date().toISOString() 
+      });
+
       return true;
     } catch (error) {
       console.error('Signup error:', error);
@@ -175,6 +203,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Update local state since we don't have database tables yet
       const updatedProfile = { ...userProfile, ...profileData };
       setUserProfile(updatedProfile);
+      
+      // Track profile update activity
+      await trackActivity('profile_update', { 
+        changes: Object.keys(profileData),
+        timestamp: new Date().toISOString() 
+      });
+      
       return true;
     } catch (error) {
       console.error('Error updating profile:', error);
@@ -196,6 +231,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       const updatedCharts = [...userProfile.savedCharts, newChart];
       setUserProfile({ ...userProfile, savedCharts: updatedCharts });
+      
+      // Track kundali calculation activity
+      await trackActivity('kundali_calculation', { 
+        chartName: name,
+        birthData: { 
+          location: birthData.location,
+          date: birthData.date 
+        },
+        timestamp: new Date().toISOString() 
+      });
+      
       return true;
     } catch (error) {
       console.error('Error saving kundali:', error);
