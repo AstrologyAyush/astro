@@ -40,8 +40,8 @@ const RishiParasherGuru: React.FC<RishiParasherGuruProps> = ({ kundaliData, lang
         id: '1',
         type: 'ai',
         content: language === 'hi' 
-          ? '🙏 नमस्कार! मैं महर्षि पराशर हूँ। कृपया अपनी जन्मपत्रिका डेटा दर्ज करें ताकि मैं आपको बेहतर मार्गदर्शन दे सकूँ।'
-          : '🙏 Namaste! I am Maharishi Parashar. Please enter your birth chart data so I can provide you with better guidance.',
+          ? '🙏 नमस्कार मित्र! मैं महर्षि पराशर हूँ। मुझसे बात करके बहुत खुशी होगी! पहले आप अपनी जन्मपत्रिका बनवा लें, फिर मैं आपकी बेहतर मदद कर सकूंगा।'
+          : '🙏 Hello dear friend! I am Maharishi Parashar, and I'm so happy to meet you! Please create your birth chart first, then I can help you much better.',
         timestamp: new Date()
       };
       setMessages([fallbackMessage]);
@@ -56,26 +56,26 @@ const RishiParasherGuru: React.FC<RishiParasherGuruProps> = ({ kundaliData, lang
       id: '1',
       type: 'ai',
       content: language === 'hi' 
-        ? `🙏 नमस्कार ${kundaliData.birthData.fullName}! मैं महर्षि पराशर हूँ, वैदिक ज्योतिष के आदि गुरु।
+        ? `🙏 अरे वाह ${kundaliData.birthData.fullName}! आपसे मिलकर कितनी खुशी हुई! मैं हूँ महर्षि पराशर, आपका मित्र और मार्गदर्शक।
 
-आपकी जन्मपत्रिका का विश्लेषण:
-🌟 लग्न: ${lagna.signName} (${lagna.degree.toFixed(2)}°)
-🌙 चंद्र राशि: ${planets.MO.rashiName}
-☀️ सूर्य राशि: ${planets.SU.rashiName}
-⭐ नक्षत्र: ${planets.MO.nakshatraName}
-🔥 सक्रिय योग: ${activeYogas.length}
+आपकी कुंडली तो बहुत सुंदर है! 
+✨ ${lagna.signName} लग्न (${lagna.degree.toFixed(2)}°) - वाह!
+🌙 चंद्र ${planets.MO.rashiName} में - बहुत शुभ!
+☀️ सूर्य ${planets.SU.rashiName} राशि में
+⭐ ${planets.MO.nakshatraName} नक्षत्र का आशीर्वाद
+🎯 ${activeYogas.length} शुभ योग सक्रिय हैं
 
-आपके जीवन के किसी भी पहलू पर प्रश्न पूछें - करियर, विवाह, स्वास्थ्य, धन, या आध्यात्म। मैं शास्त्रों के अनुसार मार्गदर्शन दूंगा।`
-        : `🙏 Namaste ${kundaliData.birthData.fullName}! I am Maharishi Parashar, the founding father of Vedic astrology.
+मुझसे कुछ भी पूछिए - करियर, शादी, स्वास्थ्य, पैसा या आध्यात्म। मैं दिल से आपकी मदद करूंगा! 😊`
+        : `🙏 What a joy to meet you, ${kundaliData.birthData.fullName}! I'm Maharishi Parashar, your friend and guide.
 
-Your Birth Chart Analysis:
-🌟 Ascendant: ${lagna.signName} (${lagna.degree.toFixed(2)}°)
-🌙 Moon Sign: ${planets.MO.rashiName}
-☀️ Sun Sign: ${planets.SU.rashiName}
-⭐ Nakshatra: ${planets.MO.nakshatraName}
-🔥 Active Yogas: ${activeYogas.length}
+Your birth chart is absolutely beautiful! 
+✨ ${lagna.signName} ascendant (${lagna.degree.toFixed(2)}°) - wonderful!
+🌙 Moon in ${planets.MO.rashiName} - very auspicious!
+☀️ Sun in ${planets.SU.rashiName}
+⭐ Blessed by ${planets.MO.nakshatraName} nakshatra
+🎯 ${activeYogas.length} beneficial yogas are active
 
-Ask me about any aspect of your life - career, marriage, health, wealth, or spirituality. I will guide you according to the ancient scriptures.`,
+Ask me anything - career, marriage, health, wealth, or spirituality. I'm here to help you with all my heart! 😊`,
       timestamp: new Date()
     };
     setMessages([welcomeMessage]);
@@ -139,16 +139,16 @@ Ask me about any aspect of your life - career, marriage, health, wealth, or spir
         id: (Date.now() + 1).toString(),
         type: 'ai',
         content: language === 'hi' 
-          ? '🙏 पुत्र/पुत्री, क्षमा करें। तकनीकी समस्या के कारण मैं इस समय आपकी सहायता नहीं कर सकता। कृपया पुनः प्रयास करें।'
-          : '🙏 Dear child, I apologize. Due to technical issues, I cannot assist you at this moment. Please try again.',
+          ? '🙏 अरे यार, कुछ तकनीकी गड़बड़ हो गई है! परेशान मत होइए, थोड़ी देर में सब ठीक हो जाएगा। फिर से कोशिश कीजिए! 😊'
+          : '🙏 Oh dear, something technical went wrong! Don\'t worry though, it\'ll be fine soon. Please try again! 😊',
         timestamp: new Date()
       };
 
       setMessages(prev => [...prev, errorMessage]);
       
       toast({
-        title: language === 'hi' ? "त्रुटि" : "Error",
-        description: language === 'hi' ? "AI विश्लेषण में समस्या हुई है।" : "There was an issue with AI analysis.",
+        title: language === 'hi' ? "छोटी सी समस्या" : "Small Issue",
+        description: language === 'hi' ? "तकनीकी समस्या हुई है, फिर से कोशिश करें।" : "Technical issue occurred, please try again.",
         variant: "destructive",
       });
     } finally {
@@ -164,15 +164,15 @@ Ask me about any aspect of your life - career, marriage, health, wealth, or spir
   };
 
   const suggestedQuestions = language === 'hi' ? [
-    "मेरे करियर की संभावनाएं क्या हैं?",
-    "मेरा विवाह कब होगा?",
-    "मेरी स्वास्थ्य की स्थिति कैसी है?",
-    "कौन सा रत्न मेरे लिए शुभ है?"
+    "मेरे करियर के बारे में बताइए",
+    "शादी कब होगी?",
+    "स्वास्थ्य कैसा रहेगा?",
+    "कौन सा रत्न पहनूं?"
   ] : [
-    "What are my career prospects?",
+    "Tell me about my career",
     "When will I get married?",
-    "How is my health condition?",
-    "Which gemstone is auspicious for me?"
+    "How will my health be?",
+    "Which gemstone should I wear?"
   ];
 
   return (
@@ -186,7 +186,7 @@ Ask me about any aspect of your life - career, marriage, health, wealth, or spir
               className="w-full h-full object-cover"
             />
           </div>
-          <span>{language === 'hi' ? "महर्षि पराशर" : "Rishi Parashar"}</span>
+          <span>{language === 'hi' ? "महर्षि पराशर - आपका मित्र" : "Rishi Parashar - Your Friend"}</span>
         </CardTitle>
         <div className="flex flex-wrap gap-1">
           {suggestedQuestions.slice(0, 2).map((question, index) => (
@@ -265,7 +265,7 @@ Ask me about any aspect of your life - career, marriage, health, wealth, or spir
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder={language === 'hi' ? "महर्षि जी से अपना प्रश्न पूछें..." : "Ask Maharishi your question..."}
+              placeholder={language === 'hi' ? "मुझसे कुछ भी पूछिए..." : "Ask me anything..."}
               disabled={isLoading}
               className="flex-1 bg-white border-orange-300 text-gray-900 placeholder-gray-500 text-xs h-8"
             />
