@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -7,6 +6,7 @@ import EnhancedVisualKundaliChart from './EnhancedVisualKundaliChart';
 import EnhancedKundaliPDFExport from './EnhancedKundaliPDFExport';
 import { Badge } from "@/components/ui/badge";
 import { Star, Crown, Shield, Zap, Target, Heart, Download, FileText, Sparkles, Sun, Moon } from "lucide-react";
+import { TraditionalDashaDisplay } from './TraditionalDashaDisplay';
 
 interface DetailedKundaliDisplayProps {
   kundaliData: ComprehensiveKundaliData;
@@ -605,6 +605,23 @@ const DetailedKundaliDisplay: React.FC<DetailedKundaliDisplayProps> = ({
           <EnhancedKundaliPDFExport kundaliData={kundaliData} language={language} />
         </TabsContent>
       </Tabs>
+
+      {/* Mahadasha Section - Update to use Traditional Display */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-2xl font-bold text-gray-800 text-center flex items-center justify-center gap-2">
+            <span className="text-2xl">🕰️</span>
+            महादशा विश्लेषण - Mahadasha Analysis
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <TraditionalDashaDisplay
+            birthDate={new Date(kundaliData.birthData.date)}
+            moonLongitude={kundaliData.enhancedCalculations.planets['MO'].longitude}
+            moonNakshatra={kundaliData.enhancedCalculations.planets['MO'].nakshatra}
+          />
+        </CardContent>
+      </Card>
     </div>
   );
 };

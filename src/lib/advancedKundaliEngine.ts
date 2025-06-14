@@ -3,6 +3,15 @@
  * Comprehensive astrological calculations including all traditional elements
  */
 
+import { 
+  calculateVimshottariDasha, 
+  calculateAntardasha,
+  formatDashaPeriod,
+  getDashaEffects,
+  type DetailedDashaResult,
+  type DashaInfo 
+} from './vimshottariDashaEngine';
+
 export interface EnhancedBirthData {
   fullName: string;
   date: string; // YYYY-MM-DD
@@ -765,36 +774,31 @@ export function calculateYogas(planets: Record<string, PlanetData>, lagna: Lagna
 
 // Calculate Vimshottari Dasha
 export function calculateVimshottariDasha(jd: number, moon: PlanetData): DashaDetails[] {
-  const dashaLords = ['Ketu', 'Venus', 'Sun', 'Moon', 'Mars', 'Rahu', 'Jupiter', 'Saturn', 'Mercury'];
-  const dashaYears = [7, 20, 6, 10, 7, 18, 16, 19, 17];
+  console.log('🔮 Using Traditional Vimshottari Dasha Engine');
   
-  const nakshatraLord = Math.floor((moon.nakshatra - 1) / 3);
+  // Convert Julian Day to JavaScript Date
   const birthDate = new Date((jd - 2440587.5) * 86400000);
   
-  const dashas: DashaDetails[] = [];
-  let currentDate = new Date(birthDate);
+  // Use the traditional calculation
+  const dashaResult = calculateVimshottariDasha(birthDate, moon.longitude, moon.nakshatra);
   
-  for (let i = 0; i < 9; i++) {
-    const lordIndex = (nakshatraLord + i) % 9;
-    const planet = dashaLords[lordIndex];
-    const years = dashaYears[lordIndex];
-    const months = (years * 12) % 12; // Add months calculation
-    
-    const endDate = new Date(currentDate.getTime() + (years * 365.25 * 24 * 60 * 60 * 1000));
-    const now = new Date();
-    
-    dashas.push({
-      planet,
-      planetSanskrit: PLANETS.find(p => p.name === planet)?.hindi || planet,
-      startDate: new Date(currentDate),
-      endDate,
-      years,
-      months, // Add months property
-      isActive: currentDate <= now && now <= endDate
-    });
-    
-    currentDate = new Date(endDate);
-  }
+  // Convert to the expected format
+  const dashas: DashaDetails[] = dashaResult.allMahadashas.map(dasha => ({
+    planet: dasha.planet,
+    planetSanskrit: dasha.planetHindi,
+    startDate: dasha.startDate,
+    endDate: dasha.endDate,
+    years: dasha.totalYears,
+    months: Math.floor((dasha.remainingYears || 0) * 12),
+    isActive: dasha.isActive,
+    remainingTime: dasha.isActive ? 
+      `${Math.floor(dasha.remainingYears || 0)}Y ${Math.floor(((dasha.remainingYears || 0) % 1) * 12)}M` : 
+      undefined
+  }));
+  
+  console.log('✅ Traditional Vimshottari Dasha calculated successfully');
+  console.log('🎯 Current Mahadasha:', dashaResult.currentMahadasha.planet);
+  console.log('⏰ Balance at birth:', dashaResult.calculationDetails.balanceAtBirth.toFixed(4), 'years');
   
   return dashas;
 }
