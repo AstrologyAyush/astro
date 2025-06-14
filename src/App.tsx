@@ -15,6 +15,7 @@ import MobileLogin from '@/components/MobileLogin';
 import MobileProfile from '@/components/MobileProfile';
 import StandalonePersonalityTest from '@/components/StandalonePersonalityTest';
 import DailyHoroscopeWithGuru from '@/components/DailyHoroscopeWithGuru';
+import CookiesPopup from '@/components/CookiesPopup';
 
 function AppContent() {
   const { settings } = useAuth();
@@ -34,6 +35,7 @@ function AppContent() {
           <Route path="/profile" element={<MobileProfile />} />
         </Routes>
       </AppLayout>
+      <CookiesPopup />
       <Toaster />
     </Router>
   );
