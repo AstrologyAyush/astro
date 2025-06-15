@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -551,13 +550,13 @@ const PersonalityQuiz: React.FC<PersonalityQuizProps> = ({ language, onComplete 
 
   const getCategoryIcon = (category: string) => {
     switch (category) {
-      case 'cognitive_bias': return <Brain className="h-4 w-4" />;
-      case 'moral_reasoning': return <Compass className="h-4 w-4" />;
-      case 'decision_making': return <Target className="h-4 w-4" />;
-      case 'stress_response': return <Heart className="h-4 w-4" />;
-      case 'social_dynamics': return <Users className="h-4 w-4" />;
-      case 'risk_assessment': return <Eye className="h-4 w-4" />;
-      default: return <Star className="h-4 w-4" />;
+      case 'cognitive_bias': return <Brain className="h-5 w-5 text-pink-500 md:h-6 md:w-6" />;
+      case 'moral_reasoning': return <Compass className="h-5 w-5 text-blue-500 md:h-6 md:w-6" />;
+      case 'decision_making': return <Target className="h-5 w-5 text-green-600 md:h-6 md:w-6" />;
+      case 'stress_response': return <Heart className="h-5 w-5 text-red-500 md:h-6 md:w-6" />;
+      case 'social_dynamics': return <Users className="h-5 w-5 text-orange-500 md:h-6 md:w-6" />;
+      case 'risk_assessment': return <Eye className="h-5 w-5 text-indigo-500 md:h-6 md:w-6" />;
+      default: return <Star className="h-5 w-5 text-gray-400 md:h-6 md:w-6" />;
     }
   };
 
@@ -567,34 +566,32 @@ const PersonalityQuiz: React.FC<PersonalityQuizProps> = ({ language, onComplete 
 
   if (selectedQuestions.length === 0) {
     return (
-      <Card className="w-full max-w-2xl mx-auto">
-        <CardContent className="pt-6">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-            <p className="mt-2 text-sm text-muted-foreground">
-              {getTranslation("Loading enhanced personality assessment...", "उन्नत व्यक्तित्व मूल्यांकन लोड हो रहा है...")}
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="flex items-center justify-center min-h-[250px] animate-fade-in">
+        <div className="p-4 flex flex-col items-center">
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary mb-2"></div>
+          <span className="mt-1 text-sm text-muted-foreground text-center">
+            {getTranslation("Loading Personality Quiz...", "व्यक्तित्व परीक्षण लोड हो रहा है...")}
+          </span>
+        </div>
+      </div>
     );
   }
 
   if (isComplete) {
     return (
-      <Card className="w-full max-w-2xl mx-auto">
+      <Card className="w-full max-w-xl mx-auto animate-fade-in mt-4 mb-4 shadow-lg !rounded-xl">
         <CardHeader>
           <CardTitle className="text-center text-green-600">
             {getTranslation("Personality Analysis Complete!", "व्यक्तित्व विश्लेषण पूर्ण!")}
           </CardTitle>
         </CardHeader>
-        <CardContent className="text-center">
-          <p className="text-muted-foreground">
+        <CardContent className="text-center text-md">
+          <span className="block mb-3 text-center text-muted-foreground">
             {getTranslation(
-              "Your comprehensive personality profile has been analyzed using advanced psychological frameworks and will be integrated with your Kundali for highly accurate predictions.",
-              "उन्नत मनोवैज्ञानिक ढांचे का उपयोग करके आपकी व्यापक व्यक्तित्व प्रोफ़ाइल का विश्लेषण किया गया है और अत्यधिक सटीक भविष्यवाणियों के लिए इसे आपकी कुंडली के साथ एकीकृत किया जाएगा।"
+              "Your comprehensive profile has been analyzed and will be integrated into your Kundali.",
+              "आपकी पूरी प्रोफ़ाइल का विश्लेषण कर लिया गया है, इसे आपकी कुंडली के साथ जोड़ा जाएगा।"
             )}
-          </p>
+          </span>
         </CardContent>
       </Card>
     );
@@ -604,51 +601,67 @@ const PersonalityQuiz: React.FC<PersonalityQuizProps> = ({ language, onComplete 
   const progress = ((currentQuestionIndex + 1) / selectedQuestions.length) * 100;
 
   return (
-    <Card className="w-full max-w-4xl mx-auto">
-      <CardHeader>
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-2">
-            {getCategoryIcon(currentQuestion.category)}
-            <Badge variant="outline" className="capitalize">
-              {currentQuestion.category.replace('_', ' ')}
-            </Badge>
+    <div className="w-full flex flex-col items-center min-h-[80vh] px-1 pt-1 pb-4">
+      <div
+        className="max-w-md w-full rounded-xl shadow-lg bg-gradient-to-b from-orange-50 to-white dark:from-neutral-900 dark:to-neutral-900 relative animate-fade-in"
+      >
+        {/* Sticky progress bar/header for mobile */}
+        <div className="sticky top-0 z-10 bg-gradient-to-b from-orange-100 to-transparent dark:from-neutral-900/90 p-2 md:p-3 rounded-t-xl mb-1">
+          <div className="flex items-center justify-between mb-1">
+            <div className="flex items-center gap-2">
+              {getCategoryIcon(currentQuestion.category)}
+              <span className="capitalize font-semibold text-xs md:text-sm text-neutral-700 dark:text-gray-200">
+                {currentQuestion.category.replace(/_/g, ' ')}
+              </span>
+            </div>
+            <span className="text-xs text-neutral-400">{currentQuestionIndex + 1}/{selectedQuestions.length}</span>
           </div>
-          <div className="text-sm text-muted-foreground">
-            {currentQuestionIndex + 1} / {selectedQuestions.length}
+          <div className="w-full h-2 bg-gray-200 dark:bg-neutral-800 rounded-full overflow-hidden">
+            <div
+              className="h-2 bg-gradient-to-r from-primary to-orange-400 transition-all duration-300"
+              style={{ width: `${progress}%` }}
+            />
           </div>
         </div>
-        <Progress value={progress} className="w-full" />
-        <CardTitle className="text-lg mt-4 leading-relaxed">
-          {currentQuestion.question}
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-3">
-          {currentQuestion.options.map((option: any) => (
-            <Button
-              key={option.id}
-              variant="outline"
-              className="w-full text-left justify-start h-auto p-4 hover:bg-primary/5 border-2 hover:border-primary/20"
-              onClick={() => handleAnswer(option)}
-            >
-              <div className="flex items-start w-full">
-                <span className="bg-primary text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3 flex-shrink-0">
-                  {option.id.toUpperCase()}
-                </span>
-                <span className="text-sm leading-relaxed">{option.text}</span>
-              </div>
-            </Button>
-          ))}
+
+        {/* Question */}
+        <div className="px-3 py-3 md:px-6 md:py-6">
+          <h1 className="text-base md:text-lg font-bold text-primary mb-2 text-center leading-snug">
+            {currentQuestion.question}
+          </h1>
+
+          {/* Option buttons (mobile friendly, visually distinct) */}
+          <div className="space-y-2 md:space-y-3">
+            {currentQuestion.options.map((option: any) => (
+              <Button
+                key={option.id}
+                variant="outline"
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-lg border-2 border-primary/20 bg-white dark:bg-neutral-950 shadow-sm hover:bg-primary/10 active:scale-[0.98] transition-all text-start focus-visible:ring-2 focus-visible:ring-primary"
+                style={{
+                  minHeight: '52px',
+                  fontWeight: 500,
+                  fontSize: '1rem'
+                }}
+                onClick={() => handleAnswer(option)}
+              >
+                <span className="inline-block w-9 h-9 bg-primary/20 rounded-full flex items-center justify-center text-lg font-bold text-primary/90 shadow">{option.id.toUpperCase()}</span>
+                <span className="grow text-xs md:text-sm leading-normal">{option.text}</span>
+              </Button>
+            ))}
+          </div>
+
+          {/* Helper message */}
+          <div className="mt-5 flex flex-col items-center">
+            <div className="text-center text-xs md:text-sm text-neutral-500 dark:text-gray-400">
+              <span className="block">{getTranslation(
+                "Choose the answer that most truly reflects how you would respond—even if it's difficult.",
+                "वह जवाब चुनें जो सच में बताता है कि आप कैसे प्रतिक्रिया करेंगे—चाहे वह कठिन क्यों न हो।"
+              )}</span>
+            </div>
+          </div>
         </div>
-        
-        <div className="mt-6 text-center text-xs text-muted-foreground">
-          {getTranslation(
-            "Choose the response that most accurately reflects how you would actually behave, not how you think you should behave",
-            "वह प्रतिक्रिया चुनें जो सबसे सटीक रूप से दर्शाती है कि आप वास्तव में कैसे व्यवहार करेंगे, न कि आपको लगता है कि आपको कैसे व्यवहार करना चाहिए"
-          )}
-        </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
 
