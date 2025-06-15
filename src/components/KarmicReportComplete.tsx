@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -45,10 +44,60 @@ interface PersonalizedKarmicData {
 const KarmicReportComplete: React.FC<KarmicReportCompleteProps> = ({ kundaliData, language }) => {
   const [personalizedData, setPersonalizedData] = useState<PersonalizedKarmicData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [aiRetryCount, setAiRetryCount] = useState(0);
   const { toast } = useToast();
 
   const getTranslation = (en: string, hi: string) => {
     return language === 'hi' ? hi : en;
+  };
+
+  // Create a cache key for this specific kundali data
+  const getCacheKey = () => {
+    if (!kundaliData?.birthData) return null;
+    const { fullName, dateOfBirth, timeOfBirth, placeOfBirth } = kundaliData.birthData;
+    return `karmic_report_${fullName}_${dateOfBirth}_${timeOfBirth}_${placeOfBirth}_${language}`;
+  };
+
+  // Check if we have cached data
+  const getCachedData = () => {
+    const cacheKey = getCacheKey();
+    if (!cacheKey) return null;
+    
+    try {
+      const cached = localStorage.getItem(cacheKey);
+      if (cached) {
+        const parsedData = JSON.parse(cached);
+        // Check if cache is less than 24 hours old
+        const cacheTime = new Date(parsedData.timestamp);
+        const now = new Date();
+        const hoursDiff = (now.getTime() - cacheTime.getTime()) / (1000 * 60 * 60);
+        
+        if (hoursDiff < 24) {
+          return parsedData.data;
+        } else {
+          localStorage.removeItem(cacheKey);
+        }
+      }
+    } catch (error) {
+      console.log('Cache read error:', error);
+    }
+    return null;
+  };
+
+  // Save data to cache
+  const setCachedData = (data: PersonalizedKarmicData) => {
+    const cacheKey = getCacheKey();
+    if (!cacheKey) return;
+    
+    try {
+      const cacheData = {
+        data,
+        timestamp: new Date().toISOString()
+      };
+      localStorage.setItem(cacheKey, JSON.stringify(cacheData));
+    } catch (error) {
+      console.log('Cache write error:', error);
+    }
   };
 
   // Extract personalized data from actual Kundali
@@ -240,7 +289,17 @@ const KarmicReportComplete: React.FC<KarmicReportCompleteProps> = ({ kundaliData
   // Auto-generate on component mount
   useEffect(() => {
     if (kundaliData && !personalizedData) {
-      generatePersonalizedReport();
+      // First check cache
+      const cachedData = getCachedData();
+      if (cachedData) {
+        setPersonalizedData(cachedData);
+        toast({
+          title: getTranslation("Cached Report Loaded", "कैश्ड रिपोर्ट लोड"),
+          description: getTranslation("Using previously generated insights", "पहले से तैयार अंतर्दृष्टि का उपयोग")
+        });
+      } else {
+        generatePersonalizedReport();
+      }
     }
   }, [kundaliData]);
 
@@ -302,47 +361,89 @@ const KarmicReportComplete: React.FC<KarmicReportCompleteProps> = ({ kundaliData
       // Extract personalized data from Kundali
       const extracted = extractPersonalizedData();
       
-      // Try to get AI enhancement if available
+      // Try to get AI enhancement if available with timeout and retries
       try {
-        const { data, error } = await supabase.functions.invoke('karmic-analysis', {
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('AI timeout')), 10000)
+        );
+        
+        const aiPromise = supabase.functions.invoke('karmic-analysis', {
           body: {
             kundaliData,
             language,
             analysisType: 'personalized_karmic_report',
-            extractedData: extracted
+            extractedData: extracted,
+            retryCount: aiRetryCount
           }
         });
 
+        const { data, error } = await Promise.race([aiPromise, timeoutPromise]) as any;
+
         if (!error && data?.analysis) {
           // Merge AI insights with extracted data
-          setPersonalizedData({
+          const enhancedData = {
             ...extracted,
             coachMessage: data.analysis.coachMessage || extracted.coachMessage,
             timeline: data.analysis.karmicTimeline || extracted.timeline
-          });
+          };
+          
+          setPersonalizedData(enhancedData);
+          setCachedData(enhancedData);
+          setAiRetryCount(0); // Reset retry count on success
         } else {
-          // Use extracted data as fallback
-          setPersonalizedData(extracted);
+          throw new Error('AI enhancement failed');
         }
       } catch (aiError) {
         console.log('AI enhancement failed, using extracted data:', aiError);
+        
+        // Increment retry count and use fallback
+        setAiRetryCount(prev => prev + 1);
         setPersonalizedData(extracted);
+        setCachedData(extracted);
+        
+        // Show user-friendly message about fallback
+        toast({
+          title: getTranslation("Report Generated", "रिपोर्ट तैयार"),
+          description: getTranslation("Using astrological calculations (AI enhancement unavailable)", "ज्योतिषीय गणना का उपयोग (AI वृद्धि अनुपलब्ध)"),
+          variant: "default"
+        });
       }
       
-      toast({
-        title: getTranslation("Personalized Karmic Report Generated", "व्यक्तिगत कर्मिक रिपोर्ट तैयार"),
-        description: getTranslation("Your personalized karmic insights are ready", "आपकी व्यक्तिगत कर्मिक अंतर्दृष्टि तैयार है")
-      });
+      if (!personalizedData) {
+        toast({
+          title: getTranslation("Personalized Karmic Report Generated", "व्यक्तिगत कर्मिक रिपोर्ट तैयार"),
+          description: getTranslation("Your personalized karmic insights are ready", "आपकी व्यक्तिगत कर्मिक अंतर्दृष्टि तैयार है")
+        });
+      }
 
     } catch (error) {
       console.error('Error generating personalized karmic report:', error);
+      
+      // Even on error, try to show extracted data
+      const fallbackData = extractPersonalizedData();
+      setPersonalizedData(fallbackData);
+      setCachedData(fallbackData);
+      
       toast({
-        title: getTranslation("Error", "त्रुटि"),
-        description: getTranslation("Failed to generate karmic report", "कर्मिक रिपोर्ट बनाने में त्रुटि"),
-        variant: "destructive"
+        title: getTranslation("Report Generated with Limitations", "सीमित रिपोर्ट तैयार"),
+        description: getTranslation("Basic karmic insights generated from chart analysis", "चार्ट विश्लेषण से बुनियादी कर्मिक अंतर्दृष्टि"),
+        variant: "default"
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const clearCache = () => {
+    const cacheKey = getCacheKey();
+    if (cacheKey) {
+      localStorage.removeItem(cacheKey);
+      setPersonalizedData(null);
+      setAiRetryCount(0);
+      toast({
+        title: getTranslation("Cache Cleared", "कैश साफ़"),
+        description: getTranslation("Report will be regenerated", "रिपोर्ट पुन: तैयार की जाएगी")
+      });
     }
   };
 
@@ -386,10 +487,19 @@ const KarmicReportComplete: React.FC<KarmicReportCompleteProps> = ({ kundaliData
                 </Button>
               )}
               {personalizedData && (
-                <KarmicReportPDFExport 
-                  language={language}
-                  reportData={personalizedData}
-                />
+                <>
+                  <Button 
+                    onClick={clearCache}
+                    variant="outline"
+                    className="border-purple-500 text-purple-600 hover:bg-purple-50"
+                  >
+                    {getTranslation('Refresh Report', 'रिपोर्ट रीफ्रेश करें')}
+                  </Button>
+                  <KarmicReportPDFExport 
+                    language={language}
+                    reportData={personalizedData}
+                  />
+                </>
               )}
             </div>
           </div>
@@ -408,6 +518,14 @@ const KarmicReportComplete: React.FC<KarmicReportCompleteProps> = ({ kundaliData
               'आपकी ग्रहों की स्थिति और कर्मिक पैटर्न के आधार पर व्यक्तिगत अंतर्दृष्टि तैयार की जा रही है'
             )}
           </p>
+          {aiRetryCount > 0 && (
+            <p className="text-orange-600 text-sm mt-2">
+              {getTranslation(
+                `AI retry attempt ${aiRetryCount}/3 - Using backup analysis`,
+                `AI पुनः प्रयास ${aiRetryCount}/3 - बैकअप विश्लेषण का उपयोग`
+              )}
+            </p>
+          )}
         </div>
       ) : (
         <div id="karmic-report-content" className="space-y-6 print:space-y-4">
