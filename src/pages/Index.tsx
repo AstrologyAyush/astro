@@ -388,7 +388,7 @@ const Index = () => {
 
         {/* Mobile-optimized Accuracy Statement */}
         <div className="mt-6 sm:mt-8 md:mt-12">
-          <AccuracyStatement language={language} kundaliData={kundaliData} />
+          <AccuracyStatement />
         </div>
 
         {/* Mobile-optimized Footer */}
