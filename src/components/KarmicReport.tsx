@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import KarmaAlignmentChart from './KarmaAlignmentChart';
 import { 
   Sparkles, 
   Crown, 
@@ -16,7 +17,8 @@ import {
   TrendingUp,
   Brain,
   Star,
-  Calendar
+  Calendar,
+  BarChart3
 } from 'lucide-react';
 
 interface KarmicReportProps {
@@ -42,6 +44,102 @@ const KarmicReport: React.FC<KarmicReportProps> = ({ kundaliData, language }) =>
 
   const getTranslation = (en: string, hi: string) => {
     return language === 'hi' ? hi : en;
+  };
+
+  // Generate sample karma alignment data based on kundali
+  const generateKarmaAlignmentData = () => {
+    const planets = kundaliData?.enhancedCalculations?.planets || {};
+    
+    // Calculate alignment percentage based on planetary strengths
+    const alignmentPercentage = Math.min(95, Math.max(35, 
+      Math.round((Object.values(planets).reduce((sum: number, planet: any) => 
+        sum + (planet?.shadbala || 50), 0) / Object.keys(planets).length) * 1.2)
+    ));
+
+    const grahaEnergies = [
+      {
+        name: language === 'hi' ? 'बृहस्पति' : 'Jupiter',
+        role: language === 'hi' ? 'धर्म + ज्ञान' : 'Dharma + Wisdom',
+        strength: planets.JU?.shadbala || 80,
+        color: '#F59E0B'
+      },
+      {
+        name: language === 'hi' ? 'शनि' : 'Saturn',
+        role: language === 'hi' ? 'अनुशासन + कष्ट' : 'Discipline + Suffering',
+        strength: planets.SA?.shadbala || 75,
+        color: '#6366F1'
+      },
+      {
+        name: language === 'hi' ? 'राहु' : 'Rahu',
+        role: language === 'hi' ? 'जुनून + भ्रम' : 'Obsession + Illusion',
+        strength: planets.RA?.shadbala || 60,
+        color: '#8B5CF6'
+      },
+      {
+        name: language === 'hi' ? 'शुक्र' : 'Venus',
+        role: language === 'hi' ? 'रचनात्मकता + आकर्षण' : 'Creativity + Charm',
+        strength: planets.VE?.shadbala || 65,
+        color: '#EC4899'
+      }
+    ];
+
+    const dashaTimeline = [
+      {
+        period: language === 'hi' ? 'शनि महादशा' : 'Saturn Mahadasha',
+        planet: language === 'hi' ? 'शनि' : 'Saturn',
+        status: 'challenge' as const,
+        startYear: 2024,
+        endYear: 2026
+      },
+      {
+        period: language === 'hi' ? 'बुध महादशा' : 'Mercury Mahadasha',
+        planet: language === 'hi' ? 'बुध' : 'Mercury',
+        status: 'growth' as const,
+        startYear: 2026,
+        endYear: 2029
+      },
+      {
+        period: language === 'hi' ? 'केतु महादशा' : 'Ketu Mahadasha',
+        planet: language === 'hi' ? 'केतु' : 'Ketu',
+        status: 'transition' as const,
+        startYear: 2029,
+        endYear: 2031
+      }
+    ];
+
+    const weeklyTracker = [
+      {
+        week: 1,
+        action: language === 'hi' ? 'एक गरीब बुजुर्ग की सेवा करें' : 'Serve a poor elder',
+        planet: language === 'hi' ? 'शनि' : 'Saturn',
+        status: 'done' as const
+      },
+      {
+        week: 2,
+        action: language === 'hi' ? '7 दिन तक गपशप से बचें' : 'Avoid gossip for 7 days',
+        planet: language === 'hi' ? 'राहु' : 'Rahu',
+        status: 'repeating' as const
+      },
+      {
+        week: 3,
+        action: language === 'hi' ? 'किसी को कौशल सिखाएं' : 'Teach someone a skill',
+        planet: language === 'hi' ? 'बृहस्पति' : 'Jupiter',
+        status: 'missed' as const
+      },
+      {
+        week: 4,
+        action: language === 'hi' ? 'कलात्मक गतिविधि करें' : 'Do artistic activity',
+        planet: language === 'hi' ? 'शुक्र' : 'Venus',
+        status: 'done' as const
+      }
+    ];
+
+    return {
+      alignmentPercentage,
+      grahaEnergies,
+      dashaTimeline,
+      weeklyTracker
+    };
   };
 
   const generateKarmicReport = async () => {
@@ -140,15 +238,19 @@ const KarmicReport: React.FC<KarmicReportProps> = ({ kundaliData, language }) =>
             </p>
           </div>
         ) : (
-          <Tabs defaultValue="career" className="w-full">
-            <TabsList className="grid w-full grid-cols-4 mb-6 bg-purple-50">
+          <Tabs defaultValue="karma-alignment" className="w-full">
+            <TabsList className="grid w-full grid-cols-5 mb-6 bg-purple-50">
+              <TabsTrigger value="karma-alignment" className="flex items-center gap-2">
+                <BarChart3 className="h-4 w-4" />
+                {getTranslation('Karma Align', 'कर्म संरेखण')}
+              </TabsTrigger>
               <TabsTrigger value="career" className="flex items-center gap-2">
                 <Crown className="h-4 w-4" />
                 {getTranslation('Career', 'करियर')}
               </TabsTrigger>
               <TabsTrigger value="relationships" className="flex items-center gap-2">
                 <Heart className="h-4 w-4" />
-                {getTranslation('Relationships', 'रिश्ते')}
+                {getTranslation('Relations', 'रिश्ते')}
               </TabsTrigger>
               <TabsTrigger value="health" className="flex items-center gap-2">
                 <TrendingUp className="h-4 w-4" />
@@ -159,6 +261,13 @@ const KarmicReport: React.FC<KarmicReportProps> = ({ kundaliData, language }) =>
                 {getTranslation('Spiritual', 'आध्यात्मिक')}
               </TabsTrigger>
             </TabsList>
+
+            <TabsContent value="karma-alignment" className="space-y-6">
+              <KarmaAlignmentChart 
+                {...generateKarmaAlignmentData()}
+                language={language}
+              />
+            </TabsContent>
 
             <TabsContent value="career" className="space-y-6">
               {/* Career Karma Signature */}
