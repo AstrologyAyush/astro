@@ -7,23 +7,46 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { calculateNumerologyProfile, checkCompatibility, NumerologyProfile } from '@/lib/numerologyUtils';
+import { calculateBestYears, calculateDetailedPersonalYears, calculateCyclicalAnalysis, BestYearAnalysis, DetailedPersonalYear, CyclicalAnalysis } from '@/lib/enhancedNumerologyUtils';
 import CompatibilityChecker from './CompatibilityChecker';
 import NumerologyInsights from './NumerologyInsights';
 import NumerologyGlossary from './NumerologyGlossary';
-import { AlertCircle, Star, Heart, Shield, Gem, BookOpen, Lightbulb, Info } from 'lucide-react';
+import { AlertCircle, Star, Heart, Shield, Gem, BookOpen, Lightbulb, Info, Calendar, TrendingUp, Clock, Zap, Target } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 const NumerologyCalculator: React.FC = () => {
   const [name, setName] = useState('');
   const [birthDate, setBirthDate] = useState('');
   const [profile, setProfile] = useState<NumerologyProfile | null>(null);
+  const [bestYearAnalysis, setBestYearAnalysis] = useState<BestYearAnalysis | null>(null);
+  const [personalYears, setPersonalYears] = useState<DetailedPersonalYear[]>([]);
+  const [cyclicalAnalysis, setCyclicalAnalysis] = useState<CyclicalAnalysis | null>(null);
   const { t } = useLanguage();
 
   const handleCalculate = () => {
     if (!name || !birthDate) return;
     const date = new Date(birthDate);
+    const birthYear = date.getFullYear();
     const numerologyProfile = calculateNumerologyProfile(name, date);
+    
+    // Calculate enhanced features
+    const bestYears = calculateBestYears(numerologyProfile, birthYear);
+    const detailedPersonalYears = calculateDetailedPersonalYears(numerologyProfile, birthYear);
+    const cyclical = calculateCyclicalAnalysis(numerologyProfile, birthYear);
+    
     setProfile(numerologyProfile);
+    setBestYearAnalysis(bestYears);
+    setPersonalYears(detailedPersonalYears);
+    setCyclicalAnalysis(cyclical);
+  };
+
+  const getEnergyColor = (energy: string) => {
+    switch (energy) {
+      case 'High': return 'text-green-600 bg-green-50';
+      case 'Medium': return 'text-yellow-600 bg-yellow-50';
+      case 'Low': return 'text-blue-600 bg-blue-50';
+      default: return 'text-gray-600 bg-gray-50';
+    }
   };
 
   return <div className="space-y-6">
@@ -56,17 +79,25 @@ const NumerologyCalculator: React.FC = () => {
       </Card>
 
       {profile && <Tabs defaultValue="insights" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-7">
+          <TabsList className="grid w-full grid-cols-3 md:grid-cols-9">
             <TabsTrigger value="insights">{t('insights')}</TabsTrigger>
             <TabsTrigger value="core">{t('core')}</TabsTrigger>
             <TabsTrigger value="personality">{t('personality')}</TabsTrigger>
+            <TabsTrigger value="best-years">
+              <Calendar className="h-4 w-4 md:mr-1" />
+              <span className="hidden md:inline">Best Years</span>
+            </TabsTrigger>
+            <TabsTrigger value="personal-year">
+              <Clock className="h-4 w-4 md:mr-1" />
+              <span className="hidden md:inline">Personal Years</span>
+            </TabsTrigger>
+            <TabsTrigger value="cycles">
+              <TrendingUp className="h-4 w-4 md:mr-1" />
+              <span className="hidden md:inline">Cycles</span>
+            </TabsTrigger>
             <TabsTrigger value="karmic">{t('karmic')}</TabsTrigger>
             <TabsTrigger value="remedies">{t('remedies')}</TabsTrigger>
             <TabsTrigger value="compatibility">{t('compatibility')}</TabsTrigger>
-            <TabsTrigger value="glossary">
-              <Info className="h-4 w-4 md:mr-1" />
-              <span className="hidden md:inline">{t('glossary') || 'Glossary'}</span>
-            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="insights" className="space-y-4">
@@ -263,6 +294,248 @@ const NumerologyCalculator: React.FC = () => {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="best-years" className="space-y-4">
+            {bestYearAnalysis && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-green-600 flex items-center gap-2">
+                    <Target className="h-5 w-5" />
+                    Best Years Analysis
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+                    <h3 className="font-semibold text-green-800 mb-2">Peak Opportunity Year</h3>
+                    <div className="text-3xl font-bold text-green-700 mb-2">{bestYearAnalysis.peakYear}</div>
+                    <p className="text-green-700 text-sm">{bestYearAnalysis.description}</p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="bg-blue-50 p-4 rounded-lg">
+                      <h4 className="font-semibold text-blue-800 mb-3 flex items-center gap-2">
+                        <Star className="h-4 w-4" />
+                        Favorable Years
+                      </h4>
+                      <div className="flex flex-wrap gap-2 mb-3">
+                        {bestYearAnalysis.bestYears.map((year, index) => (
+                          <Badge key={index} className="bg-blue-100 text-blue-800">
+                            {year}
+                          </Badge>
+                        ))}
+                      </div>
+                      <div className="space-y-2">
+                        <h5 className="font-medium text-blue-700">Opportunities:</h5>
+                        <ul className="space-y-1">
+                          {bestYearAnalysis.opportunities.map((opp, index) => (
+                            <li key={index} className="text-sm text-blue-600 flex items-start gap-2">
+                              <span className="text-blue-400 mt-1">•</span>
+                              {opp}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+
+                    <div className="bg-orange-50 p-4 rounded-lg">
+                      <h4 className="font-semibold text-orange-800 mb-3 flex items-center gap-2">
+                        <AlertCircle className="h-4 w-4" />
+                        Challenging Years
+                      </h4>
+                      <div className="flex flex-wrap gap-2 mb-3">
+                        {bestYearAnalysis.challengingYears.map((year, index) => (
+                          <Badge key={index} variant="outline" className="bg-orange-100 text-orange-800">
+                            {year}
+                          </Badge>
+                        ))}
+                      </div>
+                      <div className="space-y-2">
+                        <h5 className="font-medium text-orange-700">Guidance:</h5>
+                        <ul className="space-y-1">
+                          {bestYearAnalysis.warnings.map((warning, index) => (
+                            <li key={index} className="text-sm text-orange-600 flex items-start gap-2">
+                              <span className="text-orange-400 mt-1">•</span>
+                              {warning}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+
+          <TabsContent value="personal-year" className="space-y-4">
+            {personalYears.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-purple-600 flex items-center gap-2">
+                    <Clock className="h-5 w-5" />
+                    Personal Year Forecast
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {personalYears.map((yearData, index) => (
+                      <div key={index} className={`p-4 rounded-lg border ${
+                        yearData.year === new Date().getFullYear() 
+                          ? 'bg-purple-50 border-purple-300 border-2' 
+                          : 'bg-gray-50 border-gray-200'
+                      }`}>
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center gap-3">
+                            <div className="text-2xl font-bold text-purple-700">
+                              {yearData.year}
+                            </div>
+                            <div className="text-lg font-semibold text-purple-600">
+                              Personal Year {yearData.personalYear}
+                            </div>
+                            {yearData.year === new Date().getFullYear() && (
+                              <Badge className="bg-purple-500 text-white">Current Year</Badge>
+                            )}
+                          </div>
+                          <Badge className={`${getEnergyColor(yearData.energy)} font-medium`}>
+                            <Zap className="h-3 w-3 mr-1" />
+                            {yearData.energy} Energy
+                          </Badge>
+                        </div>
+
+                        <h3 className="font-bold text-purple-800 mb-2">{yearData.theme}</h3>
+                        <p className="text-purple-700 mb-4">{yearData.description}</p>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                          <div className="bg-white p-3 rounded border">
+                            <h4 className="font-semibold text-purple-700 mb-2">Career</h4>
+                            <p className="text-sm text-purple-600">{yearData.career}</p>
+                          </div>
+                          
+                          <div className="bg-white p-3 rounded border">
+                            <h4 className="font-semibold text-purple-700 mb-2">Relationships</h4>
+                            <p className="text-sm text-purple-600">{yearData.relationships}</p>
+                          </div>
+                          
+                          <div className="bg-white p-3 rounded border">
+                            <h4 className="font-semibold text-purple-700 mb-2">Health</h4>
+                            <p className="text-sm text-purple-600">{yearData.health}</p>
+                          </div>
+                          
+                          <div className="bg-white p-3 rounded border">
+                            <h4 className="font-semibold text-purple-700 mb-2">Spiritual</h4>
+                            <p className="text-sm text-purple-600">{yearData.spiritual}</p>
+                          </div>
+                        </div>
+
+                        <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+                          <div>
+                            <h4 className="font-semibold text-green-700 mb-2">Key Opportunities</h4>
+                            <ul className="space-y-1">
+                              {yearData.opportunities.slice(0, 3).map((opp, idx) => (
+                                <li key={idx} className="text-sm text-green-600 flex items-start gap-2">
+                                  <span className="text-green-400 mt-1">•</span>
+                                  {opp}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                          
+                          <div>
+                            <h4 className="font-semibold text-orange-700 mb-2">Challenges to Watch</h4>
+                            <ul className="space-y-1">
+                              {yearData.challenges.slice(0, 3).map((challenge, idx) => (
+                                <li key={idx} className="text-sm text-orange-600 flex items-start gap-2">
+                                  <span className="text-orange-400 mt-1">•</span>
+                                  {challenge}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                          
+                          <div>
+                            <h4 className="font-semibold text-blue-700 mb-2">Recommended Focus</h4>
+                            <div className="flex flex-wrap gap-1">
+                              {yearData.focus.slice(0, 4).map((focus, idx) => (
+                                <Badge key={idx} variant="outline" className="text-xs bg-blue-50">
+                                  {focus}
+                                </Badge>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+
+          <TabsContent value="cycles" className="space-y-4">
+            {cyclicalAnalysis && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-indigo-600 flex items-center gap-2">
+                    <TrendingUp className="h-5 w-5" />
+                    Life Cycles & Patterns
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="bg-indigo-50 p-6 rounded-lg border border-indigo-200">
+                    <div className="text-center mb-4">
+                      <div className="text-4xl font-bold text-indigo-700 mb-2">
+                        Year {cyclicalAnalysis.currentCycle}
+                      </div>
+                      <h3 className="text-xl font-semibold text-indigo-800 mb-2">
+                        {cyclicalAnalysis.cyclePhase}
+                      </h3>
+                      <p className="text-indigo-700">{cyclicalAnalysis.cycleDescription}</p>
+                    </div>
+                  </div>
+
+                  <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                    <h4 className="font-semibold text-yellow-800 mb-2 flex items-center gap-2">
+                      <Calendar className="h-4 w-4" />
+                      Next Major Milestone
+                    </h4>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="text-2xl font-bold text-yellow-700">
+                          {cyclicalAnalysis.nextMilestone.year}
+                        </div>
+                        <p className="text-sm text-yellow-600">
+                          {cyclicalAnalysis.nextMilestone.significance}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-lg font-semibold text-yellow-700">
+                          {cyclicalAnalysis.nextMilestone.year - new Date().getFullYear()} years away
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <h4 className="font-semibold text-gray-800 mb-3">9-Year Cycle Overview</h4>
+                    <div className="grid grid-cols-3 md:grid-cols-9 gap-2">
+                      {Array.from({length: 9}, (_, i) => i + 1).map((num) => (
+                        <div key={num} className={`p-2 text-center rounded text-sm font-medium ${
+                          num === cyclicalAnalysis.currentCycle 
+                            ? 'bg-indigo-500 text-white' 
+                            : 'bg-white text-gray-600 border'
+                        }`}>
+                          {num}
+                        </div>
+                      ))}
+                    </div>
+                    <div className="mt-3 text-xs text-gray-600 text-center">
+                      Your current position in the 9-year numerological cycle
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
 
           <TabsContent value="karmic" className="space-y-4">
