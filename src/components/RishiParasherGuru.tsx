@@ -197,44 +197,46 @@ Respond in ${language === 'hi' ? 'Hindi' : 'English'} in the tone of a loving, w
   // Show loading state if kundali data is not ready
   if (!kundaliData?.enhancedCalculations || !kundaliData?.birthData?.fullName) {
     return (
-      <Card className="h-[600px] flex flex-col bg-white border-gray-200">
-        <CardContent className="flex-1 flex items-center justify-center">
+      <div className="h-[600px] flex flex-col bg-white border-gray-200 rounded-lg">
+        <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600 mx-auto mb-4"></div>
             <p className="text-gray-600">
               {language === 'hi' ? 'कुंडली डेटा लोड हो रहा है...' : 'Loading kundali data...'}
             </p>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     );
   }
 
   return (
-    <Card className="h-[600px] flex flex-col bg-white border-gray-200">
-      <CardHeader className="pb-4 flex-shrink-0">
-        <CardTitle className="flex items-center gap-2 text-gray-900">
-          <Sparkles className="h-5 w-5 text-orange-400" />
-          {language === 'hi' ? "ऋषि पराशर - वैदिक ज्योतिष गुरु" : "Rishi Parashar - Vedic Astrology Sage"}
-        </CardTitle>
-        <div className="flex flex-wrap gap-2">
+    <div className="h-[600px] flex flex-col bg-white border-gray-200 rounded-lg overflow-hidden">
+      {/* Header */}
+      <div className="flex-shrink-0 p-4 bg-gradient-to-r from-orange-500 to-red-500 text-white">
+        <div className="flex items-center gap-2">
+          <Sparkles className="h-5 w-5 text-yellow-200" />
+          <h3 className="text-lg font-semibold">
+            {language === 'hi' ? "ऋषि पराशर - वैदिक ज्योतिष गुरु" : "Rishi Parashar - Vedic Astrology Sage"}
+          </h3>
+        </div>
+        <div className="flex flex-wrap gap-2 mt-3">
           {suggestedQuestions.slice(0, 3).map((question, index) => (
             <Badge 
               key={index} 
               variant="outline" 
-              className="cursor-pointer hover:bg-orange-100 text-xs border-gray-300 text-gray-700 hover:text-gray-900 bg-white"
+              className="cursor-pointer hover:bg-white/20 text-xs border-white/30 text-white hover:text-white bg-white/10 transition-colors"
               onClick={() => setInputValue(question)}
             >
               {question}
             </Badge>
           ))}
         </div>
-      </CardHeader>
+      </div>
       
-      <Separator className="bg-gray-200 flex-shrink-0" />
-      
-      <CardContent className="flex-1 flex flex-col p-0 min-h-0">
-        <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
+      {/* Messages Area */}
+      <div className="flex-1 overflow-hidden">
+        <ScrollArea className="h-full p-4" ref={scrollAreaRef}>
           <div className="space-y-4">
             {messages.map((message) => (
               <div key={message.id} className={`flex gap-3 ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}>
@@ -275,31 +277,30 @@ Respond in ${language === 'hi' ? 'Hindi' : 'English'} in the tone of a loving, w
             )}
           </div>
         </ScrollArea>
-        
-        <Separator className="bg-gray-200 flex-shrink-0" />
-        
-        <div className="p-4 flex-shrink-0">
-          <div className="flex gap-2">
-            <Input
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder={language === 'hi' ? "ऋषि जी से अपना प्रश्न पूछें..." : "Ask Rishi ji your question..."}
-              disabled={isLoading}
-              className="flex-1 bg-white border-gray-300 text-gray-900 placeholder-gray-500"
-            />
-            <Button 
-              onClick={handleSendMessage}
-              disabled={!inputValue.trim() || isLoading}
-              size="icon"
-              className="bg-orange-500 hover:bg-orange-600"
-            >
-              <Send className="h-4 w-4" />
-            </Button>
-          </div>
+      </div>
+      
+      {/* Input Area - Fixed at bottom */}
+      <div className="flex-shrink-0 border-t border-gray-200 p-4 bg-white">
+        <div className="flex gap-2">
+          <Input
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyPress={handleKeyPress}
+            placeholder={language === 'hi' ? "ऋषि जी से अपना प्रश्न पूछें..." : "Ask Rishi ji your question..."}
+            disabled={isLoading}
+            className="flex-1 bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-orange-500 focus:ring-orange-500"
+          />
+          <Button 
+            onClick={handleSendMessage}
+            disabled={!inputValue.trim() || isLoading}
+            size="icon"
+            className="bg-orange-500 hover:bg-orange-600 flex-shrink-0"
+          >
+            <Send className="h-4 w-4" />
+          </Button>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
 
