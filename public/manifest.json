@@ -1,0 +1,60 @@
+
+{
+  "name": "AyushAstro - Free Vedic Astrology Kundali",
+  "short_name": "AyushAstro",
+  "description": "Get your free detailed Vedic astrology Kundali with precise birth chart analysis, planetary positions, and AI-powered predictions.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ea580c",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["lifestyle", "entertainment", "spirituality"],
+  "screenshots": [
+    {
+      "src": "/lovable-uploads/18da27cd-3784-4fde-a3ba-199421c6eb86.png",
+      "sizes": "1920x1080",
+      "type": "image/png",
+      "platform": "wide",
+      "label": "AyushAstro Desktop View"
+    }
+  ],
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "48x48 32x32 16x16",
+      "type": "image/x-icon",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Generate Kundali",
+      "short_name": "Kundali",
+      "description": "Create your free Vedic astrology birth chart",
+      "url": "/kundali",
+      "icons": [
+        {
+          "src": "/favicon.ico",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Personality Test",
+      "short_name": "Test",
+      "description": "Take our advanced personality analysis",
+      "url": "/personality-test",
+      "icons": [
+        {
+          "src": "/favicon.ico",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
+}
