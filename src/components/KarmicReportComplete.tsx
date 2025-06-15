@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -65,7 +64,7 @@ const KarmicReportComplete: React.FC<KarmicReportCompleteProps> = ({ kundaliData
     const planetsInTenth = Object.entries(planets).filter(([_, data]: [string, any]) => data?.house === 10);
     const tenthHouseLord = planetsInTenth.length > 0 
       ? `${planetsInTenth[0][0]} in ${planetsInTenth[0][1]?.rashiName || 'Unknown'}` 
-      : (tenthHouse && typeof tenthHouse === 'object' && 'rashiName' in tenthHouse ? tenthHouse.rashiName as string : 'Unknown');
+      : (tenthHouse && typeof tenthHouse === 'object' && tenthHouse !== null && 'rashiName' in tenthHouse && typeof (tenthHouse as any).rashiName === 'string' ? (tenthHouse as any).rashiName : 'Unknown');
 
     // Analyze planetary strengths for D10 with proper type checking
     const strongPlanets = Object.entries(planets)
@@ -110,8 +109,8 @@ const KarmicReportComplete: React.FC<KarmicReportCompleteProps> = ({ kundaliData
       });
     }
     if (strongPlanets.includes('MA') && (
-      (tenthHouse && typeof tenthHouse === 'object' && 'rashiName' in tenthHouse && tenthHouse.rashiName === 'Aries') || 
-      (tenthHouse && typeof tenthHouse === 'object' && 'rashiName' in tenthHouse && tenthHouse.rashiName === 'Scorpio')
+      (tenthHouse && typeof tenthHouse === 'object' && tenthHouse !== null && 'rashiName' in tenthHouse && (tenthHouse as any).rashiName === 'Aries') || 
+      (tenthHouse && typeof tenthHouse === 'object' && tenthHouse !== null && 'rashiName' in tenthHouse && (tenthHouse as any).rashiName === 'Scorpio')
     )) {
       idealCareers.push({
         role: language === 'hi' ? 'इंजीनियर/तकनीशियन' : 'Engineer/Technician',
@@ -288,7 +287,7 @@ const KarmicReportComplete: React.FC<KarmicReportCompleteProps> = ({ kundaliData
       Math.min(95, Math.max(35, Math.round((Object.values(kundaliData?.enhancedCalculations?.planets || {}).reduce((sum: number, planet: any) => {
         const shadbalaValue = typeof planet?.shadbala === 'number' ? planet.shadbala : 50;
         return sum + shadbalaValue;
-      }, 0) / Object.keys(kundaliData?.enhancedCalculations?.planets || {}).length || 1) * 1.2))) : 62,
+      }, 0) / Math.max(1, Object.keys(kundaliData?.enhancedCalculations?.planets || {}).length)) * 1.2))) : 62,
     grahaEnergies: personalizedData ? [
       {
         name: language === 'hi' ? 'बृहस्पति' : 'Jupiter',
