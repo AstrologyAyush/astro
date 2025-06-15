@@ -28,12 +28,9 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme === 'dark') {
       setIsDark(true);
-    } else if (savedTheme === 'light') {
-      setIsDark(false);
     } else {
-      // Check system preference
-      const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      setIsDark(systemDark);
+      // Default to light mode instead of checking system preference
+      setIsDark(false);
     }
   }, []);
 
