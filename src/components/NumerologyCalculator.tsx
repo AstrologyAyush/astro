@@ -9,7 +9,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { calculateNumerologyProfile, checkCompatibility, NumerologyProfile } from '@/lib/numerologyUtils';
 import CompatibilityChecker from './CompatibilityChecker';
 import NumerologyInsights from './NumerologyInsights';
-import { AlertCircle, Star, Heart, Shield, Gem, BookOpen, Lightbulb } from 'lucide-react';
+import NumerologyGlossary from './NumerologyGlossary';
+import { AlertCircle, Star, Heart, Shield, Gem, BookOpen, Lightbulb, Info } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 const NumerologyCalculator: React.FC = () => {
@@ -55,13 +56,17 @@ const NumerologyCalculator: React.FC = () => {
       </Card>
 
       {profile && <Tabs defaultValue="insights" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-6">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-7">
             <TabsTrigger value="insights">{t('insights')}</TabsTrigger>
             <TabsTrigger value="core">{t('core')}</TabsTrigger>
             <TabsTrigger value="personality">{t('personality')}</TabsTrigger>
             <TabsTrigger value="karmic">{t('karmic')}</TabsTrigger>
             <TabsTrigger value="remedies">{t('remedies')}</TabsTrigger>
             <TabsTrigger value="compatibility">{t('compatibility')}</TabsTrigger>
+            <TabsTrigger value="glossary">
+              <Info className="h-4 w-4 md:mr-1" />
+              <span className="hidden md:inline">{t('glossary') || 'Glossary'}</span>
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="insights" className="space-y-4">
@@ -390,6 +395,10 @@ const NumerologyCalculator: React.FC = () => {
 
           <TabsContent value="compatibility" className="space-y-4">
             <CompatibilityChecker currentProfile={profile} currentName={name} />
+          </TabsContent>
+
+          <TabsContent value="glossary" className="space-y-4">
+            <NumerologyGlossary />
           </TabsContent>
         </Tabs>}
     </div>;
