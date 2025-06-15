@@ -462,7 +462,7 @@ const DharmaAlignmentAnalysis: React.FC<DharmaAlignmentAnalysisProps> = ({ kunda
       <Tabs defaultValue="analysis" className="w-full">
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="analysis">{getTranslation('Analysis', 'विश्लेषण')}</TabsTrigger>
-          <TabsTrigger value="blocks">{getTranslation('Karma Blocks', 'कर्म अवरोध')}</TabsTrigger>
+          <TabsTrigger value="blocks">{getTranslation('Karma', 'कर्म')}</TabsTrigger>
           <TabsTrigger value="paths">{getTranslation('Ideal Paths', 'आदर्श पथ')}</TabsTrigger>
           <TabsTrigger value="timing">{getTranslation('Timing', 'समय')}</TabsTrigger>
         </TabsList>
