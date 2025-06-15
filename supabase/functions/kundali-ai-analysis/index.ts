@@ -30,7 +30,17 @@ serve(async (req) => {
     });
 
     if (!kundaliData || !userQuery?.trim()) {
+      console.error('Missing required data:', { hasKundaliData: !!kundaliData, hasUserQuery: !!userQuery });
       throw new Error('Missing required data: kundaliData and userQuery are required');
+    }
+
+    if (!GEMINI_API_KEY) {
+      console.error('GEMINI_API_KEY not found in environment variables');
+      return new Response(JSON.stringify({ 
+        analysis: generateFallbackAnalysis(kundaliData, userQuery, language, analysisType)
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     // Create enhanced cache key including analysis type
@@ -49,69 +59,66 @@ serve(async (req) => {
 
     let analysis = '';
 
-    if (GEMINI_API_KEY) {
-      try {
-        console.log('Calling Gemini API...');
-        
-        // Create proper prompt based on analysis type
-        const prompt = analysisType === 'rishi_conversation' 
-          ? userQuery 
-          : createDetailedKundaliPrompt(kundaliData, userQuery, language, analysisType);
-        
-        console.log('Generated prompt length:', prompt.length);
-        
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
+    try {
+      console.log('Calling Gemini API...');
+      
+      // Create proper prompt based on analysis type
+      const prompt = analysisType === 'rishi_conversation' 
+        ? userQuery 
+        : createDetailedKundaliPrompt(kundaliData, userQuery, language, analysisType);
+      
+      console.log('Generated prompt length:', prompt.length);
+      
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          contents: [{
+            parts: [{
+              text: prompt
+            }]
+          }],
+          generationConfig: {
+            temperature: analysisType === 'rishi_conversation' ? 0.8 : 0.7,
+            topK: analysisType === 'rishi_conversation' ? 30 : 40,
+            topP: analysisType === 'rishi_conversation' ? 0.9 : 0.95,
+            maxOutputTokens: analysisType === 'rishi_conversation' ? 1000 : 2048,
           },
-          body: JSON.stringify({
-            contents: [{
-              parts: [{
-                text: prompt
-              }]
-            }],
-            generationConfig: {
-              temperature: analysisType === 'rishi_conversation' ? 0.8 : 0.7,
-              topK: analysisType === 'rishi_conversation' ? 30 : 40,
-              topP: analysisType === 'rishi_conversation' ? 0.9 : 0.95,
-              maxOutputTokens: analysisType === 'rishi_conversation' ? 1000 : 2048,
+          safetySettings: [
+            {
+              category: "HARM_CATEGORY_HARASSMENT",
+              threshold: "BLOCK_MEDIUM_AND_ABOVE"
             },
-            safetySettings: [
-              {
-                category: "HARM_CATEGORY_HARASSMENT",
-                threshold: "BLOCK_MEDIUM_AND_ABOVE"
-              },
-              {
-                category: "HARM_CATEGORY_HATE_SPEECH",
-                threshold: "BLOCK_MEDIUM_AND_ABOVE"
-              }
-            ]
-          }),
-        });
+            {
+              category: "HARM_CATEGORY_HATE_SPEECH",
+              threshold: "BLOCK_MEDIUM_AND_ABOVE"
+            }
+          ]
+        }),
+      });
 
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error('Gemini API error:', response.status, errorText);
-          throw new Error(`Gemini API error: ${response.status} - ${errorText}`);
-        }
-
-        const data = await response.json();
-        analysis = data.candidates?.[0]?.content?.parts?.[0]?.text;
-        
-        if (!analysis) {
-          console.error('No analysis text received from Gemini:', data);
-          throw new Error('No analysis text received from Gemini');
-        }
-
-        console.log('Gemini API response received successfully, length:', analysis.length);
-
-      } catch (apiError) {
-        console.error('Gemini API failed, using fallback:', apiError);
-        analysis = generateFallbackAnalysis(kundaliData, userQuery, language, analysisType);
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Gemini API error:', response.status, errorText);
+        throw new Error(`Gemini API error: ${response.status} - ${errorText}`);
       }
-    } else {
-      console.log('No Gemini API key found, using fallback analysis');
+
+      const data = await response.json();
+      console.log('Gemini API response structure:', JSON.stringify(data, null, 2));
+      
+      analysis = data.candidates?.[0]?.content?.parts?.[0]?.text;
+      
+      if (!analysis) {
+        console.error('No analysis text received from Gemini:', data);
+        throw new Error('No analysis text received from Gemini');
+      }
+
+      console.log('Gemini API response received successfully, length:', analysis.length);
+
+    } catch (apiError) {
+      console.error('Gemini API failed, using fallback:', apiError);
       analysis = generateFallbackAnalysis(kundaliData, userQuery, language, analysisType);
     }
 
@@ -292,6 +299,8 @@ function generateFallbackAnalysis(kundaliData: any, userQuery: string, language:
   const currentDasha = calculations.dashas?.find(d => d.isActive);
   const activeYogas = calculations.yogas?.filter(y => y.isActive) || [];
   const lagna = calculations.lagna;
+  
+  console.log('Generating fallback analysis for:', { analysisType, language, hasCurrentDasha: !!currentDasha });
   
   if (analysisType === 'rishi_conversation') {
     return generateRishiConversationFallback(calculations, currentDasha, language, userQuery);

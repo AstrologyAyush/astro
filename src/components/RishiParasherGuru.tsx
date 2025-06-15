@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { Send, Bot, User, Sparkles, GripHorizontal } from "lucide-react";
+import { Send, Bot, User, Sparkles, GripHorizontal, AlertCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -13,6 +13,7 @@ interface Message {
   type: 'user' | 'rishi';
   content: string;
   timestamp: Date;
+  isError?: boolean;
 }
 
 interface RishiParasherGuruProps {
@@ -26,6 +27,7 @@ const RishiParasherGuru: React.FC<RishiParasherGuruProps> = ({ kundaliData, lang
   const [isLoading, setIsLoading] = useState(false);
   const [chatHeight, setChatHeight] = useState(400);
   const [isDragging, setIsDragging] = useState(false);
+  const [connectionStatus, setConnectionStatus] = useState<'online' | 'offline' | 'error'>('online');
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
@@ -154,6 +156,7 @@ ${enhancedCalc.doshas?.filter(d => d.isPresent).map(d => `${d.name}: ${d.severit
     setMessages(prev => [...prev, userMessage]);
     setInputValue('');
     setIsLoading(true);
+    setConnectionStatus('online');
 
     try {
       const chartContext = createDetailedChartContext();
@@ -172,6 +175,8 @@ Based on this person's ACTUAL birth chart data, current dasha periods, and plane
 
 Respond in ${language === 'hi' ? 'Hindi' : 'English'} in the tone of a loving, wise sage. Keep the response conversational and personal, as if speaking directly to them.`;
 
+      console.log('Sending request to Gemini API via edge function...');
+
       const { data, error } = await supabase.functions.invoke('kundali-ai-analysis', {
         body: {
           kundaliData,
@@ -181,7 +186,12 @@ Respond in ${language === 'hi' ? 'Hindi' : 'English'} in the tone of a loving, w
         }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Edge function error:', error);
+        throw error;
+      }
+
+      console.log('Received response from edge function:', data);
 
       const rishiMessage: Message = {
         id: (Date.now() + 1).toString(),
@@ -193,8 +203,11 @@ Respond in ${language === 'hi' ? 'Hindi' : 'English'} in the tone of a loving, w
       };
 
       setMessages(prev => [...prev, rishiMessage]);
+      setConnectionStatus('online');
+
     } catch (error) {
       console.error('Error getting Rishi Parasher response:', error);
+      setConnectionStatus('error');
       
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
@@ -202,14 +215,15 @@ Respond in ${language === 'hi' ? 'Hindi' : 'English'} in the tone of a loving, w
         content: language === 'hi' 
           ? '🙏 पुत्र, ब्रह्मांडीय ऊर्जाओं में व्यवधान है। कृपया थोड़ी देर बाद पुनः प्रयास करें। आपकी कुंडली के अनुसार धैर्य रखना आपके लिए शुभ है।'
           : '🙏 Dear child, there is a disturbance in cosmic energies. Please try again after some time. According to your chart, patience is auspicious for you.',
-        timestamp: new Date()
+        timestamp: new Date(),
+        isError: true
       };
 
       setMessages(prev => [...prev, errorMessage]);
       
       toast({
-        title: language === 'hi' ? "त्रुटि" : "Error",
-        description: language === 'hi' ? "ऋषि जी से संपर्क में समस्या हुई है।" : "There was an issue connecting with Rishi ji.",
+        title: language === 'hi' ? "कनेक्शन त्रुटि" : "Connection Error",
+        description: language === 'hi' ? "ऋषि जी से संपर्क में समस्या हुई है। कृपया पुनः प्रयास करें।" : "There was an issue connecting with Rishi ji. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -262,13 +276,16 @@ Respond in ${language === 'hi' ? 'Hindi' : 'English'} in the tone of a loving, w
       className="flex flex-col bg-white h-full"
       style={{ height: `${chatHeight}px` }}
     >
-      {/* Header */}
+      {/* Header with Connection Status */}
       <div className="flex-shrink-0 p-3 bg-gradient-to-r from-orange-500 to-red-500 text-white">
         <div className="flex items-center gap-2">
           <Sparkles className="h-4 w-4 text-yellow-200" />
           <h3 className="text-sm font-semibold">
             {language === 'hi' ? "ऋषि पराशर - वैदिक ज्योतिष गुरु" : "Rishi Parashar - Vedic Astrology Sage"}
           </h3>
+          {connectionStatus === 'error' && (
+            <AlertCircle className="h-4 w-4 text-red-200" />
+          )}
         </div>
         <div className="flex flex-wrap gap-1 mt-2">
           {suggestedQuestions.slice(0, 2).map((question, index) => (
@@ -299,7 +316,9 @@ Respond in ${language === 'hi' ? 'Hindi' : 'English'} in the tone of a loving, w
                   <div className={`p-2 rounded-lg ${
                     message.type === 'user' 
                       ? 'bg-blue-600 text-white' 
-                      : 'bg-gradient-to-br from-orange-500 to-red-600 text-white shadow-lg'
+                      : message.isError
+                        ? 'bg-red-100 text-red-800 border border-red-200'
+                        : 'bg-gradient-to-br from-orange-500 to-red-600 text-white shadow-lg'
                   }`}>
                     <p className="text-xs whitespace-pre-wrap leading-relaxed font-medium">{message.content}</p>
                     <p className="text-xs opacity-80 mt-1">
@@ -352,11 +371,18 @@ Respond in ${language === 'hi' ? 'Hindi' : 'English'} in the tone of a loving, w
             onClick={handleSendMessage}
             disabled={!inputValue.trim() || isLoading}
             size="sm"
-            className="bg-orange-500 hover:bg-orange-600 flex-shrink-0 px-3"
+            className={`bg-orange-500 hover:bg-orange-600 flex-shrink-0 px-3 ${
+              connectionStatus === 'error' ? 'bg-red-500 hover:bg-red-600' : ''
+            }`}
           >
             <Send className="h-3 w-3" />
           </Button>
         </div>
+        {connectionStatus === 'error' && (
+          <p className="text-xs text-red-600 mt-1">
+            {language === 'hi' ? 'कनेक्शन में समस्या है। पुनः प्रयास करें।' : 'Connection issue. Please try again.'}
+          </p>
+        )}
       </div>
     </div>
   );
