@@ -1,4 +1,3 @@
-
 import React, { Suspense, lazy, useMemo, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,6 +8,7 @@ import EnhancedDailyHoroscope from './EnhancedDailyHoroscope';
 import EnhancedKundaliPDFExport from './EnhancedKundaliPDFExport';
 import DharmaAlignmentAnalysis from './DharmaAlignmentAnalysis';
 import AIEnhancementSuite from './AIEnhancementSuite';
+import EnhancedGeminiAnalysis from './EnhancedGeminiAnalysis';
 
 // Lazy load heavy components for better mobile performance
 const KundaliConsultationView = lazy(() => import('./KundaliConsultationView'));
@@ -233,6 +233,26 @@ const KundaliResultsView: React.FC<KundaliResultsViewProps> = ({
             <CardContent className="p-3 sm:p-4 lg:p-6">
               <Suspense fallback={<TabLoadingSpinner />}>
                 <AIEnhancementSuite kundaliData={memoizedKundaliData} language={language} />
+              </Suspense>
+            </CardContent>
+          </Card>
+
+          {/* Enhanced Gemini Analysis - Separated Section */}
+          <Card className="w-full border-green-200 shadow-lg bg-white/95 backdrop-blur-sm">
+            <CardHeader className="bg-gradient-to-r from-green-100 to-emerald-100 p-3 sm:p-4 lg:p-6">
+              <CardTitle className="text-green-800 flex items-center gap-2 text-base sm:text-lg lg:text-xl text-center sm:text-left">
+                <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-green-600 flex-shrink-0" />
+                <span className="leading-tight">
+                  {getTranslation('Enhanced AI Deep Analysis', 'उन्नत AI गहरा विश्लेषण')}
+                </span>
+              </CardTitle>
+              <p className="text-sm text-green-600 mt-2">
+                {getTranslation('Advanced AI-powered detailed personality and life analysis', 'उन्नत AI-संचालित विस्तृत व्यक्तित्व और जीवन विश्लेषण')}
+              </p>
+            </CardHeader>
+            <CardContent className="p-3 sm:p-4 lg:p-6">
+              <Suspense fallback={<TabLoadingSpinner />}>
+                <EnhancedGeminiAnalysis kundaliData={memoizedKundaliData} language={language} />
               </Suspense>
             </CardContent>
           </Card>

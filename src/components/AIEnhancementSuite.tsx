@@ -6,7 +6,6 @@ import { Bot, Sparkles, Gem, Lightbulb, TrendingUp, Heart, Brain, Zap, Target } 
 import KundaliAIChat from './KundaliAIChat';
 
 // Lazy load heavy AI components
-const EnhancedGeminiAnalysis = lazy(() => import('./EnhancedGeminiAnalysis'));
 const AIPersonalizedPredictions = lazy(() => import('./AIPersonalizedPredictions'));
 const AIRemedySuggestions = lazy(() => import('./AIRemedySuggestions'));
 const AICareerGuidance = lazy(() => import('./AICareerGuidance'));
@@ -56,7 +55,7 @@ const AIEnhancementSuite: React.FC<AIEnhancementSuiteProps> = ({
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-1 bg-white/80 backdrop-blur-sm rounded-xl p-2 shadow-lg">
+        <TabsList className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-1 bg-white/80 backdrop-blur-sm rounded-xl p-2 shadow-lg">
           <TabsTrigger 
             value="ai-chat" 
             className="flex flex-col items-center gap-1 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white text-xs p-2 min-h-[60px] rounded-md transition-all duration-200"
@@ -64,16 +63,6 @@ const AIEnhancementSuite: React.FC<AIEnhancementSuiteProps> = ({
             <Bot className="h-3 w-3" />
             <span className="text-center font-medium">
               {getTranslation('AI Guru Chat', 'AI गुरु चैट')}
-            </span>
-          </TabsTrigger>
-          
-          <TabsTrigger 
-            value="enhanced-analysis" 
-            className="flex flex-col items-center gap-1 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white text-xs p-2 min-h-[60px] rounded-md transition-all duration-200"
-          >
-            <Brain className="h-3 w-3" />
-            <span className="text-center font-medium">
-              {getTranslation('Deep Analysis', 'गहरा विश्लेषण')}
             </span>
           </TabsTrigger>
           
@@ -155,15 +144,6 @@ const AIEnhancementSuite: React.FC<AIEnhancementSuiteProps> = ({
                 />
               </CardContent>
             </Card>
-          </TabsContent>
-
-          <TabsContent value="enhanced-analysis" className="mt-0">
-            <Suspense fallback={<LoadingSpinner />}>
-              <EnhancedGeminiAnalysis 
-                kundaliData={kundaliData} 
-                language={language} 
-              />
-            </Suspense>
           </TabsContent>
 
           <TabsContent value="predictions" className="mt-0">
