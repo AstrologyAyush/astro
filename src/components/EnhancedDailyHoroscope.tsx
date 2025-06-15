@@ -381,7 +381,7 @@ const EnhancedDailyHoroscope: React.FC<EnhancedDailyHoroscopeProps> = ({
               </TabsContent>
 
               <TabsContent value="remedies" className="space-y-4">
-                <div className="bg-violet-50 p-6 rounded-lg border border-violet-200">
+                <div className="bg-violet-50 p-6 rounded-lg border border-violet-200 shadow-md mt-4 mb-6 sm:mt-6 sm:mb-8">
                   <h3 className="font-semibold text-violet-800 mb-4">
                     {getTranslation("Today's Remedies", 'आज के उपाय')}
                   </h3>
