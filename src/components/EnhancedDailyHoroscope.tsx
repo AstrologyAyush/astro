@@ -326,7 +326,7 @@ const EnhancedDailyHoroscope: React.FC<EnhancedDailyHoroscopeProps> = ({
               </TabsContent>
 
               <TabsContent value="detailed" className="space-y-4">
-                <div className="bg-orange-50 p-6 rounded-lg border border-orange-200">
+                <div className="bg-orange-50 p-6 rounded-lg border border-orange-200 shadow-md mt-4 mb-6 sm:mt-6 sm:mb-8">
                   <h3 className="font-semibold text-orange-800 mb-3">
                     {getTranslation('Challenges to Watch', 'देखने योग्य चुनौतियां')}
                   </h3>
