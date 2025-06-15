@@ -1,4 +1,5 @@
-import React, { Suspense, lazy, useMemo } from 'react';
+
+import React, { Suspense, lazy, useMemo, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -37,6 +38,8 @@ const KundaliResultsView: React.FC<KundaliResultsViewProps> = ({
   onBack, 
   language = 'en' 
 }) => {
+  const [activeTab, setActiveTab] = useState('enhanced-charts');
+
   const getTranslation = (en: string, hi: string) => {
     return language === 'hi' ? hi : en;
   };
