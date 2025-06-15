@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -36,13 +35,6 @@ const RishiParasherGuru: React.FC<RishiParasherGuruProps> = ({ kundaliData, lang
     return language === 'hi' ? hi : en;
   };
 
-  // Create cache key for responses
-  const getCacheKey = (query: string) => {
-    if (!kundaliData?.birthData) return null;
-    const { fullName, date } = kundaliData.birthData;
-    return `rishi_response_${fullName}_${date}_${query}_${language}`;
-  };
-
   // Helper function to get sign name from number
   const getSignName = (signNumber: number): string => {
     const signs = [
@@ -52,9 +44,22 @@ const RishiParasherGuru: React.FC<RishiParasherGuruProps> = ({ kundaliData, lang
     return signs[signNumber - 1] || 'Unknown';
   };
 
+  // Get sign names safely using rashiName property - moved to component level
+  const getSafeSignName = (planet: any): string => {
+    if (!planet) return 'Unknown';
+    return planet.rashiName || getSignName(planet.rashi || 1);
+  };
+
   // Get house data helper function
   const getHouseData = (houseNum: number) => {
     return kundaliData?.enhancedCalculations?.houses?.find(h => h.number === houseNum);
+  };
+
+  // Create cache key for responses
+  const getCacheKey = (query: string) => {
+    if (!kundaliData?.birthData) return null;
+    const { fullName, date } = kundaliData.birthData;
+    return `rishi_response_${fullName}_${date}_${query}_${language}`;
   };
 
   // Enhanced fallback response with specific personal recommendations
@@ -82,12 +87,6 @@ const RishiParasherGuru: React.FC<RishiParasherGuruProps> = ({ kundaliData, lang
     const jupiterPosition = planets?.JU;
     const mercuryPosition = planets?.ME;
     const saturnPosition = planets?.SA;
-
-    // Get sign names safely using rashiName property
-    const getSafeSignName = (planet: any): string => {
-      if (!planet) return 'Unknown';
-      return planet.rashiName || getSignName(planet.rashi || 1);
-    };
 
     // Get sign names for variables used later
     const sunSign = getSafeSignName(sunPosition);
@@ -496,11 +495,6 @@ May you prosper, ${birthData?.fullName}! My blessings are always with you. ðŸ•‰ï
     const planets = kundaliData.enhancedCalculations.planets;
     const activeYogas = kundaliData.enhancedCalculations.yogas?.filter(y => y.isActive) || [];
     const currentDasha = kundaliData.enhancedCalculations.dashas?.find(d => d.isActive);
-    
-    const getSafeSignName = (planet: any): string => {
-      if (!planet) return 'Unknown';
-      return planet.rashiName || getSignName(planet.rashi || 1);
-    };
     
     const welcomeMessage: Message = {
       id: '1',
