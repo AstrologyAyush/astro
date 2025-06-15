@@ -1,6 +1,8 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useIsMobile } from '@/hooks/use-mobile';
+import MobileKundaliChart from './MobileKundaliChart';
 
 interface KundaliChartProps {
   kundaliData?: any;
@@ -8,6 +10,13 @@ interface KundaliChartProps {
 }
 
 const KundaliChart: React.FC<KundaliChartProps> = ({ kundaliData, language = 'en' }) => {
+  const isMobile = useIsMobile();
+
+  // Use mobile-optimized chart for mobile devices
+  if (isMobile) {
+    return <MobileKundaliChart kundaliData={kundaliData} language={language} />;
+  }
+
   // Early return with loading state if kundaliData is not available
   if (!kundaliData) {
     return (
@@ -111,7 +120,7 @@ const KundaliChart: React.FC<KundaliChartProps> = ({ kundaliData, language = 'en
         )}
       </CardHeader>
       <CardContent className="p-3 sm:p-4 md:p-6">
-        {/* Mobile-optimized calculated information */}
+        {/* Desktop calculated information */}
         <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-gradient-to-r from-orange-50 to-red-50 rounded-lg border border-orange-200">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 text-center">
             <div>
@@ -142,7 +151,7 @@ const KundaliChart: React.FC<KundaliChartProps> = ({ kundaliData, language = 'en
         </div>
 
         <div className="kundali-chart">
-          {/* Mobile-responsive grid */}
+          {/* Desktop grid */}
           <div className="grid grid-cols-4 gap-0.5 sm:gap-1 max-w-sm sm:max-w-md mx-auto">
             {houseData.map((house, index) => (
               <div
@@ -169,7 +178,7 @@ const KundaliChart: React.FC<KundaliChartProps> = ({ kundaliData, language = 'en
           </div>
         </div>
 
-        {/* Mobile-optimized additional chart information */}
+        {/* Desktop additional chart information */}
         <div className="mt-4 sm:mt-6 text-xs sm:text-sm text-gray-600 text-center px-2">
           <p>
             {language === 'hi' 
