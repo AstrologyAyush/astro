@@ -212,7 +212,7 @@ Respond in ${language === 'hi' ? 'Hindi' : 'English'} in the tone of a loving, w
 
   return (
     <Card className="h-[600px] flex flex-col bg-white border-gray-200">
-      <CardHeader className="pb-4">
+      <CardHeader className="pb-4 flex-shrink-0">
         <CardTitle className="flex items-center gap-2 text-gray-900">
           <Sparkles className="h-5 w-5 text-orange-400" />
           {language === 'hi' ? "ऋषि पराशर - वैदिक ज्योतिष गुरु" : "Rishi Parashar - Vedic Astrology Sage"}
@@ -231,9 +231,9 @@ Respond in ${language === 'hi' ? 'Hindi' : 'English'} in the tone of a loving, w
         </div>
       </CardHeader>
       
-      <Separator className="bg-gray-200" />
+      <Separator className="bg-gray-200 flex-shrink-0" />
       
-      <CardContent className="flex-1 flex flex-col p-0">
+      <CardContent className="flex-1 flex flex-col p-0 min-h-0">
         <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
           <div className="space-y-4">
             {messages.map((message) => (
@@ -276,9 +276,9 @@ Respond in ${language === 'hi' ? 'Hindi' : 'English'} in the tone of a loving, w
           </div>
         </ScrollArea>
         
-        <Separator className="bg-gray-200" />
+        <Separator className="bg-gray-200 flex-shrink-0" />
         
-        <div className="p-4">
+        <div className="p-4 flex-shrink-0">
           <div className="flex gap-2">
             <Input
               value={inputValue}
