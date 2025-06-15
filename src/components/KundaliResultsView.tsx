@@ -141,7 +141,7 @@ const KundaliResultsView: React.FC<KundaliResultsViewProps> = ({
             </CardHeader>
             <CardContent className="p-2 sm:p-4 lg:p-6">
               <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-                <TabsList className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-1 bg-white/80 backdrop-blur-sm rounded-xl p-2 shadow-lg">
+                <TabsList className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-1 bg-white/80 backdrop-blur-sm rounded-xl p-2 shadow-lg">
                   <TabsTrigger value="enhanced-charts" className="flex flex-col items-center gap-1 data-[state=active]:bg-purple-600 data-[state=active]:text-white text-xs sm:text-sm p-2 sm:p-3 min-h-[60px] sm:min-h-[70px] rounded-md transition-all duration-200 border border-purple-200 dark:border-purple-600 bg-white dark:bg-gray-800">
                     <Grid className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
                     <span className="text-center leading-tight font-medium">
@@ -158,12 +158,6 @@ const KundaliResultsView: React.FC<KundaliResultsViewProps> = ({
                     <Sparkles className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
                     <span className="text-center leading-tight font-medium">
                       {getTranslation('Basic Karmic', 'बुनियादी कर्मिक')}
-                    </span>
-                  </TabsTrigger>
-                  <TabsTrigger value="karmic-complete" className="flex flex-col items-center gap-1 data-[state=active]:bg-purple-600 data-[state=active]:text-white text-xs sm:text-sm p-2 sm:p-3 min-h-[60px] sm:min-h-[70px] rounded-md transition-all duration-200 border border-purple-200 dark:border-purple-600 bg-white dark:bg-gray-800">
-                    <FileText className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-                    <span className="text-center leading-tight font-medium">
-                      {getTranslation('Full Karmic', 'संपूर्ण कर्मिक')}
                     </span>
                   </TabsTrigger>
                   <TabsTrigger value="consultation" className="flex flex-col items-center gap-1 data-[state=active]:bg-purple-600 data-[state=active]:text-white text-xs sm:text-sm p-2 sm:p-3 min-h-[60px] sm:min-h-[70px] rounded-md transition-all duration-200 border border-purple-200 dark:border-purple-600 bg-white dark:bg-gray-800">
@@ -199,12 +193,6 @@ const KundaliResultsView: React.FC<KundaliResultsViewProps> = ({
                     </Suspense>
                   </TabsContent>
 
-                  <TabsContent value="karmic-complete" className="mt-0">
-                    <Suspense fallback={<TabLoadingSpinner />}>
-                      <KarmicReportComplete kundaliData={memoizedKundaliData} language={language} />
-                    </Suspense>
-                  </TabsContent>
-
                   <TabsContent value="consultation" className="mt-0">
                     <Suspense fallback={<TabLoadingSpinner />}>
                       <KundaliConsultationView kundaliData={memoizedKundaliData} language={language} />
@@ -218,6 +206,26 @@ const KundaliResultsView: React.FC<KundaliResultsViewProps> = ({
                   </TabsContent>
                 </div>
               </Tabs>
+            </CardContent>
+          </Card>
+
+          {/* Complete Karmic Report - Separated Section */}
+          <Card className="w-full border-purple-200 shadow-lg bg-white/95 backdrop-blur-sm">
+            <CardHeader className="bg-gradient-to-r from-purple-100 to-indigo-100 p-3 sm:p-4 lg:p-6">
+              <CardTitle className="text-purple-800 flex items-center gap-2 text-base sm:text-lg lg:text-xl text-center sm:text-left">
+                <FileText className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-purple-600 flex-shrink-0" />
+                <span className="leading-tight">
+                  {getTranslation('Complete Karmic Report', 'संपूर्ण कर्मिक रिपोर्ट')}
+                </span>
+              </CardTitle>
+              <p className="text-sm text-purple-600 mt-2">
+                {getTranslation('Comprehensive karmic analysis and career guidance', 'व्यापक कर्मिक विश्लेषण और करियर मार्गदर्शन')}
+              </p>
+            </CardHeader>
+            <CardContent className="p-3 sm:p-4 lg:p-6">
+              <Suspense fallback={<TabLoadingSpinner />}>
+                <KarmicReportComplete kundaliData={memoizedKundaliData} language={language} />
+              </Suspense>
             </CardContent>
           </Card>
 
