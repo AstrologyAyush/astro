@@ -146,6 +146,9 @@ ${enhancedCalc.doshas?.filter(d => d.isPresent).map(d => `${d.name}: ${d.severit
   const handleSendMessage = async () => {
     if (!inputValue.trim() || isLoading) return;
 
+    console.log('🔥 RISHI DEBUG: Starting message send process');
+    console.log('🔥 RISHI DEBUG: Input value:', inputValue);
+
     const userMessage: Message = {
       id: Date.now().toString(),
       type: 'user',
@@ -160,6 +163,7 @@ ${enhancedCalc.doshas?.filter(d => d.isPresent).map(d => `${d.name}: ${d.severit
 
     try {
       const chartContext = createDetailedChartContext();
+      console.log('🔥 RISHI DEBUG: Chart context created:', chartContext.substring(0, 200) + '...');
       
       const systemPrompt = language === 'hi' 
         ? `आप ऋषि पराशर हैं - वैदिक ज्योतिष के महान आचार्य। आप अत्यंत ज्ञानी, दयालु और व्यावहारिक सलाह देने वाले हैं। इस व्यक्ति के वास्तविक जन्म चार्ट डेटा के आधार पर व्यक्तिगत, गहन मार्गदर्शन दें। आपके उत्तर प्रेमपूर्ण, आध्यात्मिक और व्यावहारिक दोनों होने चाहिए। कुंडली के वास्तविक डेटा का उपयोग करके विशिष्ट सुझाव दें।`
@@ -175,7 +179,13 @@ Based on this person's ACTUAL birth chart data, current dasha periods, and plane
 
 Respond in ${language === 'hi' ? 'Hindi' : 'English'} in the tone of a loving, wise sage. Keep the response conversational and personal, as if speaking directly to them.`;
 
-      console.log('Sending request to Gemini API via edge function...');
+      console.log('🔥 RISHI DEBUG: About to call Supabase edge function...');
+      console.log('🔥 RISHI DEBUG: Request payload preview:', {
+        hasKundaliData: !!kundaliData,
+        userQuery: enhancedPrompt.substring(0, 100) + '...',
+        language,
+        analysisType: 'rishi_conversation'
+      });
 
       const { data, error } = await supabase.functions.invoke('kundali-ai-analysis', {
         body: {
@@ -186,12 +196,21 @@ Respond in ${language === 'hi' ? 'Hindi' : 'English'} in the tone of a loving, w
         }
       });
 
+      console.log('🔥 RISHI DEBUG: Supabase response received');
+      console.log('🔥 RISHI DEBUG: Error:', error);
+      console.log('🔥 RISHI DEBUG: Data:', data);
+
       if (error) {
-        console.error('Edge function error:', error);
+        console.error('🔥 RISHI DEBUG: Edge function error:', error);
         throw error;
       }
 
-      console.log('Received response from edge function:', data);
+      if (!data) {
+        console.error('🔥 RISHI DEBUG: No data received from edge function');
+        throw new Error('No data received from edge function');
+      }
+
+      console.log('🔥 RISHI DEBUG: Analysis content:', data.analysis);
 
       const rishiMessage: Message = {
         id: (Date.now() + 1).toString(),
@@ -204,9 +223,13 @@ Respond in ${language === 'hi' ? 'Hindi' : 'English'} in the tone of a loving, w
 
       setMessages(prev => [...prev, rishiMessage]);
       setConnectionStatus('online');
+      console.log('🔥 RISHI DEBUG: Message added to chat successfully');
 
     } catch (error) {
-      console.error('Error getting Rishi Parasher response:', error);
+      console.error('🔥 RISHI DEBUG: Complete error details:', error);
+      console.error('🔥 RISHI DEBUG: Error message:', error.message);
+      console.error('🔥 RISHI DEBUG: Error stack:', error.stack);
+      
       setConnectionStatus('error');
       
       const errorMessage: Message = {
@@ -228,6 +251,7 @@ Respond in ${language === 'hi' ? 'Hindi' : 'English'} in the tone of a loving, w
       });
     } finally {
       setIsLoading(false);
+      console.log('🔥 RISHI DEBUG: Message sending process completed');
     }
   };
 

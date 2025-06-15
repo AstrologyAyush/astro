@@ -9,19 +9,31 @@ const corsHeaders = {
 
 const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY');
 
+console.log('🔥 EDGE DEBUG: Edge function starting...');
+console.log('🔥 EDGE DEBUG: GEMINI_API_KEY exists:', !!GEMINI_API_KEY);
+console.log('🔥 EDGE DEBUG: GEMINI_API_KEY length:', GEMINI_API_KEY?.length || 0);
+
 // Enhanced cache with longer TTL for better performance
 const responseCache = new Map();
 const CACHE_TTL = 10 * 60 * 1000; // 10 minutes
 
 serve(async (req) => {
+  console.log('🔥 EDGE DEBUG: Request received, method:', req.method);
+  
   if (req.method === 'OPTIONS') {
+    console.log('🔥 EDGE DEBUG: Handling CORS preflight request');
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { kundaliData, userQuery, language = 'en', analysisType = 'general' } = await req.json();
+    console.log('🔥 EDGE DEBUG: Processing request...');
+    
+    const requestBody = await req.json();
+    console.log('🔥 EDGE DEBUG: Request body keys:', Object.keys(requestBody));
+    
+    const { kundaliData, userQuery, language = 'en', analysisType = 'general' } = requestBody;
 
-    console.log('Received request:', { 
+    console.log('🔥 EDGE DEBUG: Received request:', { 
       userQuery: userQuery?.substring(0, 100), 
       language, 
       analysisType,
@@ -30,12 +42,14 @@ serve(async (req) => {
     });
 
     if (!kundaliData || !userQuery?.trim()) {
-      console.error('Missing required data:', { hasKundaliData: !!kundaliData, hasUserQuery: !!userQuery });
+      console.error('🔥 EDGE DEBUG: Missing required data:', { hasKundaliData: !!kundaliData, hasUserQuery: !!userQuery });
       throw new Error('Missing required data: kundaliData and userQuery are required');
     }
 
     if (!GEMINI_API_KEY) {
-      console.error('GEMINI_API_KEY not found in environment variables');
+      console.error('🔥 EDGE DEBUG: GEMINI_API_KEY not found in environment variables');
+      console.log('🔥 EDGE DEBUG: Available env vars:', Object.keys(Deno.env.toObject()));
+      
       return new Response(JSON.stringify({ 
         analysis: generateFallbackAnalysis(kundaliData, userQuery, language, analysisType)
       }), {
@@ -50,7 +64,7 @@ serve(async (req) => {
     if (analysisType !== 'rishi_conversation') {
       const cached = responseCache.get(cacheKey);
       if (cached && (Date.now() - cached.timestamp) < CACHE_TTL) {
-        console.log('Returning cached response');
+        console.log('🔥 EDGE DEBUG: Returning cached response');
         return new Response(JSON.stringify({ analysis: cached.response }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
@@ -60,16 +74,20 @@ serve(async (req) => {
     let analysis = '';
 
     try {
-      console.log('Calling Gemini API...');
+      console.log('🔥 EDGE DEBUG: Calling Gemini API...');
       
       // Create proper prompt based on analysis type
       const prompt = analysisType === 'rishi_conversation' 
         ? userQuery 
         : createDetailedKundaliPrompt(kundaliData, userQuery, language, analysisType);
       
-      console.log('Generated prompt length:', prompt.length);
+      console.log('🔥 EDGE DEBUG: Generated prompt length:', prompt.length);
+      console.log('🔥 EDGE DEBUG: Prompt preview:', prompt.substring(0, 200) + '...');
       
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`, {
+      const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`;
+      console.log('🔥 EDGE DEBUG: Gemini URL:', geminiUrl.replace(GEMINI_API_KEY, '[HIDDEN]'));
+      
+      const response = await fetch(geminiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -99,26 +117,32 @@ serve(async (req) => {
         }),
       });
 
+      console.log('🔥 EDGE DEBUG: Gemini response status:', response.status);
+      console.log('🔥 EDGE DEBUG: Gemini response ok:', response.ok);
+
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('Gemini API error:', response.status, errorText);
+        console.error('🔥 EDGE DEBUG: Gemini API error:', response.status, errorText);
         throw new Error(`Gemini API error: ${response.status} - ${errorText}`);
       }
 
       const data = await response.json();
-      console.log('Gemini API response structure:', JSON.stringify(data, null, 2));
+      console.log('🔥 EDGE DEBUG: Gemini API response structure keys:', Object.keys(data));
+      console.log('🔥 EDGE DEBUG: Candidates length:', data.candidates?.length);
       
       analysis = data.candidates?.[0]?.content?.parts?.[0]?.text;
       
       if (!analysis) {
-        console.error('No analysis text received from Gemini:', data);
+        console.error('🔥 EDGE DEBUG: No analysis text received from Gemini:', JSON.stringify(data, null, 2));
         throw new Error('No analysis text received from Gemini');
       }
 
-      console.log('Gemini API response received successfully, length:', analysis.length);
+      console.log('🔥 EDGE DEBUG: Gemini API response received successfully, length:', analysis.length);
+      console.log('🔥 EDGE DEBUG: Analysis preview:', analysis.substring(0, 200) + '...');
 
     } catch (apiError) {
-      console.error('Gemini API failed, using fallback:', apiError);
+      console.error('🔥 EDGE DEBUG: Gemini API failed, using fallback:', apiError);
+      console.error('🔥 EDGE DEBUG: API Error details:', apiError.message);
       analysis = generateFallbackAnalysis(kundaliData, userQuery, language, analysisType);
     }
 
@@ -140,15 +164,18 @@ serve(async (req) => {
           cleanedCount++;
         }
       }
-      console.log(`Cleaned ${cleanedCount} old cache entries`);
+      console.log('🔥 EDGE DEBUG: Cleaned', cleanedCount, 'old cache entries');
     }
 
+    console.log('🔥 EDGE DEBUG: Returning successful response');
     return new Response(JSON.stringify({ analysis }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
   } catch (error) {
-    console.error('Edge function error:', error);
+    console.error('🔥 EDGE DEBUG: Edge function error:', error);
+    console.error('🔥 EDGE DEBUG: Error message:', error.message);
+    console.error('🔥 EDGE DEBUG: Error stack:', error.stack);
     
     const language = req.headers.get('accept-language')?.includes('hi') ? 'hi' : 'en';
     
