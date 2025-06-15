@@ -104,7 +104,7 @@ const AIEnhancementSuite: React.FC<AIEnhancementSuiteProps> = ({
           >
             <Target className="h-3 w-3" />
             <span className="text-center font-medium">
-              {getTranslation('Career AI', 'करियर AI')}
+              {getTranslation('Career', 'करियर')}
             </span>
           </TabsTrigger>
 
