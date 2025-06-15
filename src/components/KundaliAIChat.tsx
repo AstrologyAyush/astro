@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -36,17 +35,23 @@ const KundaliAIChat: React.FC<KundaliAIChatProps> = ({ kundaliData, language, nu
   const { toast } = useToast();
 
   useEffect(() => {
+    // Check if chart data is available before accessing its properties
+    if (!kundaliData?.chart || !kundaliData?.birthData?.fullName) {
+      console.log('Waiting for kundali data to load...');
+      return;
+    }
+
     // Enhanced welcome message
     const welcomeMessage: Message = {
       id: '1',
       type: 'ai',
       content: language === 'hi' 
-        ? `नमस्कार ${kundaliData.birthData.fullName}! मैं महर्षि पराशर हूँ, वैदिक ज्योतिष के महान आचार्य। आपकी जन्मपत्रिका का गहन विश्लेषण करके मैं आपके जीवन के सभी पहलुओं पर प्रकाश डाल सकता हूँ। आपका लग्न ${kundaliData.chart.ascendantSanskrit} है और आपके जीवन में ${kundaliData.chart.yogas.filter(y => y.present).length} शुभ योग हैं। कृपया अपना प्रश्न पूछें।`
-        : `Namaste ${kundaliData.birthData.fullName}! I am Maharishi Parashar, the great sage of Vedic astrology. By deeply analyzing your birth chart, I can illuminate all aspects of your life. Your ascendant is ${kundaliData.chart.ascendantSanskrit} and you have ${kundaliData.chart.yogas.filter(y => y.present).length} auspicious yogas in your life. Please ask your question.`,
+        ? `नमस्कार ${kundaliData.birthData.fullName}! मैं महर्षि पराशर हूँ, वैदिक ज्योतिष के महान आचार्य। आपकी जन्मपत्रिका का गहन विश्लेषण करके मैं आपके जीवन के सभी पहलुओं पर प्रकाश डाल सकता हूँ। आपका लग्न ${kundaliData.chart.ascendantSanskrit || 'अज्ञात'} है और आपके जीवन में ${kundaliData.chart.yogas?.filter(y => y.present).length || 0} शुभ योग हैं। कृपया अपना प्रश्न पूछें।`
+        : `Namaste ${kundaliData.birthData.fullName}! I am Maharishi Parashar, the great sage of Vedic astrology. By deeply analyzing your birth chart, I can illuminate all aspects of your life. Your ascendant is ${kundaliData.chart.ascendantSanskrit || 'Unknown'} and you have ${kundaliData.chart.yogas?.filter(y => y.present).length || 0} auspicious yogas in your life. Please ask your question.`,
       timestamp: new Date()
     };
     setMessages([welcomeMessage]);
-  }, [kundaliData.birthData.fullName, language, kundaliData.chart]);
+  }, [kundaliData?.birthData?.fullName, kundaliData?.chart, language]);
 
   useEffect(() => {
     if (scrollAreaRef.current) {
@@ -137,6 +142,22 @@ const KundaliAIChat: React.FC<KundaliAIChatProps> = ({ kundaliData, language, nu
     "What should I do for business success?",
     "Tell me remedies for childbirth"
   ];
+
+  // Show loading state if kundali data is not ready
+  if (!kundaliData?.chart || !kundaliData?.birthData?.fullName) {
+    return (
+      <Card className="h-[600px] flex flex-col bg-white border-gray-200">
+        <CardContent className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">
+              {language === 'hi' ? 'कुंडली डेटा लोड हो रहा है...' : 'Loading kundali data...'}
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="h-[600px] flex flex-col bg-white border-gray-200">
