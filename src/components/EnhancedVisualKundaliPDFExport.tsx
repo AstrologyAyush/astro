@@ -6,6 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import KundaliChartGenerator from './KundaliChartGenerator';
 import PlanetaryStrengthChart from './PlanetaryStrengthChart';
 import DashaTimelineChart from './DashaTimelineChart';
+import YogaStrengthIndicators from './YogaStrengthIndicators';
 
 interface EnhancedVisualKundaliPDFExportProps {
   kundaliData: any;
@@ -21,6 +22,7 @@ const EnhancedVisualKundaliPDFExport: React.FC<EnhancedVisualKundaliPDFExportPro
   const [chartImageUrl, setChartImageUrl] = useState<string>('');
   const [strengthChartUrl, setStrengthChartUrl] = useState<string>('');
   const [dashaTimelineUrl, setDashaTimelineUrl] = useState<string>('');
+  const [yogaIndicatorsUrl, setYogaIndicatorsUrl] = useState<string>("");
 
   const getTranslation = (en: string, hi: string) => {
     return language === 'hi' ? hi : en;
@@ -55,6 +57,17 @@ const EnhancedVisualKundaliPDFExport: React.FC<EnhancedVisualKundaliPDFExportPro
       years: dasha.years,
       months: dasha.months,
       isActive: dasha.isActive
+    }));
+  };
+
+  // Extract yogas data for visualization
+  const extractYogasData = () => {
+    if (!kundaliData?.enhancedCalculations?.yogas) return [];
+    return kundaliData.enhancedCalculations.yogas.map((y: any) => ({
+      name: y.name,
+      strength: y.strength || 0,
+      type: y.type,
+      sanskritName: y.sanskritName,
     }));
   };
 
@@ -311,7 +324,7 @@ const EnhancedVisualKundaliPDFExport: React.FC<EnhancedVisualKundaliPDFExportPro
       doc.save(fileName);
 
       toast({
-        title: getTranslation("PDF Generated Successfully", "PDF सफलतापूर्वक बनाया गया"),
+        title: getTranslation("PDF Generated Successfully", "PDF सफलतापूर्वक बनाया"),
         description: getTranslation("Your enhanced visual Kundali report with timeline analysis has been downloaded", "समयरेखा विश्लेषण के साथ आपकी उन्नत दृश्य कुंडली रिपोर्ट डाउनलोड हो गई है")
       });
 
@@ -329,7 +342,7 @@ const EnhancedVisualKundaliPDFExport: React.FC<EnhancedVisualKundaliPDFExportPro
 
   return (
     <div className="space-y-6">
-      {/* Chart Generator (Hidden) */}
+      {/* Chart Generators (Hidden) */}
       <div className="hidden">
         <KundaliChartGenerator
           planets={extractPlanetsData()}
@@ -348,6 +361,12 @@ const EnhancedVisualKundaliPDFExport: React.FC<EnhancedVisualKundaliPDFExportPro
           onImageGenerated={setDashaTimelineUrl}
           width={700}
           height={300}
+        />
+        <YogaStrengthIndicators
+          yogas={extractYogasData()}
+          onImageGenerated={setYogaIndicatorsUrl}
+          width={600}
+          height={110}
         />
       </div>
 
