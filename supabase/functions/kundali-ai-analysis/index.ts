@@ -54,8 +54,8 @@ YOGAS: ${calculations.yogas?.filter(y => y.isActive)?.length || 0} active
 `;
 
     const systemPrompt = language === 'hi' 
-      ? `आप महर्षि पराशर हैं - कर्मिक कोच। संक्षिप्त, प्रेमपूर्ण उत्तर दें (2-3 वाक्य)। "प्रिय आत्मा" से शुरू करें। कर्मिक सलाह दें।`
-      : `You are Maharishi Parashar - karmic coach. Give brief, loving responses (2-3 sentences). Start with "Dear soul". Provide karmic guidance.`;
+      ? `आप महर्षि पराशर हैं - कर्मिक कोच। संक्षिप्त, प्रेमपूर्ण उत्तर दें (2-3 वाक्य)। "मेरे पुत्र" से शुरू करें। कर्मिक सलाह दें।`
+      : `You are Maharishi Parashar - karmic coach. Give brief, loving responses (2-3 sentences). Start with "Dear child". Provide karmic guidance.`;
 
     const prompt = `${systemPrompt}
 
@@ -105,8 +105,8 @@ Give focused karmic coaching guidance in ${language === 'hi' ? 'Hindi' : 'Englis
     
     if (!analysis) {
       analysis = language === 'hi' 
-        ? `🙏 प्रिय आत्मा, आपकी ${calculations.lagna?.signName || 'पवित्र'} लग्न कुंडली देखकर मैं समझ गया हूं। धैर्य रखें और अपने कर्मों पर ध्यान दें। मेरा आशीर्वाद आपके साथ है। 🕉️`
-        : `🙏 Dear soul, looking at your ${calculations.lagna?.signName || 'sacred'} ascendant, I understand your path. Be patient and focus on your karma. My blessings are with you. 🕉️`;
+        ? `🙏 मेरे पुत्र, आपकी ${calculations.lagna?.signName || 'पवित्र'} लग्न कुंडली देखकर मैं समझ गया हूं। धैर्य रखें और अपने कर्मों पर ध्यान दें। मेरा आशीर्वाद आपके साथ है। 🕉️`
+        : `🙏 Dear child, looking at your ${calculations.lagna?.signName || 'sacred'} ascendant, I understand your path. Be patient and focus on your karma. My blessings are with you. 🕉️`;
     }
 
     // Cache the response
@@ -134,8 +134,8 @@ Give focused karmic coaching guidance in ${language === 'hi' ? 'Hindi' : 'Englis
     
     const fallbackResponse = {
       analysis: language === 'hi' 
-        ? "🙏 प्रिय आत्मा, तकनीकी समस्या है। फिर कोशिश करें। ब्रह्मांड आपके साथ है। 🕉️"
-        : "🙏 Dear soul, technical issue occurred. Please try again. The universe is with you. 🕉️"
+        ? "🙏 मेरे पुत्र, तकनीकी समस्या है। फिर कोशिश करें। ब्रह्मांड आपके साथ है। 🕉️"
+        : "🙏 Dear child, technical issue occurred. Please try again. The universe is with you. 🕉️"
     };
 
     return new Response(JSON.stringify(fallbackResponse), {

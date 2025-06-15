@@ -40,8 +40,8 @@ const RishiParasherGuru: React.FC<RishiParasherGuruProps> = ({ kundaliData, lang
         id: '1',
         type: 'ai',
         content: language === 'hi' 
-          ? '🙏 नमस्कार प्रिय आत्मा! मैं महर्षि पराशर हूं। पहले अपनी कुंडली बनाएं, फिर मैं सहायता करूंगा। 🕉️'
-          : '🙏 Hello dear soul! I am Maharishi Parashar. Create your birth chart first, then I can help you. 🕉️',
+          ? '🙏 नमस्कार मेरे पुत्र! मैं महर्षि पराशर हूं। पहले अपनी कुंडली बनाएं, फिर मैं सहायता करूंगा। 🕉️'
+          : '🙏 Hello dear child! I am Maharishi Parashar. Create your birth chart first, then I can help you. 🕉️',
         timestamp: new Date()
       };
       setMessages([fallbackMessage]);
@@ -56,14 +56,14 @@ const RishiParasherGuru: React.FC<RishiParasherGuruProps> = ({ kundaliData, lang
       id: '1',
       type: 'ai',
       content: language === 'hi' 
-        ? `🙏 प्रिय ${kundaliData.birthData?.fullName || 'आत्मा'}, मैं महर्षि पराशर हूं।
+        ? `🙏 मेरे पुत्र ${kundaliData.birthData?.fullName || ''}, मैं महर्षि पराशर हूं।
 
 🌟 आत्मा पथ: ${lagna?.signName || 'अज्ञात'} लग्न
 🌙 चंद्र: ${planets?.MO?.rashiName || 'अज्ञात'} राशि
 🎯 ${activeYogas.length} शुभ योग सक्रिय
 
 अपनी कर्मिक यात्रा के बारे में पूछें! 💫`
-        : `🙏 Dear ${kundaliData.birthData?.fullName || 'soul'}, I am Maharishi Parashar.
+        : `🙏 Dear child ${kundaliData.birthData?.fullName || ''}, I am Maharishi Parashar.
 
 🌟 Soul Path: ${lagna?.signName || 'Unknown'} ascendant
 🌙 Moon: ${planets?.MO?.rashiName || 'Unknown'}
@@ -132,15 +132,15 @@ Ask about your karmic journey! 💫`,
         rishi_response: data.analysis,
         kundali_context: kundaliData as unknown as Json,
         session_id: `karmic_session_${Date.now()}`
-      }).then(() => {}).catch(() => {});
+      }).catch(() => {});
 
     } catch (error) {
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         type: 'ai',
         content: language === 'hi' 
-          ? '🙏 प्रिय आत्मा, तकनीकी समस्या है। फिर कोशिश करें। 🕉️'
-          : '🙏 Dear soul, technical issue. Please try again. 🕉️',
+          ? '🙏 मेरे पुत्र, तकनीकी समस्या है। फिर कोशिश करें। 🕉️'
+          : '🙏 Dear child, technical issue. Please try again. 🕉️',
         timestamp: new Date()
       };
 
