@@ -4,8 +4,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Info, Star, Crown } from "lucide-react";
+import { Info, Star, Crown, Sparkles, Brain } from "lucide-react";
 import { ComprehensiveKundaliData } from '@/lib/advancedKundaliEngine';
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface DivisionalChartsProps {
   kundaliData: ComprehensiveKundaliData;
@@ -15,6 +17,9 @@ interface DivisionalChartsProps {
 const DivisionalCharts: React.FC<DivisionalChartsProps> = ({ kundaliData, language }) => {
   const [selectedChart, setSelectedChart] = useState('D1');
   const [showInfo, setShowInfo] = useState(false);
+  const [aiInsights, setAiInsights] = useState<{[key: string]: string}>({});
+  const [loadingInsights, setLoadingInsights] = useState<{[key: string]: boolean}>({});
+  const { toast } = useToast();
 
   const getTranslation = (en: string, hi: string) => {
     return language === 'hi' ? hi : en;
@@ -144,10 +149,8 @@ const DivisionalCharts: React.FC<DivisionalChartsProps> = ({ kundaliData, langua
     hi: ['मेष', 'वृष', 'मिथुन', 'कर्क', 'सिंह', 'कन्या', 'तुला', 'वृश्चिक', 'धनु', 'मकर', 'कुम्भ', 'मीन']
   };
 
-  // Access planets from enhancedCalculations only
   const planets = kundaliData.enhancedCalculations?.planets || {};
 
-  // Generate more realistic divisional chart data
   const generateDivisionalChart = (division: number) => {
     const houses = Array.from({ length: 12 }, (_, i) => ({
       number: i + 1,
@@ -155,20 +158,17 @@ const DivisionalCharts: React.FC<DivisionalChartsProps> = ({ kundaliData, langua
       planets: [] as { key: string; symbol: string; name: string; color: string; degree: number }[]
     }));
 
-    // Calculate divisional positions based on actual Vedic astrology rules
     Object.entries(planets).forEach(([planetKey, planetData]: [string, any]) => {
       if (planetData && typeof planetData.longitude === 'number') {
         let adjustedLongitude = planetData.longitude;
         
-        // Apply divisional calculation
-        if (division === 2) { // Hora
+        if (division === 2) {
           adjustedLongitude = (planetData.longitude % 30) * 2;
-        } else if (division === 3) { // Drekkana
+        } else if (division === 3) {
           adjustedLongitude = (planetData.longitude % 10) * 3;
-        } else if (division === 9) { // Navamsa
+        } else if (division === 9) {
           adjustedLongitude = (planetData.longitude % 3.333) * 9;
         } else {
-          // General formula for other divisions
           adjustedLongitude = (planetData.longitude % (30 / division)) * division;
         }
         
@@ -190,6 +190,46 @@ const DivisionalCharts: React.FC<DivisionalChartsProps> = ({ kundaliData, langua
     });
 
     return houses;
+  };
+
+  const getAIInsights = async (chartKey: string) => {
+    if (aiInsights[chartKey] || loadingInsights[chartKey]) return;
+
+    setLoadingInsights(prev => ({ ...prev, [chartKey]: true }));
+
+    try {
+      const chartData = generateDivisionalChart(parseInt(chartKey.substring(1)));
+      const chartInfo = divisionalChartInfo[language][chartKey as keyof typeof divisionalChartInfo.en];
+      
+      const { data, error } = await supabase.functions.invoke('kundali-ai-analysis', {
+        body: {
+          kundaliData,
+          userQuery: language === 'hi' 
+            ? `मेरे ${chartKey} चार्ट (${chartInfo.name}) का विस्तृत व्यक्तिगत विश्लेषण करें। मेरे ग्रहों की स्थिति के आधार पर बताएं कि यह मेरे ${chartInfo.purpose} को कैसे प्रभावित करता है।`
+            : `Please provide detailed personalized analysis of my ${chartKey} chart (${chartInfo.name}). Based on my planetary positions, explain how this affects my ${chartInfo.purpose}.`,
+          language
+        }
+      });
+
+      if (error) throw error;
+
+      setAiInsights(prev => ({ 
+        ...prev, 
+        [chartKey]: data.analysis || (language === 'hi' 
+          ? `आपके ${chartKey} चार्ट में ग्रहों की स्थिति आपके ${chartInfo.purpose} के लिए शुभ संकेत देती है।`
+          : `Your ${chartKey} chart planetary positions indicate favorable influences for your ${chartInfo.purpose}.`)
+      }));
+    } catch (error) {
+      console.error('AI insights error:', error);
+      setAiInsights(prev => ({ 
+        ...prev, 
+        [chartKey]: language === 'hi' 
+          ? 'विश्लेषण उपलब्ध नहीं है। कृपया बाद में पुनः प्रयास करें।'
+          : 'Analysis unavailable. Please try again later.'
+      }));
+    } finally {
+      setLoadingInsights(prev => ({ ...prev, [chartKey]: false }));
+    }
   };
 
   const chartKeys = ['D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'D8', 'D9', 'D10'];
@@ -227,21 +267,50 @@ const DivisionalCharts: React.FC<DivisionalChartsProps> = ({ kundaliData, langua
               <Badge variant="outline" className="text-orange-700 border-orange-300 bg-white font-semibold">
                 {currentChartInfo.name}
               </Badge>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowInfo(!showInfo)}
-                className="text-orange-600 border-orange-300"
-              >
-                <Info className="h-4 w-4 mr-1" />
-                {getTranslation('Info', 'जानकारी')}
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowInfo(!showInfo)}
+                  className="text-orange-600 border-orange-300"
+                >
+                  <Info className="h-4 w-4 mr-1" />
+                  {getTranslation('Info', 'जानकारी')}
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => getAIInsights(selectedChart)}
+                  disabled={loadingInsights[selectedChart]}
+                  className="text-purple-600 border-purple-300 hover:bg-purple-50"
+                >
+                  {loadingInsights[selectedChart] ? (
+                    <div className="animate-spin h-4 w-4 mr-1">⏳</div>
+                  ) : (
+                    <Brain className="h-4 w-4 mr-1" />
+                  )}
+                  {getTranslation('AI Analysis', 'AI विश्लेषण')}
+                </Button>
+              </div>
             </div>
             
             {showInfo && (
-              <div className="space-y-2 text-sm">
+              <div className="space-y-2 text-sm mb-4">
                 <p><strong>{getTranslation('Purpose:', 'उद्देश्य:')}</strong> {currentChartInfo.purpose}</p>
                 <p><strong>{getTranslation('Significance:', 'महत्व:')}</strong> {currentChartInfo.significance}</p>
+              </div>
+            )}
+
+            {/* AI Insights Section */}
+            {aiInsights[selectedChart] && (
+              <div className="mt-4 p-3 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg border border-purple-200">
+                <h4 className="font-semibold text-purple-800 mb-2 flex items-center gap-2">
+                  <Sparkles className="h-4 w-4" />
+                  {getTranslation('Personalized AI Insights', 'व्यक्तिगत AI अंतर्दृष्टि')}
+                </h4>
+                <p className="text-sm text-purple-700 leading-relaxed whitespace-pre-wrap">
+                  {aiInsights[selectedChart]}
+                </p>
               </div>
             )}
           </div>
@@ -307,19 +376,6 @@ const DivisionalCharts: React.FC<DivisionalChartsProps> = ({ kundaliData, langua
                       </div>
                     ))}
                   </div>
-                </div>
-
-                {/* Chart Analysis */}
-                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg border border-blue-200">
-                  <h4 className="font-semibold text-blue-800 mb-2">
-                    {getTranslation(`${chartKey} Chart Analysis`, `${chartKey} चार्ट विश्लेषण`)}
-                  </h4>
-                  <p className="text-sm text-blue-700">
-                    {getTranslation(
-                      `This ${chartKey} chart reveals specific insights about ${currentChartInfo.purpose.toLowerCase()}. Each house represents different aspects of this life area, and planetary placements show your karmic patterns and potential in this domain.`,
-                      `यह ${chartKey} चार्ट ${currentChartInfo.purpose.toLowerCase()} के बारे में विशिष्ट अंतर्दृष्टि प्रकट करता है। प्रत्येक घर इस जीवन क्षेत्र के विभिन्न पहलुओं का प्रतिनिधित्व करता है, और ग्रहीय स्थिति इस डोमेन में आपके कर्मिक पैटर्न और क्षमता को दर्शाती है।`
-                    )}
-                  </p>
                 </div>
               </div>
             </TabsContent>
