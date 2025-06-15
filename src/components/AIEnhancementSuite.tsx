@@ -53,9 +53,9 @@ const AIEnhancementSuite: React.FC<AIEnhancementSuiteProps> = ({
         </p>
       </div>
 
-      <Card className="border-purple-200 shadow-2xl mt-8 mb-8 mx-2 bg-white/95 backdrop-blur-sm">
+      <Card className="border-purple-200 shadow-2xl mt-12 mb-12 mx-2 bg-white/95 backdrop-blur-sm">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
-          <TabsList className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-1 bg-white/80 backdrop-blur-sm rounded-xl p-2 shadow-lg mx-4 mt-4">
+          <TabsList className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-1 bg-white/80 backdrop-blur-sm rounded-xl p-2 shadow-lg mx-4 mt-6">
             <TabsTrigger 
               value="ai-chat" 
               className="flex flex-col items-center gap-1 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white text-xs p-2 min-h-[60px] rounded-md transition-all duration-200"
@@ -129,8 +129,8 @@ const AIEnhancementSuite: React.FC<AIEnhancementSuiteProps> = ({
 
           <div className="min-h-[600px] px-4 pb-6">
             <TabsContent value="ai-chat" className="mt-0">
-              <Card className="border-purple-200 shadow-lg">
-                <CardHeader className="bg-gradient-to-r from-purple-100 to-indigo-100 p-6 border border-purple-200 shadow-sm">
+              <Card className="border-purple-200 shadow-lg mt-6">
+                <CardHeader className="bg-gradient-to-r from-purple-100 to-indigo-100 p-8 border border-purple-200 shadow-md rounded-t-lg mb-4">
                   <CardTitle className="flex items-center gap-2 text-purple-800">
                     <Bot className="h-5 w-5" />
                     {getTranslation('Interactive AI Kundali Guru', 'इंटरैक्टिव AI कुंडली गुरु')}
