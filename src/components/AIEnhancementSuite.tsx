@@ -2,7 +2,7 @@
 import React, { useState, Suspense, lazy } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Bot, Sparkles, Gem, Lightbulb, TrendingUp, Heart, Brain, Crystal, Zap, Target } from "lucide-react";
+import { Bot, Sparkles, Gem, Lightbulb, TrendingUp, Heart, Brain, Zap, Target } from "lucide-react";
 import KundaliAIChat from './KundaliAIChat';
 
 // Lazy load heavy AI components
@@ -13,7 +13,6 @@ const AICareerGuidance = lazy(() => import('./AICareerGuidance'));
 const AICompatibilityAnalysis = lazy(() => import('./AICompatibilityAnalysis'));
 const AIHealthInsights = lazy(() => import('./AIHealthInsights'));
 const AISpiritualGuidance = lazy(() => import('./AISpiritualGuidance'));
-const AITransitPredictions = lazy(() => import('./AITransitPredictions'));
 
 interface AIEnhancementSuiteProps {
   kundaliData: any;
@@ -57,7 +56,7 @@ const AIEnhancementSuite: React.FC<AIEnhancementSuiteProps> = ({
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-1 bg-white/80 backdrop-blur-sm rounded-xl p-2 shadow-lg">
+        <TabsList className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-1 bg-white/80 backdrop-blur-sm rounded-xl p-2 shadow-lg">
           <TabsTrigger 
             value="ai-chat" 
             className="flex flex-col items-center gap-1 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white text-xs p-2 min-h-[60px] rounded-md transition-all duration-200"
