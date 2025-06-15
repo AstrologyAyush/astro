@@ -1,22 +1,13 @@
-
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Download, FileText } from "lucide-react";
 import jsPDF from 'jspdf';
-import { ComprehensiveKundaliData } from '@/lib/advancedKundaliEngine';
+import { ComprehensiveKundaliData, LifePhasePredictions } from '@/lib/advancedKundaliEngine';
 
 interface EnhancedKundaliPDFExportProps {
   kundaliData: ComprehensiveKundaliData;
   language: 'hi' | 'en';
 }
-
-// Define LifePhasePredictions type locally here, as it's only used for PDF helpers
-type LifePhasePredictions = {
-  ageRange: string;
-  generalTrends: string[];
-  career: string[];
-  // Add additional fields if needed in future
-};
 
 const EnhancedKundaliPDFExport: React.FC<EnhancedKundaliPDFExportProps> = ({ 
   kundaliData, 

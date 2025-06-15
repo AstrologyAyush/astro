@@ -1,12 +1,11 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Clock, Calendar, Star, TrendingUp, AlertCircle } from 'lucide-react';
-import { calculateVimshottariDasha, calculateAntardasha, getDashaEffects } from '../lib/vimshottariDashaEngine';
 
 interface EnhancedDashaTimingProps {
   kundaliData: any;
@@ -20,37 +19,83 @@ const EnhancedDashaTiming: React.FC<EnhancedDashaTimingProps> = ({ kundaliData, 
     return language === 'hi' ? hi : en;
   };
 
-  // Calculate real dasha data from kundali
-  const dashaCalculations = useMemo(() => {
-    if (!kundaliData?.birthData || !kundaliData?.planets?.MO) {
-      return null;
-    }
+  // Enhanced dasha data with detailed timing
+  const dashaData = {
+    current: {
+      mahadasha: {
+        planet: 'Jupiter',
+        planetHi: 'गुरु',
+        startDate: '2022-03-15',
+        endDate: '2038-03-15',
+        totalYears: 16,
+        remainingYears: 14.2,
+        strength: 85
+      },
+      antardasha: {
+        planet: 'Saturn',
+        planetHi: 'शनि',
+        startDate: '2023-10-01',
+        endDate: '2026-04-15',
+        totalMonths: 30,
+        remainingMonths: 18.5,
+        strength: 70
+      },
+      pratyantardasha: {
+        planet: 'Mercury',
+        planetHi: 'बुध',
+        startDate: '2023-12-01',
+        endDate: '2024-03-15',
+        totalDays: 105,
+        remainingDays: 45,
+        strength: 75
+      }
+    },
+    upcoming: [
+      {
+        level: 'Antardasha',
+        planet: 'Mercury',
+        planetHi: 'बुध',
+        startDate: '2026-04-15',
+        endDate: '2028-08-22',
+        duration: '2 years 4 months',
+        effects: getTranslation(
+          'Communication, learning, business opportunities',
+          'संचार, सीखना, व्यावसायिक अवसर'
+        ),
+        recommendations: getTranslation(
+          'Focus on education, writing, technology ventures',
+          'शिक्षा, लेखन, प्रौद्योगिकी उपक्रमों पर ध्यान दें'
+        )
+      },
+      {
+        level: 'Antardasha',
+        planet: 'Ketu',
+        planetHi: 'केतु',
+        startDate: '2028-08-22',
+        endDate: '2029-07-30',
+        duration: '11 months',
+        effects: getTranslation(
+          'Spiritual awakening, detachment, research',
+          'आध्यात्मिक जागृति, वैराग्य, अनुसंधान'
+        ),
+        recommendations: getTranslation(
+          'Pursue meditation, research, avoid major investments',
+          'ध्यान, अनुसंधान करें, बड़े निवेश से बचें'
+        )
+      }
+    ]
+  };
 
-    const birthDate = new Date(kundaliData.birthData.date);
-    const moonLongitude = kundaliData.planets.MO.longitude;
-    const moonNakshatra = kundaliData.planets.MO.nakshatra;
-
-    return calculateVimshottariDasha(birthDate, moonLongitude, moonNakshatra);
-  }, [kundaliData]);
-
-  // Calculate antardasha for current mahadasha
-  const antardashaCalculations = useMemo(() => {
-    if (!dashaCalculations?.currentMahadasha) return [];
-    return calculateAntardasha(dashaCalculations.currentMahadasha);
-  }, [dashaCalculations]);
-
-  const currentAntardasha = antardashaCalculations.find(a => a.isActive);
-
-  const calculateProgress = (startDate: Date | string, endDate: Date | string) => {
-    const start = (typeof startDate === 'string' ? new Date(startDate) : startDate).getTime();
-    const end = (typeof endDate === 'string' ? new Date(endDate) : endDate).getTime();
+  const calculateProgress = (start: string, end: string) => {
+    const startDate = new Date(start).getTime();
+    const endDate = new Date(end).getTime();
     const now = new Date().getTime();
     
-    if (now < start) return 0;
-    if (now > end) return 100;
+    if (now < startDate) return 0;
+    if (now > endDate) return 100;
     
-    const total = end - start;
-    const elapsed = now - start;
+    const total = endDate - startDate;
+    const elapsed = now - startDate;
     return Math.round((elapsed / total) * 100);
   };
 
@@ -76,41 +121,6 @@ const EnhancedDashaTiming: React.FC<EnhancedDashaTimingProps> = ({ kundaliData, 
     }
     return '';
   };
-
-  const getPlanetStrength = (planet: string) => {
-    // Calculate strength based on planet position in kundali
-    const planetData = kundaliData?.planets?.[planet.toUpperCase().substring(0, 2)];
-    if (!planetData) return 75; // Default strength
-    
-    let strength = 50;
-    
-    // Add strength based on house position
-    if (planetData.house >= 1 && planetData.house <= 4) strength += 20;
-    else if (planetData.house >= 5 && planetData.house <= 8) strength += 10;
-    
-    // Add strength based on sign
-    if (planetData.degreeInSign >= 15 && planetData.degreeInSign <= 20) strength += 15;
-    
-    // Reduce if retrograde
-    if (planetData.isRetrograde) strength -= 10;
-    
-    return Math.min(100, Math.max(0, strength));
-  };
-
-  if (!dashaCalculations) {
-    return (
-      <Card className="border-indigo-200">
-        <CardContent className="p-6 text-center">
-          <p className="text-gray-600">
-            {getTranslation('Unable to calculate dasha timing', 'दशा समय की गणना नहीं हो सकी')}
-          </p>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  const currentMahadasha = dashaCalculations.currentMahadasha;
-  const currentEffects = getDashaEffects(currentMahadasha.planet);
 
   return (
     <Card className="border-indigo-200">
@@ -146,12 +156,13 @@ const EnhancedDashaTiming: React.FC<EnhancedDashaTimingProps> = ({ kundaliData, 
                     {getTranslation('Current Mahadasha', 'वर्तमान महादशा')}
                   </Badge>
                   <h3 className="text-xl font-bold text-indigo-800">
-                    {currentMahadasha.planet} {getTranslation(' Mahadasha', ' महादशा')}
+                    {language === 'hi' ? dashaData.current.mahadasha.planetHi : dashaData.current.mahadasha.planet}
+                    {getTranslation(' Mahadasha', ' महादशा')}
                   </h3>
                 </div>
                 <div className="text-right">
-                  <div className={`text-lg font-bold ${getDashaStrengthColor(getPlanetStrength(currentMahadasha.planet))}`}>
-                    {getPlanetStrength(currentMahadasha.planet)}%
+                  <div className={`text-lg font-bold ${getDashaStrengthColor(dashaData.current.mahadasha.strength)}`}>
+                    {dashaData.current.mahadasha.strength}%
                   </div>
                   <div className="text-xs text-gray-500">{getTranslation('Strength', 'शक्ति')}</div>
                 </div>
@@ -160,85 +171,131 @@ const EnhancedDashaTiming: React.FC<EnhancedDashaTimingProps> = ({ kundaliData, 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                 <div>
                   <div className="text-sm text-indigo-600">{getTranslation('Duration', 'अवधि')}</div>
-                  <div className="font-semibold">{currentMahadasha.totalYears} {getTranslation('years', 'वर्ष')}</div>
+                  <div className="font-semibold">{dashaData.current.mahadasha.totalYears} {getTranslation('years', 'वर्ष')}</div>
                 </div>
                 <div>
                   <div className="text-sm text-indigo-600">{getTranslation('Remaining', 'बचे हुए')}</div>
-                  <div className="font-semibold">{formatTimeRemaining(currentMahadasha.remainingYears)}</div>
+                  <div className="font-semibold">{formatTimeRemaining(dashaData.current.mahadasha.remainingYears)}</div>
                 </div>
                 <div>
                   <div className="text-sm text-indigo-600">{getTranslation('Period', 'काल')}</div>
                   <div className="font-semibold text-xs">
-                    {currentMahadasha.startDate.getFullYear()} - {currentMahadasha.endDate.getFullYear()}
+                    {dashaData.current.mahadasha.startDate} - {dashaData.current.mahadasha.endDate}
                   </div>
                 </div>
               </div>
               
               <Progress 
-                value={calculateProgress(currentMahadasha.startDate, currentMahadasha.endDate)} 
+                value={calculateProgress(dashaData.current.mahadasha.startDate, dashaData.current.mahadasha.endDate)} 
                 className="h-2" 
               />
             </div>
 
             {/* Current Antardasha */}
-            {currentAntardasha && (
-              <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <Badge variant="outline" className="border-blue-300 text-blue-700 mb-2">
-                      {getTranslation('Current Antardasha', 'वर्तमान अंतर्दशा')}
-                    </Badge>
-                    <h4 className="text-lg font-semibold text-blue-800">
-                      {currentAntardasha.planet} {getTranslation(' Antardasha', ' अंतर्दशा')}
-                    </h4>
-                  </div>
-                  <div className="text-right">
-                    <div className={`text-md font-bold ${getDashaStrengthColor(getPlanetStrength(currentAntardasha.planet))}`}>
-                      {getPlanetStrength(currentAntardasha.planet)}%
-                    </div>
-                    <div className="text-xs text-gray-500">{getTranslation('Strength', 'शक्ति')}</div>
-                  </div>
+            <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <Badge variant="outline" className="border-blue-300 text-blue-700 mb-2">
+                    {getTranslation('Current Antardasha', 'वर्तमान अंतर्दशा')}
+                  </Badge>
+                  <h4 className="text-lg font-semibold text-blue-800">
+                    {language === 'hi' ? dashaData.current.antardasha.planetHi : dashaData.current.antardasha.planet}
+                    {getTranslation(' Antardasha', ' अंतर्दशा')}
+                  </h4>
                 </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
-                  <div>
-                    <div className="text-sm text-blue-600">{getTranslation('Duration', 'अवधि')}</div>
-                    <div className="font-semibold">{Math.round(currentAntardasha.durationMonths)} {getTranslation('months', 'महीने')}</div>
+                <div className="text-right">
+                  <div className={`text-md font-bold ${getDashaStrengthColor(dashaData.current.antardasha.strength)}`}>
+                    {dashaData.current.antardasha.strength}%
                   </div>
-                  <div>
-                    <div className="text-sm text-blue-600">{getTranslation('Period', 'काल')}</div>
-                    <div className="font-semibold text-xs">
-                      {currentAntardasha.startDate.toLocaleDateString()} - {currentAntardasha.endDate.toLocaleDateString()}
-                    </div>
-                  </div>
+                  <div className="text-xs text-gray-500">{getTranslation('Strength', 'शक्ति')}</div>
                 </div>
-                
-                <Progress 
-                  value={calculateProgress(currentAntardasha.startDate, currentAntardasha.endDate)} 
-                  className="h-2" 
-                />
               </div>
-            )}
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
+                <div>
+                  <div className="text-sm text-blue-600">{getTranslation('Duration', 'अवधि')}</div>
+                  <div className="font-semibold">{dashaData.current.antardasha.totalMonths} {getTranslation('months', 'महीने')}</div>
+                </div>
+                <div>
+                  <div className="text-sm text-blue-600">{getTranslation('Remaining', 'बचे हुए')}</div>
+                  <div className="font-semibold">{formatTimeRemaining(undefined, dashaData.current.antardasha.remainingMonths)}</div>
+                </div>
+                <div>
+                  <div className="text-sm text-blue-600">{getTranslation('Period', 'काल')}</div>
+                  <div className="font-semibold text-xs">
+                    {dashaData.current.antardasha.startDate} - {dashaData.current.antardasha.endDate}
+                  </div>
+                </div>
+              </div>
+              
+              <Progress 
+                value={calculateProgress(dashaData.current.antardasha.startDate, dashaData.current.antardasha.endDate)} 
+                className="h-2" 
+              />
+            </div>
+
+            {/* Current Pratyantardasha */}
+            <div className="p-4 bg-green-50 rounded-lg border border-green-200">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <Badge variant="outline" className="border-green-300 text-green-700 mb-2">
+                    {getTranslation('Current Pratyantardasha', 'वर्तमान प्रत्यंतर्दशा')}
+                  </Badge>
+                  <h4 className="text-lg font-semibold text-green-800">
+                    {language === 'hi' ? dashaData.current.pratyantardasha.planetHi : dashaData.current.pratyantardasha.planet}
+                    {getTranslation(' Pratyantardasha', ' प्रत्यंतर्दशा')}
+                  </h4>
+                </div>
+                <div className="text-right">
+                  <div className={`text-md font-bold ${getDashaStrengthColor(dashaData.current.pratyantardasha.strength)}`}>
+                    {dashaData.current.pratyantardasha.strength}%
+                  </div>
+                  <div className="text-xs text-gray-500">{getTranslation('Strength', 'शक्ति')}</div>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
+                <div>
+                  <div className="text-sm text-green-600">{getTranslation('Duration', 'अवधि')}</div>
+                  <div className="font-semibold">{dashaData.current.pratyantardasha.totalDays} {getTranslation('days', 'दिन')}</div>
+                </div>
+                <div>
+                  <div className="text-sm text-green-600">{getTranslation('Remaining', 'बचे हुए')}</div>
+                  <div className="font-semibold">{formatTimeRemaining(undefined, undefined, dashaData.current.pratyantardasha.remainingDays)}</div>
+                </div>
+                <div>
+                  <div className="text-sm text-green-600">{getTranslation('Period', 'काल')}</div>
+                  <div className="font-semibold text-xs">
+                    {dashaData.current.pratyantardasha.startDate} - {dashaData.current.pratyantardasha.endDate}
+                  </div>
+                </div>
+              </div>
+              
+              <Progress 
+                value={calculateProgress(dashaData.current.pratyantardasha.startDate, dashaData.current.pratyantardasha.endDate)} 
+                className="h-2" 
+              />
+            </div>
           </TabsContent>
 
           <TabsContent value="upcoming" className="mt-6">
             <div className="space-y-4">
               <h3 className="text-lg font-semibold text-indigo-800 mb-4">
-                {getTranslation('Upcoming Mahadashas', 'आगामी महादशा')}
+                {getTranslation('Upcoming Planetary Periods', 'आगामी ग्रहीय अवधि')}
               </h3>
               
-              {dashaCalculations.allMahadashas.filter(d => !d.isCompleted && !d.isActive).slice(0, 3).map((dasha, index) => (
+              {dashaData.upcoming.map((period, index) => (
                 <div key={index} className="p-4 border border-indigo-200 rounded-lg bg-indigo-50">
                   <div className="flex items-start justify-between mb-3">
                     <div>
                       <Badge className="bg-indigo-600 text-white mb-2">
-                        {getTranslation('Upcoming Mahadasha', 'आगामी महादशा')}
+                        {period.level}
                       </Badge>
                       <h4 className="text-lg font-semibold text-indigo-800">
-                        {dasha.planet} {getTranslation('Mahadasha', 'महादशा')}
+                        {language === 'hi' ? period.planetHi : period.planet} {period.level}
                       </h4>
                       <div className="text-sm text-indigo-600">
-                        {dasha.startDate.getFullYear()} - {dasha.endDate.getFullYear()} ({dasha.totalYears} {getTranslation('years', 'वर्ष')})
+                        {period.startDate} - {period.endDate} ({period.duration})
                       </div>
                     </div>
                     <div className="text-right">
@@ -251,27 +308,13 @@ const EnhancedDashaTiming: React.FC<EnhancedDashaTimingProps> = ({ kundaliData, 
                       <h5 className="font-semibold text-indigo-800 mb-1">
                         {getTranslation('Expected Effects', 'अपेक्षित प्रभाव')}
                       </h5>
-                      <ul className="text-sm text-gray-700 space-y-1">
-                        {getDashaEffects(dasha.planet).positive.slice(0, 2).map((effect, i) => (
-                          <li key={i} className="flex items-start">
-                            <span className="text-green-500 mr-2">•</span>
-                            {effect}
-                          </li>
-                        ))}
-                      </ul>
+                      <p className="text-sm text-gray-700">{period.effects}</p>
                     </div>
                     <div>
                       <h5 className="font-semibold text-indigo-800 mb-1">
                         {getTranslation('Recommendations', 'सिफारिशें')}
                       </h5>
-                      <ul className="text-sm text-gray-700 space-y-1">
-                        {getDashaEffects(dasha.planet).general.slice(0, 2).map((recommendation, i) => (
-                          <li key={i} className="flex items-start">
-                            <span className="text-blue-500 mr-2">•</span>
-                            {recommendation}
-                          </li>
-                        ))}
-                      </ul>
+                      <p className="text-sm text-gray-700">{period.recommendations}</p>
                     </div>
                   </div>
                 </div>
@@ -291,14 +334,14 @@ const EnhancedDashaTiming: React.FC<EnhancedDashaTimingProps> = ({ kundaliData, 
                 </div>
                 <p className="text-sm text-yellow-700 mb-3">
                   {getTranslation(
-                    `${currentMahadasha.planet} Mahadasha brings ${currentEffects.general[0] || 'general influences'}. ${currentAntardasha ? `Currently in ${currentAntardasha.planet} Antardasha which adds specific themes.` : ''}`,
-                    `${currentMahadasha.planet} महादशा ${currentEffects.general[0] || 'सामान्य प्रभाव'} लाता है। ${currentAntardasha ? `वर्तमान में ${currentAntardasha.planet} अंतर्दशा चल रहा है।` : ''}`
+                    'Jupiter Mahadasha with Saturn Antardasha creates a balanced period of growth through discipline. Mercury Pratyantardasha adds communication and learning opportunities.',
+                    'शनि अंतर्दशा के साथ गुरु महादशा अनुशासन के माध्यम से विकास की संतुलित अवधि बनाता है। बुध प्रत्यंतर्दशा संचार और सीखने के अवसर जोड़ता है।'
                   )}
                 </p>
                 <div className="flex items-center gap-2 text-sm">
                   <AlertCircle className="h-4 w-4 text-yellow-600" />
                   <span className="text-yellow-700">
-                    {getTranslation(`Focus Areas: ${currentEffects.general.join(', ')}`, `मुख्य क्षेत्र: ${currentEffects.general.join(', ')}`)}
+                    {getTranslation('Favorable for: Education, Philosophy, Teaching', 'अनुकूल: शिक्षा, दर्शन, शिक्षण')}
                   </span>
                 </div>
               </div>
@@ -311,30 +354,28 @@ const EnhancedDashaTiming: React.FC<EnhancedDashaTimingProps> = ({ kundaliData, 
                 
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">
-                      {getTranslation(`Mahadasha Lord (${currentMahadasha.planet})`, `महादशा स्वामी (${currentMahadasha.planet})`)}
-                    </span>
+                    <span className="text-sm text-gray-600">{getTranslation('Mahadasha Lord (Jupiter)', 'महादशा स्वामी (गुरु)')}</span>
                     <div className="flex items-center gap-2">
-                      <Progress value={getPlanetStrength(currentMahadasha.planet)} className="h-2 w-20" />
-                      <span className={`text-sm font-semibold ${getDashaStrengthColor(getPlanetStrength(currentMahadasha.planet))}`}>
-                        {getPlanetStrength(currentMahadasha.planet)}%
-                      </span>
+                      <Progress value={85} className="h-2 w-20" />
+                      <span className="text-sm font-semibold text-green-600">85%</span>
                     </div>
                   </div>
                   
-                  {currentAntardasha && (
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">
-                        {getTranslation(`Antardasha Lord (${currentAntardasha.planet})`, `अंतर्दशा स्वामी (${currentAntardasha.planet})`)}
-                      </span>
-                      <div className="flex items-center gap-2">
-                        <Progress value={getPlanetStrength(currentAntardasha.planet)} className="h-2 w-20" />
-                        <span className={`text-sm font-semibold ${getDashaStrengthColor(getPlanetStrength(currentAntardasha.planet))}`}>
-                          {getPlanetStrength(currentAntardasha.planet)}%
-                        </span>
-                      </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-600">{getTranslation('Antardasha Lord (Saturn)', 'अंतर्दशा स्वामी (शनि)')}</span>
+                    <div className="flex items-center gap-2">
+                      <Progress value={70} className="h-2 w-20" />
+                      <span className="text-sm font-semibold text-yellow-600">70%</span>
                     </div>
-                  )}
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-600">{getTranslation('Pratyantardasha Lord (Mercury)', 'प्रत्यंतर्दशा स्वामी (बुध)')}</span>
+                    <div className="flex items-center gap-2">
+                      <Progress value={75} className="h-2 w-20" />
+                      <span className="text-sm font-semibold text-green-600">75%</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

@@ -81,6 +81,7 @@ const AyuAstroAIGuru: React.FC<AyuAstroAIGuruProps> = ({ kundaliData, language }
         ? "अभी तक कोई कुंडली नहीं बनाई गई है। कृपया पहले अपनी कुंडली बनाएँ और फिर विस्तृत परामर्श के लिए वापस आएँ।"
         : "No Kundali has been generated yet. Please create your Kundali first, then return for detailed consultation.";
     } else {
+      // Sample logic to generate relevant responses based on query and kundaliData
       const queryLower = query.toLowerCase();
       
       if (queryLower.includes('career') || queryLower.includes('job') || queryLower.includes('profession') || 

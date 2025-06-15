@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -137,33 +136,6 @@ const InteractiveDashboard: React.FC<InteractiveDashboardProps> = ({ kundaliData
 
   const renderHouseInfo = (house: any) => {
     const houseInfo = houseSignifications[house.number as keyof typeof houseSignifications];
-
-    if (!houseInfo) {
-      // Render a fallback card to prevent error and communicate missing data
-      return (
-        <Card key={house.number} className="hover:shadow-md transition-all">
-          <CardContent className="p-4">
-            <div className="mb-2">
-              <h3 className="font-semibold text-red-500">
-                {getTranslation('House', 'भाव')} {house.number}
-              </h3>
-              <p className="text-sm text-gray-500">
-                {getTranslation('No info available for this house number.', 'इस भाव के लिए जानकारी उपलब्ध नहीं है।')}
-              </p>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span>{getTranslation('Sign:', 'राशि:')}</span>
-              <span className="font-medium">{house.signName ?? '-'}</span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span>{getTranslation('Lord:', 'स्वामी:')}</span>
-              <span className="font-medium">{house.lord ?? '-'}</span>
-            </div>
-          </CardContent>
-        </Card>
-      );
-    }
-
     const IconComponent = houseInfo.icon;
 
     return (
@@ -182,6 +154,7 @@ const InteractiveDashboard: React.FC<InteractiveDashboardProps> = ({ kundaliData
               </p>
             </div>
           </div>
+
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
               <span>{getTranslation('Sign:', 'राशि:')}</span>
@@ -191,7 +164,7 @@ const InteractiveDashboard: React.FC<InteractiveDashboardProps> = ({ kundaliData
               <span>{getTranslation('Lord:', 'स्वामी:')}</span>
               <span className="font-medium">{house.lord}</span>
             </div>
-            {house.planetsInHouse && house.planetsInHouse.length > 0 && (
+            {house.planetsInHouse.length > 0 && (
               <div>
                 <p className="text-sm font-medium mb-1">
                   {getTranslation('Planets:', 'ग्रह:')}
@@ -319,19 +292,11 @@ const InteractiveDashboard: React.FC<InteractiveDashboardProps> = ({ kundaliData
                   </div>
                   <div className="flex justify-between">
                     <span>{getTranslation('Date:', 'दिनांक:')}</span>
-                    <span className="font-medium">
-                      {typeof kundaliData.birthData.date === 'string' 
-                        ? kundaliData.birthData.date 
-                        : kundaliData.birthData.date?.toLocaleDateString?.() || String(kundaliData.birthData.date)}
-                    </span>
+                    <span className="font-medium">{kundaliData.birthData.date}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>{getTranslation('Time:', 'समय:')}</span>
-                    <span className="font-medium">
-                      {typeof kundaliData.birthData.time === 'string' 
-                        ? kundaliData.birthData.time 
-                        : kundaliData.birthData.time?.toLocaleTimeString?.() || String(kundaliData.birthData.time)}
-                    </span>
+                    <span className="font-medium">{kundaliData.birthData.time}</span>
                   </div>
                 </div>
               </CardContent>
