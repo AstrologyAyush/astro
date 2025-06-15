@@ -13,11 +13,11 @@ const Admin = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center px-4">
         <Card className="w-full max-w-md">
-          <CardContent className="flex flex-col items-center justify-center py-8">
-            <Loader2 className="h-8 w-8 animate-spin text-blue-600 mb-4" />
-            <p className="text-gray-600">Checking authorization...</p>
+          <CardContent className="flex flex-col items-center justify-center py-6 sm:py-8">
+            <Loader2 className="h-6 w-6 sm:h-8 sm:w-8 animate-spin text-blue-600 mb-3 sm:mb-4" />
+            <p className="text-gray-600 text-sm sm:text-base">Checking authorization...</p>
           </CardContent>
         </Card>
       </div>
@@ -33,19 +33,19 @@ const Admin = () => {
       <div className="min-h-screen bg-gradient-to-br from-red-50 to-orange-50 flex items-center justify-center p-4">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
-            <div className="mx-auto mb-4 p-3 bg-red-100 rounded-full w-fit">
-              <AlertTriangle className="h-8 w-8 text-red-600" />
+            <div className="mx-auto mb-3 sm:mb-4 p-3 bg-red-100 rounded-full w-fit">
+              <AlertTriangle className="h-6 w-6 sm:h-8 sm:w-8 text-red-600" />
             </div>
-            <CardTitle className="text-xl text-red-800">Access Denied</CardTitle>
+            <CardTitle className="text-lg sm:text-xl text-red-800">Access Denied</CardTitle>
           </CardHeader>
-          <CardContent className="text-center space-y-4">
-            <p className="text-gray-600">
+          <CardContent className="text-center space-y-3 sm:space-y-4">
+            <p className="text-gray-600 text-sm sm:text-base leading-relaxed">
               You don't have the required permissions to access the admin panel. 
               This area is restricted to owners and staff members only.
             </p>
             <Button 
               onClick={() => window.location.href = '/'}
-              className="w-full"
+              className="w-full min-h-[44px]"
             >
               Return to Home
             </Button>

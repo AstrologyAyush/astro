@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -13,13 +12,13 @@ const KundaliChart: React.FC<KundaliChartProps> = ({ kundaliData, language = 'en
     return (
       <Card className="border-orange-200">
         <CardHeader>
-          <CardTitle className="text-orange-800">
+          <CardTitle className="text-orange-800 text-sm sm:text-base md:text-lg">
             {language === 'hi' ? 'कुंडली चार्ट' : 'Kundali Chart'}
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center justify-center h-64">
-            <p className="text-muted-foreground">
+          <div className="flex items-center justify-center h-32 sm:h-48 md:h-64">
+            <p className="text-muted-foreground text-sm sm:text-base">
               {language === 'hi' 
                 ? 'कुंडली चार्ट लोड हो रहा है...' 
                 : 'Loading Kundali Chart...'
@@ -87,41 +86,41 @@ const KundaliChart: React.FC<KundaliChartProps> = ({ kundaliData, language = 'en
 
   return (
     <Card className="border-orange-200">
-      <CardHeader className="bg-gradient-to-r from-orange-100 to-red-100">
-        <CardTitle className="text-orange-800">
+      <CardHeader className="bg-gradient-to-r from-orange-100 to-red-100 p-3 sm:p-4 md:p-6">
+        <CardTitle className="text-orange-800 text-sm sm:text-base md:text-lg">
           {language === 'hi' ? 'कुंडली चार्ट' : 'Kundali Chart'}
         </CardTitle>
         {birthData.fullName && (
-          <p className="text-sm text-orange-600">
+          <p className="text-xs sm:text-sm text-orange-600">
             {language === 'hi' ? 'नाम: ' : 'Name: '}{birthData.fullName}
           </p>
         )}
       </CardHeader>
-      <CardContent>
-        {/* Display calculated information prominently */}
-        <div className="mb-6 p-4 bg-gradient-to-r from-orange-50 to-red-50 rounded-lg border border-orange-200">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
+      <CardContent className="p-3 sm:p-4 md:p-6">
+        {/* Mobile-optimized calculated information */}
+        <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-gradient-to-r from-orange-50 to-red-50 rounded-lg border border-orange-200">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 text-center">
             <div>
-              <h4 className="font-semibold text-orange-800 text-sm">
+              <h4 className="font-semibold text-orange-800 text-xs sm:text-sm">
                 {language === 'hi' ? 'लग्न (Ascendant)' : 'Ascendant (Lagna)'}
               </h4>
-              <p className="text-orange-600 font-medium">
+              <p className="text-orange-600 font-medium text-sm sm:text-base">
                 {ascendantSanskrit || zodiacSigns[language][ascendant] || zodiacSigns[language][0]}
               </p>
             </div>
             <div>
-              <h4 className="font-semibold text-orange-800 text-sm">
+              <h4 className="font-semibold text-orange-800 text-xs sm:text-sm">
                 {language === 'hi' ? 'चंद्र राशि' : 'Moon Sign'}
               </h4>
-              <p className="text-orange-600 font-medium">
+              <p className="text-orange-600 font-medium text-sm sm:text-base">
                 {kundaliData.moonRashi || zodiacSigns[language][moonSign]}
               </p>
             </div>
             <div>
-              <h4 className="font-semibold text-orange-800 text-sm">
+              <h4 className="font-semibold text-orange-800 text-xs sm:text-sm">
                 {language === 'hi' ? 'सूर्य राशि' : 'Sun Sign'}
               </h4>
-              <p className="text-orange-600 font-medium">
+              <p className="text-orange-600 font-medium text-sm sm:text-base">
                 {kundaliData.sunRashi || zodiacSigns[language][sunSign]}
               </p>
             </div>
@@ -129,24 +128,24 @@ const KundaliChart: React.FC<KundaliChartProps> = ({ kundaliData, language = 'en
         </div>
 
         <div className="kundali-chart">
-          <div className="grid grid-cols-4 gap-1 max-w-md mx-auto">
-            {/* Kundali grid layout */}
+          {/* Mobile-responsive grid */}
+          <div className="grid grid-cols-4 gap-0.5 sm:gap-1 max-w-sm sm:max-w-md mx-auto">
             {houseData.map((house, index) => (
               <div
                 key={index}
-                className={`aspect-square border border-orange-300 p-1 text-center bg-white hover:bg-orange-50 transition-colors ${
+                className={`aspect-square border border-orange-300 p-1 sm:p-2 text-center bg-white hover:bg-orange-50 transition-colors ${
                   house.number === 1 ? 'bg-orange-100 font-bold' : ''
                 }`}
               >
                 <div className="text-xs font-bold text-orange-800 mb-1">
                   {house.number}
                 </div>
-                <div className="text-xs text-gray-600 mb-1">
+                <div className="text-xs text-gray-600 mb-1 leading-tight">
                   {house.sign}
                 </div>
                 <div className="text-xs">
                   {house.planets.map((planet, planetIndex) => (
-                    <div key={planetIndex} className="text-orange-600 font-medium">
+                    <div key={planetIndex} className="text-orange-600 font-medium leading-tight">
                       {planet}
                     </div>
                   ))}
@@ -156,8 +155,8 @@ const KundaliChart: React.FC<KundaliChartProps> = ({ kundaliData, language = 'en
           </div>
         </div>
 
-        {/* Additional chart information */}
-        <div className="mt-6 text-sm text-gray-600 text-center">
+        {/* Mobile-optimized additional chart information */}
+        <div className="mt-4 sm:mt-6 text-xs sm:text-sm text-gray-600 text-center px-2">
           <p>
             {language === 'hi' 
               ? 'यह आपकी वैदिक कुंडली का चार्ट है। प्रत्येक घर में ग्रह और राशि दिखाई गई है।'

@@ -55,37 +55,119 @@ export function useBreakpoint() {
   return breakpoint;
 }
 
-// New hook for viewport height handling (mobile browsers)
+// Enhanced viewport height handling (mobile browsers with better performance)
 export function useViewportHeight() {
   const [viewportHeight, setViewportHeight] = React.useState<number>(0);
 
   React.useEffect(() => {
     const updateHeight = () => {
-      setViewportHeight(window.innerHeight);
-      // Set CSS custom property for mobile viewport height
-      document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
+      const height = window.innerHeight;
+      setViewportHeight(height);
+      // Set CSS custom property for mobile viewport height with better performance
+      document.documentElement.style.setProperty('--vh', `${height * 0.01}px`);
+    };
+
+    // Throttle resize events for better performance
+    let timeoutId: NodeJS.Timeout;
+    const throttledUpdate = () => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(updateHeight, 100);
     };
 
     updateHeight();
-    window.addEventListener('resize', updateHeight);
-    window.addEventListener('orientationchange', updateHeight);
+    window.addEventListener('resize', throttledUpdate);
+    window.addEventListener('orientationchange', throttledUpdate);
+
+    // Additional mobile-specific events
+    window.addEventListener('scroll', throttledUpdate, { passive: true });
 
     return () => {
-      window.removeEventListener('resize', updateHeight);
-      window.removeEventListener('orientationchange', updateHeight);
+      clearTimeout(timeoutId);
+      window.removeEventListener('resize', throttledUpdate);
+      window.removeEventListener('orientationchange', throttledUpdate);
+      window.removeEventListener('scroll', throttledUpdate);
     };
   }, []);
 
   return viewportHeight;
 }
 
-// Touch detection hook
+// Enhanced touch detection hook
 export function useIsTouchDevice() {
   const [isTouch, setIsTouch] = React.useState(false);
 
   React.useEffect(() => {
-    setIsTouch('ontouchstart' in window || navigator.maxTouchPoints > 0);
+    const checkTouch = () => {
+      setIsTouch('ontouchstart' in window || navigator.maxTouchPoints > 0 || (window as any).DocumentTouch && document instanceof (window as any).DocumentTouch);
+    };
+    
+    checkTouch();
+    
+    // Re-check on focus change (helpful for hybrid devices)
+    window.addEventListener('focus', checkTouch);
+    return () => window.removeEventListener('focus', checkTouch);
   }, []);
 
   return isTouch;
+}
+
+// New hook for safe area insets (mobile devices with notches)
+export function useSafeAreaInsets() {
+  const [insets, setInsets] = React.useState({
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0
+  });
+
+  React.useEffect(() => {
+    const updateInsets = () => {
+      const computedStyle = getComputedStyle(document.documentElement);
+      setInsets({
+        top: parseInt(computedStyle.getPropertyValue('env(safe-area-inset-top)') || '0'),
+        right: parseInt(computedStyle.getPropertyValue('env(safe-area-inset-right)') || '0'),
+        bottom: parseInt(computedStyle.getPropertyValue('env(safe-area-inset-bottom)') || '0'),
+        left: parseInt(computedStyle.getPropertyValue('env(safe-area-inset-left)') || '0')
+      });
+    };
+
+    updateInsets();
+    window.addEventListener('orientationchange', updateInsets);
+    return () => window.removeEventListener('orientationchange', updateInsets);
+  }, []);
+
+  return insets;
+}
+
+// Hook for mobile keyboard detection
+export function useKeyboardHeight() {
+  const [keyboardHeight, setKeyboardHeight] = React.useState(0);
+  const [isKeyboardOpen, setIsKeyboardOpen] = React.useState(false);
+
+  React.useEffect(() => {
+    const initialViewportHeight = window.visualViewport?.height || window.innerHeight;
+    
+    const handleViewportChange = () => {
+      const currentHeight = window.visualViewport?.height || window.innerHeight;
+      const heightDifference = initialViewportHeight - currentHeight;
+      
+      if (heightDifference > 150) { // Threshold for keyboard detection
+        setKeyboardHeight(heightDifference);
+        setIsKeyboardOpen(true);
+      } else {
+        setKeyboardHeight(0);
+        setIsKeyboardOpen(false);
+      }
+    };
+
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', handleViewportChange);
+      return () => window.visualViewport.removeEventListener('resize', handleViewportChange);
+    } else {
+      window.addEventListener('resize', handleViewportChange);
+      return () => window.removeEventListener('resize', handleViewportChange);
+    }
+  }, []);
+
+  return { keyboardHeight, isKeyboardOpen };
 }
