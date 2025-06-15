@@ -1,12 +1,21 @@
 
-import React from 'react';
+import React, { memo } from 'react';
+import MobileOptimizedChart from './MobileOptimizedChart';
 
 interface EnhancedKundaliChartProps {
   chart: any;
   language?: 'hi' | 'en';
 }
 
-const EnhancedKundaliChart: React.FC<EnhancedKundaliChartProps> = ({ chart, language = 'hi' }) => {
+const EnhancedKundaliChart: React.FC<EnhancedKundaliChartProps> = memo(({ chart, language = 'hi' }) => {
+  // Use mobile-optimized chart for better performance
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+  
+  if (isMobile) {
+    return <MobileOptimizedChart chart={chart} language={language} />;
+  }
+
+  // Desktop chart implementation
   if (!chart) {
     return (
       <div className="w-full max-w-sm sm:max-w-md mx-auto aspect-square border-2 border-gray-700 dark:border-gray-500 bg-gray-800 dark:bg-gray-900 rounded-lg flex items-center justify-center">
@@ -23,7 +32,6 @@ const EnhancedKundaliChart: React.FC<EnhancedKundaliChartProps> = ({ chart, lang
     planets: []
   }));
 
-  // Add planets to houses if available
   if (chart.planets) {
     Object.values(chart.planets).forEach((planet: any) => {
       if (planet.house && planet.house >= 1 && planet.house <= 12) {
@@ -34,7 +42,7 @@ const EnhancedKundaliChart: React.FC<EnhancedKundaliChartProps> = ({ chart, lang
 
   return (
     <div className="w-full max-w-sm sm:max-w-md lg:max-w-lg mx-auto p-2 sm:p-4">
-      {/* Mobile-Responsive Diamond-style Kundali Chart */}
+      {/* Desktop Diamond-style Kundali Chart */}
       <div className="relative aspect-square border-2 border-orange-500 dark:border-orange-400 bg-gray-900 dark:bg-gray-800 transform rotate-45 rounded-lg overflow-hidden shadow-lg">
         <div className="absolute inset-2 sm:inset-4 grid grid-cols-3 grid-rows-3 gap-0">
           {/* Top row */}
@@ -188,7 +196,6 @@ const EnhancedKundaliChart: React.FC<EnhancedKundaliChartProps> = ({ chart, lang
         </div>
       </div>
 
-      {/* Mobile-Optimized Info */}
       <div className="mt-4 text-center">
         <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
           {language === 'hi' 
@@ -199,6 +206,8 @@ const EnhancedKundaliChart: React.FC<EnhancedKundaliChartProps> = ({ chart, lang
       </div>
     </div>
   );
-};
+});
+
+EnhancedKundaliChart.displayName = 'EnhancedKundaliChart';
 
 export default EnhancedKundaliChart;

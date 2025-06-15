@@ -1,17 +1,27 @@
 
-import React from 'react';
+import React, { Suspense, lazy, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, Crown, Star, Grid, Clock, Sparkles, FileText } from 'lucide-react';
 import InteractiveDashboard from './InteractiveDashboard';
-import KundaliConsultationView from './KundaliConsultationView';
 import EnhancedDailyHoroscope from './EnhancedDailyHoroscope';
 import EnhancedKundaliPDFExport from './EnhancedKundaliPDFExport';
-import DivisionalCharts from './DivisionalCharts';
-import DetailedDashaDisplay from './DetailedDashaDisplay';
-import KarmicReport from './KarmicReport';
-import KarmicReportComplete from './KarmicReportComplete';
+
+// Lazy load heavy components for better mobile performance
+const KundaliConsultationView = lazy(() => import('./KundaliConsultationView'));
+const DivisionalCharts = lazy(() => import('./DivisionalCharts'));
+const DetailedDashaDisplay = lazy(() => import('./DetailedDashaDisplay'));
+const KarmicReport = lazy(() => import('./KarmicReport'));
+const KarmicReportComplete = lazy(() => import('./KarmicReportComplete'));
+
+// Loading component for suspense
+const TabLoadingSpinner = () => (
+  <div className="flex items-center justify-center py-8">
+    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+    <span className="ml-2 text-sm text-gray-600">Loading...</span>
+  </div>
+);
 
 interface KundaliResultsViewProps {
   kundaliData: any;
@@ -27,6 +37,9 @@ const KundaliResultsView: React.FC<KundaliResultsViewProps> = ({
   const getTranslation = (en: string, hi: string) => {
     return language === 'hi' ? hi : en;
   };
+
+  // Memoize heavy computations
+  const memoizedKundaliData = useMemo(() => kundaliData, [kundaliData]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-red-50 to-yellow-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
@@ -55,12 +68,12 @@ const KundaliResultsView: React.FC<KundaliResultsViewProps> = ({
                   </span>
                 </CardTitle>
                 <div className="w-full sm:w-auto">
-                  <EnhancedKundaliPDFExport kundaliData={kundaliData} language={language} />
+                  <EnhancedKundaliPDFExport kundaliData={memoizedKundaliData} language={language} />
                 </div>
               </div>
             </CardHeader>
             <CardContent className="p-3 sm:p-4 lg:p-6">
-              <InteractiveDashboard kundaliData={kundaliData} language={language} />
+              <InteractiveDashboard kundaliData={memoizedKundaliData} language={language} />
             </CardContent>
           </Card>
 
@@ -76,82 +89,90 @@ const KundaliResultsView: React.FC<KundaliResultsViewProps> = ({
             </CardHeader>
             <CardContent className="p-2 sm:p-4 lg:p-6">
               <Tabs defaultValue="charts" className="w-full">
-                {/* Mobile-First Tab Navigation */}
-                <div className="overflow-x-auto mb-4 sm:mb-6" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-                  <div className="scrollbar-hide">
-                    <TabsList className="flex w-max min-w-full sm:w-full sm:grid sm:grid-cols-2 lg:grid-cols-5 bg-purple-50 dark:bg-purple-900/30 h-auto gap-1 p-1 rounded-lg">
-                      <TabsTrigger 
-                        value="charts" 
-                        className="flex flex-col items-center gap-1 data-[state=active]:bg-purple-600 data-[state=active]:text-white text-xs sm:text-sm p-2 sm:p-3 min-h-[60px] sm:min-h-[70px] min-w-[100px] whitespace-nowrap rounded-md"
-                      >
-                        <Grid className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-                        <span className="text-center leading-tight font-medium">
-                          {getTranslation('D1-D10 Charts', 'D1-D10 चार्ट')}
-                        </span>
-                      </TabsTrigger>
-                      <TabsTrigger 
-                        value="dashas" 
-                        className="flex flex-col items-center gap-1 data-[state=active]:bg-purple-600 data-[state=active]:text-white text-xs sm:text-sm p-2 sm:p-3 min-h-[60px] sm:min-h-[70px] min-w-[100px] whitespace-nowrap rounded-md"
-                      >
-                        <Clock className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-                        <span className="text-center leading-tight font-medium">
-                          {getTranslation('Dasha Periods', 'दशा काल')}
-                        </span>
-                      </TabsTrigger>
-                      <TabsTrigger 
-                        value="karmic" 
-                        className="flex flex-col items-center gap-1 data-[state=active]:bg-purple-600 data-[state=active]:text-white text-xs sm:text-sm p-2 sm:p-3 min-h-[60px] sm:min-h-[70px] min-w-[100px] whitespace-nowrap rounded-md"
-                      >
-                        <Sparkles className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-                        <span className="text-center leading-tight font-medium">
-                          {getTranslation('Basic Karmic', 'बुनियादी कर्मिक')}
-                        </span>
-                      </TabsTrigger>
-                      <TabsTrigger 
-                        value="karmic-complete" 
-                        className="flex flex-col items-center gap-1 data-[state=active]:bg-purple-600 data-[state=active]:text-white text-xs sm:text-sm p-2 sm:p-3 min-h-[60px] sm:min-h-[70px] min-w-[100px] whitespace-nowrap rounded-md"
-                      >
-                        <FileText className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-                        <span className="text-center leading-tight font-medium">
-                          {getTranslation('Full Karmic Report', 'संपूर्ण कर्मिक रिपोर्ट')}
-                        </span>
-                      </TabsTrigger>
-                      <TabsTrigger 
-                        value="consultation" 
-                        className="flex flex-col items-center gap-1 data-[state=active]:bg-purple-600 data-[state=active]:text-white text-xs sm:text-sm p-2 sm:p-3 min-h-[60px] sm:min-h-[70px] min-w-[100px] whitespace-nowrap rounded-md col-span-2 lg:col-span-1"
-                      >
-                        <Star className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-                        <span className="text-center leading-tight font-medium">
-                          {getTranslation('Full Analysis', 'पूर्ण विश्लेषण')}
-                        </span>
-                      </TabsTrigger>
-                    </TabsList>
-                  </div>
+                {/* Mobile-First Tab Navigation with improved scrolling */}
+                <div className="overflow-x-auto mb-4 sm:mb-6 scrollbar-hide">
+                  <TabsList className="flex w-max min-w-full sm:w-full sm:grid sm:grid-cols-2 lg:grid-cols-5 bg-purple-50 dark:bg-purple-900/30 h-auto gap-1 p-1 rounded-lg">
+                    <TabsTrigger 
+                      value="charts" 
+                      className="flex flex-col items-center gap-1 data-[state=active]:bg-purple-600 data-[state=active]:text-white text-xs sm:text-sm p-2 sm:p-3 min-h-[60px] sm:min-h-[70px] min-w-[100px] whitespace-nowrap rounded-md transition-all duration-200"
+                    >
+                      <Grid className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                      <span className="text-center leading-tight font-medium">
+                        {getTranslation('D1-D10 Charts', 'D1-D10 चार्ट')}
+                      </span>
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="dashas" 
+                      className="flex flex-col items-center gap-1 data-[state=active]:bg-purple-600 data-[state=active]:text-white text-xs sm:text-sm p-2 sm:p-3 min-h-[60px] sm:min-h-[70px] min-w-[100px] whitespace-nowrap rounded-md transition-all duration-200"
+                    >
+                      <Clock className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                      <span className="text-center leading-tight font-medium">
+                        {getTranslation('Dasha Periods', 'दशा काल')}
+                      </span>
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="karmic" 
+                      className="flex flex-col items-center gap-1 data-[state=active]:bg-purple-600 data-[state=active]:text-white text-xs sm:text-sm p-2 sm:p-3 min-h-[60px] sm:min-h-[70px] min-w-[100px] whitespace-nowrap rounded-md transition-all duration-200"
+                    >
+                      <Sparkles className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                      <span className="text-center leading-tight font-medium">
+                        {getTranslation('Basic Karmic', 'बुनियादी कर्मिक')}
+                      </span>
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="karmic-complete" 
+                      className="flex flex-col items-center gap-1 data-[state=active]:bg-purple-600 data-[state=active]:text-white text-xs sm:text-sm p-2 sm:p-3 min-h-[60px] sm:min-h-[70px] min-w-[100px] whitespace-nowrap rounded-md transition-all duration-200"
+                    >
+                      <FileText className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                      <span className="text-center leading-tight font-medium">
+                        {getTranslation('Full Karmic Report', 'संपूर्ण कर्मिक रिपोर्ट')}
+                      </span>
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="consultation" 
+                      className="flex flex-col items-center gap-1 data-[state=active]:bg-purple-600 data-[state=active]:text-white text-xs sm:text-sm p-2 sm:p-3 min-h-[60px] sm:min-h-[70px] min-w-[100px] whitespace-nowrap rounded-md col-span-2 lg:col-span-1 transition-all duration-200"
+                    >
+                      <Star className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                      <span className="text-center leading-tight font-medium">
+                        {getTranslation('Full Analysis', 'पूर्ण विश्लेषण')}
+                      </span>
+                    </TabsTrigger>
+                  </TabsList>
                 </div>
 
-                {/* Tab Content with Mobile Optimization */}
+                {/* Tab Content with Lazy Loading for Mobile Performance */}
                 <div className="min-h-[300px]">
                   <TabsContent value="charts" className="mt-0">
-                    <DivisionalCharts kundaliData={kundaliData} language={language} />
+                    <Suspense fallback={<TabLoadingSpinner />}>
+                      <DivisionalCharts kundaliData={memoizedKundaliData} language={language} />
+                    </Suspense>
                   </TabsContent>
 
                   <TabsContent value="dashas" className="mt-0">
-                    <DetailedDashaDisplay kundaliData={kundaliData} language={language} />
+                    <Suspense fallback={<TabLoadingSpinner />}>
+                      <DetailedDashaDisplay kundaliData={memoizedKundaliData} language={language} />
+                    </Suspense>
                   </TabsContent>
 
                   <TabsContent value="karmic" className="mt-0">
-                    <KarmicReport kundaliData={kundaliData} language={language} />
+                    <Suspense fallback={<TabLoadingSpinner />}>
+                      <KarmicReport kundaliData={memoizedKundaliData} language={language} />
+                    </Suspense>
                   </TabsContent>
 
                   <TabsContent value="karmic-complete" className="mt-0">
-                    <KarmicReportComplete kundaliData={kundaliData} language={language} />
+                    <Suspense fallback={<TabLoadingSpinner />}>
+                      <KarmicReportComplete kundaliData={memoizedKundaliData} language={language} />
+                    </Suspense>
                   </TabsContent>
 
                   <TabsContent value="consultation" className="mt-0">
-                    <KundaliConsultationView 
-                      kundaliData={kundaliData}
-                      language={language}
-                    />
+                    <Suspense fallback={<TabLoadingSpinner />}>
+                      <KundaliConsultationView 
+                        kundaliData={memoizedKundaliData}
+                        language={language}
+                      />
+                    </Suspense>
                   </TabsContent>
                 </div>
               </Tabs>
@@ -166,15 +187,43 @@ const KundaliResultsView: React.FC<KundaliResultsViewProps> = ({
             <div className="flex justify-center px-2">
               <div className="w-full max-w-4xl">
                 <EnhancedDailyHoroscope 
-                  kundaliData={kundaliData} 
+                  kundaliData={memoizedKundaliData} 
                 />
               </div>
             </div>
           </div>
         </div>
       </div>
+      
+      {/* Add CSS for better scrolling performance */}
+      <style dangerouslySetInnerHTML={{
+        __html: `
+          .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+            -webkit-overflow-scrolling: touch;
+          }
+          .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+          }
+          /* Optimize rendering for mobile */
+          @media (max-width: 768px) {
+            * {
+              -webkit-font-smoothing: antialiased;
+              -moz-osx-font-smoothing: grayscale;
+            }
+            .backdrop-blur-sm {
+              backdrop-filter: none;
+              background: rgba(255, 255, 255, 0.9);
+            }
+            .dark .backdrop-blur-sm {
+              background: rgba(17, 24, 39, 0.9);
+            }
+          }
+        `
+      }} />
     </div>
   );
 };
 
-export default KundaliResultsView;
+export default React.memo(KundaliResultsView);
