@@ -58,27 +58,34 @@ const KarmicReportComplete: React.FC<KarmicReportCompleteProps> = ({ kundaliData
     const lagna = kundaliData?.enhancedCalculations?.lagna?.signName || 'Unknown';
     const moonNakshatra = planets?.MO?.nakshatraName || 'Unknown';
     const dashas = kundaliData?.enhancedCalculations?.dashas || [];
-    const currentDasha = dashas.find(d => d.isActive);
+    const currentDasha = dashas.find((d: any) => d.isActive);
 
-    // Get 10th house analysis
-    const tenthHouse = houses.find(h => h.number === 10);
+    // Get 10th house analysis with proper type checking
+    const tenthHouse = houses.find((h: any) => h.number === 10);
     const planetsInTenth = Object.entries(planets).filter(([_, data]: [string, any]) => data?.house === 10);
     const tenthHouseLord = planetsInTenth.length > 0 
-      ? `${planetsInTenth[0][0]} in ${planetsInTenth[0][1]?.rashiName}` 
-      : tenthHouse?.rashiName || 'Unknown';
+      ? `${planetsInTenth[0][0]} in ${planetsInTenth[0][1]?.rashiName || 'Unknown'}` 
+      : (tenthHouse && typeof tenthHouse === 'object' && 'rashiName' in tenthHouse ? tenthHouse.rashiName as string : 'Unknown');
 
-    // Analyze planetary strengths for D10
+    // Analyze planetary strengths for D10 with proper type checking
     const strongPlanets = Object.entries(planets)
-      .filter(([_, data]: [string, any]) => data?.shadbala > 60)
+      .filter(([_, data]: [string, any]) => {
+        const shadbala = data?.shadbala;
+        return typeof shadbala === 'number' && shadbala > 60;
+      })
       .map(([name, _]) => name);
     
     const weakPlanets = Object.entries(planets)
-      .filter(([_, data]: [string, any]) => data?.shadbala < 40)
+      .filter(([_, data]: [string, any]) => {
+        const shadbala = data?.shadbala;
+        return typeof shadbala === 'number' && shadbala < 40;
+      })
       .map(([name, _]) => name);
 
     // Generate career blocks based on actual planetary positions
     const careerBlocks = [];
-    if (planets?.SA?.isDebilitated || planets?.SA?.shadbala < 50) {
+    const saturnShadbala = planets?.SA?.shadbala;
+    if (planets?.SA?.isDebilitated || (typeof saturnShadbala === 'number' && saturnShadbala < 50)) {
       careerBlocks.push(language === 'hi' ? 
         'शनि कमजोर → धीमी करियर प्रगति और संघर्ष' : 
         'Weak Saturn → Slow career progress and struggles');
@@ -102,7 +109,10 @@ const KarmicReportComplete: React.FC<KarmicReportCompleteProps> = ({ kundaliData
         reason: language === 'hi' ? 'बृहस्पति + बुध → ज्ञान और संचार' : 'Jupiter + Mercury → Knowledge and communication'
       });
     }
-    if (strongPlanets.includes('MA') && (tenthHouse?.rashiName === 'Aries' || tenthHouse?.rashiName === 'Scorpio')) {
+    if (strongPlanets.includes('MA') && (
+      (tenthHouse && typeof tenthHouse === 'object' && 'rashiName' in tenthHouse && tenthHouse.rashiName === 'Aries') || 
+      (tenthHouse && typeof tenthHouse === 'object' && 'rashiName' in tenthHouse && tenthHouse.rashiName === 'Scorpio')
+    )) {
       idealCareers.push({
         role: language === 'hi' ? 'इंजीनियर/तकनीशियन' : 'Engineer/Technician',
         reason: language === 'hi' ? 'मंगल प्रभावी → तकनीकी और निष्पादन कौशल' : 'Strong Mars → Technical and execution skills'
@@ -137,12 +147,14 @@ const KarmicReportComplete: React.FC<KarmicReportCompleteProps> = ({ kundaliData
 
     // Personalized remedies based on weak planets
     const remedies = [];
-    if (weakPlanets.includes('SA') || planets?.SA?.shadbala < 50) {
+    const saturnShadbalanum = planets?.SA?.shadbala;
+    if (weakPlanets.includes('SA') || (typeof saturnShadbalanum === 'number' && saturnShadbalanum < 50)) {
       remedies.push(language === 'hi' ? 
         '🪔 शनि उपाय: शनिवार को तिल का तेल दान करें, बुजुर्गों की सेवा करें' :
         '🪔 Saturn Remedy: Donate sesame oil on Saturdays, serve elders');
     }
-    if (weakPlanets.includes('JU') || planets?.JU?.shadbala < 50) {
+    const jupiterShadbala = planets?.JU?.shadbala;
+    if (weakPlanets.includes('JU') || (typeof jupiterShadbala === 'number' && jupiterShadbala < 50)) {
       remedies.push(language === 'hi' ? 
         '🪔 बृहस्पति उपाय: गुरुवार को पीले वस्त्र पहनें, गुरु मंत्र जाप करें' :
         '🪔 Jupiter Remedy: Wear yellow on Thursdays, chant Guru mantras');
@@ -281,25 +293,25 @@ const KarmicReportComplete: React.FC<KarmicReportCompleteProps> = ({ kundaliData
       {
         name: language === 'hi' ? 'बृहस्पति' : 'Jupiter',
         role: language === 'hi' ? 'धर्म + ज्ञान' : 'Dharma + Wisdom',
-        strength: kundaliData?.enhancedCalculations?.planets?.JU?.shadbala || 80,
+        strength: typeof kundaliData?.enhancedCalculations?.planets?.JU?.shadbala === 'number' ? kundaliData.enhancedCalculations.planets.JU.shadbala : 80,
         color: '#F59E0B'
       },
       {
         name: language === 'hi' ? 'शनि' : 'Saturn',
         role: language === 'hi' ? 'अनुशासन + कष्ट' : 'Discipline + Suffering',
-        strength: kundaliData?.enhancedCalculations?.planets?.SA?.shadbala || 75,
+        strength: typeof kundaliData?.enhancedCalculations?.planets?.SA?.shadbala === 'number' ? kundaliData.enhancedCalculations.planets.SA.shadbala : 75,
         color: '#6366F1'
       },
       {
         name: language === 'hi' ? 'राहु' : 'Rahu',
         role: language === 'hi' ? 'जुनून + भ्रम' : 'Obsession + Illusion',
-        strength: kundaliData?.enhancedCalculations?.planets?.RA?.shadbala || 60,
+        strength: typeof kundaliData?.enhancedCalculations?.planets?.RA?.shadbala === 'number' ? kundaliData.enhancedCalculations.planets.RA.shadbala : 60,
         color: '#8B5CF6'
       },
       {
         name: language === 'hi' ? 'शुक्र' : 'Venus',
         role: language === 'hi' ? 'रचनात्मकता + आकर्षण' : 'Creativity + Charm',
-        strength: kundaliData?.enhancedCalculations?.planets?.VE?.shadbala || 65,
+        strength: typeof kundaliData?.enhancedCalculations?.planets?.VE?.shadbala === 'number' ? kundaliData.enhancedCalculations.planets.VE.shadbala : 65,
         color: '#EC4899'
       }
     ] : [],
