@@ -1,4 +1,5 @@
 
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -53,6 +54,23 @@ const InteractiveDashboard: React.FC<InteractiveDashboardProps> = ({
     return planetsObject;
   };
 
+  // Create complete KundaliChart object for VisualKundaliChart
+  const createKundaliChart = (planetsArray: any[], ascendantValue: number) => {
+    return {
+      planets: convertPlanetsToObject(planetsArray),
+      ascendant: ascendantValue,
+      ascendantSanskrit: kundaliData?.enhancedCalculations?.ascendantSanskrit || 'मेष',
+      houses: kundaliData?.enhancedCalculations?.houses || Array.from({ length: 12 }, (_, i) => i + 1),
+      housesList: kundaliData?.enhancedCalculations?.housesList || Array.from({ length: 12 }, (_, i) => i + 1),
+      moonSign: kundaliData?.enhancedCalculations?.moonSign || 1,
+      sunSign: kundaliData?.enhancedCalculations?.sunSign || 1,
+      nakshatraName: kundaliData?.enhancedCalculations?.nakshatraName || 'Ashwini',
+      yogas: kundaliData?.enhancedCalculations?.yogas || [],
+      dashas: kundaliData?.enhancedCalculations?.dashas || [],
+      dashaPeriods: kundaliData?.enhancedCalculations?.dashaPeriods || []
+    };
+  };
+
   const planets = extractPlanetsData();
   const ascendant = kundaliData?.enhancedCalculations?.ascendant || 1;
 
@@ -80,10 +98,7 @@ const InteractiveDashboard: React.FC<InteractiveDashboardProps> = ({
 
         <TabsContent value="traditional" className="mt-6">
           <VisualKundaliChart 
-            chart={{
-              planets: convertPlanetsToObject(planets),
-              ascendant: ascendant
-            }}
+            chart={createKundaliChart(planets, ascendant)}
             language={language}
           />
         </TabsContent>
@@ -146,3 +161,4 @@ const InteractiveDashboard: React.FC<InteractiveDashboardProps> = ({
 };
 
 export default InteractiveDashboard;
+
