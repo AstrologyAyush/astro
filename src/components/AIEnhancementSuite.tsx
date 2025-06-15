@@ -1,4 +1,3 @@
-
 import React, { useState, Suspense, lazy } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -57,7 +56,7 @@ const AIEnhancementSuite: React.FC<AIEnhancementSuiteProps> = ({
             <TabsTrigger value="ai-chat" className="flex flex-col items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white text-xs p-3 min-h-[70px] rounded-lg transition-all duration-200">
               <Bot className="h-4 w-4" />
               <span className="text-center font-medium leading-tight">
-                {getTranslation('AI Guru Chat', 'AI गुरु चैट')}
+                CHAT
               </span>
             </TabsTrigger>
             
