@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 
-export type UserRole = 'owner' | 'staff' | 'user';
+export type UserRole = 'owner' | 'admin' | 'user';
 
 interface AdminAuthState {
   user: User | null;
@@ -11,17 +11,6 @@ interface AdminAuthState {
   isAdmin: boolean;
   isLoading: boolean;
 }
-
-// For now, we'll use a simple email-based admin check
-// In production, you should use proper role management
-const ADMIN_EMAILS = [
-  'admin@yourdomain.com', // Replace with actual admin email
-  'owner@yourdomain.com'  // Replace with actual owner email
-];
-
-const STAFF_EMAILS = [
-  'staff@yourdomain.com'  // Replace with actual staff emails
-];
 
 export const useAdminAuth = (): AdminAuthState => {
   const [state, setState] = useState<AdminAuthState>({
@@ -51,17 +40,28 @@ export const useAdminAuth = (): AdminAuthState => {
           return;
         }
 
-        // Check user role based on email
-        // TODO: Replace this with proper role checking once user_roles table is working
-        let userRole: UserRole = 'user';
-        
-        if (user.email && ADMIN_EMAILS.includes(user.email)) {
-          userRole = 'owner';
-        } else if (user.email && STAFF_EMAILS.includes(user.email)) {
-          userRole = 'staff';
+        // Check user role from database
+        const { data: roleData, error: roleError } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', user.id)
+          .single();
+
+        if (roleError) {
+          console.error('Error fetching user role:', roleError);
+          if (mounted) {
+            setState({
+              user,
+              userRole: 'user',
+              isAdmin: false,
+              isLoading: false,
+            });
+          }
+          return;
         }
 
-        const isAdmin = userRole === 'owner' || userRole === 'staff';
+        const userRole = roleData?.role as UserRole || 'user';
+        const isAdmin = userRole === 'owner' || userRole === 'admin';
 
         if (mounted) {
           setState({
