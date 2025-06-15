@@ -106,6 +106,26 @@ const KundaliResultsView: React.FC<KundaliResultsViewProps> = ({
             </CardContent>
           </Card>
 
+          {/* Transit Analysis - Separated Section */}
+          <Card className="w-full border-blue-200 shadow-lg bg-white/95 backdrop-blur-sm">
+            <CardHeader className="bg-gradient-to-r from-blue-100 to-cyan-100 p-3 sm:p-4 lg:p-6">
+              <CardTitle className="text-blue-800 flex items-center gap-2 text-base sm:text-lg lg:text-xl text-center sm:text-left">
+                <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-blue-600 flex-shrink-0" />
+                <span className="leading-tight">
+                  {getTranslation('Current Transit Analysis', 'वर्तमान गोचर विश्लेषण')}
+                </span>
+              </CardTitle>
+              <p className="text-sm text-blue-600 mt-2">
+                {getTranslation('Real-time planetary movements and their effects', 'वास्तविक समय में ग्रहों की गति और उनके प्रभाव')}
+              </p>
+            </CardHeader>
+            <CardContent className="p-3 sm:p-4 lg:p-6">
+              <Suspense fallback={<TabLoadingSpinner />}>
+                <TransitAnalysis kundaliData={memoizedKundaliData} language={language} />
+              </Suspense>
+            </CardContent>
+          </Card>
+
           {/* Complete Vedic Analysis - Separated Section */}
           <Card className="w-full border-purple-200 dark:border-purple-700 shadow-lg bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm">
             <CardHeader className="bg-gradient-to-r from-purple-100 to-indigo-100 dark:from-purple-900/50 dark:to-indigo-900/50 p-3 sm:p-4 lg:p-6">
@@ -121,17 +141,11 @@ const KundaliResultsView: React.FC<KundaliResultsViewProps> = ({
             </CardHeader>
             <CardContent className="p-2 sm:p-4 lg:p-6">
               <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-                <TabsList className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-8 gap-1 bg-white/80 backdrop-blur-sm rounded-xl p-2 shadow-lg">
+                <TabsList className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-1 bg-white/80 backdrop-blur-sm rounded-xl p-2 shadow-lg">
                   <TabsTrigger value="enhanced-charts" className="flex flex-col items-center gap-1 data-[state=active]:bg-purple-600 data-[state=active]:text-white text-xs sm:text-sm p-2 sm:p-3 min-h-[60px] sm:min-h-[70px] rounded-md transition-all duration-200 border border-purple-200 dark:border-purple-600 bg-white dark:bg-gray-800">
                     <Grid className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
                     <span className="text-center leading-tight font-medium">
                       {getTranslation('D1-D20 Charts', 'D1-D20 चार्ट')}
-                    </span>
-                  </TabsTrigger>
-                  <TabsTrigger value="transits" className="flex flex-col items-center gap-1 data-[state=active]:bg-purple-600 data-[state=active]:text-white text-xs sm:text-sm p-2 sm:p-3 min-h-[60px] sm:min-h-[70px] rounded-md transition-all duration-200 border border-purple-200 dark:border-purple-600 bg-white dark:bg-gray-800">
-                    <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-                    <span className="text-center leading-tight font-medium">
-                      {getTranslation('Transits', 'गोचर')}
                     </span>
                   </TabsTrigger>
                   <TabsTrigger value="dashas" className="flex flex-col items-center gap-1 data-[state=active]:bg-purple-600 data-[state=active]:text-white text-xs sm:text-sm p-2 sm:p-3 min-h-[60px] sm:min-h-[70px] rounded-md transition-all duration-200 border border-purple-200 dark:border-purple-600 bg-white dark:bg-gray-800">
@@ -164,24 +178,12 @@ const KundaliResultsView: React.FC<KundaliResultsViewProps> = ({
                       {getTranslation('AI Analysis', 'AI विश्लेषण')}
                     </span>
                   </TabsTrigger>
-                  <TabsTrigger value="dharma" className="flex flex-col items-center gap-1 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-indigo-500 data-[state=active]:text-white text-xs sm:text-sm p-2 sm:p-3 min-h-[60px] sm:min-h-[70px] rounded-md transition-all duration-200 border border-purple-200 dark:border-purple-600 bg-white dark:bg-gray-800">
-                    <Target className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-                    <span className="text-center leading-tight font-medium">
-                      {getTranslation('Dharma', 'धर्म')}
-                    </span>
-                  </TabsTrigger>
                 </TabsList>
                 
                 <div className="min-h-[300px]">
                   <TabsContent value="enhanced-charts" className="mt-0">
                     <Suspense fallback={<TabLoadingSpinner />}>
                       <EnhancedDivisionalCharts kundaliData={memoizedKundaliData} language={language} />
-                    </Suspense>
-                  </TabsContent>
-
-                  <TabsContent value="transits" className="mt-0">
-                    <Suspense fallback={<TabLoadingSpinner />}>
-                      <TransitAnalysis kundaliData={memoizedKundaliData} language={language} />
                     </Suspense>
                   </TabsContent>
 
@@ -214,12 +216,26 @@ const KundaliResultsView: React.FC<KundaliResultsViewProps> = ({
                       <AIEnhancementSuite kundaliData={memoizedKundaliData} language={language} />
                     </Suspense>
                   </TabsContent>
-
-                  <TabsContent value="dharma" className="mt-6">
-                    <DharmaAlignmentAnalysis kundaliData={kundaliData} language={language} />
-                  </TabsContent>
                 </div>
               </Tabs>
+            </CardContent>
+          </Card>
+
+          {/* Dharma Analysis - Separated Section */}
+          <Card className="w-full border-purple-200 shadow-lg bg-white/95 backdrop-blur-sm">
+            <CardHeader className="bg-gradient-to-r from-purple-100 to-indigo-100 p-3 sm:p-4 lg:p-6">
+              <CardTitle className="text-purple-800 flex items-center gap-2 text-base sm:text-lg lg:text-xl text-center sm:text-left">
+                <Target className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-purple-600 flex-shrink-0" />
+                <span className="leading-tight">
+                  {getTranslation('Dharma Alignment Analysis', 'धर्म संरेखण विश्लेषण')}
+                </span>
+              </CardTitle>
+              <p className="text-sm text-purple-600 mt-2">
+                {getTranslation('Life purpose and spiritual path guidance', 'जीवन उद्देश्य और आध्यात्मिक पथ मार्गदर्शन')}
+              </p>
+            </CardHeader>
+            <CardContent className="p-3 sm:p-4 lg:p-6">
+              <DharmaAlignmentAnalysis kundaliData={kundaliData} language={language} />
             </CardContent>
           </Card>
           
