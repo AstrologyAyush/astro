@@ -398,7 +398,7 @@ const Index = () => {
               © 2025 AyuAstro - Precision Vedic Astrology. All rights reserved.
             </p>
             <p className="text-gray-600 text-xs sm:text-sm px-2">
-              {getTranslation('Powered by Swiss Ephemeris & Traditional Vedic Calculations', 'Swiss Ephemeris और पारंपरिक वैदिक गणनाओं द्वारा संचालित')}
+              {getTranslation('Analysed By Rishi Parasher Used His 500+ Years Of Knowledge', 'ऋषि पराशर के 500+ वर्षों के ज्ञान द्वारा विश्लेषित')}
             </p>
             <div className="flex justify-center">
               <Sparkles className="h-4 w-4 text-orange-500" />
