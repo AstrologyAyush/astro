@@ -44,7 +44,7 @@ export class ChartRenderer {
     this.ctx.fillText(title, this.dimensions.width / 2, y);
   }
 
-  protected drawLegend(items: Array<{color: string, label: string}>, y: number): void {
+  public drawLegend(items: Array<{color: string, label: string}>, y: number): void {
     let x = this.dimensions.margin;
     const itemWidth = 80;
     

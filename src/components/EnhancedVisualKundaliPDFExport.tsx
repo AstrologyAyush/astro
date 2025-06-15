@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Download, Image } from "lucide-react";
@@ -137,6 +138,7 @@ const EnhancedVisualKundaliPDFExport: React.FC<EnhancedVisualKundaliPDFExportPro
       // Personality Analysis
       if (kundaliData?.interpretations?.personality) {
         const personality = kundaliData.interpretations.personality;
+        const margin = 20;
         
         // Core Traits
         doc.setFontSize(12);
@@ -151,7 +153,7 @@ const EnhancedVisualKundaliPDFExport: React.FC<EnhancedVisualKundaliPDFExportPro
         
         if (personality.coreTraits) {
           personality.coreTraits.slice(0, 5).forEach((trait: string) => {
-            checkPageBreak();
+            yPosition = pdfGen.checkPageBreak(8, yPosition);
             doc.text(`• ${trait}`, margin + 10, yPosition);
             yPosition += 5;
           });
