@@ -124,7 +124,7 @@ const AIEnhancementSuite: React.FC<AIEnhancementSuiteProps> = ({
           >
             <Zap className="h-3 w-3" />
             <span className="text-center font-medium">
-              {getTranslation('Health AI', 'स्वास्थ्य AI')}
+              {getTranslation('Health', 'स्वास्थ्य')}
             </span>
           </TabsTrigger>
 
