@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -106,8 +105,7 @@ const EnhancedDivisionalCharts: React.FC<EnhancedDivisionalChartsProps> = ({ kun
         </CardHeader>
         <CardContent className="p-4">
           {/* Chart Navigation */}
--         <div className="mb-6">
-+         <div className="mb-8 relative z-10">
+          <div className="mb-8 relative z-10">
             <div className="flex items-center justify-between mb-3">
               <h3 className="font-semibold text-gray-800">
                 {getTranslation('Select Divisional Chart', 'विभाजित चार्ट चुनें')}
