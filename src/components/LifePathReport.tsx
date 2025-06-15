@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -33,6 +32,18 @@ const LifePathReport: React.FC<LifePathReportProps> = ({ kundaliData, language }
     const rahu = planets.RA;
     const ketu = planets.KE;
 
+    // Calculate lagna sign number from degree
+    const getLagnaSignNumber = () => {
+      if (lagna.degree !== undefined) {
+        return Math.floor(lagna.degree / 30) + 1;
+      }
+      // Fallback: try to derive from sign name
+      const signNames = ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 
+                         'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'];
+      const signIndex = signNames.findIndex(name => lagna.signName?.includes(name));
+      return signIndex >= 0 ? signIndex + 1 : 1;
+    };
+
     // Determine dominant elements based on planetary positions
     const getDominantElement = () => {
       const fireSignPlanets = [sun, mars].filter(p => p && [1, 5, 9].includes(Math.ceil(p.longitude / 30)));
@@ -50,7 +61,7 @@ const LifePathReport: React.FC<LifePathReportProps> = ({ kundaliData, language }
     // Generate soul purpose based on actual chart
     const generateSoulPurpose = () => {
       const moonSign = moon ? Math.ceil(moon.longitude / 30) : 1;
-      const lagnaSign = lagna.signNumber || 1;
+      const lagnaSign = getLagnaSignNumber();
       const ninthHouseSign = (lagnaSign + 8) % 12 + 1;
       
       // Check for spiritual yogas
