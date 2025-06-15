@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -159,7 +158,7 @@ const AIRemedySuggestions: React.FC<AIRemedySuggestionsProps> = ({
         <CardHeader className="bg-gradient-to-r from-emerald-100 to-teal-100">
           <CardTitle className="flex items-center gap-2 text-emerald-800">
             <Gem className="h-5 w-5" />
-            {getTranslation('AI-Powered Smart Remedies', 'AI-संचालित स्मार्ट उपाय')}
+            {getTranslation('Remedies', 'उपाय')}
           </CardTitle>
         </CardHeader>
         <CardContent className="p-6">
