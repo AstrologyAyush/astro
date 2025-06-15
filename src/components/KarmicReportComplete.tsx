@@ -7,26 +7,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import KarmaAlignmentChart from './KarmaAlignmentChart';
 import KarmicReportPDFExport from './KarmicReportPDFExport';
-import { 
-  Sparkles, 
-  Crown, 
-  Clock, 
-  Target, 
-  Heart, 
-  TrendingUp,
-  Brain,
-  Star,
-  Calendar,
-  BarChart3,
-  Download,
-  FileText
-} from 'lucide-react';
-
+import { Sparkles, Crown, Clock, Target, Heart, TrendingUp, Brain, Star, Calendar, BarChart3, Download, FileText } from 'lucide-react';
 interface KarmicReportCompleteProps {
   kundaliData: any;
   language: 'hi' | 'en';
 }
-
 interface PersonalizedKarmicData {
   lagna: string;
   moonNakshatra: string;
@@ -34,19 +19,29 @@ interface PersonalizedKarmicData {
   d10Analysis: string;
   currentDasha: string;
   careerBlocks: string[];
-  idealCareers: Array<{role: string, reason: string}>;
+  idealCareers: Array<{
+    role: string;
+    reason: string;
+  }>;
   timeline: string;
   remedies: string[];
-  weeklyActions: Array<{week: number, action: string, planet: string}>;
+  weeklyActions: Array<{
+    week: number;
+    action: string;
+    planet: string;
+  }>;
   coachMessage: string;
 }
-
-const KarmicReportComplete: React.FC<KarmicReportCompleteProps> = ({ kundaliData, language }) => {
+const KarmicReportComplete: React.FC<KarmicReportCompleteProps> = ({
+  kundaliData,
+  language
+}) => {
   const [personalizedData, setPersonalizedData] = useState<PersonalizedKarmicData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [aiRetryCount, setAiRetryCount] = useState(0);
-  const { toast } = useToast();
-
+  const {
+    toast
+  } = useToast();
   const getTranslation = (en: string, hi: string) => {
     return language === 'hi' ? hi : en;
   };
@@ -54,7 +49,12 @@ const KarmicReportComplete: React.FC<KarmicReportCompleteProps> = ({ kundaliData
   // Create a cache key for this specific kundali data
   const getCacheKey = () => {
     if (!kundaliData?.birthData) return null;
-    const { fullName, dateOfBirth, timeOfBirth, placeOfBirth } = kundaliData.birthData;
+    const {
+      fullName,
+      dateOfBirth,
+      timeOfBirth,
+      placeOfBirth
+    } = kundaliData.birthData;
     return `karmic_report_${fullName}_${dateOfBirth}_${timeOfBirth}_${placeOfBirth}_${language}`;
   };
 
@@ -62,7 +62,6 @@ const KarmicReportComplete: React.FC<KarmicReportCompleteProps> = ({ kundaliData
   const getCachedData = () => {
     const cacheKey = getCacheKey();
     if (!cacheKey) return null;
-    
     try {
       const cached = localStorage.getItem(cacheKey);
       if (cached) {
@@ -71,7 +70,6 @@ const KarmicReportComplete: React.FC<KarmicReportCompleteProps> = ({ kundaliData
         const cacheTime = new Date(parsedData.timestamp);
         const now = new Date();
         const hoursDiff = (now.getTime() - cacheTime.getTime()) / (1000 * 60 * 60);
-        
         if (hoursDiff < 24) {
           return parsedData.data;
         } else {
@@ -88,7 +86,6 @@ const KarmicReportComplete: React.FC<KarmicReportCompleteProps> = ({ kundaliData
   const setCachedData = (data: PersonalizedKarmicData) => {
     const cacheKey = getCacheKey();
     if (!cacheKey) return;
-    
     try {
       const cacheData = {
         data,
@@ -112,7 +109,7 @@ const KarmicReportComplete: React.FC<KarmicReportCompleteProps> = ({ kundaliData
     // Get 10th house analysis with proper type checking
     const tenthHouse = houses.find((h: any) => h.number === 10);
     const planetsInTenth = Object.entries(planets).filter(([_, data]: [string, any]) => data?.house === 10);
-    
+
     // Fix the rashiName access with proper type checking
     let tenthHouseLord = 'Unknown';
     if (planetsInTenth.length > 0) {
@@ -126,37 +123,26 @@ const KarmicReportComplete: React.FC<KarmicReportCompleteProps> = ({ kundaliData
     }
 
     // Analyze planetary strengths for D10 with proper type checking
-    const strongPlanets = Object.entries(planets)
-      .filter(([_, data]: [string, any]) => {
-        const shadbala = data?.shadbala;
-        return typeof shadbala === 'number' && shadbala > 60;
-      })
-      .map(([name, _]) => name);
-    
-    const weakPlanets = Object.entries(planets)
-      .filter(([_, data]: [string, any]) => {
-        const shadbala = data?.shadbala;
-        return typeof shadbala === 'number' && shadbala < 40;
-      })
-      .map(([name, _]) => name);
+    const strongPlanets = Object.entries(planets).filter(([_, data]: [string, any]) => {
+      const shadbala = data?.shadbala;
+      return typeof shadbala === 'number' && shadbala > 60;
+    }).map(([name, _]) => name);
+    const weakPlanets = Object.entries(planets).filter(([_, data]: [string, any]) => {
+      const shadbala = data?.shadbala;
+      return typeof shadbala === 'number' && shadbala < 40;
+    }).map(([name, _]) => name);
 
     // Generate career blocks based on actual planetary positions
     const careerBlocks = [];
     const saturnShadbala = planets?.SA?.shadbala;
-    if (planets?.SA?.isDebilitated || (typeof saturnShadbala === 'number' && saturnShadbala < 50)) {
-      careerBlocks.push(language === 'hi' ? 
-        'शनि कमजोर → धीमी करियर प्रगति और संघर्ष' : 
-        'Weak Saturn → Slow career progress and struggles');
+    if (planets?.SA?.isDebilitated || typeof saturnShadbala === 'number' && saturnShadbala < 50) {
+      careerBlocks.push(language === 'hi' ? 'शनि कमजोर → धीमी करियर प्रगति और संघर्ष' : 'Weak Saturn → Slow career progress and struggles');
     }
     if (planets?.RA?.house === 6 || planets?.RA?.house === 8) {
-      careerBlocks.push(language === 'hi' ? 
-        'राहु 6/8 घर में → अधिक काम और छुपे हुए शत्रु' : 
-        'Rahu in 6th/8th → Overwork and hidden enemies');
+      careerBlocks.push(language === 'hi' ? 'राहु 6/8 घर में → अधिक काम और छुपे हुए शत्रु' : 'Rahu in 6th/8th → Overwork and hidden enemies');
     }
     if (currentDasha?.planet === 'Saturn' || currentDasha?.planet === 'SA') {
-      careerBlocks.push(language === 'hi' ? 
-        'शनि दशा → धैर्य की परीक्षा और विलंबित परिणाम' : 
-        'Saturn Dasha → Test of patience and delayed results');
+      careerBlocks.push(language === 'hi' ? 'शनि दशा → धैर्य की परीक्षा और विलंबित परिणाम' : 'Saturn Dasha → Test of patience and delayed results');
     }
 
     // Generate ideal careers based on strong planets
@@ -167,12 +153,9 @@ const KarmicReportComplete: React.FC<KarmicReportCompleteProps> = ({ kundaliData
         reason: language === 'hi' ? 'बृहस्पति + बुध → ज्ञान और संचार' : 'Jupiter + Mercury → Knowledge and communication'
       });
     }
-    
+
     // Fix the tenthHouse access for Mars career check
-    const tenthHouseRashi = tenthHouse && typeof tenthHouse === 'object' && tenthHouse !== null 
-      ? (tenthHouse as Record<string, any>).rashiName 
-      : null;
-    
+    const tenthHouseRashi = tenthHouse && typeof tenthHouse === 'object' && tenthHouse !== null ? (tenthHouse as Record<string, any>).rashiName : null;
     if (strongPlanets.includes('MA') && (tenthHouseRashi === 'Aries' || tenthHouseRashi === 'Scorpio')) {
       idealCareers.push({
         role: language === 'hi' ? 'इंजीनियर/तकनीशियन' : 'Engineer/Technician',
@@ -196,81 +179,49 @@ const KarmicReportComplete: React.FC<KarmicReportCompleteProps> = ({ kundaliData
 
     // Timeline based on current dasha
     const timelineYear = new Date().getFullYear();
-    const timeline = currentDasha ? 
-      (language === 'hi' ? 
-        `${timelineYear}-${timelineYear + 2}: ${currentDasha.planet} दशा → ${currentDasha.planet === 'Saturn' || currentDasha.planet === 'SA' ? 'धैर्य और कड़ी मेहनत' : 'नई संभावनाएं'}` :
-        `${timelineYear}-${timelineYear + 2}: ${currentDasha.planet} Dasha → ${currentDasha.planet === 'Saturn' || currentDasha.planet === 'SA' ? 'Patience and hard work' : 'New opportunities'}`
-      ) : 
-      (language === 'hi' ? 
-        `${timelineYear}-${timelineYear + 2}: स्थिर प्रगति की अवधि` :
-        `${timelineYear}-${timelineYear + 2}: Period of steady progress`
-      );
+    const timeline = currentDasha ? language === 'hi' ? `${timelineYear}-${timelineYear + 2}: ${currentDasha.planet} दशा → ${currentDasha.planet === 'Saturn' || currentDasha.planet === 'SA' ? 'धैर्य और कड़ी मेहनत' : 'नई संभावनाएं'}` : `${timelineYear}-${timelineYear + 2}: ${currentDasha.planet} Dasha → ${currentDasha.planet === 'Saturn' || currentDasha.planet === 'SA' ? 'Patience and hard work' : 'New opportunities'}` : language === 'hi' ? `${timelineYear}-${timelineYear + 2}: स्थिर प्रगति की अवधि` : `${timelineYear}-${timelineYear + 2}: Period of steady progress`;
 
     // Personalized remedies based on weak planets
     const remedies = [];
     const saturnShadbalanum = planets?.SA?.shadbala;
-    if (weakPlanets.includes('SA') || (typeof saturnShadbalanum === 'number' && saturnShadbalanum < 50)) {
-      remedies.push(language === 'hi' ? 
-        '🪔 शनि उपाय: शनिवार को तिल का तेल दान करें, बुजुर्गों की सेवा करें' :
-        '🪔 Saturn Remedy: Donate sesame oil on Saturdays, serve elders');
+    if (weakPlanets.includes('SA') || typeof saturnShadbalanum === 'number' && saturnShadbalanum < 50) {
+      remedies.push(language === 'hi' ? '🪔 शनि उपाय: शनिवार को तिल का तेल दान करें, बुजुर्गों की सेवा करें' : '🪔 Saturn Remedy: Donate sesame oil on Saturdays, serve elders');
     }
     const jupiterShadbala = planets?.JU?.shadbala;
-    if (weakPlanets.includes('JU') || (typeof jupiterShadbala === 'number' && jupiterShadbala < 50)) {
-      remedies.push(language === 'hi' ? 
-        '🪔 बृहस्पति उपाय: गुरुवार को पीले वस्त्र पहनें, गुरु मंत्र जाप करें' :
-        '🪔 Jupiter Remedy: Wear yellow on Thursdays, chant Guru mantras');
+    if (weakPlanets.includes('JU') || typeof jupiterShadbala === 'number' && jupiterShadbala < 50) {
+      remedies.push(language === 'hi' ? '🪔 बृहस्पति उपाय: गुरुवार को पीले वस्त्र पहनें, गुरु मंत्र जाप करें' : '🪔 Jupiter Remedy: Wear yellow on Thursdays, chant Guru mantras');
     }
     if (weakPlanets.includes('RA')) {
-      remedies.push(language === 'hi' ? 
-        '🪔 राहु उपाय: अमावस्या पर उपवास, ध्यान और मानसिक शुद्धता' :
-        '🪔 Rahu Remedy: Fast on new moon, meditation and mental purity');
+      remedies.push(language === 'hi' ? '🪔 राहु उपाय: अमावस्या पर उपवास, ध्यान और मानसिक शुद्धता' : '🪔 Rahu Remedy: Fast on new moon, meditation and mental purity');
     }
 
     // Default remedy if none specific
     if (remedies.length === 0) {
-      remedies.push(language === 'hi' ? 
-        '🪔 सामान्य उपाय: नियमित पूजा, दान और सेवा करें' :
-        '🪔 General Remedy: Regular worship, charity and service');
+      remedies.push(language === 'hi' ? '🪔 सामान्य उपाय: नियमित पूजा, दान और सेवा करें' : '🪔 General Remedy: Regular worship, charity and service');
     }
 
     // Personalized weekly actions based on planetary positions
-    const weeklyActions = [
-      {
-        week: 1,
-        action: weakPlanets.includes('SA') ? 
-          (language === 'hi' ? 'मजदूर या गरीब की मदद करें (शनि को खुश करने के लिए)' : 'Help a laborer or poor person (to please Saturn)') :
-          (language === 'hi' ? 'अपने कौशल को बेहतर बनाने पर काम करें' : 'Work on improving your skills'),
-        planet: language === 'hi' ? 'शनि' : 'Saturn'
-      },
-      {
-        week: 2,
-        action: weakPlanets.includes('MO') ? 
-          (language === 'hi' ? 'भावनात्मक स्वास्थ्य पर ध्यान दें, ध्यान करें' : 'Focus on emotional health, meditate') :
-          (language === 'hi' ? 'परिवार के साथ समय बिताएं' : 'Spend time with family'),
-        planet: language === 'hi' ? 'चंद्र' : 'Moon'
-      },
-      {
-        week: 3,
-        action: strongPlanets.includes('JU') ? 
-          (language === 'hi' ? 'किसी को ज्ञान या कौशल सिखाएं' : 'Teach someone knowledge or skills') :
-          (language === 'hi' ? 'आध्यात्मिक अध्ययन करें' : 'Do spiritual study'),
-        planet: language === 'hi' ? 'बृहस्पति' : 'Jupiter'
-      },
-      {
-        week: 4,
-        action: weakPlanets.includes('RA') ? 
-          (language === 'hi' ? 'गपशप और नकारात्मकता से बचें' : 'Avoid gossip and negativity') :
-          (language === 'hi' ? 'नेटवर्किंग और नए संपर्क बनाएं' : 'Network and make new connections'),
-        planet: language === 'hi' ? 'राहु' : 'Rahu'
-      }
-    ];
+    const weeklyActions = [{
+      week: 1,
+      action: weakPlanets.includes('SA') ? language === 'hi' ? 'मजदूर या गरीब की मदद करें (शनि को खुश करने के लिए)' : 'Help a laborer or poor person (to please Saturn)' : language === 'hi' ? 'अपने कौशल को बेहतर बनाने पर काम करें' : 'Work on improving your skills',
+      planet: language === 'hi' ? 'शनि' : 'Saturn'
+    }, {
+      week: 2,
+      action: weakPlanets.includes('MO') ? language === 'hi' ? 'भावनात्मक स्वास्थ्य पर ध्यान दें, ध्यान करें' : 'Focus on emotional health, meditate' : language === 'hi' ? 'परिवार के साथ समय बिताएं' : 'Spend time with family',
+      planet: language === 'hi' ? 'चंद्र' : 'Moon'
+    }, {
+      week: 3,
+      action: strongPlanets.includes('JU') ? language === 'hi' ? 'किसी को ज्ञान या कौशल सिखाएं' : 'Teach someone knowledge or skills' : language === 'hi' ? 'आध्यात्मिक अध्ययन करें' : 'Do spiritual study',
+      planet: language === 'hi' ? 'बृहस्पति' : 'Jupiter'
+    }, {
+      week: 4,
+      action: weakPlanets.includes('RA') ? language === 'hi' ? 'गपशप और नकारात्मकता से बचें' : 'Avoid gossip and negativity' : language === 'hi' ? 'नेटवर्किंग और नए संपर्क बनाएं' : 'Network and make new connections',
+      planet: language === 'hi' ? 'राहु' : 'Rahu'
+    }];
 
     // Personalized coach message based on chart
     const dominantPlanet = strongPlanets[0] || 'Saturn';
-    const coachMessage = language === 'hi' ? 
-      `आपके ${dominantPlanet === 'JU' ? 'बृहस्पति' : dominantPlanet === 'SA' ? 'शनि' : dominantPlanet} की शक्ति आपका मार्गदर्शन कर रही है। धैर्य रखें, आपका समय आएगा। 🌟` :
-      `Your ${dominantPlanet} energy is guiding your path. Stay patient, your time will come. 🌟`;
-
+    const coachMessage = language === 'hi' ? `आपके ${dominantPlanet === 'JU' ? 'बृहस्पति' : dominantPlanet === 'SA' ? 'शनि' : dominantPlanet} की शक्ति आपका मार्गदर्शन कर रही है। धैर्य रखें, आपका समय आएगा। 🌟` : `Your ${dominantPlanet} energy is guiding your path. Stay patient, your time will come. 🌟`;
     return {
       lagna,
       moonNakshatra,
@@ -308,65 +259,49 @@ const KarmicReportComplete: React.FC<KarmicReportCompleteProps> = ({ kundaliData
     if (!personalizedData || !kundaliData?.enhancedCalculations?.planets) {
       return 62;
     }
-
     const planetValues = Object.values(kundaliData.enhancedCalculations.planets);
-    const validShadbalaValues = planetValues
-      .map((planet: any) => typeof planet?.shadbala === 'number' ? planet.shadbala : 50)
-      .filter((value): value is number => typeof value === 'number');
-
+    const validShadbalaValues = planetValues.map((planet: any) => typeof planet?.shadbala === 'number' ? planet.shadbala : 50).filter((value): value is number => typeof value === 'number');
     if (validShadbalaValues.length === 0) {
       return 62;
     }
-
     const averageShadbala = validShadbalaValues.reduce((sum, value) => sum + value, 0) / validShadbalaValues.length;
     return Math.min(95, Math.max(35, Math.round(averageShadbala * 1.2)));
   };
-
   const karmaData = {
     alignmentPercentage: calculateAlignmentPercentage(),
-    grahaEnergies: personalizedData ? [
-      {
-        name: language === 'hi' ? 'बृहस्पति' : 'Jupiter',
-        role: language === 'hi' ? 'धर्म + ज्ञान' : 'Dharma + Wisdom',
-        strength: typeof kundaliData?.enhancedCalculations?.planets?.JU?.shadbala === 'number' ? kundaliData.enhancedCalculations.planets.JU.shadbala : 80,
-        color: '#F59E0B'
-      },
-      {
-        name: language === 'hi' ? 'शनि' : 'Saturn',
-        role: language === 'hi' ? 'अनुशासन + कष्ट' : 'Discipline + Suffering',
-        strength: typeof kundaliData?.enhancedCalculations?.planets?.SA?.shadbala === 'number' ? kundaliData.enhancedCalculations.planets.SA.shadbala : 75,
-        color: '#6366F1'
-      },
-      {
-        name: language === 'hi' ? 'राहु' : 'Rahu',
-        role: language === 'hi' ? 'जुनून + भ्रम' : 'Obsession + Illusion',
-        strength: typeof kundaliData?.enhancedCalculations?.planets?.RA?.shadbala === 'number' ? kundaliData.enhancedCalculations.planets.RA.shadbala : 60,
-        color: '#8B5CF6'
-      },
-      {
-        name: language === 'hi' ? 'शुक्र' : 'Venus',
-        role: language === 'hi' ? 'रचनात्मकता + आकर्षण' : 'Creativity + Charm',
-        strength: typeof kundaliData?.enhancedCalculations?.planets?.VE?.shadbala === 'number' ? kundaliData.enhancedCalculations.planets.VE.shadbala : 65,
-        color: '#EC4899'
-      }
-    ] : [],
+    grahaEnergies: personalizedData ? [{
+      name: language === 'hi' ? 'बृहस्पति' : 'Jupiter',
+      role: language === 'hi' ? 'धर्म + ज्ञान' : 'Dharma + Wisdom',
+      strength: typeof kundaliData?.enhancedCalculations?.planets?.JU?.shadbala === 'number' ? kundaliData.enhancedCalculations.planets.JU.shadbala : 80,
+      color: '#F59E0B'
+    }, {
+      name: language === 'hi' ? 'शनि' : 'Saturn',
+      role: language === 'hi' ? 'अनुशासन + कष्ट' : 'Discipline + Suffering',
+      strength: typeof kundaliData?.enhancedCalculations?.planets?.SA?.shadbala === 'number' ? kundaliData.enhancedCalculations.planets.SA.shadbala : 75,
+      color: '#6366F1'
+    }, {
+      name: language === 'hi' ? 'राहु' : 'Rahu',
+      role: language === 'hi' ? 'जुनून + भ्रम' : 'Obsession + Illusion',
+      strength: typeof kundaliData?.enhancedCalculations?.planets?.RA?.shadbala === 'number' ? kundaliData.enhancedCalculations.planets.RA.shadbala : 60,
+      color: '#8B5CF6'
+    }, {
+      name: language === 'hi' ? 'शुक्र' : 'Venus',
+      role: language === 'hi' ? 'रचनात्मकता + आकर्षण' : 'Creativity + Charm',
+      strength: typeof kundaliData?.enhancedCalculations?.planets?.VE?.shadbala === 'number' ? kundaliData.enhancedCalculations.planets.VE.shadbala : 65,
+      color: '#EC4899'
+    }] : [],
     dashaTimeline: [],
     weeklyTracker: []
   };
-
   const generatePersonalizedReport = async () => {
     setIsLoading(true);
-    
     try {
       // Extract personalized data from Kundali
       const extracted = extractPersonalizedData();
-      
+
       // Try to get AI enhancement if available with timeout and retries
       try {
-        const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('AI timeout')), 10000)
-        );
-        
+        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('AI timeout')), 10000));
         const aiPromise = supabase.functions.invoke('karmic-analysis', {
           body: {
             kundaliData,
@@ -376,9 +311,10 @@ const KarmicReportComplete: React.FC<KarmicReportCompleteProps> = ({ kundaliData
             retryCount: aiRetryCount
           }
         });
-
-        const { data, error } = await Promise.race([aiPromise, timeoutPromise]) as any;
-
+        const {
+          data,
+          error
+        } = (await Promise.race([aiPromise, timeoutPromise])) as any;
         if (!error && data?.analysis) {
           // Merge AI insights with extracted data
           const enhancedData = {
@@ -386,7 +322,6 @@ const KarmicReportComplete: React.FC<KarmicReportCompleteProps> = ({ kundaliData
             coachMessage: data.analysis.coachMessage || extracted.coachMessage,
             timeline: data.analysis.karmicTimeline || extracted.timeline
           };
-          
           setPersonalizedData(enhancedData);
           setCachedData(enhancedData);
           setAiRetryCount(0); // Reset retry count on success
@@ -395,12 +330,12 @@ const KarmicReportComplete: React.FC<KarmicReportCompleteProps> = ({ kundaliData
         }
       } catch (aiError) {
         console.log('AI enhancement failed, using extracted data:', aiError);
-        
+
         // Increment retry count and use fallback
         setAiRetryCount(prev => prev + 1);
         setPersonalizedData(extracted);
         setCachedData(extracted);
-        
+
         // Show user-friendly message about fallback
         toast({
           title: getTranslation("Report Generated", "रिपोर्ट तैयार"),
@@ -408,22 +343,19 @@ const KarmicReportComplete: React.FC<KarmicReportCompleteProps> = ({ kundaliData
           variant: "default"
         });
       }
-      
       if (!personalizedData) {
         toast({
           title: getTranslation("Personalized Karmic Report Generated", "व्यक्तिगत कर्मिक रिपोर्ट तैयार"),
           description: getTranslation("Your personalized karmic insights are ready", "आपकी व्यक्तिगत कर्मिक अंतर्दृष्टि तैयार है")
         });
       }
-
     } catch (error) {
       console.error('Error generating personalized karmic report:', error);
-      
+
       // Even on error, try to show extracted data
       const fallbackData = extractPersonalizedData();
       setPersonalizedData(fallbackData);
       setCachedData(fallbackData);
-      
       toast({
         title: getTranslation("Report Generated with Limitations", "सीमित रिपोर्ट तैयार"),
         description: getTranslation("Basic karmic insights generated from chart analysis", "चार्ट विश्लेषण से बुनियादी कर्मिक अंतर्दृष्टि"),
@@ -433,7 +365,6 @@ const KarmicReportComplete: React.FC<KarmicReportCompleteProps> = ({ kundaliData
       setIsLoading(false);
     }
   };
-
   const clearCache = () => {
     const cacheKey = getCacheKey();
     if (cacheKey) {
@@ -446,9 +377,7 @@ const KarmicReportComplete: React.FC<KarmicReportCompleteProps> = ({ kundaliData
       });
     }
   };
-
-  return (
-    <div className="w-full max-w-none mx-auto px-2 sm:px-4">
+  return <div className="w-full max-w-none mx-auto px-2 sm:px-4">
       {/* Mobile-optimized Header */}
       <Card className="w-full border-purple-200 shadow-lg mb-4 sm:mb-6">
         <CardHeader className="bg-gradient-to-r from-purple-100 to-indigo-100 p-3 sm:p-6">
@@ -467,68 +396,38 @@ const KarmicReportComplete: React.FC<KarmicReportCompleteProps> = ({ kundaliData
               </div>
             </div>
             <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-              {!personalizedData && (
-                <Button 
-                  onClick={generatePersonalizedReport}
-                  disabled={isLoading}
-                  className="bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white w-full sm:w-auto"
-                >
-                  {isLoading ? (
-                    <>
+              {!personalizedData && <Button onClick={generatePersonalizedReport} disabled={isLoading} className="bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white w-full sm:w-auto">
+                  {isLoading ? <>
                       <Clock className="h-4 w-4 mr-2 animate-spin" />
                       {getTranslation('Generating...', 'बनाया जा रहा है...')}
-                    </>
-                  ) : (
-                    <>
+                    </> : <>
                       <Brain className="h-4 w-4 mr-2" />
                       {getTranslation('Generate Report', 'रिपोर्ट बनाएं')}
-                    </>
-                  )}
-                </Button>
-              )}
-              {personalizedData && (
-                <>
-                  <Button 
-                    onClick={clearCache}
-                    variant="outline"
-                    className="border-purple-500 text-purple-600 hover:bg-purple-50 w-full sm:w-auto"
-                  >
+                    </>}
+                </Button>}
+              {personalizedData && <>
+                  <Button onClick={clearCache} variant="outline" className="border-purple-500 text-purple-600 hover:bg-purple-50 w-full sm:w-auto">
                     {getTranslation('Refresh Report', 'रिपोर्ट रीफ्रेश करें')}
                   </Button>
-                  <KarmicReportPDFExport 
-                    language={language}
-                    reportData={personalizedData}
-                  />
-                </>
-              )}
+                  <KarmicReportPDFExport language={language} reportData={personalizedData} />
+                </>}
             </div>
           </div>
         </CardHeader>
       </Card>
 
-      {!personalizedData ? (
-        <div className="text-center py-8 sm:py-12 px-4">
+      {!personalizedData ? <div className="text-center py-8 sm:py-12 px-4">
           <Sparkles className="h-12 w-12 sm:h-16 sm:w-16 text-purple-300 mx-auto mb-4 animate-pulse" />
           <h3 className="text-base sm:text-lg font-semibold text-gray-700 mb-2">
             {getTranslation('Analyzing Your Birth Chart...', 'आपकी जन्म कुंडली का विश्लेषण...')}
           </h3>
           <p className="text-gray-500 max-w-md mx-auto text-sm sm:text-base">
-            {getTranslation(
-              'Creating personalized insights based on your planetary positions and karmic patterns',
-              'आपकी ग्रहों की स्थिति और कर्मिक पैटर्न के आधार पर व्यक्तिगत अंतर्दृष्टि तैयार की जा रही है'
-            )}
+            {getTranslation('Creating personalized insights based on your planetary positions and karmic patterns', 'आपकी ग्रहों की स्थिति और कर्मिक पैटर्न के आधार पर व्यक्तिगत अंतर्दृष्टि तैयार की जा रही है')}
           </p>
-          {aiRetryCount > 0 && (
-            <p className="text-orange-600 text-xs sm:text-sm mt-2">
-              {getTranslation(
-                `AI retry attempt ${aiRetryCount}/3 - Using backup analysis`,
-                `AI पुनः प्रयास ${aiRetryCount}/3 - बैकअप विश्लेषण का उपयोग`
-              )}
-            </p>
-          )}
-        </div>
-      ) : (
-        <div id="karmic-report-content" className="space-y-4 sm:space-y-6 print:space-y-4">
+          {aiRetryCount > 0 && <p className="text-orange-600 text-xs sm:text-sm mt-2">
+              {getTranslation(`AI retry attempt ${aiRetryCount}/3 - Using backup analysis`, `AI पुनः प्रयास ${aiRetryCount}/3 - बैकअप विश्लेषण का उपयोग`)}
+            </p>}
+        </div> : <div id="karmic-report-content" className="space-y-4 sm:space-y-6 print:space-y-4">
           {/* Section 1: Personalized Career Signature */}
           <Card className="border-orange-200" id="career-signature">
             <CardHeader className="bg-orange-50 p-3 sm:p-4">
@@ -574,20 +473,14 @@ const KarmicReportComplete: React.FC<KarmicReportCompleteProps> = ({ kundaliData
               </CardTitle>
             </CardHeader>
             <CardContent className="p-3 sm:p-6">
-              {personalizedData.careerBlocks.length > 0 ? (
-                <ul className="space-y-2 sm:space-y-3">
-                  {personalizedData.careerBlocks.map((block, index) => (
-                    <li key={index} className="flex items-start gap-2 sm:gap-3">
+              {personalizedData.careerBlocks.length > 0 ? <ul className="space-y-2 sm:space-y-3">
+                  {personalizedData.careerBlocks.map((block, index) => <li key={index} className="flex items-start gap-2 sm:gap-3">
                       <span className="text-red-600 mt-1 text-sm">•</span>
                       <span className="text-gray-700 text-sm">{block}</span>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-gray-700 italic text-sm">
+                    </li>)}
+                </ul> : <p className="text-gray-700 italic text-sm">
                   {getTranslation('No major career blocks detected in your chart', 'आपकी कुंडली में कोई बड़ी करियर बाधा नहीं मिली')}
-                </p>
-              )}
+                </p>}
             </CardContent>
           </Card>
 
@@ -601,12 +494,10 @@ const KarmicReportComplete: React.FC<KarmicReportCompleteProps> = ({ kundaliData
             </CardHeader>
             <CardContent className="p-3 sm:p-6">
               <div className="space-y-3 sm:space-y-4">
-                {personalizedData.idealCareers.map((career, index) => (
-                  <div key={index} className="border-l-4 border-green-400 pl-3 sm:pl-4">
+                {personalizedData.idealCareers.map((career, index) => <div key={index} className="border-l-4 border-green-400 pl-3 sm:pl-4">
                     <h4 className="font-semibold text-green-800 text-sm sm:text-base">{career.role}</h4>
                     <p className="text-gray-600 text-xs sm:text-sm">{career.reason}</p>
-                  </div>
-                ))}
+                  </div>)}
               </div>
             </CardContent>
           </Card>
@@ -635,10 +526,7 @@ const KarmicReportComplete: React.FC<KarmicReportCompleteProps> = ({ kundaliData
               </CardTitle>
             </CardHeader>
             <CardContent className="p-3 sm:p-6">
-              <KarmaAlignmentChart 
-                {...karmaData}
-                language={language}
-              />
+              <KarmaAlignmentChart {...karmaData} language={language} />
             </CardContent>
           </Card>
 
@@ -652,8 +540,7 @@ const KarmicReportComplete: React.FC<KarmicReportCompleteProps> = ({ kundaliData
             </CardHeader>
             <CardContent className="p-3 sm:p-6">
               <div className="grid gap-3 sm:gap-4">
-                {personalizedData.weeklyActions.map((action, index) => (
-                  <div key={index} className="border rounded-lg p-3 sm:p-4 bg-indigo-50">
+                {personalizedData.weeklyActions.map((action, index) => <div key={index} className="border rounded-lg p-3 sm:p-4 bg-indigo-50">
                     <div className="flex justify-between items-start mb-2 flex-col sm:flex-row gap-1 sm:gap-0">
                       <span className="font-semibold text-indigo-800 text-sm">
                         {getTranslation(`Week ${action.week}`, `सप्ताह ${action.week}`)}
@@ -663,8 +550,7 @@ const KarmicReportComplete: React.FC<KarmicReportCompleteProps> = ({ kundaliData
                       </Badge>
                     </div>
                     <p className="text-gray-700 text-sm">{action.action}</p>
-                  </div>
-                ))}
+                  </div>)}
               </div>
             </CardContent>
           </Card>
@@ -694,12 +580,10 @@ const KarmicReportComplete: React.FC<KarmicReportCompleteProps> = ({ kundaliData
             </CardHeader>
             <CardContent className="p-3 sm:p-6">
               <div className="space-y-2 sm:space-y-3">
-                {personalizedData.remedies.map((remedy, index) => (
-                  <div key={index} className="flex items-start gap-2 sm:gap-3 p-2 sm:p-3 bg-emerald-50 rounded-lg">
+                {personalizedData.remedies.map((remedy, index) => <div key={index} className="flex items-start gap-2 sm:gap-3 p-2 sm:p-3 bg-emerald-50 rounded-lg">
                     <span className="text-emerald-600 mt-1 text-sm">•</span>
                     <span className="text-gray-700 text-sm">{remedy}</span>
-                  </div>
-                ))}
+                  </div>)}
               </div>
             </CardContent>
           </Card>
@@ -707,7 +591,7 @@ const KarmicReportComplete: React.FC<KarmicReportCompleteProps> = ({ kundaliData
           {/* Footer */}
           <Card className="border-gray-200" id="footer">
             <CardContent className="p-3 sm:p-6 text-center">
-              <p className="text-gray-600 mb-2 text-xs sm:text-sm">
+              <p className="mb-2 sm:text-sm text-red-800 font-extralight text-xs">
                 {getTranslation('Generated by Ayu Astro · Powered by Swiss Ephemeris + Gemini AI', 'आयु एस्ट्रो द्वारा उत्पन्न · स्विस एफेमेरिस + जेमिनी AI द्वारा संचालित')}
               </p>
               <p className="text-gray-500 italic text-xs sm:text-sm">
@@ -715,10 +599,7 @@ const KarmicReportComplete: React.FC<KarmicReportCompleteProps> = ({ kundaliData
               </p>
             </CardContent>
           </Card>
-        </div>
-      )}
-    </div>
-  );
+        </div>}
+    </div>;
 };
-
 export default KarmicReportComplete;
