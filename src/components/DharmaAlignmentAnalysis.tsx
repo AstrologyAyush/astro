@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -6,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Compass, Target, Clock, Zap, Shield, TrendingUp, AlertTriangle, CheckCircle, Star, Crown } from 'lucide-react';
+import { Compass, Target, Clock, Zap, Shield, TrendingUp, AlertTriangle, CheckCircle, Star, Crown, Info, Lightbulb } from 'lucide-react';
 
 interface DharmaAlignmentAnalysisProps {
   kundaliData: any;
@@ -224,8 +223,115 @@ const DharmaAlignmentAnalysis: React.FC<DharmaAlignmentAnalysisProps> = ({ kunda
     return 'text-red-600';
   };
 
+  const getDharmaScoreExplanation = () => {
+    if (dharmaScore >= 80) {
+      return {
+        title: getTranslation('Excellent Alignment', 'उत्कृष्ट संरेखण'),
+        description: getTranslation(
+          'Your actions are strongly aligned with your life purpose. You are on the right track.',
+          'आपके कार्य आपके जीवन उद्देश्य से दृढ़ता से मेल खाते हैं। आप सही राह पर हैं।'
+        ),
+        color: 'text-green-600',
+        bgColor: 'bg-green-50',
+        borderColor: 'border-green-200'
+      };
+    } else if (dharmaScore >= 60) {
+      return {
+        title: getTranslation('Good Alignment', 'अच्छा संरेखण'),
+        description: getTranslation(
+          'You are mostly aligned with your dharma. Some adjustments can improve your path.',
+          'आप अपने धर्म के साथ मुख्यतः संरेखित हैं। कुछ समायोजन आपके पथ में सुधार ला सकते हैं।'
+        ),
+        color: 'text-yellow-600',
+        bgColor: 'bg-yellow-50',
+        borderColor: 'border-yellow-200'
+      };
+    } else {
+      return {
+        title: getTranslation('Needs Improvement', 'सुधार की आवश्यकता'),
+        description: getTranslation(
+          'Your current path may not fully align with your dharma. Consider exploring new directions.',
+          'आपका वर्तमान पथ आपके धर्म से पूर्णतः मेल नहीं खा सकता। नई दिशाओं की खोज पर विचार करें।'
+        ),
+        color: 'text-red-600',
+        bgColor: 'bg-red-50',
+        borderColor: 'border-red-200'
+      };
+    }
+  };
+
   return (
     <div className="space-y-6">
+      {/* Dharma Score Explanation Card */}
+      <Card className="border-indigo-200 shadow-lg">
+        <CardHeader className="bg-gradient-to-r from-indigo-100 to-purple-100">
+          <CardTitle className="text-indigo-800 flex items-center gap-3">
+            <div className="p-2 bg-indigo-500 rounded-full">
+              <Lightbulb className="h-5 w-5 text-white" />
+            </div>
+            {getTranslation('Understanding Your Dharma Alignment Score', 'अपने धर्म संरेखण स्कोर को समझना')}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div>
+              <h3 className="font-semibold text-gray-800 mb-3">
+                {getTranslation('What is Dharma Alignment?', 'धर्म संरेखण क्या है?')}
+              </h3>
+              <p className="text-sm text-gray-700 mb-4">
+                {getTranslation(
+                  'Dharma Alignment measures how well your current life actions and career choices align with your cosmic purpose and soul\'s mission. It considers your planetary positions, current dasha period, and karmic patterns.',
+                  'धर्म संरेखण मापता है कि आपके वर्तमान जीवन कार्य और करियर विकल्प आपके ब्रह्मांडीय उद्देश्य और आत्मा के मिशन से कितनी अच्छी तरह मेल खाते हैं। यह आपकी ग्रहीय स्थितियों, वर्तमान दशा काल और कर्मिक पैटर्न पर विचार करता है।'
+                )}
+              </p>
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                  <span className="text-sm text-gray-600">
+                    {getTranslation('80-100%: Excellent Alignment', '80-100%: उत्कृष्ट संरेखण')}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                  <span className="text-sm text-gray-600">
+                    {getTranslation('60-79%: Good Alignment', '60-79%: अच्छा संरेखण')}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                  <span className="text-sm text-gray-600">
+                    {getTranslation('Below 60%: Needs Improvement', '60% से कम: सुधार की आवश्यकता')}
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div>
+              <h3 className="font-semibold text-gray-800 mb-3">
+                {getTranslation('How to Improve Your Score', 'अपना स्कोर कैसे सुधारें')}
+              </h3>
+              <ul className="space-y-2 text-sm text-gray-700">
+                <li className="flex items-start gap-2">
+                  <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+                  {getTranslation('Follow the suggested ideal paths below', 'नीचे सुझाए गए आदर्श पथों का पालन करें')}
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+                  {getTranslation('Address karma blocks through remedies', 'उपायों के माध्यम से कर्म अवरोधों को संबोधित करें')}
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+                  {getTranslation('Align career choices with planetary periods', 'ग्रहीय कालों के साथ करियर विकल्पों को संरेखित करें')}
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+                  {getTranslation('Practice meditation and self-reflection', 'ध्यान और आत्म-चिंतन का अभ्यास करें')}
+                </li>
+              </ul>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Dharma Alignment Overview */}
       <Card className="border-purple-200 shadow-lg">
         <CardHeader className="bg-gradient-to-r from-purple-100 to-indigo-100">
@@ -240,7 +346,26 @@ const DharmaAlignmentAnalysis: React.FC<DharmaAlignmentAnalysisProps> = ({ kunda
           </p>
         </CardHeader>
         <CardContent className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Current Score Status */}
+          <div className="mb-6">
+            <Alert className={`${getDharmaScoreExplanation().bgColor} ${getDharmaScoreExplanation().borderColor}`}>
+              <Info className="h-4 w-4" />
+              <AlertDescription>
+                <div className="flex items-center gap-2 mb-2">
+                  <span className={`font-semibold ${getDharmaScoreExplanation().color}`}>
+                    {getDharmaScoreExplanation().title}
+                  </span>
+                  <Badge variant="outline" className={getDharmaScoreExplanation().color}>
+                    {dharmaScore}%
+                  </Badge>
+                </div>
+                <p className="text-sm">{getDharmaScoreExplanation().description}</p>
+              </AlertDescription>
+            </Alert>
+          </div>
+
+          {/* Fixed Layout Grid - Responsive */}
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             {/* Dharma Score */}
             <div className="text-center p-6 bg-gradient-to-br from-purple-50 to-indigo-50 rounded-xl border border-purple-200">
               <div className="text-4xl font-bold mb-2" style={{ color: getAlignmentColor(dharmaScore) }}>
@@ -266,7 +391,7 @@ const DharmaAlignmentAnalysis: React.FC<DharmaAlignmentAnalysisProps> = ({ kunda
             </div>
 
             {/* 10th House Strength */}
-            <div className="text-center p-6 bg-gradient-to-br from-orange-50 to-red-50 rounded-xl border border-orange-200">
+            <div className="text-center p-6 bg-gradient-to-br from-orange-50 to-red-50 rounded-xl border border-orange-200 md:col-span-2 xl:col-span-1">
               <div className="text-3xl font-bold text-orange-700 mb-2">
                 {tenthHouseAnalysis.strength || 0}%
               </div>
