@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -190,7 +191,7 @@ const InteractiveDashboard: React.FC<InteractiveDashboardProps> = ({ kundaliData
               <span>{getTranslation('Lord:', 'स्वामी:')}</span>
               <span className="font-medium">{house.lord}</span>
             </div>
-            {house.planetsInHouse.length > 0 && (
+            {house.planetsInHouse && house.planetsInHouse.length > 0 && (
               <div>
                 <p className="text-sm font-medium mb-1">
                   {getTranslation('Planets:', 'ग्रह:')}
@@ -319,17 +320,17 @@ const InteractiveDashboard: React.FC<InteractiveDashboardProps> = ({ kundaliData
                   <div className="flex justify-between">
                     <span>{getTranslation('Date:', 'दिनांक:')}</span>
                     <span className="font-medium">
-                      {kundaliData.birthData.date instanceof Date
-                        ? kundaliData.birthData.date.toLocaleDateString()
-                        : kundaliData.birthData.date}
+                      {typeof kundaliData.birthData.date === 'string' 
+                        ? kundaliData.birthData.date 
+                        : kundaliData.birthData.date?.toLocaleDateString?.() || String(kundaliData.birthData.date)}
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span>{getTranslation('Time:', 'समय:')}</span>
                     <span className="font-medium">
-                      {kundaliData.birthData.time instanceof Date
-                        ? kundaliData.birthData.time.toLocaleTimeString()
-                        : kundaliData.birthData.time}
+                      {typeof kundaliData.birthData.time === 'string' 
+                        ? kundaliData.birthData.time 
+                        : kundaliData.birthData.time?.toLocaleTimeString?.() || String(kundaliData.birthData.time)}
                     </span>
                   </div>
                 </div>
