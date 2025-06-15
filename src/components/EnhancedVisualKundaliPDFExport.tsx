@@ -5,6 +5,7 @@ import { Download, Image, FileText } from "lucide-react";
 import jsPDF from 'jspdf';
 import { useToast } from "@/hooks/use-toast";
 import KundaliChartGenerator from './KundaliChartGenerator';
+import PlanetaryStrengthChart from './PlanetaryStrengthChart';
 
 interface EnhancedVisualKundaliPDFExportProps {
   kundaliData: any;
@@ -18,6 +19,7 @@ const EnhancedVisualKundaliPDFExport: React.FC<EnhancedVisualKundaliPDFExportPro
   const { toast } = useToast();
   const [isGenerating, setIsGenerating] = useState(false);
   const [chartImageUrl, setChartImageUrl] = useState<string>('');
+  const [strengthChartUrl, setStrengthChartUrl] = useState<string>('');
 
   const getTranslation = (en: string, hi: string) => {
     return language === 'hi' ? hi : en;
@@ -34,7 +36,8 @@ const EnhancedVisualKundaliPDFExport: React.FC<EnhancedVisualKundaliPDFExportPro
       name: planet.name,
       rashi: planet.rashi - 1, // Convert to 0-based index
       degree: planet.degreeInSign || planet.degree,
-      house: planet.house || 1
+      house: planet.house || 1,
+      shadbala: planet.shadbala || 0
     }));
   };
 
@@ -76,7 +79,7 @@ const EnhancedVisualKundaliPDFExport: React.FC<EnhancedVisualKundaliPDFExportPro
       
       doc.setFontSize(14);
       doc.setFont('helvetica', 'normal');
-      doc.text(getTranslation('With Visual Chart Analysis', 'दृश्य चार्ट विश्लेषण के साथ'), 105, 35, { align: 'center' });
+      doc.text(getTranslation('With Visual Chart & Strength Analysis', 'दृश्य चार्ट और शक्ति विश्लेषण के साथ'), 105, 35, { align: 'center' });
 
       // Add decorative elements
       doc.setFillColor(255, 215, 0); // Gold
@@ -129,6 +132,29 @@ const EnhancedVisualKundaliPDFExport: React.FC<EnhancedVisualKundaliPDFExportPro
       
       yPosition += 105;
 
+      // Add new page for Planetary Strength Chart
+      checkPageBreak(120);
+      yPosition += 10;
+      
+      doc.setFillColor(255, 245, 238); // Light orange background
+      doc.rect(margin, yPosition - 5, 170, 8, 'F');
+      
+      doc.setTextColor(204, 85, 0); // Dark orange
+      doc.setFontSize(16);
+      doc.setFont('helvetica', 'bold');
+      doc.text(getTranslation('📊 Planetary Strength Analysis', '📊 ग्रहीय शक्ति विश्लेषण'), margin + 5, yPosition + 2);
+      
+      yPosition += 15;
+
+      // Add planetary strength chart if available
+      if (strengthChartUrl) {
+        const strengthChartWidth = 160;
+        const strengthChartHeight = 100;
+        const strengthChartX = (210 - strengthChartWidth) / 2;
+        doc.addImage(strengthChartUrl, 'PNG', strengthChartX, yPosition, strengthChartWidth, strengthChartHeight);
+        yPosition += strengthChartHeight + 10;
+      }
+
       // Planetary Positions with enhanced table
       checkPageBreak(60);
       yPosition += 10;
@@ -139,7 +165,7 @@ const EnhancedVisualKundaliPDFExport: React.FC<EnhancedVisualKundaliPDFExportPro
       doc.setTextColor(139, 0, 139); // Dark magenta
       doc.setFontSize(16);
       doc.setFont('helvetica', 'bold');
-      doc.text(getTranslation('📊 Planetary Positions', '📊 ग्रह स्थिति'), margin + 5, yPosition + 2);
+      doc.text(getTranslation('📋 Detailed Planetary Information', '📋 विस्तृत ग्रहीय जानकारी'), margin + 5, yPosition + 2);
       
       yPosition += 15;
 
@@ -176,7 +202,20 @@ const EnhancedVisualKundaliPDFExport: React.FC<EnhancedVisualKundaliPDFExportPro
           doc.text(`${(planet.degreeInSign || 0).toFixed(1)}°`, margin + 65, yPosition + 2);
           doc.text((planet.house || 1).toString(), margin + 90, yPosition + 2);
           doc.text(planet.nakshatraName || 'Unknown', margin + 115, yPosition + 2);
-          doc.text(`${(planet.shadbala || 0).toFixed(0)}%`, margin + 150, yPosition + 2);
+          
+          // Color-code strength values
+          const strength = planet.shadbala || 0;
+          if (strength >= 80) {
+            doc.setTextColor(39, 174, 96); // Green for excellent
+          } else if (strength >= 60) {
+            doc.setTextColor(243, 156, 18); // Orange for good
+          } else if (strength >= 40) {
+            doc.setTextColor(230, 126, 34); // Dark orange for average
+          } else {
+            doc.setTextColor(231, 76, 60); // Red for weak
+          }
+          doc.text(`${strength.toFixed(0)}%`, margin + 150, yPosition + 2);
+          doc.setTextColor(0, 0, 0); // Reset color
           
           yPosition += 6;
         });
@@ -233,7 +272,7 @@ const EnhancedVisualKundaliPDFExport: React.FC<EnhancedVisualKundaliPDFExportPro
 
       toast({
         title: getTranslation("PDF Generated Successfully", "PDF सफलतापूर्वक बनाया गया"),
-        description: getTranslation("Your enhanced visual Kundali report has been downloaded", "आपकी उन्नत दृश्य कुंडली रिपोर्ट डाउनलोड हो गई है")
+        description: getTranslation("Your enhanced visual Kundali report with strength analysis has been downloaded", "शक्ति विश्लेषण के साथ आपकी उन्नत दृश्य कुंडली रिपोर्ट डाउनलोड हो गई है")
       });
 
     } catch (error) {
@@ -258,19 +297,25 @@ const EnhancedVisualKundaliPDFExport: React.FC<EnhancedVisualKundaliPDFExportPro
           size={400}
           onImageGenerated={setChartImageUrl}
         />
+        <PlanetaryStrengthChart
+          planets={extractPlanetsData()}
+          onImageGenerated={setStrengthChartUrl}
+          width={600}
+          height={400}
+        />
       </div>
 
       {/* Enhanced PDF Export Section */}
-      <div className="bg-gradient-to-r from-purple-50 to-indigo-50 p-6 rounded-lg border border-purple-200">
-        <h3 className="text-xl font-bold text-purple-800 mb-3 flex items-center gap-2">
-          <Image className="h-6 w-6" />
+      <div className="bg-gradient-to-r from-purple-50 to-indigo-50 p-4 sm:p-6 rounded-lg border border-purple-200">
+        <h3 className="text-lg sm:text-xl font-bold text-purple-800 mb-3 flex items-center gap-2">
+          <Image className="h-5 w-5 sm:h-6 sm:w-6" />
           {getTranslation('Enhanced Visual Kundali PDF', 'उन्नत दृश्य कुंडली PDF')}
         </h3>
         
         <p className="text-sm text-purple-700 mb-4">
           {getTranslation(
-            'Download your comprehensive Kundali report with visual chart, enhanced design, and professional formatting including:',
-            'अपनी व्यापक कुंडली रिपोर्ट को दृश्य चार्ट, उन्नत डिज़ाइन और पेशेवर फॉर्मेटिंग के साथ डाउनलोड करें जिसमें शामिल है:'
+            'Download your comprehensive Kundali report with visual charts, planetary strength analysis, and professional formatting including:',
+            'अपनी व्यापक कुंडली रिपोर्ट को दृश्य चार्ट, ग्रहीय शक्ति विश्लेषण और पेशेवर फॉर्मेटिंग के साथ डाउनलोड करें जिसमें शामिल है:'
           )}
         </p>
         
@@ -278,6 +323,10 @@ const EnhancedVisualKundaliPDFExport: React.FC<EnhancedVisualKundaliPDFExportPro
           <li className="flex items-center gap-2">
             <span className="text-green-500">✓</span>
             {getTranslation('Interactive Kundali Chart Visual', 'इंटरैक्टिव कुंडली चार्ट दृश्य')}
+          </li>
+          <li className="flex items-center gap-2">
+            <span className="text-green-500">✓</span>
+            {getTranslation('Planetary Strength Bar Chart Analysis', 'ग्रहीय शक्ति बार चार्ट विश्लेषण')}
           </li>
           <li className="flex items-center gap-2">
             <span className="text-green-500">✓</span>
@@ -300,7 +349,7 @@ const EnhancedVisualKundaliPDFExport: React.FC<EnhancedVisualKundaliPDFExportPro
         <Button 
           onClick={generateEnhancedPDF}
           disabled={isGenerating || !chartImageUrl}
-          className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
+          className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white min-h-[44px]"
         >
           {isGenerating ? (
             <>
@@ -315,21 +364,21 @@ const EnhancedVisualKundaliPDFExport: React.FC<EnhancedVisualKundaliPDFExportPro
           )}
         </Button>
         
-        {!chartImageUrl && (
+        {(!chartImageUrl || !strengthChartUrl) && (
           <p className="text-xs text-gray-500 mt-2 text-center">
-            {getTranslation('Chart is being generated...', 'चार्ट बनाया जा रहा है...')}
+            {getTranslation('Charts are being generated...', 'चार्ट बनाए जा रहे हैं...')}
           </p>
         )}
       </div>
       
       <div className="text-xs text-gray-500 p-3 bg-gray-50 rounded-lg">
         <p className="font-medium mb-1">
-          {getTranslation('🎨 Visual Enhancement Features:', '🎨 दृश्य संवर्धन सुविधाएं:')}
+          {getTranslation('🎨 Enhanced Visual Features:', '🎨 उन्नत दृश्य सुविधाएं:')}
         </p>
         <p>
           {getTranslation(
-            'This enhanced PDF includes visual chart representation, professional color schemes, formatted tables, and improved readability for a premium astrological report experience.',
-            'इस उन्नत PDF में दृश्य चार्ट प्रतिनिधित्व, पेशेवर रंग योजनाएं, स्वरूपित तालिकाएं, और प्रीमियम ज्योतिषीय रिपोर्ट अनुभव के लिए बेहतर पठनीयता शामिल है।'
+            'This enhanced PDF now includes visual chart representation, planetary strength bar charts, professional color schemes, formatted tables, and improved readability for a premium astrological report experience.',
+            'इस उन्नत PDF में अब दृश्य चार्ट प्रतिनिधित्व, ग्रहीय शक्ति बार चार्ट, पेशेवर रंग योजनाएं, स्वरूपित तालिकाएं, और प्रीमियम ज्योतिषीय रिपोर्ट अनुभव के लिए बेहतर पठनीयता शामिल है।'
           )}
         </p>
       </div>
