@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -66,7 +67,8 @@ const KarmicReportComplete: React.FC<KarmicReportCompleteProps> = ({ kundaliData
     // Fix the rashiName access with proper type checking
     let tenthHouseLord = 'Unknown';
     if (planetsInTenth.length > 0) {
-      tenthHouseLord = `${planetsInTenth[0][0]} in ${planetsInTenth[0][1]?.rashiName || 'Unknown'}`;
+      const planetData = planetsInTenth[0][1] as any;
+      tenthHouseLord = `${planetsInTenth[0][0]} in ${planetData?.rashiName || 'Unknown'}`;
     } else if (tenthHouse && typeof tenthHouse === 'object' && tenthHouse !== null) {
       const houseObj = tenthHouse as Record<string, any>;
       if ('rashiName' in houseObj && typeof houseObj.rashiName === 'string') {
