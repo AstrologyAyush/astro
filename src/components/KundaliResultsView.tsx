@@ -3,17 +3,20 @@ import React, { Suspense, lazy, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Crown, Star, Grid, Clock, Sparkles, FileText, Bot } from 'lucide-react';
+import { ArrowLeft, Crown, Star, Grid, Clock, Sparkles, FileText, Bot, Target, TrendingUp, Calendar } from 'lucide-react';
 import InteractiveDashboard from './InteractiveDashboard';
 import EnhancedDailyHoroscope from './EnhancedDailyHoroscope';
 import EnhancedKundaliPDFExport from './EnhancedKundaliPDFExport';
 
 // Lazy load heavy components for better mobile performance
 const KundaliConsultationView = lazy(() => import('./KundaliConsultationView'));
-const DivisionalCharts = lazy(() => import('./DivisionalCharts'));
+const EnhancedDivisionalCharts = lazy(() => import('./EnhancedDivisionalCharts'));
 const DetailedDashaDisplay = lazy(() => import('./DetailedDashaDisplay'));
 const KarmicReport = lazy(() => import('./KarmicReport'));
 const KarmicReportComplete = lazy(() => import('./KarmicReportComplete'));
+const TransitAnalysis = lazy(() => import('./TransitAnalysis'));
+const KarmaAlignmentTracker = lazy(() => import('./KarmaAlignmentTracker'));
+const EnhancedDashaTiming = lazy(() => import('./EnhancedDashaTiming'));
 
 // Loading component for suspense
 const TabLoadingSpinner = () => (
@@ -77,7 +80,16 @@ const KundaliResultsView: React.FC<KundaliResultsViewProps> = ({
             </CardContent>
           </Card>
 
-          {/* Enhanced Kundali Analysis with 3-Row Mobile-Optimized Tabs */}
+          {/* Karma Alignment Tracker */}
+          <Card className="w-full border-green-200 shadow-lg bg-white/95 backdrop-blur-sm">
+            <CardContent className="p-3 sm:p-4 lg:p-6">
+              <Suspense fallback={<TabLoadingSpinner />}>
+                <KarmaAlignmentTracker kundaliData={memoizedKundaliData} language={language} />
+              </Suspense>
+            </CardContent>
+          </Card>
+
+          {/* Enhanced Kundali Analysis with 4-Row Mobile-Optimized Tabs */}
           <Card className="w-full border-purple-200 dark:border-purple-700 shadow-lg bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm">
             <CardHeader className="bg-gradient-to-r from-purple-100 to-indigo-100 dark:from-purple-900/50 dark:to-indigo-900/50 p-3 sm:p-4 lg:p-6">
               <CardTitle className="text-purple-800 dark:text-purple-300 flex items-center gap-2 text-base sm:text-lg lg:text-xl text-center sm:text-left">
@@ -88,28 +100,50 @@ const KundaliResultsView: React.FC<KundaliResultsViewProps> = ({
               </CardTitle>
             </CardHeader>
             <CardContent className="p-2 sm:p-4 lg:p-6">
-              <Tabs defaultValue="charts" className="w-full">
-                {/* 3-Row Tab Navigation with better organization */}
+              <Tabs defaultValue="enhanced-charts" className="w-full">
+                {/* 4-Row Tab Navigation with enhanced organization */}
                 <div className="mb-4 sm:mb-6 border border-purple-200 dark:border-purple-700 rounded-lg p-2 bg-purple-50 dark:bg-purple-900/30">
                   <TabsList className="w-full h-auto bg-transparent p-0 gap-2 flex flex-col">
-                    {/* First Row - Main Charts */}
+                    {/* First Row - Enhanced Charts */}
                     <div className="w-full grid grid-cols-3 gap-1 sm:gap-2">
                       <TabsTrigger 
-                        value="charts" 
+                        value="enhanced-charts" 
                         className="flex flex-col items-center gap-1 data-[state=active]:bg-purple-600 data-[state=active]:text-white text-xs sm:text-sm p-2 sm:p-3 min-h-[60px] sm:min-h-[70px] rounded-md transition-all duration-200 border border-purple-200 dark:border-purple-600 bg-white dark:bg-gray-800"
                       >
                         <Grid className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
                         <span className="text-center leading-tight font-medium">
-                          {getTranslation('D1-D10 Charts', 'D1-D10 चार्ट')}
+                          {getTranslation('Enhanced D1-D20', 'उन्नत D1-D20')}
                         </span>
                       </TabsTrigger>
                       <TabsTrigger 
-                        value="dashas" 
+                        value="enhanced-timing" 
                         className="flex flex-col items-center gap-1 data-[state=active]:bg-purple-600 data-[state=active]:text-white text-xs sm:text-sm p-2 sm:p-3 min-h-[60px] sm:min-h-[70px] rounded-md transition-all duration-200 border border-purple-200 dark:border-purple-600 bg-white dark:bg-gray-800"
                       >
                         <Clock className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
                         <span className="text-center leading-tight font-medium">
-                          {getTranslation('Dasha Periods', 'दशा काल')}
+                          {getTranslation('Enhanced Timing', 'उन्नत समय')}
+                        </span>
+                      </TabsTrigger>
+                      <TabsTrigger 
+                        value="transits" 
+                        className="flex flex-col items-center gap-1 data-[state=active]:bg-purple-600 data-[state=active]:text-white text-xs sm:text-sm p-2 sm:p-3 min-h-[60px] sm:min-h-[70px] rounded-md transition-all duration-200 border border-purple-200 dark:border-purple-600 bg-white dark:bg-gray-800"
+                      >
+                        <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                        <span className="text-center leading-tight font-medium">
+                          {getTranslation('Transit Analysis', 'गोचर विश्लेषण')}
+                        </span>
+                      </TabsTrigger>
+                    </div>
+                    
+                    {/* Second Row - Traditional Analysis */}
+                    <div className="w-full grid grid-cols-2 gap-1 sm:gap-2">
+                      <TabsTrigger 
+                        value="dashas" 
+                        className="flex flex-col items-center gap-1 data-[state=active]:bg-purple-600 data-[state=active]:text-white text-xs sm:text-sm p-2 sm:p-3 min-h-[60px] sm:min-h-[70px] rounded-md transition-all duration-200 border border-purple-200 dark:border-purple-600 bg-white dark:bg-gray-800"
+                      >
+                        <Calendar className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                        <span className="text-center leading-tight font-medium">
+                          {getTranslation('Traditional Dasha', 'पारंपरिक दशा')}
                         </span>
                       </TabsTrigger>
                       <TabsTrigger 
@@ -122,8 +156,8 @@ const KundaliResultsView: React.FC<KundaliResultsViewProps> = ({
                         </span>
                       </TabsTrigger>
                     </div>
-                    
-                    {/* Second Row - Advanced Reports */}
+
+                    {/* Third Row - Advanced Reports */}
                     <div className="w-full grid grid-cols-2 gap-1 sm:gap-2">
                       <TabsTrigger 
                         value="karmic-complete" 
@@ -145,7 +179,7 @@ const KundaliResultsView: React.FC<KundaliResultsViewProps> = ({
                       </TabsTrigger>
                     </div>
 
-                    {/* Third Row - AI Enhancement */}
+                    {/* Fourth Row - AI Enhancement */}
                     <div className="w-full flex justify-center">
                       <TabsTrigger 
                         value="ai-enhancement" 
@@ -162,9 +196,21 @@ const KundaliResultsView: React.FC<KundaliResultsViewProps> = ({
 
                 {/* Tab Content with Lazy Loading for Mobile Performance */}
                 <div className="min-h-[300px]">
-                  <TabsContent value="charts" className="mt-0">
+                  <TabsContent value="enhanced-charts" className="mt-0">
                     <Suspense fallback={<TabLoadingSpinner />}>
-                      <DivisionalCharts kundaliData={memoizedKundaliData} language={language} />
+                      <EnhancedDivisionalCharts kundaliData={memoizedKundaliData} language={language} />
+                    </Suspense>
+                  </TabsContent>
+
+                  <TabsContent value="enhanced-timing" className="mt-0">
+                    <Suspense fallback={<TabLoadingSpinner />}>
+                      <EnhancedDashaTiming kundaliData={memoizedKundaliData} language={language} />
+                    </Suspense>
+                  </TabsContent>
+
+                  <TabsContent value="transits" className="mt-0">
+                    <Suspense fallback={<TabLoadingSpinner />}>
+                      <TransitAnalysis kundaliData={memoizedKundaliData} language={language} />
                     </Suspense>
                   </TabsContent>
 
