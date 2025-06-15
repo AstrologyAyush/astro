@@ -78,28 +78,27 @@ serve(async (req) => {
       // Create proper prompt based on analysis type
       const prompt = analysisType === 'rishi_conversation' 
         ? (() => {
-            // NEW - Stronger, friendlier prompt for Gemini in Rishi mode
-            const friendlyPrompt = `
-You are Rishi Parashar, the great Vedic sage and astrology guide.
+            // Ultra-simple, friendly prompt for Gemini in Rishi mode
+            const simplePrompt = `
+You are Rishi Parashar, a wise and caring astrology teacher.
 
-YOUR INSTRUCTIONS:
-- Speak to the user as a loving, wise, and supportive guru.
-- Always use friendly, gentle, and warm language.
-- Give short, simple, direct advice. DO NOT use complicated astrological jargon, big words, or long-winded explanations.
-- Focus on clear and practical suggestions, always relating your answer to the user's question and their unique birth chart (chart data is provided below).
-- Avoid generic or vague responses. Personalize your message whenever possible (use their name if given, refer to their actual planets/dashas/yogas).
-- Be insightful but always keep things easy to understand for a layperson.
-- End your answers with encouragement or a blessing, but keep it simple.
+RULES:
+- Talk like you're speaking to a friend - warm, caring, simple
+- Give SHORT answers (maximum 3-4 sentences)
+- Use EVERYDAY words only - no fancy astrology terms
+- Be specific about their chart, not generic
+- End with a simple blessing or encouragement
 
-Respond ONLY in ${language === 'hi' ? 'Hindi' : 'English'}.
+Language: ${language === 'hi' ? 'Hindi' : 'Simple English'}
 
-[USER'S QUESTION FOLLOWS]
-${userQuery}
+User asks: ${userQuery}
 
-[USER'S KUNDALI DATA FOLLOWS -- use this context to personalize, but don't get bogged down in technicalities]
-${createDetailedChartContext(kundaliData)}
+Their birth chart shows:
+${createSimpleChartSummary(kundaliData)}
+
+Give a short, caring answer using their actual chart details.
             `;
-            return friendlyPrompt;
+            return simplePrompt;
           })()
         : createDetailedKundaliPrompt(kundaliData, userQuery, language, analysisType);
       
@@ -121,10 +120,10 @@ ${createDetailedChartContext(kundaliData)}
             }]
           }],
           generationConfig: {
-            temperature: analysisType === 'rishi_conversation' ? 0.8 : 0.7,
-            topK: analysisType === 'rishi_conversation' ? 30 : 40,
-            topP: analysisType === 'rishi_conversation' ? 0.9 : 0.95,
-            maxOutputTokens: analysisType === 'rishi_conversation' ? 1000 : 2048,
+            temperature: analysisType === 'rishi_conversation' ? 0.7 : 0.7,
+            topK: analysisType === 'rishi_conversation' ? 20 : 40,
+            topP: analysisType === 'rishi_conversation' ? 0.8 : 0.95,
+            maxOutputTokens: analysisType === 'rishi_conversation' ? 400 : 2048,
           },
           safetySettings: [
             {
@@ -364,17 +363,13 @@ function generateFallbackAnalysis(kundaliData: any, userQuery: string, language:
 
 function generateRishiConversationFallback(calculations: any, currentDasha: any, language: string, userQuery: string): string {
   if (language === 'hi') {
-    return `🙏 पुत्र, आपका प्रश्न "${userQuery}" मैंने सुना है। ${calculations.lagna?.signName ? `आपका ${calculations.lagna.signName} लग्न` : 'आपकी कुंडली'} देखकर मैं कह सकता हूं कि ${currentDasha ? `वर्तमान ${currentDasha.planet} दशा में` : 'इस समय'} आपको धैर्य और सकारात्मक विचारों की आवश्यकता है। 
+    return `🙏 पुत्र, आपका प्रश्न "${userQuery}" मैंने सुना है। ${calculations.lagna?.signName ? `आपका ${calculations.lagna.signName} लग्न` : 'आपकी कुंडली'} देखकर मैं कह सकता हूं कि ${currentDasha ? `वर्तमान ${currentDasha.planet} दशा में` : 'इस समय'} आपको धैर्य रखना है। 
 
-आपकी समस्या का समाधान आपके कर्मों में छुपा है। नियमित प्रार्थना, ध्यान और दान-पुण्य करें। ${calculations.yogas?.length > 0 ? `आपकी कुंडली में शुभ योग हैं जो आपकी सहायता करेंगे।` : 'ब्रह्मांड की शक्तियां आपके साथ हैं।'}
-
-मेरा आशीर्वाद सदा आपके साथ है। 🕉️`;
+सब कुछ ठीक होगा। मेरा आशीर्वाद आपके साथ है। 🕉️`;
   } else {
-    return `🙏 Dear child, I have heard your question "${userQuery}". Looking at your ${calculations.lagna?.signName ? `${calculations.lagna.signName} ascendant` : 'birth chart'}, I can say that ${currentDasha ? `in the current ${currentDasha.planet} dasha` : 'at this time'} you need patience and positive thoughts.
+    return `🙏 Dear child, I heard your question "${userQuery}". Looking at your ${calculations.lagna?.signName ? `${calculations.lagna.signName} chart` : 'birth chart'}, ${currentDasha ? `you're in ${currentDasha.planet} period` : 'right now'} you need to be patient.
 
-The solution to your problem lies in your actions. Practice regular prayer, meditation, and charity. ${calculations.yogas?.length > 0 ? 'You have auspicious yogas in your chart that will help you.' : 'The cosmic forces are with you.'}
-
-My blessings are always with you. 🕉️`;
+Everything will be fine. My blessings are with you. 🕉️`;
   }
 }
 
@@ -443,38 +438,21 @@ function generateGeneralFallback(calculations: any, currentDasha: any, language:
   }
 }
 
-function createDetailedChartContext(kundaliData: any): string {
-    const enhancedCalc = kundaliData?.enhancedCalculations || {};
-    const birthData = kundaliData?.birthData || {};
+function createSimpleChartSummary(kundaliData: any): string {
+    const calc = kundaliData?.enhancedCalculations || {};
+    const birth = kundaliData?.birthData || {};
     
-    // Get current dasha information
-    const currentDasha = enhancedCalc.dashas?.find(d => d.isActive);
-    const activeDashas = enhancedCalc.dashas?.filter(d => d.isActive) || [];
+    const currentDasha = calc.dashas?.find(d => d.isActive);
+    const strongPlanets = Object.entries(calc.planets || {})
+      .filter(([_, data]: [string, any]) => data?.shadbala > 60)
+      .map(([name, _]) => name)
+      .slice(0, 2);
     
-    // Get active yogas with their strengths
-    const activeYogas = enhancedCalc.yogas?.filter(y => y.isActive) || [];
-    
-    // Get planetary information
-    const planetaryInfo = Object.entries(enhancedCalc.planets || {}).map(([planet, data]: [string, any]) => {
-      if (!data) return '';
-      return `${planet}: ${data.rashiName || 'Unknown'} ${data.degree?.toFixed(1) || 0}° House-${data.house || 0} ${data.isRetrograde ? '[R]' : ''} ${data.isExalted ? '[Exalted]' : data.isDebilitated ? '[Debilitated]' : ''}`;
-    }).filter(Boolean);
-
     return `
-BIRTH DETAILS: ${birthData.fullName || 'Soul'} born ${birthData.date} at ${birthData.time} in ${birthData.place}
-LAGNA: ${enhancedCalc.lagna?.signName || 'Unknown'} लग्न at ${enhancedCalc.lagna?.degree?.toFixed(2) || 0}°
-NAKSHATRA: ${enhancedCalc.lagna?.nakshatraName || 'Unknown'}
-
-PLANETARY POSITIONS:
-${planetaryInfo.join('\n')}
-
-CURRENT DASHA PERIODS:
-${activeDashas.map(d => `${d.planet}: ${d.startDate} to ${d.endDate} ${d.isActive ? '[ACTIVE]' : ''}`).join('\n')}
-
-ACTIVE YOGAS (${activeYogas.length}):
-${activeYogas.map(y => `${y.name} (${y.strength || 'Strong'}% strength): ${y.description}`).join('\n')}
-
-DOSHAS:
-${enhancedCalc.doshas?.filter(d => d.isPresent).map(d => `${d.name}: ${d.severity || 'Present'}`).join('\n') || 'No significant doshas'}
-`;
-  };
+Name: ${birth.fullName || 'Soul'}
+Birth sign: ${calc.lagna?.signName || 'Unknown'}
+Current time period: ${currentDasha ? `${currentDasha.planet} until ${currentDasha.endDate}` : 'Unknown'}
+Strong planets: ${strongPlanets.join(', ') || 'None'}
+Moon sign: ${calc.planets?.MO?.rashiName || 'Unknown'}
+    `;
+}
