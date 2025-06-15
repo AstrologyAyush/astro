@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -13,13 +12,19 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
+interface AIChatAnalytics {
+  queryDistribution: { type: string; count: number; }[];
+  avgSatisfaction: number;
+  totalQueries: number;
+}
+
 interface AdvancedAnalytics {
   pageAnalytics: any[];
   interactionHeatmap: any[];
   userJourneys: any[];
   conversionFunnels: any[];
   errorTracking: any[];
-  aiChatAnalytics: any[];
+  aiChatAnalytics: AIChatAnalytics;
   userSegments: any[];
   realTimeUsers: number;
 }
@@ -31,7 +36,11 @@ const AdvancedAnalyticsDashboard = () => {
     userJourneys: [],
     conversionFunnels: [],
     errorTracking: [],
-    aiChatAnalytics: [],
+    aiChatAnalytics: {
+      queryDistribution: [],
+      avgSatisfaction: 0,
+      totalQueries: 0
+    },
     userSegments: [],
     realTimeUsers: 0
   });
@@ -206,7 +215,7 @@ const AdvancedAnalyticsDashboard = () => {
     return Object.entries(conversions).map(([type, count]) => ({ type, count }));
   };
 
-  const processAIChatData = (data: any[]) => {
+  const processAIChatData = (data: any[]): AIChatAnalytics => {
     const queryTypes: Record<string, number> = {};
     let totalSatisfaction = 0;
     let satisfactionCount = 0;
@@ -287,7 +296,7 @@ const AdvancedAnalyticsDashboard = () => {
             <Brain className="h-4 w-4 text-purple-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-purple-600">{analytics.aiChatAnalytics.totalQueries || 0}</div>
+            <div className="text-2xl font-bold text-purple-600">{analytics.aiChatAnalytics.totalQueries}</div>
             <p className="text-xs text-muted-foreground">Total AI interactions</p>
           </CardContent>
         </Card>
@@ -411,7 +420,7 @@ const AdvancedAnalyticsDashboard = () => {
               <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
                   <Pie
-                    data={analytics.aiChatAnalytics.queryDistribution || []}
+                    data={analytics.aiChatAnalytics.queryDistribution}
                     dataKey="count"
                     nameKey="type"
                     cx="50%"
@@ -420,7 +429,7 @@ const AdvancedAnalyticsDashboard = () => {
                     fill="#8884d8"
                     label
                   >
-                    {(analytics.aiChatAnalytics.queryDistribution || []).map((entry, index) => (
+                    {analytics.aiChatAnalytics.queryDistribution.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
