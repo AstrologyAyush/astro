@@ -1,4 +1,3 @@
-
 import {
   BirthData,
   PlanetPosition,
@@ -11,7 +10,6 @@ import {
   getPlanetDetails,
   isPlanetCombust,
   calculatePlanetaryStrength,
-  NAKSHATRA_LORDS
 } from './kundaliUtils';
 import { calculateVimshottariDasha as calculateVimshottariDashaFromEngine, calculateAntardasha, getDashaEffects } from './vimshottariDashaEngine';
 
@@ -76,6 +74,7 @@ export interface DashaPeriod {
   endDate: Date;
   years: number;
   isActive: boolean;
+  months?: number; // Optional months for PDF
   subDashas?: DashaPeriod[];
 }
 
@@ -107,6 +106,7 @@ export interface ComprehensiveKundaliData {
     julianDay?: number;
     interpretations?: any;
   };
+  interpretations?: any;
 }
 
 function getSignLord(signIndex: number): string {
@@ -313,47 +313,74 @@ export function generateAdvancedKundali(birthData: EnhancedBirthData): Comprehen
       'Relationship conflicts, communicate openly and honestly.'
     ];
 
-    return {
-      birthData,
-      planets,
-      houses,
-      ascendant: {
+  // Generate fake 'interpretations' for compatibility with UI
+  // These can be further improved to be actual interpretations!
+  const fakeCoreTraits = ['Intelligent', 'Practical', 'Disciplined', 'Empathetic'];
+  const fakeCareerAptitude = ['Engineering', 'Teaching', 'Medicine'];
+  const fakeMarriageCompatibility = {
+    recommendedAge: 27,
+    compatibleSigns: ['Taurus', 'Virgo', 'Capricorn'],
+    mangalDoshaStatus: 'Absent',
+  };
+  const fakeRemedies = {
+    gemstones: [{stone: 'Yellow Sapphire', weight: '3-5 carats'}],
+    mantras: [{mantra: 'Om Namah Shivaya'}]
+  };
+
+  const interpretations = {
+    general: birthChartAnalysis,
+    houses: houseAnalysis,
+    planets: planetaryStrengths,
+    personality: {
+      coreTraits: fakeCoreTraits,
+      careerAptitude: fakeCareerAptitude
+    },
+    compatibility: {
+      marriageCompatibility: fakeMarriageCompatibility
+    },
+    remedies: fakeRemedies
+  };
+
+  return {
+    birthData,
+    planets,
+    houses,
+    ascendant: {
+      sign: ascendantSign,
+      degree: ascendantDegree,
+      nakshatra: ascendantNakshatra,
+      lord: getSignLord(ascendantSign)
+    },
+    moonSign: moonPosition.rashi,
+    sunSign: planets.SU.rashi,
+    // Place interpretations at root for UI
+    interpretations,
+    enhancedCalculations: {
+      dashas,
+      yogas,
+      nakshatras: Object.values(planets).map(planet => ({
+        planet: planet.name,
+        nakshatra: planet.nakshatraName,
+        pada: planet.nakshatraPada,
+        lord: getNakshatraLord(planet.nakshatraName)
+      })),
+      birthChartAnalysis,
+      houseAnalysis,
+      dashaAnalysis,
+      planetaryStrengths,
+      favorablePeriods,
+      challengesAndRemedies,
+      lagna: {
         sign: ascendantSign,
         degree: ascendantDegree,
-        nakshatra: ascendantNakshatra,
-        lord: getSignLord(ascendantSign)
+        signName: ZODIAC_SIGNS[ascendantSign - 1]?.name ?? '', // For AI/other UI
       },
-      moonSign: moonPosition.rashi,
-      sunSign: planets.SU.rashi,
-      enhancedCalculations: {
-        dashas,
-        yogas,
-        nakshatras: Object.values(planets).map(planet => ({
-          planet: planet.name,
-          nakshatra: planet.nakshatraName,
-          pada: planet.nakshatraPada,
-          lord: getNakshatraLord(planet.nakshatra)
-        })),
-        birthChartAnalysis,
-        houseAnalysis,
-        dashaAnalysis,
-        planetaryStrengths,
-        favorablePeriods,
-        challengesAndRemedies,
-        lagna: {
-          sign: ascendantSign,
-          degree: ascendantDegree
-        },
-        planets: planets,
-        houses: houses,
-        julianDay: Math.floor(birthDate.getTime() / (1000 * 60 * 60 * 24)) + 2440588,
-        interpretations: {
-          general: birthChartAnalysis,
-          houses: houseAnalysis,
-          planets: planetaryStrengths
-        }
-      }
-    };
+      planets: planets,
+      houses: houses,
+      julianDay: Math.floor(birthDate.getTime() / (1000 * 60 * 60 * 24)) + 2440588,
+      interpretations // (kept for internal use, not required by UI)
+    }
+  };
 
   } catch (error) {
     console.error('❌ Error in advanced Kundali generation:', error);
