@@ -1,12 +1,9 @@
-
 import React, { useState, useRef, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { Send, Bot, User, Sparkles } from "lucide-react";
+import { Send, Bot, User, Sparkles, GripHorizontal } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -26,7 +23,10 @@ const RishiParasherGuru: React.FC<RishiParasherGuruProps> = ({ kundaliData, lang
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [chatHeight, setChatHeight] = useState(600);
+  const [isDragging, setIsDragging] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -58,6 +58,51 @@ const RishiParasherGuru: React.FC<RishiParasherGuruProps> = ({ kundaliData, lang
       scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
     }
   }, [messages]);
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setIsDragging(true);
+    e.preventDefault();
+  };
+
+  const handleMouseMove = (e: MouseEvent) => {
+    if (!isDragging || !chatContainerRef.current) return;
+    
+    const rect = chatContainerRef.current.getBoundingClientRect();
+    const newHeight = e.clientY - rect.top;
+    
+    // Set minimum and maximum height limits
+    const minHeight = 300;
+    const maxHeight = window.innerHeight - 100;
+    
+    if (newHeight >= minHeight && newHeight <= maxHeight) {
+      setChatHeight(newHeight);
+    }
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  useEffect(() => {
+    if (isDragging) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = 'ns-resize';
+      document.body.style.userSelect = 'none';
+    } else {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    };
+  }, [isDragging]);
 
   const createDetailedChartContext = () => {
     const enhancedCalc = kundaliData?.enhancedCalculations || {};
@@ -211,7 +256,11 @@ Respond in ${language === 'hi' ? 'Hindi' : 'English'} in the tone of a loving, w
   }
 
   return (
-    <div className="h-[600px] flex flex-col bg-white border-gray-200 rounded-lg overflow-hidden">
+    <div 
+      ref={chatContainerRef}
+      className="flex flex-col bg-white border-gray-200 rounded-lg overflow-hidden relative"
+      style={{ height: `${chatHeight}px` }}
+    >
       {/* Header */}
       <div className="flex-shrink-0 p-4 bg-gradient-to-r from-orange-500 to-red-500 text-white">
         <div className="flex items-center gap-2">
@@ -277,6 +326,14 @@ Respond in ${language === 'hi' ? 'Hindi' : 'English'} in the tone of a loving, w
             )}
           </div>
         </ScrollArea>
+      </div>
+
+      {/* Resize Handle */}
+      <div 
+        className="flex items-center justify-center p-1 bg-gray-100 border-t border-gray-200 cursor-ns-resize hover:bg-gray-200 transition-colors"
+        onMouseDown={handleMouseDown}
+      >
+        <GripHorizontal className="h-4 w-4 text-gray-400" />
       </div>
       
       {/* Input Area - Fixed at bottom */}
