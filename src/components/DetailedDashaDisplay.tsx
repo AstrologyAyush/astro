@@ -1,13 +1,13 @@
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { ComprehensiveKundaliData } from '@/lib/advancedKundaliEngine';
 import { CalendarDays, Clock, Star } from 'lucide-react';
+import { calculateVimshottariDasha, calculateAntardasha, getDashaEffects } from '../lib/vimshottariDashaEngine';
 
 interface DetailedDashaDisplayProps {
-  kundaliData: ComprehensiveKundaliData;
+  kundaliData: any;
   language: 'hi' | 'en';
 }
 
@@ -16,9 +16,18 @@ const DetailedDashaDisplay: React.FC<DetailedDashaDisplayProps> = ({ kundaliData
     return language === 'hi' ? hi : en;
   };
 
-  // Fix: Access dashas from enhancedCalculations only
-  const dashas = kundaliData.enhancedCalculations?.dashas || [];
-  const currentDasha = dashas.find(d => d.isActive) || dashas[0];
+  // Calculate real dasha data from kundali using the same engine as other components
+  const dashaCalculations = useMemo(() => {
+    if (!kundaliData?.birthData || !kundaliData?.planets?.MO) {
+      return null;
+    }
+
+    const birthDate = new Date(kundaliData.birthData.date);
+    const moonLongitude = kundaliData.planets.MO.longitude;
+    const moonNakshatra = kundaliData.planets.MO.nakshatra;
+
+    return calculateVimshottariDasha(birthDate, moonLongitude, moonNakshatra);
+  }, [kundaliData]);
 
   const planetNames = {
     hi: {
@@ -31,23 +40,9 @@ const DetailedDashaDisplay: React.FC<DetailedDashaDisplayProps> = ({ kundaliData
     }
   };
 
-  const getYearFromDate = (date: string | Date) => {
-    if (!date) return new Date().getFullYear();
-    const dateObj = typeof date === 'string' ? new Date(date) : date;
-    return dateObj.getFullYear();
-  };
-
-  const formatDateString = (date: string | Date) => {
-    if (!date) return '';
-    const dateObj = typeof date === 'string' ? new Date(date) : date;
-    return dateObj.toISOString();
-  };
-
-  const calculateProgress = (startDate: string | Date, endDate: string | Date) => {
-    if (!startDate || !endDate) return 0;
-    
-    const start = (typeof startDate === 'string' ? new Date(startDate) : startDate).getTime();
-    const end = (typeof endDate === 'string' ? new Date(endDate) : endDate).getTime();
+  const calculateProgress = (startDate: Date, endDate: Date) => {
+    const start = startDate.getTime();
+    const end = endDate.getTime();
     const now = new Date().getTime();
     
     if (now < start) return 0;
@@ -58,28 +53,44 @@ const DetailedDashaDisplay: React.FC<DetailedDashaDisplayProps> = ({ kundaliData
     return Math.round((elapsed / total) * 100);
   };
 
-  const calculateRemainingYears = (endDate: string | Date) => {
-    if (!endDate) return 0;
-    const end = (typeof endDate === 'string' ? new Date(endDate) : endDate).getTime();
+  const calculateRemainingYears = (endDate: Date) => {
+    const end = endDate.getTime();
     const now = new Date().getTime();
     const remainingMs = end - now;
     return Math.max(0, remainingMs / (365.25 * 24 * 60 * 60 * 1000));
   };
 
+  if (!dashaCalculations) {
+    return (
+      <Card className="border-purple-200">
+        <CardContent className="p-6 text-center">
+          <p className="text-gray-600">
+            {getTranslation('Unable to calculate dasha periods', 'दशा काल की गणना नहीं हो सकी')}
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const currentDasha = dashaCalculations.currentMahadasha;
+  const antardashaCalculations = calculateAntardasha(currentDasha);
+  const currentAntardasha = antardashaCalculations.find(a => a.isActive);
+  const currentEffects = getDashaEffects(currentDasha.planet);
+
   return (
-    <Card className="border-purple-200">
-      <CardHeader className="bg-gradient-to-r from-purple-100 to-indigo-100">
-        <CardTitle className="text-purple-800 flex items-center gap-2">
-          <Star className="h-5 w-5" />
-          {getTranslation('Detailed Dasha Periods', 'विस्तृत दशा काल')}
-        </CardTitle>
-        <p className="text-sm text-purple-600">
-          {getTranslation('Complete Vimshottari Dasha System', 'संपूर्ण विम्शोत्तरी दशा प्रणाली')}
-        </p>
-      </CardHeader>
-      <CardContent className="p-6">
-        {/* Current Dasha Highlight */}
-        {currentDasha && (
+    <div className="space-y-6">
+      <Card className="border-purple-200">
+        <CardHeader className="bg-gradient-to-r from-purple-100 to-indigo-100">
+          <CardTitle className="text-purple-800 flex items-center gap-2">
+            <Star className="h-5 w-5" />
+            {getTranslation('Detailed Dasha Periods', 'विस्तृत दशा काल')}
+          </CardTitle>
+          <p className="text-sm text-purple-600">
+            {getTranslation('Complete Vimshottari Dasha System', 'संपूर्ण विम्शोत्तरी दशा प्रणाली')}
+          </p>
+        </CardHeader>
+        <CardContent className="p-6">
+          {/* Current Dasha Highlight */}
           <div className="mb-6 p-4 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg border border-purple-200">
             <div className="flex items-center justify-between mb-3">
               <Badge className="bg-purple-600 text-white">
@@ -87,7 +98,7 @@ const DetailedDashaDisplay: React.FC<DetailedDashaDisplayProps> = ({ kundaliData
               </Badge>
               <div className="flex items-center gap-2 text-sm text-purple-600">
                 <Clock className="h-4 w-4" />
-                <span>{calculateRemainingYears(currentDasha.endDate)?.toFixed(1)} {getTranslation('years left', 'साल बचे')}</span>
+                <span>{calculateRemainingYears(currentDasha.endDate).toFixed(1)} {getTranslation('years left', 'साल बचे')}</span>
               </div>
             </div>
             
@@ -97,7 +108,7 @@ const DetailedDashaDisplay: React.FC<DetailedDashaDisplayProps> = ({ kundaliData
                 {getTranslation(' Mahadasha', ' महादशा')}
               </h3>
               <p className="text-purple-600">
-                {getYearFromDate(currentDasha.startDate)} - {getYearFromDate(currentDasha.endDate)}
+                {currentDasha.startDate.getFullYear()} - {currentDasha.endDate.getFullYear()}
               </p>
             </div>
 
@@ -111,74 +122,167 @@ const DetailedDashaDisplay: React.FC<DetailedDashaDisplayProps> = ({ kundaliData
                 className="h-2"
               />
             </div>
-          </div>
-        )}
 
-        {/* All Dasha Periods */}
-        <div className="space-y-4">
-          <h4 className="text-lg font-semibold text-purple-800 border-b border-purple-200 pb-2">
-            {getTranslation('Complete Dasha Sequence', 'संपूर्ण दशा अनुक्रम')}
-          </h4>
-          
-          <div className="grid gap-3">
-            {dashas.map((dasha, index) => (
-              <div 
-                key={index}
-                className={`p-4 rounded-lg border transition-all hover:shadow-md ${
-                  dasha.isActive 
-                    ? 'bg-purple-100 border-purple-300 shadow-md' 
-                    : 'bg-gray-50 border-gray-200'
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className={`w-3 h-3 rounded-full ${
-                      dasha.isActive ? 'bg-purple-600' : 'bg-gray-400'
-                    }`}></div>
-                    <div>
-                      <h5 className={`font-semibold ${
-                        dasha.isActive ? 'text-purple-800' : 'text-gray-700'
-                      }`}>
-                        {planetNames[language][dasha.planet as keyof typeof planetNames.en] || dasha.planet}
-                        {getTranslation(' Mahadasha', ' महादशा')}
-                      </h5>
-                      <div className="flex items-center gap-1 text-sm text-gray-600">
-                        <CalendarDays className="h-3 w-3" />
-                        <span>
-                          {getYearFromDate(dasha.startDate)} - {getYearFromDate(dasha.endDate)}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="text-right">
-                    <div className={`text-sm font-medium ${
-                      dasha.isActive ? 'text-purple-600' : 'text-gray-500'
-                    }`}>
-                      {dasha.years || 0} {getTranslation('years', 'वर्ष')}
-                    </div>
-                    {dasha.isActive && (
-                      <div className="text-xs text-gray-500">
-                        {calculateRemainingYears(dasha.endDate).toFixed(1)} {getTranslation('left', 'बचे')}
-                      </div>
-                    )}
+            {currentAntardasha && (
+              <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+                <h4 className="font-semibold text-blue-800 mb-2">
+                  {getTranslation('Current Antardasha', 'वर्तमान अंतर्दशा')}
+                </h4>
+                <div className="text-center">
+                  <Badge variant="outline" className="text-blue-700 border-blue-300">
+                    {planetNames[language][currentAntardasha.planet as keyof typeof planetNames.en] || currentAntardasha.planet}
+                    {getTranslation(' Antardasha', ' अंतर्दशा')}
+                  </Badge>
+                  <div className="text-sm text-blue-600 mt-2">
+                    {currentAntardasha.startDate.toLocaleDateString()} - {currentAntardasha.endDate.toLocaleDateString()}
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-          <p className="text-sm text-blue-800">
-            <strong>{getTranslation('Note:', 'नोट:')}</strong> {getTranslation(
-              'Vimshottari Dasha is a 120-year planetary period system that shows the timing of life events and planetary influences.',
-              'विम्शोत्तरी दशा एक 120 वर्षीय ग्रहीय काल प्रणाली है जो जीवन की घटनाओं और ग्रहीय प्रभावों का समय दिखाती है।'
             )}
-          </p>
-        </div>
-      </CardContent>
-    </Card>
+          </div>
+
+          {/* Calculation Details */}
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle className="text-xl text-gray-800">
+                {getTranslation('Calculation Details (Traditional Method)', 'गणना विवरण (पारंपरिक विधि)')}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <div className="text-sm font-semibold text-gray-600">
+                    {getTranslation("Moon's Nakshatra", 'चंद्रमा का नक्षत्र')}
+                  </div>
+                  <div className="text-gray-800">{dashaCalculations.moonNakshatra}</div>
+                </div>
+                <div>
+                  <div className="text-sm font-semibold text-gray-600">
+                    {getTranslation('Nakshatra Lord', 'नक्षत्र स्वामी')}
+                  </div>
+                  <div className="text-gray-800">{dashaCalculations.calculationDetails.nakshatraLord}</div>
+                </div>
+                <div>
+                  <div className="text-sm font-semibold text-gray-600">
+                    {getTranslation('Degree in Nakshatra', 'नक्षत्र में अंश')}
+                  </div>
+                  <div className="text-gray-800">{dashaCalculations.moonDegreeInNakshatra.toFixed(4)}°</div>
+                </div>
+                <div>
+                  <div className="text-sm font-semibold text-gray-600">
+                    {getTranslation('Balance at Birth', 'जन्म के समय शेष')}
+                  </div>
+                  <div className="text-gray-800">
+                    {dashaCalculations.calculationDetails.balanceAtBirth.toFixed(4)} {getTranslation('years', 'वर्ष')}
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Dasha Effects */}
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle className="text-xl text-gray-800">
+                {currentDasha.planet} {getTranslation('Mahadasha Effects', 'महादशा प्रभाव')}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                  <h4 className="font-semibold text-green-700 mb-2">
+                    {getTranslation('Positive Effects', 'सकारात्मक प्रभाव')}
+                  </h4>
+                  <ul className="text-sm text-gray-700 space-y-1">
+                    {currentEffects.positive.map((effect, index) => (
+                      <li key={index} className="flex items-start">
+                        <span className="text-green-500 mr-2">•</span>
+                        {effect}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="font-semibold text-red-700 mb-2">
+                    {getTranslation('Challenges', 'चुनौतियां')}
+                  </h4>
+                  <ul className="text-sm text-gray-700 space-y-1">
+                    {currentEffects.challenges.map((challenge, index) => (
+                      <li key={index} className="flex items-start">
+                        <span className="text-red-500 mr-2">•</span>
+                        {challenge}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="font-semibold text-blue-700 mb-2">
+                    {getTranslation('General Focus', 'सामान्य फोकस')}
+                  </h4>
+                  <ul className="text-sm text-gray-700 space-y-1">
+                    {currentEffects.general.map((focus, index) => (
+                      <li key={index} className="flex items-start">
+                        <span className="text-blue-500 mr-2">•</span>
+                        {focus}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* All Dasha Periods */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-xl text-gray-800">
+                {getTranslation('Complete Dasha Sequence', 'संपूर्ण दशा अनुक्रम')}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {dashaCalculations.allMahadashas.map((dasha, index) => (
+                  <div 
+                    key={index}
+                    className={`p-3 rounded-lg border ${
+                      dasha.isActive 
+                        ? 'bg-orange-50 border-orange-200' 
+                        : dasha.isCompleted 
+                          ? 'bg-gray-50 border-gray-200' 
+                          : 'bg-blue-50 border-blue-200'
+                    }`}
+                  >
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center space-x-3">
+                        <Badge 
+                          variant={dasha.isActive ? "default" : "outline"}
+                          className={dasha.isActive ? "bg-orange-500" : ""}
+                        >
+                          {planetNames[language][dasha.planet as keyof typeof planetNames.en] || dasha.planet}
+                        </Badge>
+                        <span className="text-sm text-gray-600">
+                          {dasha.startDate.getFullYear()} - {dasha.endDate.getFullYear()}
+                        </span>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-sm font-semibold text-gray-800">
+                          {dasha.totalYears} {getTranslation('years', 'वर्ष')}
+                        </div>
+                        {dasha.isActive && dasha.remainingYears && (
+                          <div className="text-xs text-orange-600">
+                            {Math.floor(dasha.remainingYears)}Y {Math.floor((dasha.remainingYears % 1) * 12)}M {getTranslation('left', 'बचे')}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 
