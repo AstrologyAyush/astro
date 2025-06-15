@@ -1,4 +1,3 @@
-
 import React, { Suspense, lazy, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,6 +6,7 @@ import { ArrowLeft, Crown, Star, Grid, Clock, Sparkles, FileText, Bot, Target, T
 import InteractiveDashboard from './InteractiveDashboard';
 import EnhancedDailyHoroscope from './EnhancedDailyHoroscope';
 import EnhancedKundaliPDFExport from './EnhancedKundaliPDFExport';
+import DharmaAlignmentAnalysis from './DharmaAlignmentAnalysis';
 
 // Lazy load heavy components for better mobile performance
 const KundaliConsultationView = lazy(() => import('./KundaliConsultationView'));
@@ -34,8 +34,8 @@ interface KundaliResultsViewProps {
 
 const KundaliResultsView: React.FC<KundaliResultsViewProps> = ({ 
   kundaliData, 
-  language, 
-  onBack 
+  onBack, 
+  language = 'en' 
 }) => {
   const getTranslation = (en: string, hi: string) => {
     return language === 'hi' ? hi : en;
@@ -45,8 +45,8 @@ const KundaliResultsView: React.FC<KundaliResultsViewProps> = ({
   const memoizedKundaliData = useMemo(() => kundaliData, [kundaliData]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-red-50 to-yellow-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-      <div className="container mx-auto px-2 sm:px-4 lg:px-6 py-3 sm:py-4 lg:py-6 max-w-7xl">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50">
+      <div className="container mx-auto px-4 py-8">
         <div className="space-y-3 sm:space-y-4 lg:space-y-6">
           {/* Back Button - Mobile Optimized */}
           <div className="sticky top-0 z-10 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm rounded-lg p-3 sm:p-4 shadow-sm">
@@ -100,101 +100,87 @@ const KundaliResultsView: React.FC<KundaliResultsViewProps> = ({
               </CardTitle>
             </CardHeader>
             <CardContent className="p-2 sm:p-4 lg:p-6">
-              <Tabs defaultValue="enhanced-charts" className="w-full">
-                {/* 4-Row Tab Navigation with enhanced organization */}
-                <div className="mb-4 sm:mb-6 border border-purple-200 dark:border-purple-700 rounded-lg p-2 bg-purple-50 dark:bg-purple-900/30">
-                  <TabsList className="w-full h-auto bg-transparent p-0 gap-2 flex flex-col">
-                    {/* First Row - Enhanced Charts */}
-                    <div className="w-full grid grid-cols-3 gap-1 sm:gap-2">
-                      <TabsTrigger 
-                        value="enhanced-charts" 
-                        className="flex flex-col items-center gap-1 data-[state=active]:bg-purple-600 data-[state=active]:text-white text-xs sm:text-sm p-2 sm:p-3 min-h-[60px] sm:min-h-[70px] rounded-md transition-all duration-200 border border-purple-200 dark:border-purple-600 bg-white dark:bg-gray-800"
-                      >
-                        <Grid className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-                        <span className="text-center leading-tight font-medium">
-                          {getTranslation('Enhanced D1-D20', 'उन्नत D1-D20')}
-                        </span>
-                      </TabsTrigger>
-                      <TabsTrigger 
-                        value="enhanced-timing" 
-                        className="flex flex-col items-center gap-1 data-[state=active]:bg-purple-600 data-[state=active]:text-white text-xs sm:text-sm p-2 sm:p-3 min-h-[60px] sm:min-h-[70px] rounded-md transition-all duration-200 border border-purple-200 dark:border-purple-600 bg-white dark:bg-gray-800"
-                      >
-                        <Clock className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-                        <span className="text-center leading-tight font-medium">
-                          {getTranslation('Enhanced Timing', 'उन्नत समय')}
-                        </span>
-                      </TabsTrigger>
-                      <TabsTrigger 
-                        value="transits" 
-                        className="flex flex-col items-center gap-1 data-[state=active]:bg-purple-600 data-[state=active]:text-white text-xs sm:text-sm p-2 sm:p-3 min-h-[60px] sm:min-h-[70px] rounded-md transition-all duration-200 border border-purple-200 dark:border-purple-600 bg-white dark:bg-gray-800"
-                      >
-                        <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-                        <span className="text-center leading-tight font-medium">
-                          {getTranslation('Transit Analysis', 'गोचर विश्लेषण')}
-                        </span>
-                      </TabsTrigger>
-                    </div>
-                    
-                    {/* Second Row - Traditional Analysis */}
-                    <div className="w-full grid grid-cols-2 gap-1 sm:gap-2">
-                      <TabsTrigger 
-                        value="dashas" 
-                        className="flex flex-col items-center gap-1 data-[state=active]:bg-purple-600 data-[state=active]:text-white text-xs sm:text-sm p-2 sm:p-3 min-h-[60px] sm:min-h-[70px] rounded-md transition-all duration-200 border border-purple-200 dark:border-purple-600 bg-white dark:bg-gray-800"
-                      >
-                        <Calendar className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-                        <span className="text-center leading-tight font-medium">
-                          {getTranslation('Traditional Dasha', 'पारंपरिक दशा')}
-                        </span>
-                      </TabsTrigger>
-                      <TabsTrigger 
-                        value="karmic" 
-                        className="flex flex-col items-center gap-1 data-[state=active]:bg-purple-600 data-[state=active]:text-white text-xs sm:text-sm p-2 sm:p-3 min-h-[60px] sm:min-h-[70px] rounded-md transition-all duration-200 border border-purple-200 dark:border-purple-600 bg-white dark:bg-gray-800"
-                      >
-                        <Sparkles className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-                        <span className="text-center leading-tight font-medium">
-                          {getTranslation('Basic Karmic', 'बुनियादी कर्मिक')}
-                        </span>
-                      </TabsTrigger>
-                    </div>
-
-                    {/* Third Row - Advanced Reports */}
-                    <div className="w-full grid grid-cols-2 gap-1 sm:gap-2">
-                      <TabsTrigger 
-                        value="karmic-complete" 
-                        className="flex flex-col items-center gap-1 data-[state=active]:bg-purple-600 data-[state=active]:text-white text-xs sm:text-sm p-2 sm:p-3 min-h-[60px] sm:min-h-[70px] rounded-md transition-all duration-200 border border-purple-200 dark:border-purple-600 bg-white dark:bg-gray-800"
-                      >
-                        <FileText className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-                        <span className="text-center leading-tight font-medium">
-                          {getTranslation('Full Karmic Report', 'संपूर्ण कर्मिक रिपोर्ट')}
-                        </span>
-                      </TabsTrigger>
-                      <TabsTrigger 
-                        value="consultation" 
-                        className="flex flex-col items-center gap-1 data-[state=active]:bg-purple-600 data-[state=active]:text-white text-xs sm:text-sm p-2 sm:p-3 min-h-[60px] sm:min-h-[70px] rounded-md transition-all duration-200 border border-purple-200 dark:border-purple-600 bg-white dark:bg-gray-800"
-                      >
-                        <Star className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-                        <span className="text-center leading-tight font-medium">
-                          {getTranslation('Full Analysis', 'पूर्ण विश्लेषण')}
-                        </span>
-                      </TabsTrigger>
-                    </div>
-
-                    {/* Fourth Row - AI Enhancement */}
-                    <div className="w-full flex justify-center">
-                      <TabsTrigger 
-                        value="ai-enhancement" 
-                        className="flex flex-col items-center gap-1 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white text-xs sm:text-sm p-2 sm:p-3 min-h-[60px] sm:min-h-[70px] rounded-md transition-all duration-200 border border-purple-200 dark:border-purple-600 bg-white dark:bg-gray-800 w-full max-w-xs"
-                      >
-                        <Bot className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-                        <span className="text-center leading-tight font-medium">
-                          {getTranslation('Enhanced AI Analysis', 'एन्हांस्ड AI विश्लेषण')}
-                        </span>
-                      </TabsTrigger>
-                    </div>
-                  </TabsList>
-                </div>
-
-                {/* Tab Content with Lazy Loading for Mobile Performance */}
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+                <TabsList className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-7 lg:grid-cols-9 gap-1 bg-white/80 backdrop-blur-sm rounded-xl p-2 shadow-lg">
+                  <TabsTrigger 
+                    value="enhanced-charts" 
+                    className="flex flex-col items-center gap-1 data-[state=active]:bg-purple-600 data-[state=active]:text-white text-xs sm:text-sm p-2 sm:p-3 min-h-[60px] sm:min-h-[70px] rounded-md transition-all duration-200 border border-purple-200 dark:border-purple-600 bg-white dark:bg-gray-800"
+                  >
+                    <Grid className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                    <span className="text-center leading-tight font-medium">
+                      {getTranslation('Enhanced D1-D20', 'उन्नत D1-D20')}
+                    </span>
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="enhanced-timing" 
+                    className="flex flex-col items-center gap-1 data-[state=active]:bg-purple-600 data-[state=active]:text-white text-xs sm:text-sm p-2 sm:p-3 min-h-[60px] sm:min-h-[70px] rounded-md transition-all duration-200 border border-purple-200 dark:border-purple-600 bg-white dark:bg-gray-800"
+                  >
+                    <Clock className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                    <span className="text-center leading-tight font-medium">
+                      {getTranslation('Enhanced Timing', 'उन्नत समय')}
+                    </span>
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="transits" 
+                    className="flex flex-col items-center gap-1 data-[state=active]:bg-purple-600 data-[state=active]:text-white text-xs sm:text-sm p-2 sm:p-3 min-h-[60px] sm:min-h-[70px] rounded-md transition-all duration-200 border border-purple-200 dark:border-purple-600 bg-white dark:bg-gray-800"
+                  >
+                    <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                    <span className="text-center leading-tight font-medium">
+                      {getTranslation('Transit Analysis', 'गोचर विश्लेषण')}
+                    </span>
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="dashas" 
+                    className="flex flex-col items-center gap-1 data-[state=active]:bg-purple-600 data-[state=active]:text-white text-xs sm:text-sm p-2 sm:p-3 min-h-[60px] sm:min-h-[70px] rounded-md transition-all duration-200 border border-purple-200 dark:border-purple-600 bg-white dark:bg-gray-800"
+                  >
+                    <Calendar className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                    <span className="text-center leading-tight font-medium">
+                      {getTranslation('Traditional Dasha', 'पारंपरिक दशा')}
+                    </span>
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="karmic" 
+                    className="flex flex-col items-center gap-1 data-[state=active]:bg-purple-600 data-[state=active]:text-white text-xs sm:text-sm p-2 sm:p-3 min-h-[60px] sm:min-h-[70px] rounded-md transition-all duration-200 border border-purple-200 dark:border-purple-600 bg-white dark:bg-gray-800"
+                  >
+                    <Sparkles className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                    <span className="text-center leading-tight font-medium">
+                      {getTranslation('Basic Karmic', 'बुनियादी कर्मिक')}
+                    </span>
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="karmic-complete" 
+                    className="flex flex-col items-center gap-1 data-[state=active]:bg-purple-600 data-[state=active]:text-white text-xs sm:text-sm p-2 sm:p-3 min-h-[60px] sm:min-h-[70px] rounded-md transition-all duration-200 border border-purple-200 dark:border-purple-600 bg-white dark:bg-gray-800"
+                  >
+                    <FileText className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                    <span className="text-center leading-tight font-medium">
+                      {getTranslation('Full Karmic Report', 'संपूर्ण कर्मिक रिपोर्ट')}
+                    </span>
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="consultation" 
+                    className="flex flex-col items-center gap-1 data-[state=active]:bg-purple-600 data-[state=active]:text-white text-xs sm:text-sm p-2 sm:p-3 min-h-[60px] sm:min-h-[70px] rounded-md transition-all duration-200 border border-purple-200 dark:border-purple-600 bg-white dark:bg-gray-800"
+                  >
+                    <Star className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                    <span className="text-center leading-tight font-medium">
+                      {getTranslation('Full Analysis', 'पूर्ण विश्लेषण')}
+                    </span>
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="ai-enhancement" 
+                    className="flex flex-col items-center gap-1 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white text-xs sm:text-sm p-2 sm:p-3 min-h-[60px] sm:min-h-[70px] rounded-md transition-all duration-200 border border-purple-200 dark:border-purple-600 bg-white dark:bg-gray-800 w-full max-w-xs"
+                  >
+                    <Bot className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                    <span className="text-center leading-tight font-medium">
+                      {getTranslation('Enhanced AI Analysis', 'एन्हांस्ड AI विश्लेषण')}
+                    </span>
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="dharma" 
+                    className="text-xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-indigo-500 data-[state=active]:text-white font-medium rounded-lg transition-all duration-200"
+                  >
+                    {getTranslation('Dharma', 'धर्म')}
+                  </TabsTrigger>
+                </TabsList>
                 <div className="min-h-[300px]">
                   <TabsContent value="enhanced-charts" className="mt-0">
                     <Suspense fallback={<TabLoadingSpinner />}>
@@ -256,6 +242,10 @@ const KundaliResultsView: React.FC<KundaliResultsViewProps> = ({
                         )}
                       </p>
                     </div>
+                  </TabsContent>
+
+                  <TabsContent value="dharma" className="mt-6">
+                    <DharmaAlignmentAnalysis kundaliData={kundaliData} language={language} />
                   </TabsContent>
                 </div>
               </Tabs>
