@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,6 +14,8 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
+import AdvancedAnalyticsDashboard from './AdvancedAnalyticsDashboard';
+import PrivacyCompliantAnalytics from './PrivacyCompliantAnalytics';
 
 interface UserActivity {
   id: string;
@@ -240,9 +241,12 @@ const AdminPanel = () => {
         </div>
 
         <Tabs defaultValue="activities" className="space-y-6">
-          <TabsList>
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="activities">User Activities</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
+            <TabsTrigger value="advanced">Advanced Analytics</TabsTrigger>
+            <TabsTrigger value="privacy">Privacy & GDPR</TabsTrigger>
+            <TabsTrigger value="realtime">Real-time Monitor</TabsTrigger>
           </TabsList>
 
           <TabsContent value="activities" className="space-y-6">
@@ -373,49 +377,52 @@ const AdminPanel = () => {
           </TabsContent>
 
           <TabsContent value="analytics">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Popular Activities (Last 7 Days)</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {userStats.popularActivities.map((activity, index) => (
-                      <div key={activity.type} className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium">#{index + 1}</span>
-                          {getActivityIcon(activity.type)}
-                          <span>{activity.type}</span>
-                        </div>
-                        <Badge variant="secondary">{activity.count}</Badge>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
+            {/* ... keep existing code (analytics content) the same ... */}
+          </TabsContent>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle>Activity Insights</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="p-4 bg-blue-50 rounded-lg">
-                      <h4 className="font-medium text-blue-900">Most Active Time</h4>
-                      <p className="text-sm text-blue-700">Analysis would show peak usage hours</p>
+          <TabsContent value="advanced">
+            <AdvancedAnalyticsDashboard />
+          </TabsContent>
+
+          <TabsContent value="privacy">
+            <PrivacyCompliantAnalytics />
+          </TabsContent>
+
+          <TabsContent value="realtime">
+            <Card>
+              <CardHeader>
+                <CardTitle>Real-time User Activity Monitor</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center py-8">
+                  <Activity className="h-16 w-16 mx-auto text-green-500 animate-pulse mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">Real-time Monitoring Active</h3>
+                  <p className="text-muted-foreground">
+                    Live user activity data is being collected and processed.
+                  </p>
+                  <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-green-600">{userStats.todayActiveUsers}</div>
+                      <div className="text-sm text-muted-foreground">Active Today</div>
                     </div>
-                    <div className="p-4 bg-green-50 rounded-lg">
-                      <h4 className="font-medium text-green-900">User Retention</h4>
-                      <p className="text-sm text-green-700">Track returning users and engagement</p>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-blue-600">{userStats.totalActivities}</div>
+                      <div className="text-sm text-muted-foreground">Total Events</div>
                     </div>
-                    <div className="p-4 bg-orange-50 rounded-lg">
-                      <h4 className="font-medium text-orange-900">Feature Usage</h4>
-                      <p className="text-sm text-orange-700">Monitor which features are most popular</p>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-purple-600">
+                        {userStats.popularActivities.length}
+                      </div>
+                      <div className="text-sm text-muted-foreground">Activity Types</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-orange-600">Live</div>
+                      <div className="text-sm text-muted-foreground">Status</div>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-            </div>
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </div>

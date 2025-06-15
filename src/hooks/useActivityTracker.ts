@@ -10,7 +10,15 @@ export type ActivityType =
   | 'signup'
   | 'profile_update'
   | 'page_visit'
-  | 'feature_usage';
+  | 'feature_usage'
+  | 'page_analytics'
+  | 'high_value_interaction'
+  | 'chart_interaction'
+  | 'user_journey'
+  | 'conversion_event'
+  | 'error_tracking'
+  | 'ai_chat_analysis'
+  | 'user_preferences';
 
 interface ActivityData {
   [key: string]: any;
@@ -24,7 +32,10 @@ export const useActivityTracker = () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       
-      if (!user) {
+      // Allow anonymous tracking for certain activities
+      const anonymousActivities = ['page_analytics', 'error_tracking', 'chart_interaction'];
+      
+      if (!user && !anonymousActivities.includes(activityType)) {
         console.warn('Cannot track activity: User not authenticated');
         return;
       }
@@ -32,7 +43,7 @@ export const useActivityTracker = () => {
       const { error } = await supabase
         .from('user_activities')
         .insert({
-          user_id: user.id,
+          user_id: user?.id || null,
           activity_type: activityType,
           activity_data: activityData || null,
         });

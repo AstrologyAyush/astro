@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -21,6 +20,8 @@ import { useIsMobile, useViewportHeight } from '@/hooks/use-mobile';
 import { Star, Sun, Calculator, Crown, Hash, Sparkles } from 'lucide-react';
 import RishiParasharOverview from '@/components/RishiParasharOverview';
 import LifePathReport from '@/components/LifePathReport';
+import { usePageAnalytics } from '@/hooks/usePageAnalytics';
+import { useEnhancedAnalytics } from '@/hooks/useEnhancedAnalytics';
 
 const Index = () => {
   const [kundaliData, setKundaliData] = useState<ComprehensiveKundaliData | null>(null);
@@ -38,6 +39,9 @@ const Index = () => {
     setIsLoading(true);
     
     try {
+      // Track conversion event
+      trackConversion('kundali_generation_started', 1, { birthData: { ...birthData, name: undefined } });
+      
       console.log('🚀 Starting comprehensive Vedic Kundali generation...');
       console.log('📝 Input birth data:', birthData);
       
@@ -127,6 +131,13 @@ const Index = () => {
 
       setKundaliData(result);
 
+      // Track successful conversion
+      trackConversion('kundali_generation_completed', 1, { 
+        calculationTime: Date.now() - Date.now(),
+        hasYogas: result.enhancedCalculations?.yogas?.length > 0,
+        hasDashas: result.enhancedCalculations?.dashas?.length > 0
+      });
+
       // Save to Supabase with enhanced error handling
       try {
         const kundaliId = await saveEnhancedKundali(processedBirthData, result as any, undefined);
@@ -145,6 +156,9 @@ const Index = () => {
       
     } catch (error) {
       console.error('❌ Error generating comprehensive Kundali:', error);
+      
+      // Track error
+      trackError(error as Error, 'kundali_generation', 'generate_kundali_button');
       
       // Enhanced error messaging
       let errorMessage = 'Unknown error occurred';
@@ -165,8 +179,19 @@ const Index = () => {
     }
   };
 
-  // Enhanced CTA button handlers
+  // Add analytics tracking
+  const { trackInteraction } = usePageAnalytics('home');
+  const { trackConversion, trackError, trackUserPreferences } = useEnhancedAnalytics();
+  
+  // Enhanced CTA button handlers with tracking
   const handleKundaliCTA = () => {
+    trackInteraction({
+      elementType: 'cta_button',
+      action: 'click',
+      timestamp: new Date().toISOString(),
+      context: { buttonType: 'kundali_cta' }
+    });
+    
     const kundaliSection = document.querySelector('[data-testid="kundali-section"]');
     if (kundaliSection) {
       kundaliSection.scrollIntoView({ behavior: 'smooth' });
@@ -174,6 +199,13 @@ const Index = () => {
   };
   
   const handleNumerologyCTA = () => {
+    trackInteraction({
+      elementType: 'cta_button',
+      action: 'click',
+      timestamp: new Date().toISOString(),
+      context: { buttonType: 'numerology_cta' }
+    });
+    
     const numerologyTab = document.querySelector('[value="numerology"]');
     if (numerologyTab) {
       (numerologyTab as HTMLElement).click();
@@ -181,6 +213,13 @@ const Index = () => {
   };
   
   const handlePersonalityCTA = () => {
+    trackInteraction({
+      elementType: 'cta_button',
+      action: 'click',
+      timestamp: new Date().toISOString(),
+      context: { buttonType: 'personality_cta' }
+    });
+    
     const personalityTab = document.querySelector('[value="personality"]');
     if (personalityTab) {
       (personalityTab as HTMLElement).click();
@@ -188,10 +227,27 @@ const Index = () => {
   };
   
   const handleHoroscopeCTA = () => {
+    trackInteraction({
+      elementType: 'cta_button',
+      action: 'click',
+      timestamp: new Date().toISOString(),
+      context: { buttonType: 'horoscope_cta' }
+    });
+    
     const horoscopeTab = document.querySelector('[value="horoscope"]');
     if (horoscopeTab) {
       (horoscopeTab as HTMLElement).click();
     }
+  };
+
+  // Track language preference changes
+  const handleLanguageChange = (newLanguage: 'hi' | 'en') => {
+    setLanguage(newLanguage);
+    trackUserPreferences({
+      language: newLanguage,
+      lastActiveFeatures: ['language_toggle'],
+      favoriteFeatures: []
+    });
   };
   
   return (
@@ -229,9 +285,9 @@ const Index = () => {
           onHoroscopeClick={handleHoroscopeCTA} 
         />
 
-        {/* Language Toggle with Better Styling */}
+        {/* Language Toggle with Analytics */}
         <div className="mb-6 md:mb-8">
-          <LanguageToggle language={language} onLanguageChange={setLanguage} />
+          <LanguageToggle language={language} onLanguageChange={handleLanguageChange} />
         </div>
 
         {/* Rishi Parashar's Profound Thoughts on Kundali */}
