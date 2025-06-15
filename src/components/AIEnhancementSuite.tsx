@@ -114,7 +114,7 @@ const AIEnhancementSuite: React.FC<AIEnhancementSuiteProps> = ({
           >
             <Heart className="h-3 w-3" />
             <span className="text-center font-medium">
-              {getTranslation('Love AI', 'प्रेम AI')}
+              {getTranslation('Love', 'प्रेम')}
             </span>
           </TabsTrigger>
 
