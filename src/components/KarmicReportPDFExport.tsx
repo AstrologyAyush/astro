@@ -1,13 +1,13 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Download, FileText } from "lucide-react";
+import { Download } from "lucide-react";
 import jsPDF from 'jspdf';
 import { useToast } from "@/hooks/use-toast";
 
 interface KarmicReportPDFExportProps {
   language: 'hi' | 'en';
-  reportData?: any;
+  reportData: any;
 }
 
 const KarmicReportPDFExport: React.FC<KarmicReportPDFExportProps> = ({ language, reportData }) => {
@@ -22,7 +22,6 @@ const KarmicReportPDFExport: React.FC<KarmicReportPDFExportProps> = ({ language,
       
       // Colors
       const primaryColor = [90, 75, 218]; // #5A4BDA
-      const highlightColor = [255, 215, 0]; // #FFD700
       const textColor = [31, 41, 55]; // #1F2937
       
       let yPosition = 20;
@@ -42,7 +41,7 @@ const KarmicReportPDFExport: React.FC<KarmicReportPDFExportProps> = ({ language,
       doc.line(20, yPosition, 190, yPosition);
       yPosition += 15;
       
-      // Section 1: Career Signature
+      // Section 1: Career Signature (Using actual data)
       doc.setFontSize(16);
       doc.setTextColor(90, 75, 218);
       doc.text(language === 'hi' ? '1. आपका कर्मिक करियर हस्ताक्षर' : '1. Your Karmic Career Signature', 20, yPosition);
@@ -52,10 +51,10 @@ const KarmicReportPDFExport: React.FC<KarmicReportPDFExportProps> = ({ language,
       doc.setTextColor(31, 41, 55);
       
       const signatureData = [
-        [language === 'hi' ? 'लग्न' : 'Lagna', 'Capricorn – ' + (language === 'hi' ? 'निर्माता' : 'The Builder')],
-        [language === 'hi' ? 'चंद्र नक्षत्र' : 'Moon Nakshatra', 'Magha – ' + (language === 'hi' ? 'विरासत चाहता है' : 'Seeks legacy')],
-        [language === 'hi' ? '10वें घर का ग्रह' : '10th House Planet', 'Mars – ' + (language === 'hi' ? 'क्रियान्वयन, प्रेरणा' : 'Execution, drive')],
-        [language === 'hi' ? 'D10 सारांश' : 'D10 Summary', 'Saturn – ' + (language === 'hi' ? 'संरचना, धीमी उन्नति' : 'Structure, slow rise')]
+        [language === 'hi' ? 'लग्न' : 'Lagna', reportData?.lagna || 'Unknown'],
+        [language === 'hi' ? 'चंद्र नक्षत्र' : 'Moon Nakshatra', reportData?.moonNakshatra || 'Unknown'],
+        [language === 'hi' ? '10वां घर' : '10th House', reportData?.tenthHouseLord || 'Unknown'],
+        [language === 'hi' ? 'वर्तमान दशा' : 'Current Dasha', reportData?.currentDasha || 'Unknown']
       ];
       
       signatureData.forEach(([key, value]) => {
@@ -65,7 +64,7 @@ const KarmicReportPDFExport: React.FC<KarmicReportPDFExportProps> = ({ language,
       
       yPosition += 10;
       
-      // Section 2: Career Blocks
+      // Section 2: Career Blocks (Using actual data)
       doc.setFontSize(16);
       doc.setTextColor(90, 75, 218);
       doc.text(language === 'hi' ? '2. करियर कर्म बाधाएं' : '2. Career Karma Blocks', 20, yPosition);
@@ -74,20 +73,20 @@ const KarmicReportPDFExport: React.FC<KarmicReportPDFExportProps> = ({ language,
       doc.setFontSize(10);
       doc.setTextColor(31, 41, 55);
       
-      const blocks = [
-        'Saturn–Moon Dasha → ' + (language === 'hi' ? 'भावनात्मक दमन + विलंबित पुरस्कार' : 'Emotional suppression + delayed rewards'),
-        '10th Lord in 8th → ' + (language === 'hi' ? 'छुपे हुए शक्ति संघर्ष' : 'Hidden power struggles'),
-        'Rahu in 6th → ' + (language === 'hi' ? 'अधिक काम का चक्र + अधिकार प्रतिरोध' : 'Overwork loop + authority resistance')
-      ];
-      
-      blocks.forEach(block => {
-        doc.text(`• ${block}`, 25, yPosition);
+      if (reportData?.careerBlocks && reportData.careerBlocks.length > 0) {
+        reportData.careerBlocks.forEach((block: string) => {
+          const wrappedText = doc.splitTextToSize(`• ${block}`, 170);
+          doc.text(wrappedText, 25, yPosition);
+          yPosition += wrappedText.length * 6;
+        });
+      } else {
+        doc.text('• ' + (language === 'hi' ? 'कोई प्रमुख बाधा नहीं मिली' : 'No major blocks detected'), 25, yPosition);
         yPosition += 6;
-      });
+      }
       
       yPosition += 10;
       
-      // Section 3: Ideal Career Roles
+      // Section 3: Ideal Career Roles (Using actual data)
       if (yPosition > 250) {
         doc.addPage();
         yPosition = 20;
@@ -101,20 +100,16 @@ const KarmicReportPDFExport: React.FC<KarmicReportPDFExportProps> = ({ language,
       doc.setFontSize(10);
       doc.setTextColor(31, 41, 55);
       
-      const careers = [
-        [language === 'hi' ? 'प्रोडक्ट मैनेजर' : 'Product Manager', language === 'hi' ? 'उपयोगकर्ता केंद्रित सिस्टम बनाना' : 'Build systems with user focus'],
-        [language === 'hi' ? 'नीति डिजाइनर' : 'Policy Designer', language === 'hi' ? 'रणनीतिक धर्म-संरेखित करियर' : 'Strategic dharma-aligned career'],
-        [language === 'hi' ? 'UX आर्किटेक्ट' : 'UX Architect', language === 'hi' ? 'मन-अनुकूल सिस्टम डिजाइन' : 'Design mind-friendly systems']
-      ];
-      
-      careers.forEach(([role, why]) => {
-        doc.text(`• ${role}: ${why}`, 25, yPosition);
-        yPosition += 6;
-      });
+      if (reportData?.idealCareers && reportData.idealCareers.length > 0) {
+        reportData.idealCareers.forEach((career: any) => {
+          doc.text(`• ${career.role}: ${career.reason}`, 25, yPosition);
+          yPosition += 6;
+        });
+      }
       
       yPosition += 10;
       
-      // Section 4: Timeline
+      // Section 4: Timeline (Using actual data)
       doc.setFontSize(16);
       doc.setTextColor(90, 75, 218);
       doc.text(language === 'hi' ? '4. आपकी करियर समयरेखा' : '4. Your Career Timeline', 20, yPosition);
@@ -122,14 +117,13 @@ const KarmicReportPDFExport: React.FC<KarmicReportPDFExportProps> = ({ language,
       
       doc.setFontSize(10);
       doc.setTextColor(31, 41, 55);
-      doc.text('2025-2026: Saturn Phase - ' + (language === 'hi' ? 'निर्माण + प्रतीक्षा' : 'Build + Wait'), 25, yPosition);
-      yPosition += 6;
-      doc.text('2026-2028: Mercury Phase - ' + (language === 'hi' ? 'रणनीतिक छलांग' : 'Strategic Leap'), 25, yPosition);
-      yPosition += 6;
-      doc.text('2028+: ' + (language === 'hi' ? 'नया चरण' : 'New Phase'), 25, yPosition);
-      yPosition += 15;
+      if (reportData?.timeline) {
+        const timelineText = doc.splitTextToSize(reportData.timeline, 170);
+        doc.text(timelineText, 25, yPosition);
+        yPosition += timelineText.length * 6 + 15;
+      }
       
-      // Section 5: Weekly Actions
+      // Section 5: Weekly Actions (Using actual data)
       if (yPosition > 230) {
         doc.addPage();
         yPosition = 20;
@@ -143,21 +137,17 @@ const KarmicReportPDFExport: React.FC<KarmicReportPDFExportProps> = ({ language,
       doc.setFontSize(10);
       doc.setTextColor(31, 41, 55);
       
-      const weeklyActions = [
-        language === 'hi' ? 'सप्ताह 1: एक मजदूर या ड्राइवर की बिना अपेक्षा के मदद करें (शनि)' : 'Week 1: Help a laborer or driver without expecting anything (Saturn)',
-        language === 'hi' ? 'सप्ताह 2: अपने सबसे बड़े भावनात्मक घाव को डायरी में लिखें (चंद्र)' : 'Week 2: Journal your biggest emotional wound (Moon)',
-        language === 'hi' ? 'सप्ताह 3: किसी को अपना महारत हासिल कौशल सिखाएं (बृहस्पति)' : 'Week 3: Teach someone a skill you have mastered (Jupiter)',
-        language === 'hi' ? 'सप्ताह 4: गपशप या ऑफिस राजनीति से बचें (राहु)' : 'Week 4: Avoid gossip or office politics (Rahu)'
-      ];
-      
-      weeklyActions.forEach(action => {
-        doc.text(`• ${action}`, 25, yPosition);
-        yPosition += 6;
-      });
+      if (reportData?.weeklyActions && reportData.weeklyActions.length > 0) {
+        reportData.weeklyActions.forEach((action: any) => {
+          const actionText = doc.splitTextToSize(`सप्ताह ${action.week}: ${action.action} (${action.planet})`, 170);
+          doc.text(actionText, 25, yPosition);
+          yPosition += actionText.length * 6;
+        });
+      }
       
       yPosition += 10;
       
-      // Section 6: Remedies
+      // Section 6: Remedies (Using actual data)
       doc.setFontSize(16);
       doc.setTextColor(90, 75, 218);
       doc.text(language === 'hi' ? '6. कर्मिक उपचार' : '6. Karmic Remedies', 20, yPosition);
@@ -166,20 +156,17 @@ const KarmicReportPDFExport: React.FC<KarmicReportPDFExportProps> = ({ language,
       doc.setFontSize(10);
       doc.setTextColor(31, 41, 55);
       
-      const remedies = [
-        language === 'hi' ? '🪔 शनि: साप्ताहिक बुजुर्ग मजदूरों की सेवा करें, काला तिल दान करें' : '🪔 Saturn: Serve elder laborers weekly, donate black sesame',
-        language === 'hi' ? '🪔 राहु: रोज 5 मिनट सांस पर ध्यान दें, अमावस्या पर डिटॉक्स करें' : '🪔 Rahu: Do 5 minutes of breath focus daily, detox on new moon',
-        language === 'hi' ? '🪔 चंद्र: पूर्णिमा जल चिकित्सा, चांदी पहनें, सच बोलें' : '🪔 Moon: Full moon water therapy, wear silver, speak your truth'
-      ];
-      
-      remedies.forEach(remedy => {
-        doc.text(remedy, 25, yPosition);
-        yPosition += 6;
-      });
+      if (reportData?.remedies && reportData.remedies.length > 0) {
+        reportData.remedies.forEach((remedy: string) => {
+          const remedyText = doc.splitTextToSize(remedy, 170);
+          doc.text(remedyText, 25, yPosition);
+          yPosition += remedyText.length * 6;
+        });
+      }
       
       yPosition += 15;
       
-      // Coach Message
+      // Coach Message (Using actual data)
       if (yPosition > 220) {
         doc.addPage();
         yPosition = 20;
@@ -192,13 +179,12 @@ const KarmicReportPDFExport: React.FC<KarmicReportPDFExportProps> = ({ language,
       
       doc.setFontSize(12);
       doc.setTextColor(31, 41, 55);
-      const coachMessage = language === 'hi' ? 
-        'आप खोए नहीं हैं। आप पुराने कर्म और नए धर्म के बीच विराम में हैं। इसे आपको सिखाने दें — परिभाषित नहीं करने दें।' :
-        'You\'re not lost. You\'re in the pause between past karma and new dharma. Let it teach you — not define you.';
       
-      const splitMessage = doc.splitTextToSize(`"${coachMessage}"`, 150);
-      doc.text(splitMessage, 25, yPosition);
-      yPosition += splitMessage.length * 6 + 15;
+      if (reportData?.coachMessage) {
+        const splitMessage = doc.splitTextToSize(`"${reportData.coachMessage}"`, 150);
+        doc.text(splitMessage, 25, yPosition);
+        yPosition += splitMessage.length * 6 + 15;
+      }
       
       // Footer
       if (yPosition > 250) {
@@ -213,12 +199,12 @@ const KarmicReportPDFExport: React.FC<KarmicReportPDFExportProps> = ({ language,
       doc.text(language === 'hi' ? 'आपका कर्मिक पथ पवित्र है। इसे मार्गदर्शन दें, प्रतिबंधित न करें।' : 'Your karmic path is sacred. Let it guide, not restrict you.', 20, yPosition);
       
       // Save the PDF
-      const fileName = `karmic-career-report-${new Date().toISOString().split('T')[0]}.pdf`;
+      const fileName = `personalized-karmic-career-report-${new Date().toISOString().split('T')[0]}.pdf`;
       doc.save(fileName);
       
       toast({
         title: language === 'hi' ? "PDF डाउनलोड हो गया" : "PDF Downloaded",
-        description: language === 'hi' ? "आपकी कर्मिक रिपोर्ट सफलतापूर्वक डाउनलोड हो गई" : "Your karmic report has been downloaded successfully"
+        description: language === 'hi' ? "आपकी व्यक्तिगत कर्मिक रिपोर्ट सफलतापूर्वक डाउनलोड हो गई" : "Your personalized karmic report has been downloaded successfully"
       });
       
     } catch (error) {
