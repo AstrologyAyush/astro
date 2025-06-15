@@ -39,8 +39,10 @@ const RishiParasherGuru: React.FC<RishiParasherGuruProps> = ({ kundaliData, lang
   // Create cache key for responses
   const getCacheKey = (query: string) => {
     if (!kundaliData?.birthData) return null;
-    const { fullName, dateOfBirth } = kundaliData.birthData;
-    return `rishi_response_${fullName}_${dateOfBirth}_${query}_${language}`;
+    const { fullName, dateOfBirth: dob } = kundaliData.birthData;
+    // Use the correct property name from the birth data structure
+    const birthDate = dob || kundaliData.birthData.date || 'unknown';
+    return `rishi_response_${fullName}_${birthDate}_${query}_${language}`;
   };
 
   // Check cached response
