@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Crown, Star, Grid, Clock, Sparkles } from 'lucide-react';
+import { ArrowLeft, Crown, Star, Grid, Clock, Sparkles, FileText } from 'lucide-react';
 import InteractiveDashboard from './InteractiveDashboard';
 import KundaliConsultationView from './KundaliConsultationView';
 import EnhancedDailyHoroscope from './EnhancedDailyHoroscope';
@@ -11,6 +11,7 @@ import EnhancedKundaliPDFExport from './EnhancedKundaliPDFExport';
 import DivisionalCharts from './DivisionalCharts';
 import DetailedDashaDisplay from './DetailedDashaDisplay';
 import KarmicReport from './KarmicReport';
+import KarmicReportComplete from './KarmicReportComplete';
 
 interface KundaliResultsViewProps {
   kundaliData: any;
@@ -66,7 +67,7 @@ const KundaliResultsView: React.FC<KundaliResultsViewProps> = ({
         </CardHeader>
         <CardContent className="p-4 md:p-6">
           <Tabs defaultValue="charts" className="w-full">
-            <TabsList className="grid w-full grid-cols-4 mb-6 bg-purple-50">
+            <TabsList className="grid w-full grid-cols-5 mb-6 bg-purple-50">
               <TabsTrigger 
                 value="charts" 
                 className="flex items-center gap-2 data-[state=active]:bg-purple-600 data-[state=active]:text-white"
@@ -86,7 +87,14 @@ const KundaliResultsView: React.FC<KundaliResultsViewProps> = ({
                 className="flex items-center gap-2 data-[state=active]:bg-purple-600 data-[state=active]:text-white"
               >
                 <Sparkles className="h-4 w-4" />
-                {getTranslation('Karmic Report', 'कर्मिक रिपोर्ट')}
+                {getTranslation('Basic Karmic', 'बुनियादी कर्मिक')}
+              </TabsTrigger>
+              <TabsTrigger 
+                value="karmic-complete" 
+                className="flex items-center gap-2 data-[state=active]:bg-purple-600 data-[state=active]:text-white"
+              >
+                <FileText className="h-4 w-4" />
+                {getTranslation('Full Karmic Report', 'संपूर्ण कर्मिक रिपोर्ट')}
               </TabsTrigger>
               <TabsTrigger 
                 value="consultation" 
@@ -107,6 +115,10 @@ const KundaliResultsView: React.FC<KundaliResultsViewProps> = ({
 
             <TabsContent value="karmic">
               <KarmicReport kundaliData={kundaliData} language={language} />
+            </TabsContent>
+
+            <TabsContent value="karmic-complete">
+              <KarmicReportComplete kundaliData={kundaliData} language={language} />
             </TabsContent>
 
             <TabsContent value="consultation">

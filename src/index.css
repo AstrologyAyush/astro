@@ -352,7 +352,7 @@ input, textarea, select {
   min-height: calc(var(--vh, 1vh) * 100);
 }
 
-/* Print styles */
+/* Print styles for Karmic Report */
 @media print {
   body {
     font-size: 12pt;
@@ -363,6 +363,90 @@ input, textarea, select {
   
   .no-print {
     display: none !important;
+  }
+  
+  /* Karmic Report specific print styles */
+  #karmic-report-content {
+    padding: 0;
+    margin: 0;
+  }
+  
+  #karmic-report-content .card {
+    border: 1px solid #ccc;
+    margin-bottom: 1rem;
+    page-break-inside: avoid;
+  }
+  
+  #karmic-report-content .card-header {
+    background: #f8f9fa !important;
+    border-bottom: 1px solid #ccc;
+    padding: 0.5rem;
+  }
+  
+  #karmic-report-content .card-content {
+    padding: 0.5rem;
+  }
+  
+  #karmic-report-content h1,
+  #karmic-report-content h2,
+  #karmic-report-content h3 {
+    color: #333 !important;
+    page-break-after: avoid;
+  }
+  
+  #karmic-report-content table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+  
+  #karmic-report-content table,
+  #karmic-report-content th,
+  #karmic-report-content td {
+    border: 1px solid #ccc;
+  }
+  
+  #karmic-report-content th,
+  #karmic-report-content td {
+    padding: 0.25rem;
+    text-align: left;
+  }
+  
+  #karmic-report-content blockquote {
+    border-left: 4px solid #ddd;
+    padding-left: 1rem;
+    margin: 1rem 0;
+    font-style: italic;
+  }
+  
+  #karmic-report-content .timeline-container {
+    page-break-inside: avoid;
+  }
+  
+  /* Hide interactive elements in print */
+  #karmic-report-content button,
+  #karmic-report-content .no-print {
+    display: none !important;
+  }
+  
+  /* Page breaks */
+  #career-signature {
+    page-break-before: avoid;
+  }
+  
+  #career-blocks,
+  #ideal-careers,
+  #karmic-timeline,
+  #karma-alignment,
+  #weekly-actions,
+  #coach-message,
+  #remedies,
+  #next-checkin {
+    page-break-before: auto;
+    page-break-inside: avoid;
+  }
+  
+  #footer {
+    page-break-before: avoid;
   }
 }
 
