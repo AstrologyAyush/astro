@@ -1,11 +1,10 @@
-
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Star, Activity, TrendingUp, Target } from "lucide-react";
+import { Star, Activity, TrendingUp, Target, BarChart3 } from "lucide-react";
 import VisualKundaliChart from './VisualKundaliChart';
 import InteractiveKundaliChart from './InteractiveKundaliChart';
+import EnhancedPlanetaryStrengthChart from './EnhancedPlanetaryStrengthChart';
 
 interface InteractiveDashboardProps {
   kundaliData: any;
@@ -77,7 +76,7 @@ const InteractiveDashboard: React.FC<InteractiveDashboardProps> = ({
   return (
     <div className="space-y-6">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="interactive" className="flex items-center gap-2">
             <Activity className="h-4 w-4" />
             {getTranslation('Interactive Chart', 'इंटरैक्टिव चार्ट')}
@@ -85,6 +84,10 @@ const InteractiveDashboard: React.FC<InteractiveDashboardProps> = ({
           <TabsTrigger value="traditional" className="flex items-center gap-2">
             <Star className="h-4 w-4" />
             {getTranslation('Traditional View', 'पारंपरिक दृश्य')}
+          </TabsTrigger>
+          <TabsTrigger value="strength" className="flex items-center gap-2">
+            <BarChart3 className="h-4 w-4" />
+            {getTranslation('Planetary Strength', 'ग्रह शक्ति')}
           </TabsTrigger>
         </TabsList>
 
@@ -99,6 +102,13 @@ const InteractiveDashboard: React.FC<InteractiveDashboardProps> = ({
         <TabsContent value="traditional" className="mt-6">
           <VisualKundaliChart 
             chart={createKundaliChart(planets, ascendant)}
+            language={language}
+          />
+        </TabsContent>
+
+        <TabsContent value="strength" className="mt-6">
+          <EnhancedPlanetaryStrengthChart 
+            planets={planets}
             language={language}
           />
         </TabsContent>
@@ -161,4 +171,3 @@ const InteractiveDashboard: React.FC<InteractiveDashboardProps> = ({
 };
 
 export default InteractiveDashboard;
-
