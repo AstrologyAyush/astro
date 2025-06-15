@@ -1,10 +1,12 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Star, Activity, TrendingUp, Target, BarChart3 } from "lucide-react";
+import { Star, Activity, TrendingUp, Target, BarChart3, Sparkles } from "lucide-react";
 import VisualKundaliChart from './VisualKundaliChart';
 import InteractiveKundaliChart from './InteractiveKundaliChart';
 import EnhancedPlanetaryStrengthChart from './EnhancedPlanetaryStrengthChart';
+import AIRemedySuggestions from './AIRemedySuggestions';
 
 interface InteractiveDashboardProps {
   kundaliData: any;
@@ -76,7 +78,7 @@ const InteractiveDashboard: React.FC<InteractiveDashboardProps> = ({
   return (
     <div className="space-y-6">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-2 md:grid-cols-4">
           <TabsTrigger value="interactive" className="flex items-center gap-2">
             <Activity className="h-4 w-4" />
             {getTranslation('Interactive Chart', 'इंटरैक्टिव चार्ट')}
@@ -88,6 +90,10 @@ const InteractiveDashboard: React.FC<InteractiveDashboardProps> = ({
           <TabsTrigger value="strength" className="flex items-center gap-2">
             <BarChart3 className="h-4 w-4" />
             {getTranslation('Planetary Strength', 'ग्रह शक्ति')}
+          </TabsTrigger>
+          <TabsTrigger value="remedies" className="flex items-center gap-2">
+            <Sparkles className="h-4 w-4" />
+            {getTranslation('Smart Remedies', 'स्मार्ट उपाय')}
           </TabsTrigger>
         </TabsList>
 
@@ -109,6 +115,13 @@ const InteractiveDashboard: React.FC<InteractiveDashboardProps> = ({
         <TabsContent value="strength" className="mt-6">
           <EnhancedPlanetaryStrengthChart 
             planets={planets}
+            language={language}
+          />
+        </TabsContent>
+
+        <TabsContent value="remedies" className="mt-6">
+          <AIRemedySuggestions 
+            kundaliData={kundaliData}
             language={language}
           />
         </TabsContent>
