@@ -74,7 +74,7 @@ const AIEnhancementSuite: React.FC<AIEnhancementSuiteProps> = ({
           >
             <Bot className="h-3 w-3" />
             <span className="text-center font-medium whitespace-nowrap truncate w-full">
-              {getTranslation('CHAT', 'चैट')}
+              {getTranslation('Love', 'प्रेम')}
             </span>
           </TabsTrigger>
           
