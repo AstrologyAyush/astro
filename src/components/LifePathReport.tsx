@@ -31,6 +31,23 @@ const LifePathReport: React.FC<LifePathReportProps> = ({ kundaliData, language }
     const saturn = planets.SA;
     const rahu = planets.RA;
     const ketu = planets.KE;
+    const mercury = planets.ME;
+
+    // Traditional Vedic sign rulers
+    const signLords = {
+      1: 'MA',  // Aries - Mars
+      2: 'VE',  // Taurus - Venus
+      3: 'ME',  // Gemini - Mercury
+      4: 'MO',  // Cancer - Moon
+      5: 'SU',  // Leo - Sun
+      6: 'ME',  // Virgo - Mercury
+      7: 'VE',  // Libra - Venus
+      8: 'MA',  // Scorpio - Mars
+      9: 'JU',  // Sagittarius - Jupiter
+      10: 'SA', // Capricorn - Saturn
+      11: 'SA', // Aquarius - Saturn
+      12: 'JU'  // Pisces - Jupiter
+    };
 
     // Calculate lagna sign number from degree
     const getLagnaSignNumber = () => {
@@ -44,110 +61,160 @@ const LifePathReport: React.FC<LifePathReportProps> = ({ kundaliData, language }
       return signIndex >= 0 ? signIndex + 1 : 1;
     };
 
-    // Determine dominant elements based on planetary positions
-    const getDominantElement = () => {
-      const fireSignPlanets = [sun, mars].filter(p => p && [1, 5, 9].includes(Math.ceil(p.longitude / 30)));
-      const earthSignPlanets = [venus, saturn].filter(p => p && [2, 6, 10].includes(Math.ceil(p.longitude / 30)));
-      const airSignPlanets = [jupiter].filter(p => p && [3, 7, 11].includes(Math.ceil(p.longitude / 30)));
-      const waterSignPlanets = [moon].filter(p => p && [4, 8, 12].includes(Math.ceil(p.longitude / 30)));
-
-      if (fireSignPlanets.length >= 2) return 'fire';
-      if (earthSignPlanets.length >= 2) return 'earth';
-      if (airSignPlanets.length >= 2) return 'air';
-      if (waterSignPlanets.length >= 2) return 'water';
-      return 'balanced';
+    // Get house lords based on ascendant
+    const getHouseLords = () => {
+      const lagnaSign = getLagnaSignNumber();
+      const houseLords = {};
+      
+      for (let house = 1; house <= 12; house++) {
+        const signNumber = ((lagnaSign - 1 + house - 1) % 12) + 1;
+        houseLords[house] = signLords[signNumber];
+      }
+      
+      return houseLords;
     };
 
-    // Generate soul purpose based on actual chart
+    const houseLords = getHouseLords();
+
+    // Check planetary strength based on position and lordship
+    const getPlanetaryStrength = (planetId: string) => {
+      const planet = planets[planetId];
+      if (!planet) return 0;
+      
+      let strength = 0;
+      
+      // Check if planet is in own sign
+      const planetOwnSigns = {
+        'SU': [5],
+        'MO': [4],
+        'MA': [1, 8],
+        'ME': [3, 6],
+        'JU': [9, 12],
+        'VE': [2, 7],
+        'SA': [10, 11]
+      };
+      
+      const planetSign = Math.ceil(planet.longitude / 30);
+      if (planetOwnSigns[planetId]?.includes(planetSign)) strength += 20;
+      
+      // Check exaltation
+      const exaltationSigns = {
+        'SU': 1, 'MO': 2, 'MA': 10, 'ME': 6, 'JU': 4, 'VE': 12, 'SA': 7
+      };
+      if (exaltationSigns[planetId] === planetSign) strength += 30;
+      
+      // Check debilitation
+      const debilitationSigns = {
+        'SU': 7, 'MO': 8, 'MA': 4, 'ME': 12, 'JU': 10, 'VE': 6, 'SA': 1
+      };
+      if (debilitationSigns[planetId] === planetSign) strength -= 20;
+      
+      return Math.max(0, strength);
+    };
+
+    // Generate soul purpose based on actual chart with house lords
     const generateSoulPurpose = () => {
       const moonSign = moon ? Math.ceil(moon.longitude / 30) : 1;
       const lagnaSign = getLagnaSignNumber();
-      const ninthHouseSign = (lagnaSign + 8) % 12 + 1;
       
-      // Check for spiritual yogas
-      const hasKetuvianInfluence = ketu && [1, 5, 9, 12].includes(Math.ceil(ketu.longitude / 30));
-      const hasJupiterianInfluence = jupiter && [1, 4, 5, 9, 10].includes(Math.ceil(jupiter.longitude / 30));
+      // Check 9th house lord (dharma/purpose)
+      const ninthLord = houseLords[9];
+      const ninthLordPlanet = planets[ninthLord];
+      const ninthLordStrength = getPlanetaryStrength(ninthLord);
       
-      if (hasKetuvianInfluence && hasJupiterianInfluence) {
-        return language === 'hi' 
-          ? `आपकी आत्मा का मुख्य उद्देश्य आध्यात्मिक जागृति और मानवता की सेवा है। केतु और गुरु की संयुक्त स्थिति दर्शाती है कि आप इस जन्म में भौतिक बंधनों से मुक्त होकर उच्च चेतना प्राप्त करने आए हैं।`
-          : `Your soul's primary purpose is spiritual awakening and service to humanity. The combined position of Ketu and Jupiter shows you have come to transcend material bonds and achieve higher consciousness.`;
+      // Check if 9th lord is strong
+      if (ninthLordStrength > 15 && ninthLordPlanet) {
+        const ninthLordSign = Math.ceil(ninthLordPlanet.longitude / 30);
+        
+        if (ninthLord === 'JU') {
+          return language === 'hi' 
+            ? `गुरु आपके धर्म भाव के स्वामी हैं और ${ninthLordSign} राशि में स्थित हैं। आपका आत्मिक उद्देश्य ज्ञान, शिक्षा और आध्यात्मिक मार्गदर्शन के माध्यम से जगत का कल्याण करना है।`
+            : `Jupiter is your 9th house lord placed in sign ${ninthLordSign}. Your soul purpose is to benefit the world through knowledge, education, and spiritual guidance.`;
+        }
+        
+        if (ninthLord === 'VE') {
+          return language === 'hi'
+            ? `शुक्र आपके धर्म भाव के स्वामी हैं। आपका उद्देश्य कला, सौंदर्य और प्रेम के माध्यम से संसार में सामंजस्य लाना है।`
+            : `Venus is your 9th house lord. Your purpose is to bring harmony to the world through art, beauty, and love.`;
+        }
+        
+        if (ninthLord === 'SA') {
+          return language === 'hi'
+            ? `शनि आपके धर्म भाव के स्वामी हैं। आपका उद्देश्य धैर्य, अनुशासन और कड़ी मेहनत से समाज की सेवा करना है।`
+            : `Saturn is your 9th house lord. Your purpose is to serve society through patience, discipline, and hard work.`;
+        }
       }
       
-      if (hasJupiterianInfluence) {
-        return language === 'hi'
-          ? `गुरु की शुभ स्थिति दर्शाती है कि आपका जीवन उद्देश्य ज्ञान प्रसार, शिक्षा और मार्गदर्शन के माध्यम से समाज की सेवा करना है। आप एक प्राकृतिक गुरु और शिक्षक हैं।`
-          : `Jupiter's auspicious position shows your life purpose is to serve society through knowledge dissemination, education, and guidance. You are a natural teacher and guide.`;
-      }
-      
+      // Fallback based on lagna lord
+      const lagnaLord = houseLords[1];
       return language === 'hi'
-        ? `आपकी ${moon ? ['मेष', 'वृष', 'मिथुन', 'कर्क', 'सिंह', 'कन्या', 'तुला', 'वृश्चिक', 'धनु', 'मकर', 'कुम्भ', 'मीन'][moonSign - 1] : 'अज्ञात'} चंद्र राशि और ${lagna.signName || 'अज्ञात'} लग्न का संयोग दर्शाता है कि आपका आत्मिक उद्देश्य संतुलन, करुणा और व्यावहारिक सेवा के माध्यम से आत्म-साक्षात्कार करना है।`
-        : `The combination of your ${moon ? ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'][moonSign - 1] : 'unknown'} Moon sign and ${lagna.signName || 'unknown'} ascendant shows your soul purpose is self-realization through balance, compassion, and practical service.`;
+        ? `आपके ${lagna.signName || 'अज्ञात'} लग्न के स्वामी ${lagnaLord} ग्रह हैं। आपका आत्मिक उद्देश्य स्वयं के विकास और आत्म-साक्षात्कार के माध्यम से जगत की सेवा करना है।`
+        : `Your ${lagna.signName || 'unknown'} ascendant is ruled by ${lagnaLord}. Your soul purpose is to serve the world through self-development and self-realization.`;
     };
 
-    // Generate life theme based on planetary combinations
+    // Generate life theme based on key house lords
     const generateLifeTheme = () => {
-      const dominant = getDominantElement();
-      const hasRajYoga = activeYogas.some(y => y.name.toLowerCase().includes('raj'));
-      const hasDhanYoga = activeYogas.some(y => y.name.toLowerCase().includes('dhan'));
+      const lagnaLord = houseLords[1];  // Self
+      const tenthLord = houseLords[10]; // Career/Status
+      const seventhLord = houseLords[7]; // Relationships
       
-      if (hasRajYoga && hasDhanYoga) {
+      const lagnaLordStrength = getPlanetaryStrength(lagnaLord);
+      const tenthLordStrength = getPlanetaryStrength(tenthLord);
+      
+      if (lagnaLordStrength > 20 && tenthLordStrength > 15) {
         return language === 'hi'
-          ? `आपके जीवन की मुख्य थीम है राज योग और धन योग के कारण नेतृत्व, प्रभाव और समृद्धि। आप उच्च पदों पर पहुंचेंगे और समाज में सम्मानित स्थान पाएंगे।`
-          : `Your life theme is leadership, influence, and prosperity due to Raj Yoga and Dhan Yoga. You will reach high positions and gain respected status in society.`;
+          ? `लग्नेश ${lagnaLord} और दशमेश ${tenthLord} की शुभ स्थिति से आपका जीवन नेतृत्व, सफलता और समाज में उच्च स्थान पाने के लिए है।`
+          : `The favorable position of ascendant lord ${lagnaLord} and 10th lord ${tenthLord} shows your life is meant for leadership, success, and high social status.`;
       }
       
-      if (dominant === 'fire') {
+      // Check for strong yogas
+      if (activeYogas.length > 0) {
+        const strongYoga = activeYogas[0];
         return language === 'hi'
-          ? `अग्नि तत्व की प्रधानता के कारण आपका जीवन साहस, नवाचार और पहल की भावना से भरा है। आप अग्रणी बनने और नए रास्ते बनाने के लिए आए हैं।`
-          : `Due to the dominance of fire element, your life is filled with courage, innovation, and pioneering spirit. You have come to be a leader and create new paths.`;
-      }
-      
-      if (dominant === 'water') {
-        return language === 'hi'
-          ? `जल तत्व की प्रधानता भावनात्मक गहराई, सहानुभूति और अंतर्ज्ञान को दर्शाती है। आपका जीवन दूसरों को समझने और उनकी सहायता करने के लिए है।`
-          : `The dominance of water element shows emotional depth, empathy, and intuition. Your life is meant for understanding and helping others.`;
+          ? `आपकी कुंडली में ${strongYoga.name} योग के कारण आपका जीवन विशेष सफलता और मान-सम्मान पाने के लिए है।`
+          : `Due to ${strongYoga.name} in your chart, your life theme is achieving special success and honor.`;
       }
       
       return language === 'hi'
-        ? `आपकी ग्रहों की संतुलित स्थिति दर्शाती है कि आपका जीवन विविधता, अनुकूलनशीलता और सभी क्षेत्रों में संतुलित विकास के लिए है।`
-        : `Your balanced planetary positions show that your life is meant for diversity, adaptability, and balanced growth in all areas.`;
+        ? `आपके ग्रहों की स्थिति आत्म-विकास, संतुलन और निरंतर प्रगति की यात्रा दर्शाती है।`
+        : `Your planetary positions indicate a journey of self-development, balance, and continuous progress.`;
     };
 
-    // Generate karma lessons based on challenging planetary positions
+    // Generate karma lessons based on house lord positions
     const generateKarmaLessons = () => {
       const lessons = [];
       
-      // Saturn lessons
-      if (saturn && [1, 4, 7, 8, 10].includes(Math.ceil(saturn.longitude / 30))) {
-        lessons.push(language === 'hi' ? `धैर्य और दृढ़ता - शनि की चुनौती आपको सिखाती है` : `Patience and perseverance - Saturn's challenge teaches you`);
+      // Check 6th house lord (enemies/obstacles)
+      const sixthLord = houseLords[6];
+      const sixthLordPlanet = planets[sixthLord];
+      if (sixthLordPlanet && sixthLordPlanet.house === 1) {
+        lessons.push(language === 'hi' ? `स्वास्थ्य और शत्रुओं से सावधानी` : `Health and protection from enemies`);
       }
       
-      // Rahu-Ketu lessons
-      if (rahu && ketu) {
-        lessons.push(language === 'hi' ? `भौतिक इच्छाओं और आध्यात्मिकता में संतुलन` : `Balance between material desires and spirituality`);
+      // Check 8th house lord (transformation)
+      const eighthLord = houseLords[8];
+      const eighthLordPlanet = planets[eighthLord];
+      if (eighthLordPlanet) {
+        lessons.push(language === 'hi' ? `जीवन में परिवर्तन को स्वीकार करना` : `Accepting transformation in life`);
       }
       
-      // Mars lessons
-      if (mars && [1, 4, 7, 8, 12].includes(Math.ceil(mars.longitude / 30))) {
-        lessons.push(language === 'hi' ? `क्रोध पर नियंत्रण और शक्ति का सदुपयोग` : `Controlling anger and proper use of power`);
+      // Check 12th house lord (losses/spirituality)
+      const twelfthLord = houseLords[12];
+      const twelfthLordPlanet = planets[twelfthLord];
+      if (twelfthLordPlanet && getPlanetaryStrength(twelfthLord) > 10) {
+        lessons.push(language === 'hi' ? `भौतिक त्याग और आध्यात्मिक विकास` : `Material detachment and spiritual growth`);
       }
       
-      // Moon lessons
-      if (moon && moon.isRetrograde) {
-        lessons.push(language === 'hi' ? `भावनात्मक स्थिरता और मानसिक शांति` : `Emotional stability and mental peace`);
-      }
-      
-      // Default lessons if no specific challenges
+      // Default lessons if none specific
       if (lessons.length === 0) {
         lessons.push(
-          language === 'hi' ? `आत्म-स्वीकृति और आंतरिक शक्ति का विकास` : `Self-acceptance and developing inner strength`,
-          language === 'hi' ? `दूसरों के साथ सहयोग और सामंजस्य` : `Cooperation and harmony with others`,
-          language === 'hi' ? `जीवन में उद्देश्य और दिशा खोजना` : `Finding purpose and direction in life`
+          language === 'hi' ? `धैर्य और दृढ़ता का अभ्यास` : `Practice of patience and perseverance`,
+          language === 'hi' ? `कर्म में श्रद्धा और निष्काम भाव` : `Faith in action and detachment from results`,
+          language === 'hi' ? `आत्म-अनुशासन और मानसिक शुद्धता` : `Self-discipline and mental purity`
         );
       }
       
-      return lessons.slice(0, 3); // Return maximum 3 lessons
+      return lessons.slice(0, 3);
     };
 
     // Generate life phases based on dashas
@@ -187,49 +254,54 @@ const LifePathReport: React.FC<LifePathReportProps> = ({ kundaliData, language }
       return phases;
     };
 
-    // Generate strengths and challenges based on actual planetary positions
+    // Generate strengths and challenges based on house lords
     const generateStrengthsAndChallenges = () => {
       const strengths = [];
       const challenges = [];
       
-      // Jupiter strengths
-      if (jupiter && [1, 4, 5, 9, 10, 11].includes(Math.ceil(jupiter.longitude / 30))) {
-        strengths.push(language === 'hi' ? `प्राकृतिक ज्ञान और शिक्षण क्षमता` : `Natural wisdom and teaching ability`);
+      // Check strong house lords
+      const lagnaLord = houseLords[1];
+      const fifthLord = houseLords[5];
+      const ninthLord = houseLords[9];
+      const tenthLord = houseLords[10];
+      
+      if (getPlanetaryStrength(lagnaLord) > 15) {
+        strengths.push(language === 'hi' ? `मजबूत व्यक्तित्व और आत्मविश्वास` : `Strong personality and confidence`);
       }
       
-      // Venus strengths
-      if (venus && [1, 2, 4, 5, 7, 10, 11].includes(Math.ceil(venus.longitude / 30))) {
-        strengths.push(language === 'hi' ? `कलात्मक प्रतिभा और सामाजिक कौशल` : `Artistic talent and social skills`);
+      if (getPlanetaryStrength(fifthLord) > 15) {
+        strengths.push(language === 'hi' ? `बुद्धि और रचनात्मकता` : `Intelligence and creativity`);
       }
       
-      // Sun strengths
-      if (sun && [1, 3, 5, 9, 10, 11].includes(Math.ceil(sun.longitude / 30))) {
-        strengths.push(language === 'hi' ? `नेतृत्व क्षमता और आत्मविश्वास` : `Leadership ability and confidence`);
+      if (getPlanetaryStrength(ninthLord) > 15) {
+        strengths.push(language === 'hi' ? `भाग्य और आध्यात्मिक झुकाव` : `Fortune and spiritual inclination`);
       }
       
-      // Saturn challenges
-      if (saturn && [1, 4, 7, 8].includes(Math.ceil(saturn.longitude / 30))) {
-        challenges.push(language === 'hi' ? `जीवन में देरी और बाधाओं का सामना` : `Facing delays and obstacles in life`);
+      // Check challenging positions
+      const sixthLord = houseLords[6];
+      const eighthLord = houseLords[8];
+      const twelfthLord = houseLords[12];
+      
+      if (getPlanetaryStrength(sixthLord) < 5) {
+        challenges.push(language === 'hi' ? `स्वास्थ्य और शत्रुओं से सावधानी` : `Health and enemy-related challenges`);
       }
       
-      // Mars challenges
-      if (mars && [1, 4, 7, 8, 12].includes(Math.ceil(mars.longitude / 30))) {
-        challenges.push(language === 'hi' ? `अधीरता और क्रोध पर नियंत्रण` : `Controlling impatience and anger`);
+      if (getPlanetaryStrength(eighthLord) < 5) {
+        challenges.push(language === 'hi' ? `अचानक परिवर्तन का सामना` : `Facing sudden changes`);
       }
       
-      // Default strengths if none found
+      // Default if none found
       if (strengths.length === 0) {
         strengths.push(
-          language === 'hi' ? `अनुकूलनशीलता और लचीलापन` : `Adaptability and flexibility`,
-          language === 'hi' ? `दृढ़ संकल्प और मेहनत` : `Determination and hard work`
+          language === 'hi' ? `प्राकृतिक अनुकूलनशीलता` : `Natural adaptability`,
+          language === 'hi' ? `मेहनत की क्षमता` : `Capacity for hard work`
         );
       }
       
-      // Default challenges if none found
       if (challenges.length === 0) {
         challenges.push(
-          language === 'hi' ? `निर्णय लेने में संकोच` : `Hesitation in decision making`,
-          language === 'hi' ? `अपेक्षाओं का दबाव` : `Pressure of expectations`
+          language === 'hi' ? `धैर्य का विकास` : `Developing patience`,
+          language === 'hi' ? `निर्णय लेने में स्पष्टता` : `Clarity in decision making`
         );
       }
       
