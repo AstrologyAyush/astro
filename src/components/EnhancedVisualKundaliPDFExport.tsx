@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Download, Image, FileText } from "lucide-react";
@@ -6,6 +5,7 @@ import jsPDF from 'jspdf';
 import { useToast } from "@/hooks/use-toast";
 import KundaliChartGenerator from './KundaliChartGenerator';
 import PlanetaryStrengthChart from './PlanetaryStrengthChart';
+import DashaTimelineChart from './DashaTimelineChart';
 
 interface EnhancedVisualKundaliPDFExportProps {
   kundaliData: any;
@@ -20,6 +20,7 @@ const EnhancedVisualKundaliPDFExport: React.FC<EnhancedVisualKundaliPDFExportPro
   const [isGenerating, setIsGenerating] = useState(false);
   const [chartImageUrl, setChartImageUrl] = useState<string>('');
   const [strengthChartUrl, setStrengthChartUrl] = useState<string>('');
+  const [dashaTimelineUrl, setDashaTimelineUrl] = useState<string>('');
 
   const getTranslation = (en: string, hi: string) => {
     return language === 'hi' ? hi : en;
@@ -38,6 +39,22 @@ const EnhancedVisualKundaliPDFExport: React.FC<EnhancedVisualKundaliPDFExportPro
       degree: planet.degreeInSign || planet.degree,
       house: planet.house || 1,
       shadbala: planet.shadbala || 0
+    }));
+  };
+
+  // Extract dashas data from kundaliData
+  const extractDashasData = () => {
+    if (!kundaliData?.enhancedCalculations?.dashas) {
+      return [];
+    }
+
+    return kundaliData.enhancedCalculations.dashas.map((dasha: any) => ({
+      planet: dasha.planet,
+      startDate: dasha.startDate,
+      endDate: dasha.endDate,
+      years: dasha.years,
+      months: dasha.months,
+      isActive: dasha.isActive
     }));
   };
 
@@ -79,7 +96,7 @@ const EnhancedVisualKundaliPDFExport: React.FC<EnhancedVisualKundaliPDFExportPro
       
       doc.setFontSize(14);
       doc.setFont('helvetica', 'normal');
-      doc.text(getTranslation('With Visual Chart & Strength Analysis', 'दृश्य चार्ट और शक्ति विश्लेषण के साथ'), 105, 35, { align: 'center' });
+      doc.text(getTranslation('With Visual Charts & Timeline Analysis', 'दृश्य चार्ट और समयरेखा विश्लेषण के साथ'), 105, 35, { align: 'center' });
 
       // Add decorative elements
       doc.setFillColor(255, 215, 0); // Gold
@@ -131,6 +148,29 @@ const EnhancedVisualKundaliPDFExport: React.FC<EnhancedVisualKundaliPDFExportPro
       doc.addImage(chartImageUrl, 'PNG', chartX, yPosition + 15, chartSize, chartSize);
       
       yPosition += 105;
+
+      // Add new page for Dasha Timeline
+      checkPageBreak(120);
+      yPosition += 10;
+      
+      doc.setFillColor(248, 248, 255); // Light lavender background
+      doc.rect(margin, yPosition - 5, 170, 8, 'F');
+      
+      doc.setTextColor(102, 51, 153); // Dark purple
+      doc.setFontSize(16);
+      doc.setFont('helvetica', 'bold');
+      doc.text(getTranslation('⏰ Dasha Timeline Analysis', '⏰ दशा समयरेखा विश्लेषण'), margin + 5, yPosition + 2);
+      
+      yPosition += 15;
+
+      // Add dasha timeline chart if available
+      if (dashaTimelineUrl) {
+        const timelineWidth = 160;
+        const timelineHeight = 80;
+        const timelineX = (210 - timelineWidth) / 2;
+        doc.addImage(dashaTimelineUrl, 'PNG', timelineX, yPosition, timelineWidth, timelineHeight);
+        yPosition += timelineHeight + 10;
+      }
 
       // Add new page for Planetary Strength Chart
       checkPageBreak(120);
@@ -272,7 +312,7 @@ const EnhancedVisualKundaliPDFExport: React.FC<EnhancedVisualKundaliPDFExportPro
 
       toast({
         title: getTranslation("PDF Generated Successfully", "PDF सफलतापूर्वक बनाया गया"),
-        description: getTranslation("Your enhanced visual Kundali report with strength analysis has been downloaded", "शक्ति विश्लेषण के साथ आपकी उन्नत दृश्य कुंडली रिपोर्ट डाउनलोड हो गई है")
+        description: getTranslation("Your enhanced visual Kundali report with timeline analysis has been downloaded", "समयरेखा विश्लेषण के साथ आपकी उन्नत दृश्य कुंडली रिपोर्ट डाउनलोड हो गई है")
       });
 
     } catch (error) {
@@ -303,6 +343,12 @@ const EnhancedVisualKundaliPDFExport: React.FC<EnhancedVisualKundaliPDFExportPro
           width={600}
           height={400}
         />
+        <DashaTimelineChart
+          dashas={extractDashasData()}
+          onImageGenerated={setDashaTimelineUrl}
+          width={700}
+          height={300}
+        />
       </div>
 
       {/* Enhanced PDF Export Section */}
@@ -314,8 +360,8 @@ const EnhancedVisualKundaliPDFExport: React.FC<EnhancedVisualKundaliPDFExportPro
         
         <p className="text-sm text-purple-700 mb-4">
           {getTranslation(
-            'Download your comprehensive Kundali report with visual charts, planetary strength analysis, and professional formatting including:',
-            'अपनी व्यापक कुंडली रिपोर्ट को दृश्य चार्ट, ग्रहीय शक्ति विश्लेषण और पेशेवर फॉर्मेटिंग के साथ डाउनलोड करें जिसमें शामिल है:'
+            'Download your comprehensive Kundali report with visual charts, planetary strength analysis, Dasha timeline, and professional formatting including:',
+            'अपनी व्यापक कुंडली रिपोर्ट को दृश्य चार्ट, ग्रहीय शक्ति विश्लेषण, दशा समयरेखा और पेशेवर फॉर्मेटिंग के साथ डाउनलोड करें जिसमें शामिल है:'
           )}
         </p>
         
@@ -323,6 +369,10 @@ const EnhancedVisualKundaliPDFExport: React.FC<EnhancedVisualKundaliPDFExportPro
           <li className="flex items-center gap-2">
             <span className="text-green-500">✓</span>
             {getTranslation('Interactive Kundali Chart Visual', 'इंटरैक्टिव कुंडली चार्ट दृश्य')}
+          </li>
+          <li className="flex items-center gap-2">
+            <span className="text-green-500">✓</span>
+            {getTranslation('Dasha Timeline Visualization (NEW)', 'दशा समयरेखा दृश्यीकरण (नया)')}
           </li>
           <li className="flex items-center gap-2">
             <span className="text-green-500">✓</span>
@@ -364,7 +414,7 @@ const EnhancedVisualKundaliPDFExport: React.FC<EnhancedVisualKundaliPDFExportPro
           )}
         </Button>
         
-        {(!chartImageUrl || !strengthChartUrl) && (
+        {(!chartImageUrl || !strengthChartUrl || !dashaTimelineUrl) && (
           <p className="text-xs text-gray-500 mt-2 text-center">
             {getTranslation('Charts are being generated...', 'चार्ट बनाए जा रहे हैं...')}
           </p>
@@ -377,8 +427,8 @@ const EnhancedVisualKundaliPDFExport: React.FC<EnhancedVisualKundaliPDFExportPro
         </p>
         <p>
           {getTranslation(
-            'This enhanced PDF now includes visual chart representation, planetary strength bar charts, professional color schemes, formatted tables, and improved readability for a premium astrological report experience.',
-            'इस उन्नत PDF में अब दृश्य चार्ट प्रतिनिधित्व, ग्रहीय शक्ति बार चार्ट, पेशेवर रंग योजनाएं, स्वरूपित तालिकाएं, और प्रीमियम ज्योतिषीय रिपोर्ट अनुभव के लिए बेहतर पठनीयता शामिल है।'
+            'This enhanced PDF now includes visual chart representation, Dasha timeline visualization, planetary strength bar charts, professional color schemes, formatted tables, and improved readability for a premium astrological report experience.',
+            'इस उन्नत PDF में अब दृश्य चार्ट प्रतिनिधित्व, दशा समयरेखा दृश्यीकरण, ग्रहीय शक्ति बार चार्ट, पेशेवर रंग योजनाएं, स्वरूपित तालिकाएं, और प्रीमियम ज्योतिषीय रिपोर्ट अनुभव के लिए बेहतर पठनीयता शामिल है।'
           )}
         </p>
       </div>
