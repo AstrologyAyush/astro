@@ -141,7 +141,7 @@ const KundaliResultsView: React.FC<KundaliResultsViewProps> = ({
             </CardHeader>
             <CardContent className="p-2 sm:p-4 lg:p-6">
               <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-                <TabsList className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-1 bg-white/80 backdrop-blur-sm rounded-xl p-2 shadow-lg">
+                <TabsList className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-1 bg-white/80 backdrop-blur-sm rounded-xl p-2 shadow-lg">
                   <TabsTrigger value="enhanced-charts" className="flex flex-col items-center gap-1 data-[state=active]:bg-purple-600 data-[state=active]:text-white text-xs sm:text-sm p-2 sm:p-3 min-h-[60px] sm:min-h-[70px] rounded-md transition-all duration-200 border border-purple-200 dark:border-purple-600 bg-white dark:bg-gray-800">
                     <Grid className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
                     <span className="text-center leading-tight font-medium">
@@ -164,12 +164,6 @@ const KundaliResultsView: React.FC<KundaliResultsViewProps> = ({
                     <Star className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
                     <span className="text-center leading-tight font-medium">
                       {getTranslation('Full Analysis', 'पूर्ण विश्लेषण')}
-                    </span>
-                  </TabsTrigger>
-                  <TabsTrigger value="ai-enhancement" className="flex flex-col items-center gap-1 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white text-xs sm:text-sm p-2 sm:p-3 min-h-[60px] sm:min-h-[70px] rounded-md transition-all duration-200 border border-purple-200 dark:border-purple-600 bg-white dark:bg-gray-800">
-                    <Bot className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-                    <span className="text-center leading-tight font-medium">
-                      {getTranslation('AI Analysis', 'AI विश्लेषण')}
                     </span>
                   </TabsTrigger>
                 </TabsList>
@@ -198,12 +192,6 @@ const KundaliResultsView: React.FC<KundaliResultsViewProps> = ({
                       <KundaliConsultationView kundaliData={memoizedKundaliData} language={language} />
                     </Suspense>
                   </TabsContent>
-
-                  <TabsContent value="ai-enhancement" className="mt-0">
-                    <Suspense fallback={<TabLoadingSpinner />}>
-                      <AIEnhancementSuite kundaliData={memoizedKundaliData} language={language} />
-                    </Suspense>
-                  </TabsContent>
                 </div>
               </Tabs>
             </CardContent>
@@ -225,6 +213,26 @@ const KundaliResultsView: React.FC<KundaliResultsViewProps> = ({
             <CardContent className="p-3 sm:p-4 lg:p-6">
               <Suspense fallback={<TabLoadingSpinner />}>
                 <KarmicReportComplete kundaliData={memoizedKundaliData} language={language} />
+              </Suspense>
+            </CardContent>
+          </Card>
+
+          {/* AI Enhancement Suite - Separated Section */}
+          <Card className="w-full border-indigo-200 shadow-lg bg-white/95 backdrop-blur-sm">
+            <CardHeader className="bg-gradient-to-r from-indigo-100 to-purple-100 p-3 sm:p-4 lg:p-6">
+              <CardTitle className="text-indigo-800 flex items-center gap-2 text-base sm:text-lg lg:text-xl text-center sm:text-left">
+                <Bot className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-indigo-600 flex-shrink-0" />
+                <span className="leading-tight">
+                  {getTranslation('AI Enhancement Suite', 'AI संवर्धन सूट')}
+                </span>
+              </CardTitle>
+              <p className="text-sm text-indigo-600 mt-2">
+                {getTranslation('Advanced AI-powered astrological insights and analysis', 'उन्नत AI-संचालित ज्योतिषीय अंतर्दृष्टि और विश्लेषण')}
+              </p>
+            </CardHeader>
+            <CardContent className="p-3 sm:p-4 lg:p-6">
+              <Suspense fallback={<TabLoadingSpinner />}>
+                <AIEnhancementSuite kundaliData={memoizedKundaliData} language={language} />
               </Suspense>
             </CardContent>
           </Card>
