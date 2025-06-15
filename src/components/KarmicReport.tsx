@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -51,34 +50,38 @@ const KarmicReport: React.FC<KarmicReportProps> = ({ kundaliData, language }) =>
     const planets = kundaliData?.enhancedCalculations?.planets || {};
     
     // Calculate alignment percentage based on planetary strengths
-    const alignmentPercentage = Math.min(95, Math.max(35, 
-      Math.round((Object.values(planets).reduce((sum: number, planet: any) => 
-        sum + (planet?.shadbala || 50), 0) / Object.keys(planets).length) * 1.2)
-    ));
+    const planetValues = Object.values(planets);
+    const totalShadbala = planetValues.reduce((sum: number, planet: any) => {
+      const shadbalaValue = typeof planet?.shadbala === 'number' ? planet.shadbala : 50;
+      return sum + shadbalaValue;
+    }, 0);
+    
+    const averageShadbala = planetValues.length > 0 ? totalShadbala / planetValues.length : 50;
+    const alignmentPercentage = Math.min(95, Math.max(35, Math.round(averageShadbala * 1.2)));
 
     const grahaEnergies = [
       {
         name: language === 'hi' ? 'बृहस्पति' : 'Jupiter',
         role: language === 'hi' ? 'धर्म + ज्ञान' : 'Dharma + Wisdom',
-        strength: planets.JU?.shadbala || 80,
+        strength: typeof planets.JU?.shadbala === 'number' ? planets.JU.shadbala : 80,
         color: '#F59E0B'
       },
       {
         name: language === 'hi' ? 'शनि' : 'Saturn',
         role: language === 'hi' ? 'अनुशासन + कष्ट' : 'Discipline + Suffering',
-        strength: planets.SA?.shadbala || 75,
+        strength: typeof planets.SA?.shadbala === 'number' ? planets.SA.shadbala : 75,
         color: '#6366F1'
       },
       {
         name: language === 'hi' ? 'राहु' : 'Rahu',
         role: language === 'hi' ? 'जुनून + भ्रम' : 'Obsession + Illusion',
-        strength: planets.RA?.shadbala || 60,
+        strength: typeof planets.RA?.shadbala === 'number' ? planets.RA.shadbala : 60,
         color: '#8B5CF6'
       },
       {
         name: language === 'hi' ? 'शुक्र' : 'Venus',
         role: language === 'hi' ? 'रचनात्मकता + आकर्षण' : 'Creativity + Charm',
-        strength: planets.VE?.shadbala || 65,
+        strength: typeof planets.VE?.shadbala === 'number' ? planets.VE.shadbala : 65,
         color: '#EC4899'
       }
     ];
