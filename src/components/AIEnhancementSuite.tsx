@@ -134,7 +134,7 @@ const AIEnhancementSuite: React.FC<AIEnhancementSuiteProps> = ({
           >
             <Sparkles className="h-3 w-3" />
             <span className="text-center font-medium">
-              {getTranslation('Spiritual AI', 'आध्यात्मिक AI')}
+              {getTranslation('Spiritual', 'आध्यात्मिक')}
             </span>
           </TabsTrigger>
         </TabsList>
