@@ -29,6 +29,46 @@ const translations = {
     'next': 'Next',
     'finish': 'Finish',
     
+    // Kundali Specific
+    'birth_chart': 'Birth Chart',
+    'kundali_chart': 'Kundali Chart',
+    'planetary_positions': 'Planetary Positions',
+    'house_analysis': 'House Analysis',
+    'dasha_periods': 'Dasha Periods',
+    'yogas_doshas': 'Yogas & Doshas',
+    'predictions': 'Predictions',
+    'remedies': 'Remedies',
+    'detailed_analysis': 'Detailed Analysis',
+    'comprehensive_report': 'Comprehensive Report',
+    'vedic_calculations': 'Vedic Calculations',
+    'swiss_ephemeris': 'Swiss Ephemeris',
+    'traditional_methods': 'Traditional Methods',
+    
+    // Planets
+    'sun': 'Sun',
+    'moon': 'Moon',
+    'mars': 'Mars',
+    'mercury': 'Mercury',
+    'jupiter': 'Jupiter',
+    'venus': 'Venus',
+    'saturn': 'Saturn',
+    'rahu': 'Rahu',
+    'ketu': 'Ketu',
+    
+    // Houses
+    'first_house': '1st House - Self',
+    'second_house': '2nd House - Wealth',
+    'third_house': '3rd House - Siblings',
+    'fourth_house': '4th House - Mother',
+    'fifth_house': '5th House - Children',
+    'sixth_house': '6th House - Enemies',
+    'seventh_house': '7th House - Marriage',
+    'eighth_house': '8th House - Longevity',
+    'ninth_house': '9th House - Fortune',
+    'tenth_house': '10th House - Career',
+    'eleventh_house': '11th House - Gains',
+    'twelfth_house': '12th House - Losses',
+    
     // Numerology Calculator
     'advanced_numerology_calculator': 'Advanced Numerology Calculator',
     'full_name': 'Full Name',
@@ -165,6 +205,46 @@ const translations = {
     'back': 'वापस',
     'next': 'अगला',
     'finish': 'समाप्त',
+    
+    // Kundali Specific
+    'birth_chart': 'जन्म कुंडली',
+    'kundali_chart': 'कुंडली चार्ट',
+    'planetary_positions': 'ग्रहों की स्थिति',
+    'house_analysis': 'भाव विश्लेषण',
+    'dasha_periods': 'दशा काल',
+    'yogas_doshas': 'योग और दोष',
+    'predictions': 'भविष्यवाणी',
+    'remedies': 'उपाय',
+    'detailed_analysis': 'विस्तृत विश्लेषण',
+    'comprehensive_report': 'संपूर्ण रिपोर्ट',
+    'vedic_calculations': 'वैदिक गणना',
+    'swiss_ephemeris': 'स्विस एफेमेरिस',
+    'traditional_methods': 'पारंपरिक पद्धति',
+    
+    // Planets
+    'sun': 'सूर्य',
+    'moon': 'चंद्र',
+    'mars': 'मंगल',
+    'mercury': 'बुध',
+    'jupiter': 'गुरु',
+    'venus': 'शुक्र',
+    'saturn': 'शनि',
+    'rahu': 'राहु',
+    'ketu': 'केतु',
+    
+    // Houses
+    'first_house': 'प्रथम भाव - व्यक्तित्व',
+    'second_house': 'द्वितीय भाव - धन',
+    'third_house': 'तृतीय भाव - भाई-बहन',
+    'fourth_house': 'चतुर्थ भाव - माता',
+    'fifth_house': 'पंचम भाव - संतान',
+    'sixth_house': 'षष्ठ भाव - शत्रु',
+    'seventh_house': 'सप्तम भाव - विवाह',
+    'eighth_house': 'अष्टम भाव - आयु',
+    'ninth_house': 'नवम भाव - भाग्य',
+    'tenth_house': 'दशम भाव - कर्म',
+    'eleventh_house': 'एकादश भाव - लाभ',
+    'twelfth_house': 'द्वादश भाव - हानि',
     
     // Numerology Calculator
     'advanced_numerology_calculator': 'उन्नत न्यूमेरोलॉजी कैलकुलेटर',

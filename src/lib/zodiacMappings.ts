@@ -57,16 +57,101 @@ export const planetsHindi = {
 };
 
 export const housesHindi = {
-  1: { name: 'प्रथम भाव', english: '1st House - Self' },
-  2: { name: 'द्वितीय भाव', english: '2nd House - Wealth' },
-  3: { name: 'तृतीय भाव', english: '3rd House - Siblings' },
-  4: { name: 'चतुर्थ भाव', english: '4th House - Mother' },
-  5: { name: 'पंचम भाव', english: '5th House - Children' },
-  6: { name: 'षष्ठ भाव', english: '6th House - Enemies' },
-  7: { name: 'सप्तम भाव', english: '7th House - Marriage' },
-  8: { name: 'अष्टम भाव', english: '8th House - Death' },
-  9: { name: 'नवम भाव', english: '9th House - Father' },
-  10: { name: 'दशम भाव', english: '10th House - Career' },
-  11: { name: 'एकादश भाव', english: '11th House - Gains' },
-  12: { name: 'द्वादश भाव', english: '12th House - Loss' }
+  1: { name: 'प्रथम भाव', english: '1st House - Self', description: 'व्यक्तित्व और स्वरूप' },
+  2: { name: 'द्वितीय भाव', english: '2nd House - Wealth', description: 'धन और परिवार' },
+  3: { name: 'तृतीय भाव', english: '3rd House - Siblings', description: 'भाई-बहन और साहस' },
+  4: { name: 'चतुर्थ भाव', english: '4th House - Mother', description: 'माता और सुख' },
+  5: { name: 'पंचम भाव', english: '5th House - Children', description: 'संतान और विद्या' },
+  6: { name: 'षष्ठ भाव', english: '6th House - Enemies', description: 'शत्रु और रोग' },
+  7: { name: 'सप्तम भाव', english: '7th House - Marriage', description: 'विवाह और साझेदारी' },
+  8: { name: 'अष्टम भाव', english: '8th House - Death', description: 'आयु और रहस्य' },
+  9: { name: 'नवम भाव', english: '9th House - Father', description: 'पिता और भाग्य' },
+  10: { name: 'दशम भाव', english: '10th House - Career', description: 'कर्म और यश' },
+  11: { name: 'एकादश भाव', english: '11th House - Gains', description: 'लाभ और मित्र' },
+  12: { name: 'द्वादश भाव', english: '12th House - Loss', description: 'हानि और मोक्ष' }
+};
+
+// Helper function to get localized zodiac sign
+export const getZodiacSign = (signNumber: number, language: 'hi' | 'en' = 'en') => {
+  const sign = zodiacSignsHindi[signNumber as keyof typeof zodiacSignsHindi];
+  return language === 'hi' ? sign?.name : sign?.english;
+};
+
+// Helper function to get localized nakshatra
+export const getNakshatra = (nakshatraNumber: number, language: 'hi' | 'en' = 'en') => {
+  const nakshatra = nakshatrasHindi[nakshatraNumber as keyof typeof nakshatrasHindi];
+  return language === 'hi' ? nakshatra?.name : nakshatra?.english;
+};
+
+// Helper function to get localized planet name
+export const getPlanetName = (planetCode: string, language: 'hi' | 'en' = 'en') => {
+  const planet = planetsHindi[planetCode as keyof typeof planetsHindi];
+  return language === 'hi' ? planet?.name : planet?.english;
+};
+
+// Helper function to get localized house name
+export const getHouseName = (houseNumber: number, language: 'hi' | 'en' = 'en') => {
+  const house = housesHindi[houseNumber as keyof typeof housesHindi];
+  return language === 'hi' ? house?.name : house?.english;
+};
+
+// Comprehensive translation functions for Kundali terms
+export const kundaliTranslations = {
+  basic: {
+    kundali: { hi: 'कुंडली', en: 'Kundali' },
+    birthChart: { hi: 'जन्म कुंडली', en: 'Birth Chart' },
+    horoscope: { hi: 'राशिफल', en: 'Horoscope' },
+    astrology: { hi: 'ज्योतिष', en: 'Astrology' },
+    vedic: { hi: 'वैदिक', en: 'Vedic' },
+    prediction: { hi: 'भविष्यवाणी', en: 'Prediction' },
+    analysis: { hi: 'विश्लेषण', en: 'Analysis' }
+  },
+  positions: {
+    ascendant: { hi: 'लग्न', en: 'Ascendant' },
+    descendant: { hi: 'अस्त', en: 'Descendant' },
+    midheaven: { hi: 'मध्य आकाश', en: 'Midheaven' },
+    moonSign: { hi: 'चंद्र राशि', en: 'Moon Sign' },
+    sunSign: { hi: 'सूर्य राशि', en: 'Sun Sign' },
+    nakshatra: { hi: 'नक्षत्र', en: 'Nakshatra' },
+    pada: { hi: 'पाद', en: 'Pada' },
+    degree: { hi: 'अंश', en: 'Degree' },
+    minute: { hi: 'कला', en: 'Minute' }
+  },
+  dashas: {
+    mahadasha: { hi: 'महादशा', en: 'Mahadasha' },
+    antardasha: { hi: 'अंतर्दशा', en: 'Antardasha' },
+    pratyantardasha: { hi: 'प्रत्यंतर्दशा', en: 'Pratyantardasha' },
+    vimshottari: { hi: 'विम्शोत्तरी', en: 'Vimshottari' },
+    current: { hi: 'वर्तमान', en: 'Current' },
+    upcoming: { hi: 'आगामी', en: 'Upcoming' },
+    period: { hi: 'काल', en: 'Period' },
+    years: { hi: 'वर्ष', en: 'Years' },
+    months: { hi: 'माह', en: 'Months' },
+    days: { hi: 'दिन', en: 'Days' }
+  },
+  yogas: {
+    yoga: { hi: 'योग', en: 'Yoga' },
+    rajayoga: { hi: 'राजयोग', en: 'Rajayoga' },
+    dhanyoga: { hi: 'धनयोग', en: 'Dhanyoga' },
+    mangaldosha: { hi: 'मंगल दोष', en: 'Mangal Dosha' },
+    kalasarpadosha: { hi: 'कालसर्प दोष', en: 'Kalasarpa Dosha' },
+    kemadrumaYoga: { hi: 'केमद्रुम योग', en: 'Kemadruma Yoga' },
+    gajakesariYoga: { hi: 'गजकेसरी योग', en: 'Gajakesari Yoga' }
+  },
+  remedies: {
+    remedy: { hi: 'उपाय', en: 'Remedy' },
+    gemstone: { hi: 'रत्न', en: 'Gemstone' },
+    mantra: { hi: 'मंत्र', en: 'Mantra' },
+    donation: { hi: 'दान', en: 'Donation' },
+    fasting: { hi: 'व्रत', en: 'Fasting' },
+    worship: { hi: 'पूजा', en: 'Worship' },
+    yantra: { hi: 'यंत्र', en: 'Yantra' }
+  }
+};
+
+// Get translation helper
+export const getKundaliTranslation = (category: keyof typeof kundaliTranslations, key: string, language: 'hi' | 'en' = 'en') => {
+  const translations = kundaliTranslations[category] as any;
+  const translation = translations?.[key];
+  return translation?.[language] || key;
 };

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -61,11 +62,24 @@ const KundaliChart: React.FC<KundaliChartProps> = ({ kundaliData, language = 'en
     }
   };
 
+  // House names in Hindi and English
+  const houseNames = {
+    hi: [
+      'प्रथम भाव', 'द्वितीय भाव', 'तृतीय भाव', 'चतुर्थ भाव', 'पंचम भाव', 'षष्ठ भाव',
+      'सप्तम भाव', 'अष्टम भाव', 'नवम भाव', 'दशम भाव', 'एकादश भाव', 'द्वादश भाव'
+    ],
+    en: [
+      '1st House', '2nd House', '3rd House', '4th House', '5th House', '6th House',
+      '7th House', '8th House', '9th House', '10th House', '11th House', '12th House'
+    ]
+  };
+
   // Generate house data with planets
   const generateHouseData = () => {
     const houseData = Array.from({ length: 12 }, (_, i) => ({
       number: i + 1,
       sign: zodiacSigns[language][i],
+      houseName: houseNames[language][i],
       planets: []
     }));
 
@@ -102,7 +116,7 @@ const KundaliChart: React.FC<KundaliChartProps> = ({ kundaliData, language = 'en
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 text-center">
             <div>
               <h4 className="font-semibold text-orange-800 text-xs sm:text-sm">
-                {language === 'hi' ? 'लग्न (Ascendant)' : 'Ascendant (Lagna)'}
+                {language === 'hi' ? 'लग्न राशि' : 'Ascendant (Lagna)'}
               </h4>
               <p className="text-orange-600 font-medium text-sm sm:text-base">
                 {ascendantSanskrit || zodiacSigns[language][ascendant] || zodiacSigns[language][0]}
