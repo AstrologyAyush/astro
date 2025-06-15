@@ -94,7 +94,7 @@ const EnhancedDivisionalCharts: React.FC<EnhancedDivisionalChartsProps> = ({ kun
 
   return (
     <div className="space-y-4">
-      <Card className="border-purple-200">
+      <Card className="border-purple-200 relative z-10">
         <CardHeader className="bg-gradient-to-r from-purple-100 to-indigo-100 p-4">
           <CardTitle className="text-purple-800 flex items-center gap-2 text-lg">
             <Grid className="h-5 w-5" />
@@ -106,7 +106,8 @@ const EnhancedDivisionalCharts: React.FC<EnhancedDivisionalChartsProps> = ({ kun
         </CardHeader>
         <CardContent className="p-4">
           {/* Chart Navigation */}
-          <div className="mb-6">
+-         <div className="mb-6">
++         <div className="mb-8 relative z-10">
             <div className="flex items-center justify-between mb-3">
               <h3 className="font-semibold text-gray-800">
                 {getTranslation('Select Divisional Chart', 'विभाजित चार्ट चुनें')}
@@ -155,7 +156,7 @@ const EnhancedDivisionalCharts: React.FC<EnhancedDivisionalChartsProps> = ({ kun
           </div>
 
           {/* Current Chart Display */}
-          <div className="mb-6 p-4 bg-purple-50 rounded-lg border border-purple-200">
+          <div className="mb-8 p-4 bg-purple-50 rounded-lg border border-purple-200 relative z-10">
             <div className="text-center mb-4">
               <Badge className="bg-purple-600 text-white mb-2">
                 {currentChart.id} - {currentChart.name}
@@ -165,7 +166,7 @@ const EnhancedDivisionalCharts: React.FC<EnhancedDivisionalChartsProps> = ({ kun
             </div>
 
             {/* Chart Grid */}
-            <div className="grid grid-cols-4 gap-1 max-w-md mx-auto aspect-square border-2 border-purple-400 rounded-lg overflow-hidden">
+            <div className="grid grid-cols-4 gap-1 max-w-md mx-auto aspect-square border-2 border-purple-400 rounded-lg overflow-hidden bg-white z-10">
               {/* Row 1 */}
               <div className="bg-purple-50 border border-purple-300 p-2 text-center text-xs">
                 <div className="font-bold text-purple-700 mb-1">12</div>
@@ -279,7 +280,7 @@ const EnhancedDivisionalCharts: React.FC<EnhancedDivisionalChartsProps> = ({ kun
           </div>
 
           {/* Chart Analysis */}
-          <div className="p-4 bg-gray-50 rounded-lg">
+          <div className="p-4 bg-gray-50 rounded-lg relative z-10 mb-2">
             <h4 className="font-semibold text-gray-800 mb-2">
               {getTranslation('Chart Analysis', 'चार्ट विश्लेषण')}
             </h4>
