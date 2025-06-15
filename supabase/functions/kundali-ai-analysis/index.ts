@@ -1,4 +1,3 @@
-
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
@@ -78,7 +77,30 @@ serve(async (req) => {
       
       // Create proper prompt based on analysis type
       const prompt = analysisType === 'rishi_conversation' 
-        ? userQuery 
+        ? (() => {
+            // NEW - Stronger, friendlier prompt for Gemini in Rishi mode
+            const friendlyPrompt = `
+You are Rishi Parashar, the great Vedic sage and astrology guide.
+
+YOUR INSTRUCTIONS:
+- Speak to the user as a loving, wise, and supportive guru.
+- Always use friendly, gentle, and warm language.
+- Give short, simple, direct advice. DO NOT use complicated astrological jargon, big words, or long-winded explanations.
+- Focus on clear and practical suggestions, always relating your answer to the user's question and their unique birth chart (chart data is provided below).
+- Avoid generic or vague responses. Personalize your message whenever possible (use their name if given, refer to their actual planets/dashas/yogas).
+- Be insightful but always keep things easy to understand for a layperson.
+- End your answers with encouragement or a blessing, but keep it simple.
+
+Respond ONLY in ${language === 'hi' ? 'Hindi' : 'English'}.
+
+[USER'S QUESTION FOLLOWS]
+${userQuery}
+
+[USER'S KUNDALI DATA FOLLOWS -- use this context to personalize, but don't get bogged down in technicalities]
+${createDetailedChartContext(kundaliData)}
+            `;
+            return friendlyPrompt;
+          })()
         : createDetailedKundaliPrompt(kundaliData, userQuery, language, analysisType);
       
       console.log('🔥 EDGE DEBUG: Generated prompt length:', prompt.length);
@@ -420,3 +442,39 @@ function generateGeneralFallback(calculations: any, currentDasha: any, language:
     return `🙏 Dear child, looking at your ${calculations.lagna?.signName ? `${calculations.lagna.signName} ascendant` : 'birth chart'}, I can say that ${currentDasha ? `in the current ${currentDasha.planet} dasha` : 'at this time'} you need patience and positive thoughts. Happiness and prosperity will come into your life. Continue regular worship and service. My blessings are with you. 🕉️`;
   }
 }
+
+function createDetailedChartContext(kundaliData: any): string {
+    const enhancedCalc = kundaliData?.enhancedCalculations || {};
+    const birthData = kundaliData?.birthData || {};
+    
+    // Get current dasha information
+    const currentDasha = enhancedCalc.dashas?.find(d => d.isActive);
+    const activeDashas = enhancedCalc.dashas?.filter(d => d.isActive) || [];
+    
+    // Get active yogas with their strengths
+    const activeYogas = enhancedCalc.yogas?.filter(y => y.isActive) || [];
+    
+    // Get planetary information
+    const planetaryInfo = Object.entries(enhancedCalc.planets || {}).map(([planet, data]: [string, any]) => {
+      if (!data) return '';
+      return `${planet}: ${data.rashiName || 'Unknown'} ${data.degree?.toFixed(1) || 0}° House-${data.house || 0} ${data.isRetrograde ? '[R]' : ''} ${data.isExalted ? '[Exalted]' : data.isDebilitated ? '[Debilitated]' : ''}`;
+    }).filter(Boolean);
+
+    return `
+BIRTH DETAILS: ${birthData.fullName || 'Soul'} born ${birthData.date} at ${birthData.time} in ${birthData.place}
+LAGNA: ${enhancedCalc.lagna?.signName || 'Unknown'} लग्न at ${enhancedCalc.lagna?.degree?.toFixed(2) || 0}°
+NAKSHATRA: ${enhancedCalc.lagna?.nakshatraName || 'Unknown'}
+
+PLANETARY POSITIONS:
+${planetaryInfo.join('\n')}
+
+CURRENT DASHA PERIODS:
+${activeDashas.map(d => `${d.planet}: ${d.startDate} to ${d.endDate} ${d.isActive ? '[ACTIVE]' : ''}`).join('\n')}
+
+ACTIVE YOGAS (${activeYogas.length}):
+${activeYogas.map(y => `${y.name} (${y.strength || 'Strong'}% strength): ${y.description}`).join('\n')}
+
+DOSHAS:
+${enhancedCalc.doshas?.filter(d => d.isPresent).map(d => `${d.name}: ${d.severity || 'Present'}`).join('\n') || 'No significant doshas'}
+`;
+  };
