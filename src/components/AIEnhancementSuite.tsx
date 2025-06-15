@@ -55,12 +55,25 @@ const AIEnhancementSuite: React.FC<AIEnhancementSuiteProps> = ({
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-1 bg-white/80 backdrop-blur-sm rounded-xl p-2 shadow-lg">
-          <TabsTrigger 
-            value="ai-chat" 
-            className="flex flex-col items-center gap-1 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white text-xs p-2 min-h-[60px] rounded-md transition-all duration-200"
+          <TabsTrigger
+            value="ai-chat"
+            type="button"
+            className="
+              flex flex-col items-center justify-center 
+              gap-1
+              data-[state=active]:bg-gradient-to-r 
+              data-[state=active]:from-purple-600 
+              data-[state=active]:to-indigo-600 
+              data-[state=active]:text-white 
+              text-xs p-2 
+              min-h-[60px] 
+              rounded-md transition-all 
+              duration-200
+              w-full 
+              "
           >
             <Bot className="h-3 w-3" />
-            <span className="text-center font-medium">
+            <span className="text-center font-medium whitespace-nowrap truncate w-full">
               {getTranslation('CHAT', 'चैट')}
             </span>
           </TabsTrigger>
