@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -97,7 +98,7 @@ const EnhancedGeminiAnalysis: React.FC<EnhancedGeminiAnalysisProps> = ({
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <Card className="border-purple-200 shadow-lg">
         <CardHeader className="bg-gradient-to-r from-purple-100 to-indigo-100">
           <CardTitle className="flex items-center gap-2 text-purple-800">
@@ -107,7 +108,7 @@ const EnhancedGeminiAnalysis: React.FC<EnhancedGeminiAnalysisProps> = ({
         </CardHeader>
         <CardContent className="p-6">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid grid-cols-3 md:grid-cols-6 gap-1 mb-8">
+            <TabsList className="grid grid-cols-3 md:grid-cols-6 gap-1 mb-6">
               <TabsTrigger value="personality" className="flex flex-col items-center gap-1 text-xs p-2">
                 <User className="h-3 w-3" />
                 {getTranslation('Personality', 'व्यक्तित्व')}
@@ -134,22 +135,22 @@ const EnhancedGeminiAnalysis: React.FC<EnhancedGeminiAnalysisProps> = ({
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="personality" className="space-y-6">
-              <div className="grid gap-6">
-                <div className="bg-blue-50 p-6 rounded-lg border border-blue-200 shadow-sm">
-                  <h4 className="font-semibold text-blue-800 mb-3">
+            <TabsContent value="personality" className="space-y-4">
+              <div className="grid gap-4">
+                <div className="bg-blue-50 p-4 rounded-lg">
+                  <h4 className="font-semibold text-blue-800 mb-2">
                     {getTranslation('Core Nature', 'मूल प्रकृति')}
                   </h4>
                   <p className="text-blue-700">{analysis?.detailedPersonality.coreNature}</p>
                 </div>
-                <div className="bg-green-50 p-6 rounded-lg border border-green-200 shadow-sm">
-                  <h4 className="font-semibold text-green-800 mb-3">
+                <div className="bg-green-50 p-4 rounded-lg">
+                  <h4 className="font-semibold text-green-800 mb-2">
                     {getTranslation('Mental Tendencies', 'मानसिक प्रवृत्तियां')}
                   </h4>
                   <p className="text-green-700">{analysis?.detailedPersonality.mentalTendencies}</p>
                 </div>
-                <div className="bg-purple-50 p-6 rounded-lg border border-purple-200 shadow-sm">
-                  <h4 className="font-semibold text-purple-800 mb-3">
+                <div className="bg-purple-50 p-4 rounded-lg">
+                  <h4 className="font-semibold text-purple-800 mb-2">
                     {getTranslation('Emotional Patterns', 'भावनात्मक पैटर्न')}
                   </h4>
                   <p className="text-purple-700">{analysis?.detailedPersonality.emotionalPatterns}</p>
@@ -157,10 +158,10 @@ const EnhancedGeminiAnalysis: React.FC<EnhancedGeminiAnalysisProps> = ({
               </div>
             </TabsContent>
 
-            <TabsContent value="career" className="space-y-6">
-              <div className="grid gap-6">
-                <div className="bg-orange-50 p-6 rounded-lg border border-orange-200 shadow-sm">
-                  <h4 className="font-semibold text-orange-800 mb-3">
+            <TabsContent value="career" className="space-y-4">
+              <div className="grid gap-4">
+                <div className="bg-orange-50 p-4 rounded-lg">
+                  <h4 className="font-semibold text-orange-800 mb-2">
                     {getTranslation('Ideal Professions', 'आदर्श व्यवसाय')}
                   </h4>
                   <div className="flex flex-wrap gap-2">
@@ -171,14 +172,14 @@ const EnhancedGeminiAnalysis: React.FC<EnhancedGeminiAnalysisProps> = ({
                     ))}
                   </div>
                 </div>
-                <div className="bg-yellow-50 p-6 rounded-lg border border-yellow-200 shadow-sm">
-                  <h4 className="font-semibold text-yellow-800 mb-3">
+                <div className="bg-yellow-50 p-4 rounded-lg">
+                  <h4 className="font-semibold text-yellow-800 mb-2">
                     {getTranslation('Business Aptitude', 'व्यापारिक योग्यता')}
                   </h4>
                   <p className="text-yellow-700">{analysis?.careerGuidance.businessAptitude}</p>
                 </div>
-                <div className="bg-indigo-50 p-6 rounded-lg border border-indigo-200 shadow-sm">
-                  <h4 className="font-semibold text-indigo-800 mb-3">
+                <div className="bg-indigo-50 p-4 rounded-lg">
+                  <h4 className="font-semibold text-indigo-800 mb-2">
                     {getTranslation('Leadership Qualities', 'नेतृत्व गुण')}
                   </h4>
                   <p className="text-indigo-700">{analysis?.careerGuidance.leadershipQualities}</p>
@@ -186,22 +187,22 @@ const EnhancedGeminiAnalysis: React.FC<EnhancedGeminiAnalysisProps> = ({
               </div>
             </TabsContent>
 
-            <TabsContent value="relationships" className="space-y-6">
-              <div className="grid gap-6">
-                <div className="bg-pink-50 p-6 rounded-lg border border-pink-200 shadow-sm">
-                  <h4 className="font-semibold text-pink-800 mb-3">
+            <TabsContent value="relationships" className="space-y-4">
+              <div className="grid gap-4">
+                <div className="bg-pink-50 p-4 rounded-lg">
+                  <h4 className="font-semibold text-pink-800 mb-2">
                     {getTranslation('Marriage Timing', 'विवाह का समय')}
                   </h4>
                   <p className="text-pink-700">{analysis?.relationshipInsights.marriageTimings}</p>
                 </div>
-                <div className="bg-rose-50 p-6 rounded-lg border border-rose-200 shadow-sm">
-                  <h4 className="font-semibold text-rose-800 mb-3">
+                <div className="bg-rose-50 p-4 rounded-lg">
+                  <h4 className="font-semibold text-rose-800 mb-2">
                     {getTranslation('Partner Qualities', 'साथी के गुण')}
                   </h4>
                   <p className="text-rose-700">{analysis?.relationshipInsights.partnerQualities}</p>
                 </div>
-                <div className="bg-red-50 p-6 rounded-lg border border-red-200 shadow-sm">
-                  <h4 className="font-semibold text-red-800 mb-3">
+                <div className="bg-red-50 p-4 rounded-lg">
+                  <h4 className="font-semibold text-red-800 mb-2">
                     {getTranslation('Family Life', 'पारिवारिक जीवन')}
                   </h4>
                   <p className="text-red-700">{analysis?.relationshipInsights.familyLife}</p>
@@ -209,16 +210,16 @@ const EnhancedGeminiAnalysis: React.FC<EnhancedGeminiAnalysisProps> = ({
               </div>
             </TabsContent>
 
-            <TabsContent value="health" className="space-y-6">
-              <div className="grid gap-6">
-                <div className="bg-green-50 p-6 rounded-lg border border-green-200 shadow-sm">
-                  <h4 className="font-semibold text-green-800 mb-3">
+            <TabsContent value="health" className="space-y-4">
+              <div className="grid gap-4">
+                <div className="bg-green-50 p-4 rounded-lg">
+                  <h4 className="font-semibold text-green-800 mb-2">
                     {getTranslation('General Health', 'सामान्य स्वास्थ्य')}
                   </h4>
                   <p className="text-green-700">{analysis?.healthPredictions.generalHealth}</p>
                 </div>
-                <div className="bg-yellow-50 p-6 rounded-lg border border-yellow-200 shadow-sm">
-                  <h4 className="font-semibold text-yellow-800 mb-3">
+                <div className="bg-yellow-50 p-4 rounded-lg">
+                  <h4 className="font-semibold text-yellow-800 mb-2">
                     {getTranslation('Vulnerable Areas', 'संवेदनशील क्षेत्र')}
                   </h4>
                   <div className="flex flex-wrap gap-2">
@@ -229,11 +230,11 @@ const EnhancedGeminiAnalysis: React.FC<EnhancedGeminiAnalysisProps> = ({
                     ))}
                   </div>
                 </div>
-                <div className="bg-blue-50 p-6 rounded-lg border border-blue-200 shadow-sm">
-                  <h4 className="font-semibold text-blue-800 mb-3">
+                <div className="bg-blue-50 p-4 rounded-lg">
+                  <h4 className="font-semibold text-blue-800 mb-2">
                     {getTranslation('Preventive Measures', 'निवारक उपाय')}
                   </h4>
-                  <ul className="text-blue-700 space-y-2">
+                  <ul className="text-blue-700 space-y-1">
                     {analysis?.healthPredictions.preventiveMeasures.map((measure, index) => (
                       <li key={index} className="flex items-center gap-2">
                         <span className="w-1.5 h-1.5 bg-blue-600 rounded-full"></span>
@@ -245,25 +246,25 @@ const EnhancedGeminiAnalysis: React.FC<EnhancedGeminiAnalysisProps> = ({
               </div>
             </TabsContent>
 
-            <TabsContent value="spiritual" className="space-y-6">
-              <div className="grid gap-6">
-                <div className="bg-purple-50 p-6 rounded-lg border border-purple-200 shadow-sm">
-                  <h4 className="font-semibold text-purple-800 mb-3">
+            <TabsContent value="spiritual" className="space-y-4">
+              <div className="grid gap-4">
+                <div className="bg-purple-50 p-4 rounded-lg">
+                  <h4 className="font-semibold text-purple-800 mb-2">
                     {getTranslation('Life Dharma', 'जीवन धर्म')}
                   </h4>
                   <p className="text-purple-700">{analysis?.spiritualPath.dharma}</p>
                 </div>
-                <div className="bg-indigo-50 p-6 rounded-lg border border-indigo-200 shadow-sm">
-                  <h4 className="font-semibold text-indigo-800 mb-3">
+                <div className="bg-indigo-50 p-4 rounded-lg">
+                  <h4 className="font-semibold text-indigo-800 mb-2">
                     {getTranslation('Karma Lessons', 'कर्म पाठ')}
                   </h4>
                   <p className="text-indigo-700">{analysis?.spiritualPath.karmaLessons}</p>
                 </div>
-                <div className="bg-violet-50 p-6 rounded-lg border border-violet-200 shadow-sm">
-                  <h4 className="font-semibold text-violet-800 mb-3">
+                <div className="bg-violet-50 p-4 rounded-lg">
+                  <h4 className="font-semibold text-violet-800 mb-2">
                     {getTranslation('Spiritual Practices', 'आध्यात्मिक अभ्यास')}
                   </h4>
-                  <ul className="text-violet-700 space-y-2">
+                  <ul className="text-violet-700 space-y-1">
                     {analysis?.spiritualPath.spiritualPractices.map((practice, index) => (
                       <li key={index} className="flex items-center gap-2">
                         <span className="w-1.5 h-1.5 bg-violet-600 rounded-full"></span>
@@ -275,19 +276,19 @@ const EnhancedGeminiAnalysis: React.FC<EnhancedGeminiAnalysisProps> = ({
               </div>
             </TabsContent>
 
-            <TabsContent value="timing" className="space-y-6">
-              <div className="grid gap-6">
-                <div className="bg-teal-50 p-6 rounded-lg border border-teal-200 shadow-sm mt-4">
-                  <h4 className="font-semibold text-teal-800 mb-3">
+            <TabsContent value="timing" className="space-y-4">
+              <div className="grid gap-4">
+                <div className="bg-teal-50 p-4 rounded-lg">
+                  <h4 className="font-semibold text-teal-800 mb-2">
                     {getTranslation('Current Phase', 'वर्तमान चरण')}
                   </h4>
                   <p className="text-teal-700">{analysis?.timingPredictions.currentPhase}</p>
                 </div>
-                <div className="bg-cyan-50 p-6 rounded-lg border border-cyan-200 shadow-sm">
-                  <h4 className="font-semibold text-cyan-800 mb-3">
+                <div className="bg-cyan-50 p-4 rounded-lg">
+                  <h4 className="font-semibold text-cyan-800 mb-2">
                     {getTranslation('Upcoming Opportunities', 'आगामी अवसर')}
                   </h4>
-                  <ul className="text-cyan-700 space-y-2">
+                  <ul className="text-cyan-700 space-y-1">
                     {analysis?.timingPredictions.upcomingOpportunities.map((opportunity, index) => (
                       <li key={index} className="flex items-center gap-2">
                         <span className="w-1.5 h-1.5 bg-cyan-600 rounded-full"></span>
@@ -296,8 +297,8 @@ const EnhancedGeminiAnalysis: React.FC<EnhancedGeminiAnalysisProps> = ({
                     ))}
                   </ul>
                 </div>
-                <div className="bg-emerald-50 p-6 rounded-lg border border-emerald-200 shadow-sm">
-                  <h4 className="font-semibold text-emerald-800 mb-3">
+                <div className="bg-emerald-50 p-4 rounded-lg">
+                  <h4 className="font-semibold text-emerald-800 mb-2">
                     {getTranslation('Auspicious Periods', 'शुभ काल')}
                   </h4>
                   <div className="flex flex-wrap gap-2">

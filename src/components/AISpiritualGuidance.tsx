@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -101,186 +102,184 @@ const AISpiritualGuidance: React.FC<AISpiritualGuidanceProps> = ({
   };
 
   return (
-    <div className="space-y-12 mt-16 mb-16 px-4">
-      <Card className="border-indigo-200 shadow-2xl bg-white/95 backdrop-blur-sm max-w-7xl mx-auto">
-        <CardHeader className="bg-gradient-to-r from-indigo-100 to-purple-100 p-10 rounded-t-lg border-b-2 border-indigo-200 mb-8 shadow-lg">
-          <CardTitle className="flex items-center gap-3 text-indigo-800 text-xl">
-            <Sparkles className="h-6 w-6" />
+    <div className="space-y-6">
+      <Card className="border-indigo-200 shadow-lg">
+        <CardHeader className="bg-gradient-to-r from-indigo-100 to-purple-100">
+          <CardTitle className="flex items-center gap-2 text-indigo-800">
+            <Sparkles className="h-5 w-5" />
             {getTranslation('AI Spiritual Guidance & Path Discovery', 'AI आध्यात्मिक मार्गदर्शन और पथ खोज')}
           </CardTitle>
         </CardHeader>
-        <CardContent className="p-10">
+        <CardContent className="p-6">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-12 bg-white/80 backdrop-blur-sm rounded-xl p-3 shadow-lg">
-              <TabsTrigger value="spiritual-path" className="flex flex-col items-center gap-2 text-sm p-4 min-h-[70px] rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-600 data-[state=active]:to-purple-600 data-[state=active]:text-white transition-all duration-200 shadow-sm">
-                <Star className="h-4 w-4" />
+            <TabsList className="grid grid-cols-2 md:grid-cols-4 gap-1 mb-6">
+              <TabsTrigger value="spiritual-path" className="flex flex-col items-center gap-1 text-xs p-2">
+                <Star className="h-3 w-3" />
                 {getTranslation('Your Path', 'आपका मार्ग')}
               </TabsTrigger>
-              <TabsTrigger value="practices" className="flex flex-col items-center gap-2 text-sm p-4 min-h-[70px] rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-600 data-[state=active]:to-purple-600 data-[state=active]:text-white transition-all duration-200 shadow-sm">
-                <Sparkles className="h-4 w-4" />
+              <TabsTrigger value="practices" className="flex flex-col items-center gap-1 text-xs p-2">
+                <Sparkles className="h-3 w-3" />
                 {getTranslation('Practices', 'अभ्यास')}
               </TabsTrigger>
-              <TabsTrigger value="sacred-timing" className="flex flex-col items-center gap-2 text-sm p-4 min-h-[70px] rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-600 data-[state=active]:to-purple-600 data-[state=active]:text-white transition-all duration-200 shadow-sm">
-                <Sun className="h-4 w-4" />
+              <TabsTrigger value="sacred-timing" className="flex flex-col items-center gap-1 text-xs p-2">
+                <Sun className="h-3 w-3" />
                 {getTranslation('Sacred Timing', 'पवित्र समय')}
               </TabsTrigger>
-              <TabsTrigger value="goals" className="flex flex-col items-center gap-2 text-sm p-4 min-h-[70px] rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-600 data-[state=active]:to-purple-600 data-[state=active]:text-white transition-all duration-200 shadow-sm">
-                <Heart className="h-4 w-4" />
+              <TabsTrigger value="goals" className="flex flex-col items-center gap-1 text-xs p-2">
+                <Heart className="h-3 w-3" />
                 {getTranslation('Spiritual Goals', 'आध्यात्मिक लक्ष्य')}
               </TabsTrigger>
             </TabsList>
 
-            <div className="min-h-[600px]">
-              <TabsContent value="spiritual-path" className="space-y-10 mt-8">
-                <Card className="border-purple-200 bg-purple-50 shadow-lg">
-                  <CardContent className="p-10">
-                    <div className="text-center mb-8">
-                      <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full mb-6">
-                        <Sparkles className="h-10 w-10 text-white" />
-                      </div>
-                      <h3 className="text-2xl font-bold text-purple-800 mb-4">
-                        {spiritualData.spiritualPath.primaryPath}
-                      </h3>
-                      <Badge className="bg-purple-600 text-white text-xl px-6 py-2">
-                        {spiritualData.spiritualPath.suitability}
-                      </Badge>
+            <TabsContent value="spiritual-path" className="space-y-6">
+              <Card className="border-purple-200 bg-purple-50">
+                <CardContent className="p-6">
+                  <div className="text-center mb-6">
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full mb-4">
+                      <Sparkles className="h-8 w-8 text-white" />
                     </div>
-                    
-                    <p className="text-gray-700 text-center mb-6 text-lg leading-relaxed">
-                      {spiritualData.spiritualPath.description}
-                    </p>
-                    
-                    <div className="bg-white p-6 rounded-lg shadow-sm">
-                      <h4 className="font-semibold text-purple-800 mb-3 text-lg">
-                        {getTranslation('Secondary Path:', 'द्वितीयक मार्ग:')}
-                      </h4>
-                      <p className="text-gray-700 text-lg">{spiritualData.spiritualPath.secondaryPath}</p>
+                    <h3 className="text-xl font-bold text-purple-800 mb-2">
+                      {spiritualData.spiritualPath.primaryPath}
+                    </h3>
+                    <Badge className="bg-purple-600 text-white text-lg px-4 py-1">
+                      {spiritualData.spiritualPath.suitability}
+                    </Badge>
+                  </div>
+                  
+                  <p className="text-gray-700 text-center mb-4">
+                    {spiritualData.spiritualPath.description}
+                  </p>
+                  
+                  <div className="bg-white p-4 rounded-lg">
+                    <h4 className="font-semibold text-purple-800 mb-2">
+                      {getTranslation('Secondary Path:', 'द्वितीयक मार्ग:')}
+                    </h4>
+                    <p className="text-gray-700">{spiritualData.spiritualPath.secondaryPath}</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="practices" className="space-y-6">
+              <div className="grid gap-6">
+                <Card className="border-green-200">
+                  <CardContent className="p-4">
+                    <h4 className="font-semibold text-green-800 mb-4 flex items-center gap-2">
+                      <Sun className="h-4 w-4" />
+                      {getTranslation('Daily Practices', 'दैनिक अभ्यास')}
+                    </h4>
+                    <div className="space-y-4">
+                      {spiritualData.practices.daily.map((practice, index) => (
+                        <div key={index} className="border-l-4 border-green-400 pl-4">
+                          <h5 className="font-medium text-green-800">{practice.practice}</h5>
+                          <p className="text-sm text-gray-600">
+                            <strong>{getTranslation('Duration:', 'अवधि:')}</strong> {practice.duration}
+                          </p>
+                          <p className="text-sm text-gray-600 mt-1">{practice.benefit}</p>
+                        </div>
+                      ))}
                     </div>
                   </CardContent>
                 </Card>
-              </TabsContent>
 
-              <TabsContent value="practices" className="space-y-10 mt-8">
-                <div className="grid gap-10">
-                  <Card className="border-green-200 shadow-lg">
-                    <CardContent className="p-8">
-                      <h4 className="font-semibold text-green-800 mb-6 flex items-center gap-3 text-xl">
-                        <Sun className="h-5 w-5" />
-                        {getTranslation('Daily Practices', 'दैनिक अभ्यास')}
-                      </h4>
-                      <div className="space-y-6">
-                        {spiritualData.practices.daily.map((practice, index) => (
-                          <div key={index} className="border-l-4 border-green-400 pl-6 py-4 bg-green-50 rounded-r-lg">
-                            <h5 className="font-medium text-green-800 text-lg mb-2">{practice.practice}</h5>
-                            <p className="text-sm text-gray-600 mb-2">
-                              <strong>{getTranslation('Duration:', 'अवधि:')}</strong> {practice.duration}
-                            </p>
-                            <p className="text-sm text-gray-600">{practice.benefit}</p>
-                          </div>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card className="border-blue-200 shadow-lg">
-                    <CardContent className="p-8">
-                      <h4 className="font-semibold text-blue-800 mb-6 flex items-center gap-3 text-xl">
-                        <Moon className="h-5 w-5" />
-                        {getTranslation('Weekly Practices', 'साप्ताहिक अभ्यास')}
-                      </h4>
-                      <div className="space-y-6">
-                        {spiritualData.practices.weekly.map((practice, index) => (
-                          <div key={index} className="border-l-4 border-blue-400 pl-6 py-4 bg-blue-50 rounded-r-lg">
-                            <h5 className="font-medium text-blue-800 text-lg mb-2">{practice.practice}</h5>
-                            <p className="text-sm text-gray-600 mb-2">
-                              <strong>{getTranslation('Frequency:', 'आवृत्ति:')}</strong> {practice.frequency}
-                            </p>
-                            <p className="text-sm text-gray-600">{practice.benefit}</p>
-                          </div>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              </TabsContent>
-
-              <TabsContent value="sacred-timing" className="space-y-10 mt-8">
-                <div className="grid gap-8">
-                  <Card className="border-yellow-200 bg-yellow-50 shadow-lg">
-                    <CardContent className="p-8">
-                      <h4 className="font-semibold text-yellow-800 mb-6 text-xl">
-                        {getTranslation('Most Powerful Times for Spiritual Practice', 'आध्यात्मिक अभ्यास के लिए सबसे शक्तिशाली समय')}
-                      </h4>
-                      {spiritualData.sacredTiming.bestTimes.map((timing, index) => (
-                        <div key={index} className="mb-6 p-5 bg-white rounded-lg shadow-sm">
-                          <div className="flex justify-between items-center mb-3">
-                            <span className="font-medium text-yellow-800 text-lg">{timing.time}</span>
-                            <Badge variant={timing.power === 'Maximum' ? 'default' : 'secondary'} className="text-sm px-3 py-1">
-                              {timing.power}
-                            </Badge>
-                          </div>
-                          <p className="text-sm text-gray-600">{timing.activity}</p>
+                <Card className="border-blue-200">
+                  <CardContent className="p-4">
+                    <h4 className="font-semibold text-blue-800 mb-4 flex items-center gap-2">
+                      <Moon className="h-4 w-4" />
+                      {getTranslation('Weekly Practices', 'साप्ताहिक अभ्यास')}
+                    </h4>
+                    <div className="space-y-4">
+                      {spiritualData.practices.weekly.map((practice, index) => (
+                        <div key={index} className="border-l-4 border-blue-400 pl-4">
+                          <h5 className="font-medium text-blue-800">{practice.practice}</h5>
+                          <p className="text-sm text-gray-600">
+                            <strong>{getTranslation('Frequency:', 'आवृत्ति:')}</strong> {practice.frequency}
+                          </p>
+                          <p className="text-sm text-gray-600 mt-1">{practice.benefit}</p>
                         </div>
                       ))}
-                    </CardContent>
-                  </Card>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
 
-                  <Card className="border-red-200 bg-red-50 shadow-lg">
-                    <CardContent className="p-8">
-                      <h4 className="font-semibold text-red-800 mb-5 text-xl">
-                        {getTranslation('Times to Avoid', 'बचने योग्य समय')}
-                      </h4>
-                      <ul className="space-y-4">
-                        {spiritualData.sacredTiming.avoidTimes.map((time, idx) => (
-                          <li key={idx} className="text-sm text-red-700 flex items-center gap-3">
-                            <span className="w-3 h-3 bg-red-500 rounded-full"></span>
-                            {time}
-                          </li>
-                        ))}
-                      </ul>
-                    </CardContent>
-                  </Card>
-                </div>
-              </TabsContent>
+            <TabsContent value="sacred-timing" className="space-y-6">
+              <div className="grid gap-4">
+                <Card className="border-yellow-200 bg-yellow-50">
+                  <CardContent className="p-4">
+                    <h4 className="font-semibold text-yellow-800 mb-4">
+                      {getTranslation('Most Powerful Times for Spiritual Practice', 'आध्यात्मिक अभ्यास के लिए सबसे शक्तिशाली समय')}
+                    </h4>
+                    {spiritualData.sacredTiming.bestTimes.map((timing, index) => (
+                      <div key={index} className="mb-4 p-3 bg-white rounded-lg">
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="font-medium text-yellow-800">{timing.time}</span>
+                          <Badge variant={timing.power === 'Maximum' ? 'default' : 'secondary'}>
+                            {timing.power}
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-gray-600">{timing.activity}</p>
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
 
-              <TabsContent value="goals" className="space-y-10 mt-8">
-                <div className="grid gap-8 md:grid-cols-2">
-                  <Card className="border-teal-200 shadow-lg">
-                    <CardContent className="p-8">
-                      <h4 className="font-semibold text-teal-800 mb-6 flex items-center gap-3 text-xl">
-                        <Gift className="h-5 w-5" />
-                        {getTranslation('Short-term Goals (3-6 months)', 'अल्पकालिक लक्ष्य (3-6 महीने)')}
-                      </h4>
-                      <ul className="space-y-4">
-                        {spiritualData.spiritualGoals.shortTerm.map((goal, idx) => (
-                          <li key={idx} className="text-sm flex items-start gap-3">
-                            <span className="w-2 h-2 bg-teal-600 rounded-full mt-2"></span>
-                            {goal}
-                          </li>
-                        ))}
-                      </ul>
-                    </CardContent>
-                  </Card>
+                <Card className="border-red-200 bg-red-50">
+                  <CardContent className="p-4">
+                    <h4 className="font-semibold text-red-800 mb-3">
+                      {getTranslation('Times to Avoid', 'बचने योग्य समय')}
+                    </h4>
+                    <ul className="space-y-2">
+                      {spiritualData.sacredTiming.avoidTimes.map((time, idx) => (
+                        <li key={idx} className="text-sm text-red-700 flex items-center gap-2">
+                          <span className="w-2 h-2 bg-red-500 rounded-full"></span>
+                          {time}
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
 
-                  <Card className="border-violet-200 shadow-lg">
-                    <CardContent className="p-8">
-                      <h4 className="font-semibold text-violet-800 mb-6 flex items-center gap-3 text-xl">
-                        <Star className="h-5 w-5" />
-                        {getTranslation('Long-term Goals (1-3 years)', 'दीर्घकालिक लक्ष्य (1-3 वर्ष)')}
-                      </h4>
-                      <ul className="space-y-4">
-                        {spiritualData.spiritualGoals.longTerm.map((goal, idx) => (
-                          <li key={idx} className="text-sm flex items-start gap-3">
-                            <span className="w-2 h-2 bg-violet-600 rounded-full mt-2"></span>
-                            {goal}
-                          </li>
-                        ))}
-                      </ul>
-                    </CardContent>
-                  </Card>
-                </div>
-              </TabsContent>
-            </div>
+            <TabsContent value="goals" className="space-y-6">
+              <div className="grid gap-4 md:grid-cols-2">
+                <Card className="border-teal-200">
+                  <CardContent className="p-4">
+                    <h4 className="font-semibold text-teal-800 mb-4 flex items-center gap-2">
+                      <Gift className="h-4 w-4" />
+                      {getTranslation('Short-term Goals (3-6 months)', 'अल्पकालिक लक्ष्य (3-6 महीने)')}
+                    </h4>
+                    <ul className="space-y-2">
+                      {spiritualData.spiritualGoals.shortTerm.map((goal, idx) => (
+                        <li key={idx} className="text-sm flex items-start gap-2">
+                          <span className="w-1.5 h-1.5 bg-teal-600 rounded-full mt-2"></span>
+                          {goal}
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+
+                <Card className="border-violet-200">
+                  <CardContent className="p-4">
+                    <h4 className="font-semibold text-violet-800 mb-4 flex items-center gap-2">
+                      <Star className="h-4 w-4" />
+                      {getTranslation('Long-term Goals (1-3 years)', 'दीर्घकालिक लक्ष्य (1-3 वर्ष)')}
+                    </h4>
+                    <ul className="space-y-2">
+                      {spiritualData.spiritualGoals.longTerm.map((goal, idx) => (
+                        <li key={idx} className="text-sm flex items-start gap-2">
+                          <span className="w-1.5 h-1.5 bg-violet-600 rounded-full mt-2"></span>
+                          {goal}
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
           </Tabs>
         </CardContent>
       </Card>
