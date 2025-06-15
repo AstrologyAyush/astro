@@ -1,25 +1,24 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { Send, User, Sparkles, Heart, RefreshCw } from "lucide-react";
+import { Send, Bot, User, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { ComprehensiveKundaliData } from '@/lib/advancedKundaliEngine';
 import { useToast } from "@/hooks/use-toast";
-import { Json } from '@/integrations/supabase/types';
 
 interface Message {
   id: string;
-  type: 'user' | 'ai';
+  type: 'user' | 'rishi';
   content: string;
   timestamp: Date;
-  cached?: boolean;
 }
 
 interface RishiParasherGuruProps {
-  kundaliData: ComprehensiveKundaliData;
+  kundaliData: any;
   language: 'hi' | 'en';
 }
 
@@ -27,507 +26,74 @@ const RishiParasherGuru: React.FC<RishiParasherGuruProps> = ({ kundaliData, lang
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [retryCount, setRetryCount] = useState(0);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
-  const getTranslation = (en: string, hi: string) => {
-    return language === 'hi' ? hi : en;
-  };
-
-  // Helper function to get sign name from number
-  const getSignName = (signNumber: number): string => {
-    const signs = [
-      'Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo',
-      'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'
-    ];
-    return signs[signNumber - 1] || 'Unknown';
-  };
-
-  // Get sign names safely using rashiName property - moved to component level
-  const getSafeSignName = (planet: any): string => {
-    if (!planet) return 'Unknown';
-    return planet.rashiName || getSignName(planet.rashi || 1);
-  };
-
-  // Get house data helper function
-  const getHouseData = (houseNum: number) => {
-    return kundaliData?.enhancedCalculations?.houses?.find(h => h.number === houseNum);
-  };
-
-  // Create cache key for responses
-  const getCacheKey = (query: string) => {
-    if (!kundaliData?.birthData) return null;
-    const { fullName, date } = kundaliData.birthData;
-    return `rishi_response_${fullName}_${date}_${query}_${language}`;
-  };
-
-  // Enhanced fallback response with specific personal recommendations
-  const generatePersonalizedResponse = (query: string) => {
-    const calculations = kundaliData?.enhancedCalculations;
-    if (!calculations) {
-      return language === 'hi'
-        ? '🙏 पुत्र, पहले अपनी संपूर्ण कुंडली बनवाएं, तब मैं व्यक्तिगत मार्गदर्शन दे सकूंगा।'
-        : '🙏 Dear child, first create your complete Kundali, then I can provide personalized guidance.';
-    }
-
-    const birthData = kundaliData.birthData;
-    const lagna = calculations.lagna;
-    const planets = calculations.planets;
-    const houses = calculations.houses;
-    const yogas = calculations.yogas?.filter(y => y.isActive) || [];
-    const dashas = calculations.dashas;
-    const currentDasha = dashas?.find(d => d.isActive);
-
-    // Declare all planetary positions at the top level with proper property access
-    const sunPosition = planets?.SU;
-    const moonPosition = planets?.MO;
-    const marsPosition = planets?.MA;
-    const venusPosition = planets?.VE;
-    const jupiterPosition = planets?.JU;
-    const mercuryPosition = planets?.ME;
-    const saturnPosition = planets?.SA;
-
-    // Get sign names for variables used later
-    const sunSign = getSafeSignName(sunPosition);
-    const moonSign = getSafeSignName(moonPosition);
-    const venusSign = getSafeSignName(venusPosition);
-    const mercurySign = getSafeSignName(mercuryPosition);
-    const jupiterSign = getSafeSignName(jupiterPosition);
-    const saturnSign = getSafeSignName(saturnPosition);
-
-    const queryLower = query.toLowerCase();
-
-    // Career related questions - deeply personalized
-    if (queryLower.includes('career') || queryLower.includes('job') || queryLower.includes('profession') || 
-        queryLower.includes('करियर') || queryLower.includes('नौकरी') || queryLower.includes('व्यवसाय') ||
-        queryLower.includes('work') || queryLower.includes('business')) {
-      
-      const tenthHouse = getHouseData(10);
-      const secondHouse = getHouseData(2);
-      
-      // Specific career recommendations based on actual planetary positions
-      let specificCareerField = '';
-      let timing = '';
-      
-      if (sunSign === 'Leo' || sunSign === 'Aries') {
-        specificCareerField = language === 'hi' ? 'नेतृत्व, प्रबंधन, सरकारी सेवा में बेहतरीन सफलता' : 'exceptional success in leadership, management, government service';
-      } else if (mercurySign === 'Gemini' || mercurySign === 'Virgo') {
-        specificCareerField = language === 'hi' ? 'संचार, लेखन, शिक्षा, आईटी क्षेत्र में विशेष प्रतिभा' : 'special talent in communication, writing, education, IT sector';
-      } else if (jupiterSign === 'Sagittarius' || jupiterSign === 'Pisces') {
-        specificCareerField = language === 'hi' ? 'शिक्षा, धर्म, न्याय, परामर्श में उत्कृष्टता' : 'excellence in education, religion, law, counseling';
-      } else {
-        specificCareerField = language === 'hi' ? 'आपकी ग्रह स्थिति अनुसार व्यापार और सेवा क्षेत्र उत्तम' : 'business and service sectors are excellent according to your planetary positions';
-      }
-
-      if (currentDasha?.planet === 'JU') {
-        timing = language === 'hi' ? 'वर्तमान गुरु दशा में करियर में महत्वपूर्ण प्रगति' : 'significant career progress in current Jupiter period';
-      } else if (currentDasha?.planet === 'SU') {
-        timing = language === 'hi' ? 'सूर्य दशा में नेतृत्व की भूमिका मिलेगी' : 'leadership roles will come in Sun period';
-      } else {
-        timing = language === 'hi' ? 'अगले 6-18 महीनों में करियर में सकारात्मक बदलाव' : 'positive career changes in next 6-18 months';
-      }
-
-      if (language === 'hi') {
-        return `🙏 प्रिय ${birthData?.fullName}, आपके करियर के लिए व्यक्तिगत मार्गदर्शन:
-
-🌟 **आपकी विशेष प्रतिभा**: ${getSafeSignName(lagna)} लग्न + ${sunSign} में सूर्य = ${specificCareerField}
-
-🎯 **तत्काल कार्य योजना**:
-1. ${sunPosition?.house === 10 ? 'तुरंत नेतृत्व की भूमिका के लिए आवेदन करें' : 'अपने कौशल को निखारने पर ध्यान दें'}
-2. ${mercuryPosition?.house === 1 || mercuryPosition?.house === 10 ? 'संचार और नेटवर्किंग बढ़ाएं' : 'तकनीकी ज्ञान में वृद्धि करें'}
-3. ${jupiterPosition?.isExalted ? 'शिक्षा या प्रशिक्षण क्षेत्र में अवसर देखें' : 'धैर्य रखें और कड़ी मेहनत करें'}
-
-⏰ **समय सीमा**: ${timing}
-
-🚧 **मुख्य चुनौती**: ${marsPosition?.isDebilitated ? 'ऊर्जा और फोकस में कमी - नियमित व्यायाम करें' : 'प्रतिस्पर्धा में धैर्य रखें'}
-
-💊 **तुरंत उपाय**:
-- ${sunSign === 'Leo' ? 'रविवार को सूर्य देव को जल चढ़ाएं' : 'मंगलवार को हनुमान चालीसा पढ़ें'}
-- ${birthData?.date ? `आपकी जन्म तिथि ${birthData.date} के अनुसार दान करें` : 'नियमित दान-पुण्य करें'}
-- लाल रंग का प्रयोग बढ़ाएं (कपड़े, रत्न)
-
-💰 **आर्थिक स्थिति**: अगले ${currentDasha?.planet === 'VE' ? '3-6 महीनों' : '12-18 महीनों'} में धन में वृद्धि
-
-🔮 **भविष्य की सफलता**: ${yogas.length > 2 ? 'आपके कई शुभ योग 2025-26 में फलेंगे' : '2026 के बाद स्थिर सफलता'}
-
-आपका भविष्य उज्ज्वल है, ${birthData?.fullName}! 🌟`;
-      } else {
-        return `🙏 Dear ${birthData?.fullName}, personalized career guidance:
-
-🌟 **Your Special Talent**: ${getSafeSignName(lagna)} ascendant + Sun in ${sunSign} = ${specificCareerField}
-
-🎯 **Immediate Action Plan**:
-1. ${sunPosition?.house === 10 ? 'Apply for leadership roles immediately' : 'Focus on skill enhancement'}
-2. ${mercuryPosition?.house === 1 || mercuryPosition?.house === 10 ? 'Increase communication and networking' : 'Enhance technical knowledge'}
-3. ${jupiterPosition?.isExalted ? 'Look for opportunities in education/training sector' : 'Be patient and work hard'}
-
-⏰ **Timeline**: ${timing}
-
-🚧 **Main Challenge**: ${marsPosition?.isDebilitated ? 'Lack of energy and focus - do regular exercise' : 'Be patient in competition'}
-
-💊 **Immediate Remedies**:
-- ${sunSign === 'Leo' ? 'Offer water to Sun God on Sundays' : 'Recite Hanuman Chalisa on Tuesdays'}
-- ${birthData?.date ? `Donate according to your birth date ${birthData.date}` : 'Do regular charity'}
-- Increase use of red color (clothes, gemstones)
-
-💰 **Financial Status**: Wealth increase in next ${currentDasha?.planet === 'VE' ? '3-6 months' : '12-18 months'}
-
-🔮 **Future Success**: ${yogas.length > 2 ? 'Your beneficial yogas will fructify in 2025-26' : 'Stable success after 2026'}
-
-Your future is bright, ${birthData?.fullName}! 🌟`;
-      }
-    }
-
-    // Marriage related questions - deeply personalized  
-    if (queryLower.includes('marriage') || queryLower.includes('wedding') || queryLower.includes('spouse') ||
-        queryLower.includes('शादी') || queryLower.includes('विवाह') || queryLower.includes('पति') || 
-        queryLower.includes('पत्नी') || queryLower.includes('partner') || queryLower.includes('love')) {
-      
-      const seventhHouse = getHouseData(7);
-      
-      // Check for Mangal Dosha specifically
-      const isManglik = marsPosition && (marsPosition.house === 1 || marsPosition.house === 4 || 
-                                        marsPosition.house === 7 || marsPosition.house === 8 || marsPosition.house === 12);
-      
-      // Specific timing based on current dasha
-      let marriageTiming = '';
-      if (currentDasha?.planet === 'VE') {
-        marriageTiming = language === 'hi' ? 'वर्तमान शुक्र दशा में विवाह के बहुत प्रबल योग' : 'very strong marriage indications in current Venus period';
-      } else if (currentDasha?.planet === 'JU') {
-        marriageTiming = language === 'hi' ? 'गुरु दशा में आदर्श जीवनसाथी मिलने की संभावना' : 'possibility of finding ideal partner in Jupiter period';
-      } else {
-        marriageTiming = language === 'hi' ? 'अगले 12-24 महीनों में विवाह के संकेत' : 'marriage indications in next 12-24 months';
-      }
-
-      if (language === 'hi') {
-        return `🙏 ${birthData?.fullName}, आपके विवाह के लिए विशेष मार्गदर्शन:
-
-💕 **आपका प्रेम स्वभाव**: ${venusSign} में शुक्र - ${venusSign === 'Taurus' ? 'स्थिर और गहरा प्रेम' : venusSign === 'Libra' ? 'संतुलित और सुंदर रिश्ता' : 'भावुक और समर्पित प्रेम'}
-
-👫 **जीवनसाथी के गुण**:
-- ${seventhHouse ? 'खूबसूरत, कलाप्रेमी और स्थिर स्वभाव' : 'सुंदर, सहयोगी और परवाह करने वाला'}
-- ${moonSign === 'Cancer' ? 'घर-परिवार से प्रेम करने वाला' : 'आपसे मानसिक तालमेल'}
-- ${venusPosition?.house === 7 ? 'बहुत आकर्षक व्यक्तित्व' : 'अच्छा चरित्र'}
-
-🔥 **मंगल दोष स्थिति**: ${isManglik ? 'हल्का मंगल दोष है - विशेष उपाय आवश्यक' : 'कोई मंगल दोष नहीं - शुभ संकेत'}
-
-⏰ **विवाह का समय**: ${marriageTiming}
-
-💐 **तत्काल उपाय**:
-${isManglik ? '- मंगलवार को हनुमान मंदिर में तेल का दीपक जलाएं\n- लाल मसूर दाल का दान करें' : '- शुक्रवार को लक्ष्मी माता की पूजा करें\n- सफेद मिठाई का दान करें'}
-- ${birthData?.fullName ? `${birthData.fullName} के नाम से गुलाब के फूल चढ़ाएं` : 'देवी मां को गुलाब चढ़ाएं'}
-
-🌹 **प्रेम सफलता के लिए**:
-- ${venusSign === 'Pisces' ? 'गुलाबी रंग पहनें' : 'हल्के रंगों का प्रयोग करें'}
-- शुक्रवार के दिन व्रत रखें
-- ${moonSign ? `${moonSign} राशि अनुकूल भोजन करें` : 'सात्विक भोजन करें'}
-
-🏠 **वैवाहिक जीवन**: ${venusPosition?.isExalted ? 'बहुत सुखी और समृद्ध दाम्पत्य जीवन' : 'प्रेम और समझदारी से भरा जीवन'}
-
-आपका प्रेम जीवन खुशियों से भरा होगा! 💖`;
-      } else {
-        return `🙏 ${birthData?.fullName}, special guidance for your marriage:
-
-💕 **Your Love Nature**: Venus in ${venusSign} - ${venusSign === 'Taurus' ? 'stable and deep love' : venusSign === 'Libra' ? 'balanced and beautiful relationship' : 'emotional and devoted love'}
-
-👫 **Spouse Qualities**:
-- ${seventhHouse ? 'Beautiful, artistic and stable nature' : 'Handsome, supportive and caring'}
-- ${moonSign === 'Cancer' ? 'Family-loving person' : 'Mental compatibility with you'}
-- ${venusPosition?.house === 7 ? 'Very attractive personality' : 'Good character'}
-
-🔥 **Mangal Dosha Status**: ${isManglik ? 'Mild Mangal Dosha present - special remedies needed' : 'No Mangal Dosha - auspicious sign'}
-
-⏰ **Marriage Timing**: ${marriageTiming}
-
-💐 **Immediate Remedies**:
-${isManglik ? '- Light oil lamp at Hanuman temple on Tuesdays\n- Donate red lentils' : '- Worship Goddess Lakshmi on Fridays\n- Donate white sweets'}
-- ${birthData?.fullName ? `Offer roses in the name of ${birthData.fullName}` : 'Offer roses to Divine Mother'}
-
-🌹 **For Love Success**:
-- ${venusSign === 'Pisces' ? 'Wear pink colors' : 'Use light colors'}
-- Fast on Fridays
-- ${moonSign ? `Eat foods favorable for ${moonSign} sign` : 'Eat sattvic food'}
-
-🏠 **Married Life**: ${venusPosition?.isExalted ? 'Very happy and prosperous married life' : 'Life filled with love and understanding'}
-
-Your love life will be filled with happiness! 💖`;
-      }
-    }
-
-    // Health related questions - personalized
-    if (queryLower.includes('health') || queryLower.includes('medical') || queryLower.includes('disease') ||
-        queryLower.includes('स्वास्थ्य') || queryLower.includes('बीमारी') || queryLower.includes('स्वस्थ')) {
-      
-      const sixthHouse = getHouseData(6);
-      
-      // Specific health predictions based on actual positions
-      let healthTendency = '';
-      
-      if (saturnSign === 'Capricorn' || saturnSign === 'Aquarius') {
-        healthTendency = language === 'hi' ? 'मजबूत हड्डियां लेकिन जोड़ों का ध्यान रखें' : 'strong bones but take care of joints';
-      } else if (moonSign === 'Cancer') {
-        healthTendency = language === 'hi' ? 'पेट और पाचन संबंधी समस्याओं की संभावना' : 'possibility of stomach and digestive issues';
-      } else {
-        healthTendency = language === 'hi' ? 'सामान्यतः अच्छा स्वास्थ्य' : 'generally good health';
-      }
-
-      if (language === 'hi') {
-        return `🙏 ${birthData?.fullName}, आपके स्वास्थ्य का व्यक्तिगत विश्लेषण:
-
-🩺 **आपकी शारीरिक प्रकृति**: ${getSafeSignName(lagna)} लग्न - ${healthTendency}
-
-⚠️ **विशेष सावधानियां**:
-- ${saturnPosition?.house === 6 ? 'पुरानी बीमारियों से बचें, नियमित जांच कराएं' : 'तनाव और चिंता से बचें'}
-- ${moonPosition?.house === 1 ? 'मानसिक स्वास्थ्य का विशेष ध्यान रखें' : 'नींद की कमी न होने दें'}
-- ${marsPosition?.isDebilitated ? 'ऊर्जा की कमी - आयरन की जांच कराएं' : 'दुर्घटनाओं से सावधान रहें'}
-
-🌿 **व्यक्तिगत उपचार**:
-- ${moonSign === 'Cancer' ? 'दूध और घी का सेवन बढ़ाएं' : 'हरी सब्जियों का सेवन करें'}
-- ${saturnSign === 'Capricorn' ? 'कैल्शियम और विटामिन डी लें' : 'प्राणायाम और ध्यान करें'}
-- ${birthData?.date ? `आपकी जन्म तिथि के अनुसार व्रत रखें` : 'सप्ताह में एक दिन व्रत रखें'}
-
-🧘 **दैनिक दिनचर्या**:
-- प्रातःकाल ${getSafeSignName(lagna) === 'Leo' ? 'सूर्य नमस्कार' : 'योग और प्राणायाम'} करें
-- ${venusSign === 'Taurus' ? 'धीमा और स्थिर व्यायाम' : 'नियमित कार्डियो एक्सरसाइज'} करें
-- ${moonPosition?.isExalted ? 'रात को दूध पिएं' : 'समय पर भोजन करें'}
-
-⏰ **स्वास्थ्य में सुधार**: ${currentDasha?.planet === 'JU' ? 'गुरु दशा में स्वास्थ्य में काफी सुधार' : 'अगले 6 महीनों में स्वास्थ्य बेहतर होगा'}
-
-💪 **दीर्घकालिक स्वास्थ्य**: आपकी ${yogas.length} शुभ योगों से लंबी उम्र और अच्छा स्वास्थ्य
-
-स्वस्थ रहें, खुश रहें! 🌟`;
-      } else {
-        return `🙏 ${birthData?.fullName}, personalized health analysis:
-
-🩺 **Your Physical Constitution**: ${getSafeSignName(lagna)} ascendant - ${healthTendency}
-
-⚠️ **Specific Precautions**:
-- ${saturnPosition?.house === 6 ? 'Avoid chronic diseases, get regular checkups' : 'Avoid stress and anxiety'}
-- ${moonPosition?.house === 1 ? 'Take special care of mental health' : 'Don\'t let sleep deprivation occur'}
-- ${marsPosition?.isDebilitated ? 'Energy deficiency - check iron levels' : 'Be careful of accidents'}
-
-🌿 **Personal Treatment**:
-- ${moonSign === 'Cancer' ? 'Increase milk and ghee intake' : 'Consume green vegetables'}
-- ${saturnSign === 'Capricorn' ? 'Take calcium and vitamin D' : 'Do pranayama and meditation'}
-- ${birthData?.date ? `Fast according to your birth date` : 'Fast one day a week'}
-
-🧘 **Daily Routine**:
-- Do ${getSafeSignName(lagna) === 'Leo' ? 'Surya Namaskara' : 'yoga and pranayama'} in morning
-- Do ${venusSign === 'Taurus' ? 'slow and steady exercise' : 'regular cardio exercise'}
-- ${moonPosition?.isExalted ? 'Drink milk at night' : 'Eat meals on time'}
-
-⏰ **Health Improvement**: ${currentDasha?.planet === 'JU' ? 'Significant health improvement in Jupiter period' : 'Health will improve in next 6 months'}
-
-💪 **Long-term Health**: Your ${yogas.length} beneficial yogas indicate long life and good health
-
-Stay healthy, stay happy! 🌟`;
-      }
-    }
-
-    // General life guidance - deeply personalized
-    if (language === 'hi') {
-      return `🙏 प्रिय ${birthData?.fullName}, आपके जीवन का व्यक्तिगत मार्गदर्शन:
-
-🌟 **आपका जीवन उद्देश्य**: ${getSafeSignName(lagna)} लग्न + ${getSafeSignName(sunPosition)} में सूर्य = आप ${getLagnaLifePurpose(getSafeSignName(lagna), 'hi')} के लिए जन्मे हैं
-
-🧘 **आध्यात्मिक पथ**: ${getSafeSignName(moonPosition) === 'Pisces' ? 'गहन ध्यान और भक्ति' : getSafeSignName(moonPosition) === 'Sagittarius' ? 'धर्म और दर्शन का अध्ययन' : 'नियमित पूजा-पाठ'}
-
-📿 **व्यक्तिगत मंत्र**: "${getPersonalMantra(getSafeSignName(lagna), getSafeSignName(sunPosition), 'hi')}"
-
-⭐ **वर्तमान जीवन चरण**: ${currentDasha?.planet === 'JU' ? 'ज्ञान और विकास का समय' : currentDasha?.planet === 'VE' ? 'प्रेम और सुख का काल' : currentDasha?.planet === 'SA' ? 'कर्म और धैर्य का दौर' : 'संतुलन और प्रगति का समय'}
-
-🎯 **आने वाले 12 महीने**:
-- ${getSpecificPrediction(currentDasha?.planet, planets, 'hi')}
-- ${yogas.length > 0 ? `आपके ${yogas[0]?.name || 'शुभ'} योग से विशेष लाभ` : 'धैर्य से मेहनत करने का समय'}
-- ${birthData?.date ? `जल्द ही खुशी की खबर` : 'जल्द ही खुशी की खबर'}
-
-💎 **आपका व्यक्तिगत रत्न**: ${getPersonalGemstone(getSafeSignName(lagna), sunPosition, 'hi')}
-
-🔮 **भविष्य का मार्ग**: ${getFuturePath(yogas, currentDasha, 'hi')}
-
-आपका कल्याण हो, ${birthData?.fullName}! मेरा आशीर्वाद सदा आपके साथ है। 🕉️`;
-    } else {
-      return `🙏 Dear ${birthData?.fullName}, personalized life guidance:
-
-🌟 **Your Life Purpose**: ${getSafeSignName(lagna)} ascendant + Sun in ${getSafeSignName(sunPosition)} = You are born to ${getLagnaLifePurpose(getSafeSignName(lagna), 'en')}
-
-🧘 **Spiritual Path**: ${getSafeSignName(moonPosition) === 'Pisces' ? 'deep meditation and devotion' : getSafeSignName(moonPosition) === 'Sagittarius' ? 'study of religion and philosophy' : 'regular prayer and worship'}
-
-📿 **Personal Mantra**: "${getPersonalMantra(getSafeSignName(lagna), getSafeSignName(sunPosition), 'en')}"
-
-⭐ **Current Life Phase**: ${currentDasha?.planet === 'JU' ? 'time of knowledge and growth' : currentDasha?.planet === 'VE' ? 'period of love and happiness' : currentDasha?.planet === 'SA' ? 'phase of karma and patience' : 'time of balance and progress'}
-
-🎯 **Next 12 Months**:
-- ${getSpecificPrediction(currentDasha?.planet, planets, 'en')}
-- ${yogas.length > 0 ? `Special benefits from your ${yogas[0]?.name || 'beneficial'} yoga` : 'time to work with patience'}
-- ${birthData?.date ? `Good news coming soon` : 'good news coming soon'}
-
-💎 **Your Personal Gemstone**: ${getPersonalGemstone(getSafeSignName(lagna), sunPosition, 'en')}
-
-🔮 **Future Path**: ${getFuturePath(yogas, currentDasha, 'en')}
-
-May you prosper, ${birthData?.fullName}! My blessings are always with you. 🕉️`;
-    }
-  };
-
-  // Helper functions for personalized analysis
-  const getLagnaLifePurpose = (sign: string, lang: string) => {
-    const purposes: Record<string, { hi: string; en: string }> = {
-      'Aries': { hi: 'नेतृत्व और साहस दिखाना', en: 'show leadership and courage' },
-      'Taurus': { hi: 'स्थिरता और सुंदरता लाना', en: 'bring stability and beauty' },
-      'Gemini': { hi: 'ज्ञान और संचार फैलाना', en: 'spread knowledge and communication' },
-      'Cancer': { hi: 'देखभाल और संरक्षण करना', en: 'provide care and protection' },
-      'Leo': { hi: 'प्रेरणा और रचनात्मकता देना', en: 'give inspiration and creativity' },
-      'Virgo': { hi: 'सेवा और पूर्णता लाना', en: 'bring service and perfection' },
-      'Libra': { hi: 'न्याय और संतुलन स्थापित करना', en: 'establish justice and balance' },
-      'Scorpio': { hi: 'परिवर्तन और गहराई लाना', en: 'bring transformation and depth' },
-      'Sagittarius': { hi: 'ज्ञान और सत्य का प्रसार', en: 'spread wisdom and truth' },
-      'Capricorn': { hi: 'अनुशासन और उपलब्धि दिखाना', en: 'show discipline and achievement' },
-      'Aquarius': { hi: 'नवाचार और मानव सेवा', en: 'innovation and humanitarian service' },
-      'Pisces': { hi: 'आध्यात्म और करुणा फैलाना', en: 'spread spirituality and compassion' }
-    };
-    
-    return purposes[sign]?.[lang] || (lang === 'hi' ? 'एक महान उद्देश्य पूरा करना' : 'fulfill a great purpose');
-  };
-
-  const getPersonalMantra = (lagna: string, sun: string, lang: string) => {
-    if (lagna === 'Leo' || sun === 'Leo') {
-      return lang === 'hi' ? 'ॐ सूर्याय नमः' : 'Om Suryaya Namah';
-    } else if (lagna === 'Cancer' || sun === 'Cancer') {
-      return lang === 'hi' ? 'ॐ चंद्राय नमः' : 'Om Chandraya Namah';
-    } else if (lagna === 'Sagittarius' || sun === 'Sagittarius') {
-      return lang === 'hi' ? 'ॐ गुरवे नमः' : 'Om Gurave Namah';
-    } else {
-      return lang === 'hi' ? 'ॐ नमो भगवते वासुदेवाय' : 'Om Namo Bhagavate Vasudevaya';
-    }
-  };
-
-  const getSpecificPrediction = (dasha: string | undefined, planets: any, lang: string) => {
-    if (dasha === 'JU') {
-      return lang === 'hi' ? 'शिक्षा, धर्म या न्याय क्षेत्र में बड़ी सफलता' : 'major success in education, religion or justice field';
-    } else if (dasha === 'VE') {
-      return lang === 'hi' ? 'प्रेम, कला या व्यापार में खुशखबरी' : 'good news in love, arts or business';
-    } else if (dasha === 'SA') {
-      return lang === 'hi' ? 'धैर्य से काम लें, मेहनत का फल मिलेगा' : 'work with patience, hard work will pay off';
-    } else {
-      return lang === 'hi' ? 'नए अवसरों की शुरुआत' : 'beginning of new opportunities';
-    }
-  };
-
-  const getPersonalGemstone = (lagna: string, sun: any, lang: string) => {
-    const sunSign = getSafeSignName(sun);
-    if (lagna === 'Leo' || sunSign === 'Leo') {
-      return lang === 'hi' ? 'माणिक्य (Ruby) - शक्ति और नेतृत्व के लिए' : 'Ruby - for power and leadership';
-    } else if (lagna === 'Taurus' || sunSign === 'Taurus') {
-      return lang === 'hi' ? 'हीरा (Diamond) - सुख और समृद्धि के लिए' : 'Diamond - for happiness and prosperity';
-    } else if (lagna === 'Sagittarius' || sunSign === 'Sagittarius') {
-      return lang === 'hi' ? 'पुखराज (Yellow Sapphire) - ज्ञान और भाग्य के लिए' : 'Yellow Sapphire - for wisdom and fortune';
-    } else {
-      return lang === 'hi' ? 'मोती (Pearl) - मानसिक शांति के लिए' : 'Pearl - for mental peace';
-    }
-  };
-
-  const getFuturePath = (yogas: any[], dasha: any, lang: string) => {
-    if (yogas.length > 2) {
-      return lang === 'hi' ? '2025-27 में आपके जीवन में बड़ा बदलाव, सफलता निश्चित' : 'major life change in 2025-27, success is certain';
-    } else {
-      return lang === 'hi' ? 'धीरे-धीरे लेकिन निरंतर प्रगति, धैर्य रखें' : 'slow but steady progress, be patient';
-    }
-  };
-
-  // Check cached response
-  const getCachedResponse = (query: string) => {
-    const cacheKey = getCacheKey(query);
-    if (!cacheKey) return null;
-    
-    try {
-      const cached = localStorage.getItem(cacheKey);
-      if (cached) {
-        const parsedData = JSON.parse(cached);
-        const cacheTime = new Date(parsedData.timestamp);
-        const now = new Date();
-        const hoursDiff = (now.getTime() - cacheTime.getTime()) / (1000 * 60 * 60);
-        
-        if (hoursDiff < 6) {
-          return parsedData.response;
-        } else {
-          localStorage.removeItem(cacheKey);
-        }
-      }
-    } catch (error) {
-      console.log('Cache read error:', error);
-    }
-    return null;
-  };
-
-  // Save response to cache
-  const setCachedResponse = (query: string, response: string) => {
-    const cacheKey = getCacheKey(query);
-    if (!cacheKey) return;
-    
-    try {
-      const cacheData = {
-        response,
-        timestamp: new Date().toISOString()
-      };
-      localStorage.setItem(cacheKey, JSON.stringify(cacheData));
-    } catch (error) {
-      console.log('Cache write error:', error);
-    }
-  };
-
   useEffect(() => {
-    if (!kundaliData || !kundaliData.enhancedCalculations) {
-      const fallbackMessage: Message = {
-        id: '1',
-        type: 'ai',
-        content: language === 'hi' 
-          ? '🙏 नमस्कार मेरे पुत्र! मैं महर्षि पराशर हूं। पहले अपनी कुंडली बनाएं, फिर मैं व्यक्तिगत सहायता करूंगा। 🕉️'
-          : '🙏 Hello dear child! I am Maharishi Parashar. Create your birth chart first, then I can provide personalized help. 🕉️',
-        timestamp: new Date()
-      };
-      setMessages([fallbackMessage]);
+    // Check if chart data is available before accessing its properties
+    if (!kundaliData?.enhancedCalculations || !kundaliData?.birthData?.fullName) {
+      console.log('Waiting for kundali data to load...');
       return;
     }
 
-    const lagna = kundaliData.enhancedCalculations.lagna;
-    const planets = kundaliData.enhancedCalculations.planets;
-    const activeYogas = kundaliData.enhancedCalculations.yogas?.filter(y => y.isActive) || [];
-    const currentDasha = kundaliData.enhancedCalculations.dashas?.find(d => d.isActive);
+    // Enhanced welcome message with real chart data
+    const enhancedCalc = kundaliData.enhancedCalculations;
+    const birthData = kundaliData.birthData;
+    const activeYogas = enhancedCalc.yogas?.filter(y => y.isActive) || [];
+    const currentDasha = enhancedCalc.dashas?.find(d => d.isActive);
     
     const welcomeMessage: Message = {
       id: '1',
-      type: 'ai',
+      type: 'rishi',
       content: language === 'hi' 
-        ? `🙏 मेरे प्रिय पुत्र ${kundaliData.birthData?.fullName || ''}, मैं महर्षि पराशर हूं।
-
-🌟 आपका व्यक्तिगत विवरण:
-• ${getSafeSignName(lagna)} लग्न - ${getLagnaLifePurpose(getSafeSignName(lagna), 'hi')}
-• चंद्र: ${getSafeSignName(planets?.MO)} राशि में
-• वर्तमान दशा: ${currentDasha?.planet || 'अज्ञात'} - ${getSpecificPrediction(currentDasha?.planet, planets, 'hi')}
-• ${activeYogas.length} शुभ योग सक्रिय
-
-मैं आपको व्यक्तिगत सुझाव दूंगा। कैरियर, विवाह, स्वास्थ्य या जीवन के बारे में पूछें! 💫`
-        : `🙏 My dear child ${kundaliData.birthData?.fullName || ''}, I am Maharishi Parashar.
-
-🌟 Your Personal Details:
-• ${getSafeSignName(lagna)} ascendant - ${getLagnaLifePurpose(getSafeSignName(lagna), 'en')}
-• Moon: in ${getSafeSignName(planets?.MO)} sign
-• Current dasha: ${currentDasha?.planet || 'Unknown'} - ${getSpecificPrediction(currentDasha?.planet, planets, 'en')}
-• ${activeYogas.length} beneficial yogas active
-
-I will give you personalized guidance. Ask about career, marriage, health or life! 💫`,
+        ? `🙏 नमस्कार ${birthData.fullName}! मैं ऋषि पराशर हूँ। आपकी जन्मपत्रिका देखकर मैं प्रसन्न हूँ।\n\nआपका ${enhancedCalc.lagna?.signName || 'अज्ञात'} लग्न है और आपकी कुंडली में ${activeYogas.length} शुभ योग हैं। ${currentDasha ? `वर्तमान में ${currentDasha.planet} महादशा चल रही है।` : ''}\n\nआपका कोई भी प्रश्न पूछें - करियर, विवाह, स्वास्थ्य, या जीवन के किसी भी पहलू के बारे में। मैं आपकी वास्तविक कुंडली के आधार पर मार्गदर्शन दूंगा।`
+        : `🙏 Namaste ${birthData.fullName}! I am Rishi Parashar, and I am pleased to see your birth chart.\n\nYou have ${enhancedCalc.lagna?.signName || 'Unknown'} ascendant and ${activeYogas.length} auspicious yogas in your chart. ${currentDasha ? `Currently ${currentDasha.planet} Mahadasha is running.` : ''}\n\nAsk me any question - about career, marriage, health, or any aspect of life. I will guide you based on your actual birth chart.`,
       timestamp: new Date()
     };
     setMessages([welcomeMessage]);
-  }, [kundaliData, language]);
+  }, [kundaliData?.birthData?.fullName, kundaliData?.enhancedCalculations, language]);
 
   useEffect(() => {
     if (scrollAreaRef.current) {
       scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
     }
   }, [messages]);
+
+  const createDetailedChartContext = () => {
+    const enhancedCalc = kundaliData?.enhancedCalculations || {};
+    const birthData = kundaliData?.birthData || {};
+    
+    // Get current dasha information
+    const currentDasha = enhancedCalc.dashas?.find(d => d.isActive);
+    const activeDashas = enhancedCalc.dashas?.filter(d => d.isActive) || [];
+    
+    // Get active yogas with their strengths
+    const activeYogas = enhancedCalc.yogas?.filter(y => y.isActive) || [];
+    
+    // Get planetary information
+    const planetaryInfo = Object.entries(enhancedCalc.planets || {}).map(([planet, data]: [string, any]) => {
+      if (!data) return '';
+      return `${planet}: ${data.rashiName || 'Unknown'} ${data.degree?.toFixed(1) || 0}° House-${data.house || 0} ${data.isRetrograde ? '[R]' : ''} ${data.isExalted ? '[Exalted]' : data.isDebilitated ? '[Debilitated]' : ''}`;
+    }).filter(Boolean);
+
+    return `
+BIRTH DETAILS: ${birthData.fullName || 'Soul'} born ${birthData.date} at ${birthData.time} in ${birthData.place}
+LAGNA: ${enhancedCalc.lagna?.signName || 'Unknown'} लग्न at ${enhancedCalc.lagna?.degree?.toFixed(2) || 0}°
+NAKSHATRA: ${enhancedCalc.lagna?.nakshatraName || 'Unknown'}
+
+PLANETARY POSITIONS:
+${planetaryInfo.join('\n')}
+
+CURRENT DASHA PERIODS:
+${activeDashas.map(d => `${d.planet}: ${d.startDate} to ${d.endDate} ${d.isActive ? '[ACTIVE]' : ''}`).join('\n')}
+
+ACTIVE YOGAS (${activeYogas.length}):
+${activeYogas.map(y => `${y.name} (${y.strength || 'Strong'}% strength): ${y.description}`).join('\n')}
+
+DOSHAS:
+${enhancedCalc.doshas?.filter(d => d.isPresent).map(d => `${d.name}: ${d.severity || 'Present'}`).join('\n') || 'No significant doshas'}
+`;
+  };
 
   const handleSendMessage = async () => {
     if (!inputValue.trim() || isLoading) return;
@@ -540,101 +106,66 @@ I will give you personalized guidance. Ask about career, marriage, health or lif
     };
 
     setMessages(prev => [...prev, userMessage]);
-    const currentInput = inputValue;
     setInputValue('');
     setIsLoading(true);
 
     try {
-      if (!kundaliData) {
-        throw new Error('No birth chart data available');
-      }
+      const chartContext = createDetailedChartContext();
+      
+      const systemPrompt = language === 'hi' 
+        ? `आप ऋषि पराशर हैं - वैदिक ज्योतिष के महान आचार्य। आप अत्यंत ज्ञानी, दयालु और व्यावहारिक सलाह देने वाले हैं। इस व्यक्ति के वास्तविक जन्म चार्ट डेटा के आधार पर व्यक्तिगत, गहन मार्गदर्शन दें। आपके उत्तर प्रेमपूर्ण, आध्यात्मिक और व्यावहारिक दोनों होने चाहिए। कुंडली के वास्तविक डेटा का उपयोग करके विशिष्ट सुझाव दें।`
+        : `You are Rishi Parashar - the great sage and father of Vedic astrology. You are extremely wise, compassionate, and give practical advice. Provide personalized, deep guidance based on this person's actual birth chart data. Your responses should be loving, spiritual, and practical. Use the real chart data to give specific suggestions.`;
 
-      // Check cache first
-      const cachedResponse = getCachedResponse(currentInput);
-      if (cachedResponse) {
-        const aiMessage: Message = {
-          id: (Date.now() + 1).toString(),
-          type: 'ai',
-          content: cachedResponse,
-          timestamp: new Date(),
-          cached: true
-        };
-        setMessages(prev => [...prev, aiMessage]);
-        setRetryCount(0);
-        return;
-      }
-      
-      // Try AI with reduced timeout for faster fallback
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('AI timeout')), 3000)
-      );
-      
-      const aiPromise = supabase.functions.invoke('kundali-ai-analysis', {
+      const enhancedPrompt = `${systemPrompt}
+
+${chartContext}
+
+User Question: ${inputValue}
+
+Based on this person's ACTUAL birth chart data, current dasha periods, and planetary positions, provide a wise, compassionate response. Be specific to their chart - don't give generic answers. Address their question directly while weaving in relevant astrological insights from their chart.
+
+Respond in ${language === 'hi' ? 'Hindi' : 'English'} in the tone of a loving, wise sage. Keep the response conversational and personal, as if speaking directly to them.`;
+
+      const { data, error } = await supabase.functions.invoke('kundali-ai-analysis', {
         body: {
           kundaliData,
-          userQuery: currentInput,
+          userQuery: enhancedPrompt,
           language,
-          retryAttempt: retryCount
+          analysisType: 'rishi_conversation'
         }
       });
 
-      const { data, error } = await Promise.race([aiPromise, timeoutPromise]) as any;
+      if (error) throw error;
 
-      if (error) {
-        throw error;
-      }
-
-      if (!data || !data.analysis) {
-        throw new Error('No response received');
-      }
-
-      const aiMessage: Message = {
+      const rishiMessage: Message = {
         id: (Date.now() + 1).toString(),
-        type: 'ai',
-        content: data.analysis,
+        type: 'rishi',
+        content: data.analysis || (language === 'hi' 
+          ? 'पुत्र, तकनीकी समस्या के कारण मैं इस समय उत्तर नहीं दे सकता। कृपया बाद में प्रयास करें।'
+          : 'Dear child, due to technical issues, I cannot respond at this moment. Please try again later.'),
         timestamp: new Date()
       };
 
-      setMessages(prev => [...prev, aiMessage]);
-      setCachedResponse(currentInput, data.analysis);
-      setRetryCount(0);
-
-      // Store conversation with error handling
-      try {
-        await supabase.from('rishi_parasher_conversations').insert({
-          user_question: currentInput,
-          rishi_response: data.analysis,
-          kundali_context: kundaliData as unknown as Json,
-          session_id: `personalized_session_${Date.now()}`
-        });
-      } catch (insertError) {
-        console.log('Conversation storage failed:', insertError);
-      }
-
+      setMessages(prev => [...prev, rishiMessage]);
     } catch (error) {
-      console.log('AI failed, using personalized fallback:', error);
+      console.error('Error getting Rishi Parasher response:', error);
       
-      setRetryCount(prev => prev + 1);
-      
-      // Use enhanced personalized response
-      const personalizedResponse = generatePersonalizedResponse(currentInput);
-      const aiMessage: Message = {
+      const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
-        type: 'ai',
-        content: personalizedResponse,
+        type: 'rishi',
+        content: language === 'hi' 
+          ? '🙏 पुत्र, ब्रह्मांडीय ऊर्जाओं में व्यवधान है। कृपया थोड़ी देर बाद पुनः प्रयास करें। आपकी कुंडली के अनुसार धैर्य रखना आपके लिए शुभ है।'
+          : '🙏 Dear child, there is a disturbance in cosmic energies. Please try again after some time. According to your chart, patience is auspicious for you.',
         timestamp: new Date()
       };
 
-      setMessages(prev => [...prev, aiMessage]);
-      setCachedResponse(currentInput, personalizedResponse);
+      setMessages(prev => [...prev, errorMessage]);
       
-      if (retryCount === 0) {
-        toast({
-          title: language === 'hi' ? "व्यक्तिगत मार्गदर्शन" : "Personalized Guidance",
-          description: language === 'hi' ? "आपकी कुंडली आधारित विशेष सलाह" : "Special advice based on your Kundali",
-          variant: "default"
-        });
-      }
+      toast({
+        title: language === 'hi' ? "त्रुटि" : "Error",
+        description: language === 'hi' ? "ऋषि जी से संपर्क में समस्या हुई है।" : "There was an issue connecting with Rishi ji.",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -647,119 +178,92 @@ I will give you personalized guidance. Ask about career, marriage, health or lif
     }
   };
 
-  const clearChat = () => {
-    setMessages(messages.slice(0, 1));
-    setRetryCount(0);
-    toast({
-      title: language === 'hi' ? "चैट साफ़" : "Chat Cleared",
-      description: language === 'hi' ? "नई शुरुआत के लिए तैयार" : "Ready for fresh start"
-    });
-  };
-
   const suggestedQuestions = language === 'hi' ? [
-    "करियर मार्गदर्शन?",
-    "विवाह योग?",
-    "स्वास्थ्य सुझाव?",
-    "धन योग?"
+    "मेरे करियर की क्या संभावनाएं हैं?",
+    "मेरा विवाह कब होगा?",
+    "मेरी वर्तमान दशा का प्रभाव क्या है?",
+    "कौन सा रत्न मेरे लिए शुभ है?",
+    "व्यापार में सफलता के उपाय बताएं",
+    "मेरी स्वास्थ्य की स्थिति कैसी है?"
   ] : [
-    "Career guidance?",
-    "Marriage yoga?",
-    "Health advice?",
-    "Wealth yoga?"
+    "What are my career prospects?",
+    "When will I get married?",
+    "What is the effect of my current dasha?",
+    "Which gemstone is auspicious for me?",
+    "Tell me remedies for business success",
+    "How is my health condition?"
   ];
 
-  return (
-    <Card className="h-[450px] flex flex-col bg-gradient-to-br from-purple-50 via-orange-50 to-red-50 border-purple-200">
-      <CardHeader className="pb-2 bg-gradient-to-r from-purple-100 via-orange-100 to-red-100 px-3 py-2">
-        <CardTitle className="flex items-center justify-between text-purple-800 text-sm">
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-full bg-gradient-to-br from-purple-500 via-orange-500 to-red-600 flex items-center justify-center overflow-hidden">
-              <img 
-                src="/lovable-uploads/8cb18da4-1ec3-40d2-8e2d-5f0efcfc10da.png" 
-                alt="Rishi Parasher" 
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <span className="flex items-center gap-1">
-              <Heart className="h-3 w-3 text-purple-600" />
-              {language === 'hi' ? "महर्षि पराशर" : "Rishi Parashar"}
-              <Sparkles className="h-3 w-3 text-orange-500" />
-            </span>
+  // Show loading state if kundali data is not ready
+  if (!kundaliData?.enhancedCalculations || !kundaliData?.birthData?.fullName) {
+    return (
+      <Card className="h-[600px] flex flex-col bg-white border-gray-200">
+        <CardContent className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">
+              {language === 'hi' ? 'कुंडली डेटा लोड हो रहा है...' : 'Loading kundali data...'}
+            </p>
           </div>
-          <Button
-            onClick={clearChat}
-            variant="ghost"
-            size="sm"
-            className="h-6 w-6 p-0 text-purple-600 hover:bg-purple-200"
-          >
-            <RefreshCw className="h-3 w-3" />
-          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className="h-[600px] flex flex-col bg-white border-gray-200">
+      <CardHeader className="pb-4">
+        <CardTitle className="flex items-center gap-2 text-gray-900">
+          <Sparkles className="h-5 w-5 text-orange-400" />
+          {language === 'hi' ? "ऋषि पराशर - वैदिक ज्योतिष गुरु" : "Rishi Parashar - Vedic Astrology Sage"}
         </CardTitle>
-        <div className="flex flex-wrap gap-1">
-          {suggestedQuestions.map((question, index) => (
+        <div className="flex flex-wrap gap-2">
+          {suggestedQuestions.slice(0, 3).map((question, index) => (
             <Badge 
               key={index} 
               variant="outline" 
-              className="cursor-pointer hover:bg-purple-200 text-xs border-purple-300 text-purple-700 hover:text-purple-900 bg-purple-50 px-1 py-0.5"
+              className="cursor-pointer hover:bg-orange-100 text-xs border-gray-300 text-gray-700 hover:text-gray-900 bg-white"
               onClick={() => setInputValue(question)}
             >
               {question}
             </Badge>
           ))}
         </div>
-        {retryCount > 0 && (
-          <div className="text-xs text-orange-600 bg-orange-50 px-2 py-1 rounded">
-            {language === 'hi' ? `व्यक्तिगत मार्गदर्शन मोड ${retryCount}/3` : `Personalized guidance mode ${retryCount}/3`}
-          </div>
-        )}
       </CardHeader>
       
+      <Separator className="bg-gray-200" />
+      
       <CardContent className="flex-1 flex flex-col p-0">
-        <ScrollArea className="flex-1 p-2 max-h-[300px]" ref={scrollAreaRef}>
-          <div className="space-y-2">
+        <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
+          <div className="space-y-4">
             {messages.map((message) => (
-              <div key={message.id} className={`flex gap-2 ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}>
+              <div key={message.id} className={`flex gap-3 ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}>
                 <div className={`flex gap-2 max-w-[85%] ${message.type === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
-                  <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${
-                    message.type === 'user' 
-                      ? 'bg-blue-600 text-white' 
-                      : 'bg-gradient-to-br from-purple-500 via-orange-500 to-red-600 text-white overflow-hidden'
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+                    message.type === 'user' ? 'bg-blue-600 text-white' : 'bg-gradient-to-br from-orange-400 to-red-600 text-white'
                   }`}>
-                    {message.type === 'user' ? (
-                      <User className="h-3 w-3" />
-                    ) : (
-                      <img 
-                        src="/lovable-uploads/8cb18da4-1ec3-40d2-8e2d-5f0efcfc10da.png" 
-                        alt="Rishi Parasher" 
-                        className="w-full h-full object-cover"
-                      />
-                    )}
+                    {message.type === 'user' ? <User className="h-4 w-4" /> : <Bot className="h-4 w-4" />}
                   </div>
-                  <div className={`p-2 rounded-lg shadow-sm relative ${
+                  <div className={`p-3 rounded-lg ${
                     message.type === 'user' 
                       ? 'bg-blue-600 text-white' 
-                      : 'bg-gradient-to-br from-purple-500 via-orange-500 to-red-600 text-white'
+                      : 'bg-gradient-to-br from-orange-500 to-red-600 text-white shadow-lg'
                   }`}>
-                    <p className="text-xs whitespace-pre-wrap leading-relaxed">{message.content}</p>
-                    <p className="text-xs opacity-80 mt-1 flex items-center gap-1">
+                    <p className="text-sm whitespace-pre-wrap leading-relaxed font-medium">{message.content}</p>
+                    <p className="text-xs opacity-80 mt-2">
                       {message.timestamp.toLocaleTimeString()}
-                      {message.cached && <span title={language === 'hi' ? 'कैश्ड' : 'Cached'}>💾</span>}
                     </p>
                   </div>
                 </div>
               </div>
             ))}
             {isLoading && (
-              <div className="flex gap-2 justify-start">
+              <div className="flex gap-3 justify-start">
                 <div className="flex gap-2 max-w-[85%]">
-                  <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 bg-gradient-to-br from-purple-500 via-orange-500 to-red-600 text-white overflow-hidden">
-                    <img 
-                      src="/lovable-uploads/8cb18da4-1ec3-40d2-8e2d-5f0efcfc10da.png" 
-                      alt="Rishi Parasher" 
-                      className="w-full h-full object-cover"
-                    />
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 bg-gradient-to-br from-orange-400 to-red-600 text-white">
+                    <Bot className="h-4 w-4" />
                   </div>
-                  <div className="p-2 rounded-lg bg-gradient-to-br from-purple-500 via-orange-500 to-red-600 text-white">
+                  <div className="p-3 rounded-lg bg-gradient-to-br from-orange-500 to-red-600 text-white">
                     <div className="flex space-x-1">
                       <div className="w-2 h-2 bg-white rounded-full animate-bounce"></div>
                       <div className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
@@ -772,23 +276,25 @@ I will give you personalized guidance. Ask about career, marriage, health or lif
           </div>
         </ScrollArea>
         
-        <div className="p-2 border-t border-purple-200 bg-white">
+        <Separator className="bg-gray-200" />
+        
+        <div className="p-4">
           <div className="flex gap-2">
             <Input
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder={language === 'hi' ? "व्यक्तिगत प्रश्न पूछें..." : "Ask personal question..."}
+              placeholder={language === 'hi' ? "ऋषि जी से अपना प्रश्न पूछें..." : "Ask Rishi ji your question..."}
               disabled={isLoading}
-              className="flex-1 bg-white border-purple-300 text-gray-900 placeholder-gray-500 text-xs h-8"
+              className="flex-1 bg-white border-gray-300 text-gray-900 placeholder-gray-500"
             />
             <Button 
               onClick={handleSendMessage}
               disabled={!inputValue.trim() || isLoading}
-              size="sm"
-              className="bg-gradient-to-r from-purple-500 via-orange-500 to-red-600 hover:from-purple-600 hover:via-orange-600 hover:to-red-700 h-8 w-8 p-0"
+              size="icon"
+              className="bg-orange-500 hover:bg-orange-600"
             >
-              <Send className="h-3 w-3" />
+              <Send className="h-4 w-4" />
             </Button>
           </div>
         </div>

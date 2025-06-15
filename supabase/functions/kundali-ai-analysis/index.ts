@@ -1,4 +1,3 @@
-
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
@@ -35,134 +34,15 @@ serve(async (req) => {
     // Create enhanced cache key including analysis type
     const cacheKey = `${analysisType}_${userQuery.toLowerCase().trim()}_${language}_${kundaliData.enhancedCalculations?.lagna?.signName || 'unknown'}`;
     
-    // Check cache first
-    const cached = responseCache.get(cacheKey);
-    if (cached && (Date.now() - cached.timestamp) < CACHE_TTL) {
-      console.log('Returning cached response');
-      return new Response(JSON.stringify({ analysis: cached.response }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
-    // Extract comprehensive context for better analysis
-    const calculations = kundaliData.enhancedCalculations || {};
-    const birthData = kundaliData.birthData || {};
-    
-    // Get current dasha information
-    const currentDasha = calculations.dashas?.find(d => d.isActive);
-    const activeDashas = calculations.dashas?.filter(d => d.isActive) || [];
-    
-    // Get active yogas with their strengths
-    const activeYogas = calculations.yogas?.filter(y => y.isActive) || [];
-    const strongYogas = activeYogas.filter(y => y.strength > 60);
-    
-    // Get planetary strengths
-    const planetaryStrengths = {};
-    if (calculations.planets) {
-      Object.entries(calculations.planets).forEach(([planet, data]: [string, any]) => {
-        if (data && typeof data.shadbala === 'number') {
-          planetaryStrengths[planet] = {
-            shadbala: data.shadbala,
-            house: data.house,
-            sign: data.rashiName,
-            isExalted: data.isExalted,
-            isDebilitated: data.isDebilitated,
-            isRetrograde: data.isRetrograde
-          };
-        }
-      });
-    }
-
-    const enhancedKundaliContext = `
-BIRTH DETAILS: ${birthData.fullName || 'Soul'} born ${birthData.date} at ${birthData.time} in ${birthData.place}
-LAGNA: ${calculations.lagna?.signName || 'Unknown'} लग्न at ${calculations.lagna?.degree?.toFixed(2) || 0}°
-NAKSHATRA: ${calculations.lagna?.nakshatraName || 'Unknown'}
-
-PLANETARY POSITIONS:
-${Object.entries(calculations.planets || {}).map(([planet, data]: [string, any]) => {
-  if (!data) return '';
-  return `${planet}: ${data.rashiName || 'Unknown'} ${data.degree?.toFixed(1) || 0}° House-${data.house || 0} ${data.isRetrograde ? '[R]' : ''} ${data.isExalted ? '[Exalted]' : data.isDebilitated ? '[Debilitated]' : ''}`;
-}).filter(Boolean).join('\n')}
-
-CURRENT DASHA PERIODS:
-${activeDashas.map(d => `${d.planet}: ${d.startDate} to ${d.endDate} ${d.isActive ? '[ACTIVE]' : ''}`).join('\n')}
-
-ACTIVE YOGAS (${activeYogas.length}):
-${strongYogas.map(y => `${y.name} (${y.strength}% strength): ${y.description}`).join('\n')}
-
-PLANETARY STRENGTHS:
-${Object.entries(planetaryStrengths).map(([planet, data]: [string, any]) => 
-  `${planet}: ${data.shadbala}/100 in ${data.sign} (House ${data.house})`
-).join('\n')}
-`;
-
-    let systemPrompt = '';
-    let enhancedPrompt = '';
-
-    // Create analysis-type specific prompts
-    if (analysisType === 'daily_horoscope') {
-      systemPrompt = language === 'hi' 
-        ? `आप महर्षि पराशर हैं - दैनिक राशिफल विशेषज्ञ। व्यक्तिगत कुंडली डेटा के आधार पर आज के लिए विस्तृत, व्यक्तिगत भविष्यवाणी दें। वर्तमान दशा काल, ग्रह गोचर और सक्रिय योगों का विश्लेषण करें।`
-        : `You are Maharishi Parashar - daily horoscope expert. Provide detailed, personalized predictions for today based on individual Kundali data. Analyze current dasha periods, planetary transits, and active yogas.`;
-      
-      enhancedPrompt = `${systemPrompt}
-
-${enhancedKundaliContext}
-
-Today's Date: ${new Date().toLocaleDateString()}
-Current Weekday: ${new Date().toLocaleDateString('en', { weekday: 'long' })}
-
-User Request: ${userQuery}
-
-Based on this person's ACTUAL birth chart data, current dasha periods, and planetary positions, provide:
-
-1. **Today's Main Prediction** - Based on current dasha and planetary transits
-2. **Love & Relationships** - Considering Venus position and 7th house influences  
-3. **Career & Finance** - Based on 10th house, Sun, and Jupiter influences
-4. **Health & Wellbeing** - Considering 6th house and current planetary aspects
-5. **Lucky Elements** - Specific numbers, colors, directions based on chart
-6. **Specific Guidance** - Actionable advice for today based on running dasha
-7. **Cautions** - Any challenging planetary influences to be aware of
-
-Make predictions specific to their chart data, not generic. Use their actual planetary positions, current dasha period, and active yogas.
-Respond in ${language === 'hi' ? 'Hindi' : 'English'} with warmth and practical guidance.`;
-
-    } else if (analysisType === 'divisional_chart') {
-      systemPrompt = language === 'hi' 
-        ? `आप वैदिक ज्योतिष के विभागीय चार्ट विशेषज्ञ हैं। इस व्यक्ति के विशिष्ट चार्ट का गहरा विश्लेषण करें।`
-        : `You are a Vedic astrology divisional chart expert. Provide deep analysis of this person's specific chart.`;
-      
-      enhancedPrompt = `${systemPrompt}
-
-${enhancedKundaliContext}
-
-User Request: ${userQuery}
-
-Provide detailed analysis focusing on:
-1. **Chart-Specific Insights** - How planets in this chart affect the life area
-2. **Yoga Analysis** - Any special yogas formed in this divisional chart
-3. **Planetary Dignity** - Strength/weakness of planets in this chart
-4. **Practical Guidance** - Real-world implications and advice
-5. **Timing** - When these influences will be most active
-6. **Remedies** - Specific measures to enhance positive effects
-
-Be specific to their actual planetary positions. Avoid generic statements.
-Respond in ${language === 'hi' ? 'Hindi' : 'English'} with practical insights.`;
-
-    } else {
-      // General analysis
-      systemPrompt = language === 'hi' 
-        ? `आप महर्षि पराशर हैं - कुंडली विशेषज्ञ। इस व्यक्ति के वास्तविक ग्रह डेटा के आधार पर गहन विश्लेषण दें।`
-        : `You are Maharishi Parashar - Kundali expert. Provide deep analysis based on this person's actual planetary data.`;
-      
-      enhancedPrompt = `${systemPrompt}
-
-${enhancedKundaliContext}
-
-User Request: ${userQuery}
-
-Provide personalized insights based on their actual chart data. Be specific and practical.
-Respond in ${language === 'hi' ? 'Hindi' : 'English'} with loving guidance.`;
+    // Check cache first for non-conversation types
+    if (analysisType !== 'rishi_conversation') {
+      const cached = responseCache.get(cacheKey);
+      if (cached && (Date.now() - cached.timestamp) < CACHE_TTL) {
+        console.log('Returning cached response');
+        return new Response(JSON.stringify({ analysis: cached.response }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
     }
 
     let analysis = '';
@@ -170,7 +50,13 @@ Respond in ${language === 'hi' ? 'Hindi' : 'English'} with loving guidance.`;
     if (GEMINI_API_KEY) {
       try {
         console.log('Calling Gemini API...');
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+        
+        // For Rishi conversation, use the userQuery directly as it already contains the full prompt
+        const prompt = analysisType === 'rishi_conversation' 
+          ? userQuery 
+          : createDetailedKundaliPrompt(kundaliData, userQuery, language, analysisType);
+        
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -178,15 +64,14 @@ Respond in ${language === 'hi' ? 'Hindi' : 'English'} with loving guidance.`;
           body: JSON.stringify({
             contents: [{
               parts: [{
-                text: enhancedPrompt
+                text: prompt
               }]
             }],
             generationConfig: {
-              temperature: 0.7,
-              topK: 20,
-              topP: 0.8,
-              maxOutputTokens: 800,
-              candidateCount: 1,
+              temperature: analysisType === 'rishi_conversation' ? 0.8 : 0.7,
+              topK: analysisType === 'rishi_conversation' ? 30 : 40,
+              topP: analysisType === 'rishi_conversation' ? 0.9 : 0.95,
+              maxOutputTokens: analysisType === 'rishi_conversation' ? 1000 : 2048,
             },
             safetySettings: [
               {
@@ -224,11 +109,13 @@ Respond in ${language === 'hi' ? 'Hindi' : 'English'} with loving guidance.`;
       analysis = generateFallbackAnalysis(kundaliData, userQuery, language, analysisType);
     }
 
-    // Cache the response
-    responseCache.set(cacheKey, {
-      response: analysis,
-      timestamp: Date.now()
-    });
+    // Cache the response (except for conversations)
+    if (analysisType !== 'rishi_conversation') {
+      responseCache.set(cacheKey, {
+        response: analysis,
+        timestamp: Date.now()
+      });
+    }
 
     // Clean old cache entries periodically
     if (responseCache.size > 200) {
@@ -265,6 +152,130 @@ Respond in ${language === 'hi' ? 'Hindi' : 'English'} with loving guidance.`;
   }
 });
 
+function createDetailedKundaliPrompt(kundaliData: any, userQuery: string, language: string, analysisType: string): string {
+  const calculations = kundaliData.enhancedCalculations || {};
+  const birthData = kundaliData.birthData || {};
+  
+  // Get current dasha information
+  const currentDasha = calculations.dashas?.find(d => d.isActive);
+  const activeDashas = calculations.dashas?.filter(d => d.isActive) || [];
+  
+  // Get active yogas with their strengths
+  const activeYogas = calculations.yogas?.filter(y => y.isActive) || [];
+  const strongYogas = activeYogas.filter(y => y.strength > 60);
+  
+  // Get planetary strengths
+  const planetaryStrengths = {};
+  if (calculations.planets) {
+    Object.entries(calculations.planets).forEach(([planet, data]: [string, any]) => {
+      if (data && typeof data.shadbala === 'number') {
+        planetaryStrengths[planet] = {
+          shadbala: data.shadbala,
+          house: data.house,
+          sign: data.rashiName,
+          isExalted: data.isExalted,
+          isDebilitated: data.isDebilitated,
+          isRetrograde: data.isRetrograde
+        };
+      }
+    });
+  }
+
+  const enhancedKundaliContext = `
+BIRTH DETAILS: ${birthData.fullName || 'Soul'} born ${birthData.date} at ${birthData.time} in ${birthData.place}
+LAGNA: ${calculations.lagna?.signName || 'Unknown'} लग्न at ${calculations.lagna?.degree?.toFixed(2) || 0}°
+NAKSHATRA: ${calculations.lagna?.nakshatraName || 'Unknown'}
+
+PLANETARY POSITIONS:
+${Object.entries(calculations.planets || {}).map(([planet, data]: [string, any]) => {
+  if (!data) return '';
+  return `${planet}: ${data.rashiName || 'Unknown'} ${data.degree?.toFixed(1) || 0}° House-${data.house || 0} ${data.isRetrograde ? '[R]' : ''} ${data.isExalted ? '[Exalted]' : data.isDebilitated ? '[Debilitated]' : ''}`;
+}).filter(Boolean).join('\n')}
+
+CURRENT DASHA PERIODS:
+${activeDashas.map(d => `${d.planet}: ${d.startDate} to ${d.endDate} ${d.isActive ? '[ACTIVE]' : ''}`).join('\n')}
+
+ACTIVE YOGAS (${activeYogas.length}):
+${strongYogas.map(y => `${y.name} (${y.strength}% strength): ${y.description}`).join('\n')}
+
+PLANETARY STRENGTHS:
+${Object.entries(planetaryStrengths).map(([planet, data]: [string, any]) => 
+  `${planet}: ${data.shadbala}/100 in ${data.sign} (House ${data.house})`
+).join('\n')}
+`;
+
+  let systemPrompt = '';
+  let enhancedPrompt = '';
+
+  // Create analysis-type specific prompts
+  if (analysisType === 'daily_horoscope') {
+    systemPrompt = language === 'hi' 
+      ? `आप महर्षि पराशर हैं - दैनिक राशिफल विशेषज्ञ। व्यक्तिगत कुंडली डेटा के आधार पर आज के लिए विस्तृत, व्यक्तिगत भविष्यवाणी दें। वर्तमान दशा काल, ग्रह गोचर और सक्रिय योगों का विश्लेषण करें।`
+      : `You are Maharishi Parashar - daily horoscope expert. Provide detailed, personalized predictions for today based on individual Kundali data. Analyze current dasha periods, planetary transits, and active yogas.`;
+    
+    enhancedPrompt = `${systemPrompt}
+
+${enhancedKundaliContext}
+
+Today's Date: ${new Date().toLocaleDateString()}
+Current Weekday: ${new Date().toLocaleDateString('en', { weekday: 'long' })}
+
+User Request: ${userQuery}
+
+Based on this person's ACTUAL birth chart data, current dasha periods, and planetary positions, provide:
+
+1. **Today's Main Prediction** - Based on current dasha and planetary transits
+2. **Love & Relationships** - Considering Venus position and 7th house influences  
+3. **Career & Finance** - Based on 10th house, Sun, and Jupiter influences
+4. **Health & Wellbeing** - Considering 6th house and current planetary aspects
+5. **Lucky Elements** - Specific numbers, colors, directions based on chart
+6. **Specific Guidance** - Actionable advice for today based on running dasha
+7. **Cautions** - Any challenging planetary influences to be aware of
+
+Make predictions specific to their chart data, not generic. Use their actual planetary positions, current dasha period, and active yogas.
+Respond in ${language === 'hi' ? 'Hindi' : 'English'} with warmth and practical guidance.`;
+
+  } else if (analysisType === 'divisional_chart') {
+    systemPrompt = language === 'hi' 
+      ? `आप वैदिक ज्योतिष के विभागीय चार्ट विशेषज्ञ हैं। इस व्यक्ति के विशिष्ट चार्ट का गहरा विश्लेषण करें।`
+      : `You are a Vedic astrology divisional chart expert. Provide deep analysis of this person's specific chart.`;
+    
+    enhancedPrompt = `${systemPrompt}
+
+${enhancedKundaliContext}
+
+User Request: ${userQuery}
+
+Provide detailed analysis focusing on:
+1. **Chart-Specific Insights** - How planets in this chart affect the life area
+2. **Yoga Analysis** - Any special yogas formed in this divisional chart
+3. **Planetary Dignity** - Strength/weakness of planets in this chart
+4. **Practical Guidance** - Real-world implications and advice
+5. **Timing** - When these influences will be most active
+6. **Remedies** - Specific measures to enhance positive effects
+
+Be specific to their actual planetary positions. Avoid generic statements.
+Respond in ${language === 'hi' ? 'Hindi' : 'English'} with practical insights.`;
+
+  } else {
+    // General analysis
+    systemPrompt = language === 'hi' 
+      ? `आप महर्षि पराशर हैं - कुंडली विशेषज्ञ। इस व्यक्ति के वास्तविक ग्रह डेटा के आधार पर गहन विश्लेषण दें।`
+      : `You are Maharishi Parashar - Kundali expert. Provide deep analysis based on this person's actual planetary data.`;
+    
+    enhancedPrompt = `${systemPrompt}
+
+${enhancedKundaliContext}
+
+User Request: ${userQuery}
+
+Provide personalized insights based on their actual chart data. Be specific and practical.
+Respond in ${language === 'hi' ? 'Hindi' : 'English'} with loving guidance.`;
+  }
+
+  return enhancedPrompt;
+}
+
 // Enhanced fallback analysis based on actual Kundali data
 function generateFallbackAnalysis(kundaliData: any, userQuery: string, language: string, analysisType: string): string {
   const calculations = kundaliData.enhancedCalculations || {};
@@ -272,12 +283,30 @@ function generateFallbackAnalysis(kundaliData: any, userQuery: string, language:
   const activeYogas = calculations.yogas?.filter(y => y.isActive) || [];
   const lagna = calculations.lagna;
   
-  if (analysisType === 'daily_horoscope') {
+  if (analysisType === 'rishi_conversation') {
+    return generateRishiConversationFallback(calculations, currentDasha, language, userQuery);
+  } else if (analysisType === 'daily_horoscope') {
     return generateDailyHoroscopeFallback(calculations, currentDasha, activeYogas, language);
   } else if (analysisType === 'divisional_chart') {
     return generateDivisionalChartFallback(calculations, language, userQuery);
   } else {
     return generateGeneralFallback(calculations, currentDasha, language);
+  }
+}
+
+function generateRishiConversationFallback(calculations: any, currentDasha: any, language: string, userQuery: string): string {
+  if (language === 'hi') {
+    return `🙏 पुत्र, आपका प्रश्न "${userQuery}" मैंने सुना है। ${calculations.lagna?.signName ? `आपका ${calculations.lagna.signName} लग्न` : 'आपकी कुंडली'} देखकर मैं कह सकता हूं कि ${currentDasha ? `वर्तमान ${currentDasha.planet} दशा में` : 'इस समय'} आपको धैर्य और सकारात्मक विचारों की आवश्यकता है। 
+
+आपकी समस्या का समाधान आपके कर्मों में छुपा है। नियमित प्रार्थना, ध्यान और दान-पुण्य करें। ${calculations.yogas?.length > 0 ? `आपकी कुंडली में शुभ योग हैं जो आपकी सहायता करेंगे।` : 'ब्रह्मांड की शक्तियां आपके साथ हैं।'}
+
+मेरा आशीर्वाद सदा आपके साथ है। 🕉️`;
+  } else {
+    return `🙏 Dear child, I have heard your question "${userQuery}". Looking at your ${calculations.lagna?.signName ? `${calculations.lagna.signName} ascendant` : 'birth chart'}, I can say that ${currentDasha ? `in the current ${currentDasha.planet} dasha` : 'at this time'} you need patience and positive thoughts.
+
+The solution to your problem lies in your actions. Practice regular prayer, meditation, and charity. ${calculations.yogas?.length > 0 ? 'You have auspicious yogas in your chart that will help you.' : 'The cosmic forces are with you.'}
+
+My blessings are always with you. 🕉️`;
   }
 }
 
