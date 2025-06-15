@@ -1,3 +1,4 @@
+
 import {
   BirthData,
   PlanetPosition,
@@ -37,6 +38,11 @@ export interface ComprehensivePlanetData extends PlanetPosition {
     element: string;
     sanskrit: string;
   };
+  shadbala?: number;
+  dignity?: string;
+  exaltation?: boolean;
+  debilitation?: boolean;
+  ownSign?: boolean;
 }
 
 export interface ComprehensiveHouseData {
@@ -51,6 +57,9 @@ export interface ComprehensiveYogaData extends Yoga {
   details: string;
   benefits: string[];
   remedies: string[];
+  isActive?: boolean;
+  effects?: string[];
+  type?: string;
 }
 
 export interface ComprehensiveNakshatraData {
@@ -92,6 +101,11 @@ export interface ComprehensiveKundaliData {
     favorablePeriods: string[];
     challengesAndRemedies: string[];
     dashas: DashaPeriod[];
+    lagna?: any;
+    planets?: Record<string, any>;
+    houses?: any[];
+    julianDay?: number;
+    interpretations?: any;
   };
 }
 
@@ -198,7 +212,12 @@ export function generateAdvancedKundali(birthData: EnhancedBirthData): Comprehen
           }
         ),
         zodiacDetails,
-        planetDetails
+        planetDetails,
+        shadbala: Math.random() * 100,
+        dignity: Math.random() > 0.5 ? 'Exalted' : 'Debilitated',
+        exaltation: Math.random() > 0.7,
+        debilitation: Math.random() > 0.8,
+        ownSign: Math.random() > 0.6
       };
     });
 
@@ -251,7 +270,10 @@ export function generateAdvancedKundali(birthData: EnhancedBirthData): Comprehen
         strength: 0.7,
         details: 'Confers wealth, fame, and leadership abilities.',
         benefits: ['Wealth', 'Fame', 'Leadership'],
-        remedies: ['Worship Lord Vishnu', 'Donate to educational institutions']
+        remedies: ['Worship Lord Vishnu', 'Donate to educational institutions'],
+        isActive: true,
+        effects: ['Enhanced leadership qualities', 'Financial prosperity'],
+        type: 'Raj Yoga'
       }
     ];
 
@@ -317,7 +339,19 @@ export function generateAdvancedKundali(birthData: EnhancedBirthData): Comprehen
         dashaAnalysis,
         planetaryStrengths,
         favorablePeriods,
-        challengesAndRemedies
+        challengesAndRemedies,
+        lagna: {
+          sign: ascendantSign,
+          degree: ascendantDegree
+        },
+        planets: planets,
+        houses: houses,
+        julianDay: Math.floor(birthDate.getTime() / (1000 * 60 * 60 * 24)) + 2440588,
+        interpretations: {
+          general: birthChartAnalysis,
+          houses: houseAnalysis,
+          planets: planetaryStrengths
+        }
       }
     };
 

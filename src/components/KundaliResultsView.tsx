@@ -1,3 +1,4 @@
+
 import React, { Suspense, lazy, useMemo, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,10 +8,10 @@ import InteractiveDashboard from './InteractiveDashboard';
 import EnhancedDailyHoroscope from './EnhancedDailyHoroscope';
 import EnhancedKundaliPDFExport from './EnhancedKundaliPDFExport';
 import DharmaAlignmentAnalysis from './DharmaAlignmentAnalysis';
+import MobileOptimizedDivisionalCharts from './MobileOptimizedDivisionalCharts';
 
 // Lazy load heavy components for better mobile performance
 const KundaliConsultationView = lazy(() => import('./KundaliConsultationView'));
-const EnhancedDivisionalCharts = lazy(() => import('./EnhancedDivisionalCharts'));
 const DetailedDashaDisplay = lazy(() => import('./DetailedDashaDisplay'));
 const KarmicReport = lazy(() => import('./KarmicReport'));
 const KarmicReportComplete = lazy(() => import('./KarmicReportComplete'));
@@ -91,7 +92,7 @@ const KundaliResultsView: React.FC<KundaliResultsViewProps> = ({
             </CardContent>
           </Card>
 
-          {/* Enhanced Kundali Analysis with 4-Row Mobile-Optimized Tabs */}
+          {/* Enhanced Kundali Analysis with Mobile-Optimized Tabs */}
           <Card className="w-full border-purple-200 dark:border-purple-700 shadow-lg bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm">
             <CardHeader className="bg-gradient-to-r from-purple-100 to-indigo-100 dark:from-purple-900/50 dark:to-indigo-900/50 p-3 sm:p-4 lg:p-6">
               <CardTitle className="text-purple-800 dark:text-purple-300 flex items-center gap-2 text-base sm:text-lg lg:text-xl text-center sm:text-left">
@@ -110,7 +111,7 @@ const KundaliResultsView: React.FC<KundaliResultsViewProps> = ({
                   >
                     <Grid className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
                     <span className="text-center leading-tight font-medium">
-                      {getTranslation('Enhanced D1-D20', 'उन्नत D1-D20')}
+                      {getTranslation('D1-D10 Charts', 'D1-D10 चार्ट')}
                     </span>
                   </TabsTrigger>
                   <TabsTrigger 
@@ -185,9 +186,7 @@ const KundaliResultsView: React.FC<KundaliResultsViewProps> = ({
                 </TabsList>
                 <div className="min-h-[300px]">
                   <TabsContent value="enhanced-charts" className="mt-0">
-                    <Suspense fallback={<TabLoadingSpinner />}>
-                      <EnhancedDivisionalCharts kundaliData={memoizedKundaliData} language={language} />
-                    </Suspense>
+                    <MobileOptimizedDivisionalCharts kundaliData={memoizedKundaliData} language={language} />
                   </TabsContent>
 
                   <TabsContent value="enhanced-timing" className="mt-0">
