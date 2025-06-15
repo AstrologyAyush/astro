@@ -292,11 +292,19 @@ const InteractiveDashboard: React.FC<InteractiveDashboardProps> = ({ kundaliData
                   </div>
                   <div className="flex justify-between">
                     <span>{getTranslation('Date:', 'दिनांक:')}</span>
-                    <span className="font-medium">{kundaliData.birthData.date}</span>
+                    <span className="font-medium">
+                      {kundaliData.birthData.date instanceof Date
+                        ? kundaliData.birthData.date.toLocaleDateString()
+                        : kundaliData.birthData.date}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span>{getTranslation('Time:', 'समय:')}</span>
-                    <span className="font-medium">{kundaliData.birthData.time}</span>
+                    <span className="font-medium">
+                      {kundaliData.birthData.time instanceof Date
+                        ? kundaliData.birthData.time.toLocaleTimeString()
+                        : kundaliData.birthData.time}
+                    </span>
                   </div>
                 </div>
               </CardContent>
