@@ -1,4 +1,3 @@
-
 import React, { useState, Suspense, lazy } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -38,8 +37,8 @@ const AIEnhancementSuite: React.FC<AIEnhancementSuiteProps> = ({
   };
 
   return (
-    <div className="space-y-6">
-      <div className="text-center mb-6">
+    <div className="space-y-8 mt-8">
+      <div className="text-center mb-8">
         <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full mb-4">
           <Bot className="h-8 w-8 text-white" />
         </div>
@@ -54,153 +53,155 @@ const AIEnhancementSuite: React.FC<AIEnhancementSuiteProps> = ({
         </p>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-1 bg-white/80 backdrop-blur-sm rounded-xl p-2 shadow-lg">
-          <TabsTrigger 
-            value="ai-chat" 
-            className="flex flex-col items-center gap-1 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white text-xs p-2 min-h-[60px] rounded-md transition-all duration-200"
-          >
-            <Bot className="h-3 w-3" />
-            <span className="text-center font-medium">
-              {getTranslation('AI Guru Chat', 'AI गुरु चैट')}
-            </span>
-          </TabsTrigger>
-          
-          <TabsTrigger 
-            value="predictions" 
-            className="flex flex-col items-center gap-1 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white text-xs p-2 min-h-[60px] rounded-md transition-all duration-200"
-          >
-            <TrendingUp className="h-3 w-3" />
-            <span className="text-center font-medium">
-              {getTranslation('Future Insights', 'भविष्य अंतर्दृष्टि')}
-            </span>
-          </TabsTrigger>
-          
-          <TabsTrigger 
-            value="remedies" 
-            className="flex flex-col items-center gap-1 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white text-xs p-2 min-h-[60px] rounded-md transition-all duration-200"
-          >
-            <Gem className="h-3 w-3" />
-            <span className="text-center font-medium">
-              {getTranslation('Smart Remedies', 'स्मार्ट उपाय')}
-            </span>
-          </TabsTrigger>
+      <Card className="border-purple-200 shadow-2xl mt-8 mb-8 mx-2 bg-white/95 backdrop-blur-sm">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
+          <TabsList className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-1 bg-white/80 backdrop-blur-sm rounded-xl p-2 shadow-lg mx-4 mt-4">
+            <TabsTrigger 
+              value="ai-chat" 
+              className="flex flex-col items-center gap-1 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white text-xs p-2 min-h-[60px] rounded-md transition-all duration-200"
+            >
+              <Bot className="h-3 w-3" />
+              <span className="text-center font-medium">
+                {getTranslation('AI Guru Chat', 'AI गुरु चैट')}
+              </span>
+            </TabsTrigger>
+            
+            <TabsTrigger 
+              value="predictions" 
+              className="flex flex-col items-center gap-1 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white text-xs p-2 min-h-[60px] rounded-md transition-all duration-200"
+            >
+              <TrendingUp className="h-3 w-3" />
+              <span className="text-center font-medium">
+                {getTranslation('Future Insights', 'भविष्य अंतर्दृष्टि')}
+              </span>
+            </TabsTrigger>
+            
+            <TabsTrigger 
+              value="remedies" 
+              className="flex flex-col items-center gap-1 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white text-xs p-2 min-h-[60px] rounded-md transition-all duration-200"
+            >
+              <Gem className="h-3 w-3" />
+              <span className="text-center font-medium">
+                {getTranslation('Smart Remedies', 'स्मार्ट उपाय')}
+              </span>
+            </TabsTrigger>
 
-          <TabsTrigger 
-            value="career-guidance" 
-            className="flex flex-col items-center gap-1 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white text-xs p-2 min-h-[60px] rounded-md transition-all duration-200"
-          >
-            <Target className="h-3 w-3" />
-            <span className="text-center font-medium">
-              {getTranslation('Career AI', 'करियर AI')}
-            </span>
-          </TabsTrigger>
+            <TabsTrigger 
+              value="career-guidance" 
+              className="flex flex-col items-center gap-1 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white text-xs p-2 min-h-[60px] rounded-md transition-all duration-200"
+            >
+              <Target className="h-3 w-3" />
+              <span className="text-center font-medium">
+                {getTranslation('Career AI', 'करियर AI')}
+              </span>
+            </TabsTrigger>
 
-          <TabsTrigger 
-            value="compatibility" 
-            className="flex flex-col items-center gap-1 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white text-xs p-2 min-h-[60px] rounded-md transition-all duration-200"
-          >
-            <Heart className="h-3 w-3" />
-            <span className="text-center font-medium">
-              {getTranslation('Love AI', 'प्रेम AI')}
-            </span>
-          </TabsTrigger>
+            <TabsTrigger 
+              value="compatibility" 
+              className="flex flex-col items-center gap-1 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white text-xs p-2 min-h-[60px] rounded-md transition-all duration-200"
+            >
+              <Heart className="h-3 w-3" />
+              <span className="text-center font-medium">
+                {getTranslation('Love AI', 'प्रेम AI')}
+              </span>
+            </TabsTrigger>
 
-          <TabsTrigger 
-            value="health-insights" 
-            className="flex flex-col items-center gap-1 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white text-xs p-2 min-h-[60px] rounded-md transition-all duration-200"
-          >
-            <Zap className="h-3 w-3" />
-            <span className="text-center font-medium">
-              {getTranslation('Health AI', 'स्वास्थ्य AI')}
-            </span>
-          </TabsTrigger>
+            <TabsTrigger 
+              value="health-insights" 
+              className="flex flex-col items-center gap-1 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white text-xs p-2 min-h-[60px] rounded-md transition-all duration-200"
+            >
+              <Zap className="h-3 w-3" />
+              <span className="text-center font-medium">
+                {getTranslation('Health AI', 'स्वास्थ्य AI')}
+              </span>
+            </TabsTrigger>
 
-          <TabsTrigger 
-            value="spiritual-guidance" 
-            className="flex flex-col items-center gap-1 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white text-xs p-2 min-h-[60px] rounded-md transition-all duration-200"
-          >
-            <Sparkles className="h-3 w-3" />
-            <span className="text-center font-medium">
-              {getTranslation('Spiritual AI', 'आध्यात्मिक AI')}
-            </span>
-          </TabsTrigger>
-        </TabsList>
+            <TabsTrigger 
+              value="spiritual-guidance" 
+              className="flex flex-col items-center gap-1 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white text-xs p-2 min-h-[60px] rounded-md transition-all duration-200"
+            >
+              <Sparkles className="h-3 w-3" />
+              <span className="text-center font-medium">
+                {getTranslation('Spiritual AI', 'आध्यात्मिक AI')}
+              </span>
+            </TabsTrigger>
+          </TabsList>
 
-        <div className="min-h-[600px]">
-          <TabsContent value="ai-chat" className="mt-0">
-            <Card className="border-purple-200 shadow-lg">
-              <CardHeader className="bg-gradient-to-r from-purple-100 to-indigo-100 p-4">
-                <CardTitle className="flex items-center gap-2 text-purple-800">
-                  <Bot className="h-5 w-5" />
-                  {getTranslation('Interactive AI Kundali Guru', 'इंटरैक्टिव AI कुंडली गुरु')}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-0">
-                <KundaliAIChat 
+          <div className="min-h-[600px] px-4 pb-6">
+            <TabsContent value="ai-chat" className="mt-0">
+              <Card className="border-purple-200 shadow-lg">
+                <CardHeader className="bg-gradient-to-r from-purple-100 to-indigo-100 p-6 border border-purple-200 shadow-sm">
+                  <CardTitle className="flex items-center gap-2 text-purple-800">
+                    <Bot className="h-5 w-5" />
+                    {getTranslation('Interactive AI Kundali Guru', 'इंटरैक्टिव AI कुंडली गुरु')}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-0">
+                  <KundaliAIChat 
+                    kundaliData={kundaliData} 
+                    language={language}
+                    numerologyData={numerologyData}
+                  />
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="predictions" className="mt-0">
+              <Suspense fallback={<LoadingSpinner />}>
+                <AIPersonalizedPredictions 
                   kundaliData={kundaliData} 
-                  language={language}
-                  numerologyData={numerologyData}
+                  language={language} 
                 />
-              </CardContent>
-            </Card>
-          </TabsContent>
+              </Suspense>
+            </TabsContent>
 
-          <TabsContent value="predictions" className="mt-0">
-            <Suspense fallback={<LoadingSpinner />}>
-              <AIPersonalizedPredictions 
-                kundaliData={kundaliData} 
-                language={language} 
-              />
-            </Suspense>
-          </TabsContent>
+            <TabsContent value="remedies" className="mt-0">
+              <Suspense fallback={<LoadingSpinner />}>
+                <AIRemedySuggestions 
+                  kundaliData={kundaliData} 
+                  language={language} 
+                />
+              </Suspense>
+            </TabsContent>
 
-          <TabsContent value="remedies" className="mt-0">
-            <Suspense fallback={<LoadingSpinner />}>
-              <AIRemedySuggestions 
-                kundaliData={kundaliData} 
-                language={language} 
-              />
-            </Suspense>
-          </TabsContent>
+            <TabsContent value="career-guidance" className="mt-0">
+              <Suspense fallback={<LoadingSpinner />}>
+                <AICareerGuidance 
+                  kundaliData={kundaliData} 
+                  language={language} 
+                />
+              </Suspense>
+            </TabsContent>
 
-          <TabsContent value="career-guidance" className="mt-0">
-            <Suspense fallback={<LoadingSpinner />}>
-              <AICareerGuidance 
-                kundaliData={kundaliData} 
-                language={language} 
-              />
-            </Suspense>
-          </TabsContent>
+            <TabsContent value="compatibility" className="mt-0">
+              <Suspense fallback={<LoadingSpinner />}>
+                <AICompatibilityAnalysis 
+                  kundaliData={kundaliData} 
+                  language={language} 
+                />
+              </Suspense>
+            </TabsContent>
 
-          <TabsContent value="compatibility" className="mt-0">
-            <Suspense fallback={<LoadingSpinner />}>
-              <AICompatibilityAnalysis 
-                kundaliData={kundaliData} 
-                language={language} 
-              />
-            </Suspense>
-          </TabsContent>
+            <TabsContent value="health-insights" className="mt-0">
+              <Suspense fallback={<LoadingSpinner />}>
+                <AIHealthInsights 
+                  kundaliData={kundaliData} 
+                  language={language} 
+                />
+              </Suspense>
+            </TabsContent>
 
-          <TabsContent value="health-insights" className="mt-0">
-            <Suspense fallback={<LoadingSpinner />}>
-              <AIHealthInsights 
-                kundaliData={kundaliData} 
-                language={language} 
-              />
-            </Suspense>
-          </TabsContent>
-
-          <TabsContent value="spiritual-guidance" className="mt-0">
-            <Suspense fallback={<LoadingSpinner />}>
-              <AISpiritualGuidance 
-                kundaliData={kundaliData} 
-                language={language} 
-              />
-            </Suspense>
-          </TabsContent>
-        </div>
-      </Tabs>
+            <TabsContent value="spiritual-guidance" className="mt-0">
+              <Suspense fallback={<LoadingSpinner />}>
+                <AISpiritualGuidance 
+                  kundaliData={kundaliData} 
+                  language={language} 
+                />
+              </Suspense>
+            </TabsContent>
+          </div>
+        </Tabs>
+      </Card>
     </div>
   );
 };
