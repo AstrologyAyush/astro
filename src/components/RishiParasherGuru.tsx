@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -39,10 +38,8 @@ const RishiParasherGuru: React.FC<RishiParasherGuruProps> = ({ kundaliData, lang
   // Create cache key for responses
   const getCacheKey = (query: string) => {
     if (!kundaliData?.birthData) return null;
-    const { fullName, dateOfBirth: dob } = kundaliData.birthData;
-    // Use the correct property name from the birth data structure
-    const birthDate = dob || kundaliData.birthData.date || 'unknown';
-    return `rishi_response_${fullName}_${birthDate}_${query}_${language}`;
+    const { fullName, date } = kundaliData.birthData;
+    return `rishi_response_${fullName}_${date}_${query}_${language}`;
   };
 
   // Check cached response
