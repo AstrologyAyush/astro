@@ -77,54 +77,56 @@ const KundaliResultsView: React.FC<KundaliResultsViewProps> = ({
             <CardContent className="p-2 sm:p-4 lg:p-6">
               <Tabs defaultValue="charts" className="w-full">
                 {/* Mobile-First Tab Navigation */}
-                <div className="overflow-x-auto scrollbar-hide mb-4 sm:mb-6">
-                  <TabsList className="flex w-max min-w-full sm:w-full sm:grid sm:grid-cols-2 lg:grid-cols-5 bg-purple-50 dark:bg-purple-900/30 h-auto gap-1 p-1 rounded-lg">
-                    <TabsTrigger 
-                      value="charts" 
-                      className="flex flex-col items-center gap-1 data-[state=active]:bg-purple-600 data-[state=active]:text-white text-xs sm:text-sm p-2 sm:p-3 min-h-[60px] sm:min-h-[70px] min-w-[100px] whitespace-nowrap rounded-md"
-                    >
-                      <Grid className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-                      <span className="text-center leading-tight font-medium">
-                        {getTranslation('D1-D10 Charts', 'D1-D10 चार्ट')}
-                      </span>
-                    </TabsTrigger>
-                    <TabsTrigger 
-                      value="dashas" 
-                      className="flex flex-col items-center gap-1 data-[state=active]:bg-purple-600 data-[state=active]:text-white text-xs sm:text-sm p-2 sm:p-3 min-h-[60px] sm:min-h-[70px] min-w-[100px] whitespace-nowrap rounded-md"
-                    >
-                      <Clock className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-                      <span className="text-center leading-tight font-medium">
-                        {getTranslation('Dasha Periods', 'दशा काल')}
-                      </span>
-                    </TabsTrigger>
-                    <TabsTrigger 
-                      value="karmic" 
-                      className="flex flex-col items-center gap-1 data-[state=active]:bg-purple-600 data-[state=active]:text-white text-xs sm:text-sm p-2 sm:p-3 min-h-[60px] sm:min-h-[70px] min-w-[100px] whitespace-nowrap rounded-md"
-                    >
-                      <Sparkles className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-                      <span className="text-center leading-tight font-medium">
-                        {getTranslation('Basic Karmic', 'बुनियादी कर्मिक')}
-                      </span>
-                    </TabsTrigger>
-                    <TabsTrigger 
-                      value="karmic-complete" 
-                      className="flex flex-col items-center gap-1 data-[state=active]:bg-purple-600 data-[state=active]:text-white text-xs sm:text-sm p-2 sm:p-3 min-h-[60px] sm:min-h-[70px] min-w-[100px] whitespace-nowrap rounded-md"
-                    >
-                      <FileText className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-                      <span className="text-center leading-tight font-medium">
-                        {getTranslation('Full Karmic Report', 'संपूर्ण कर्मिक रिपोर्ट')}
-                      </span>
-                    </TabsTrigger>
-                    <TabsTrigger 
-                      value="consultation" 
-                      className="flex flex-col items-center gap-1 data-[state=active]:bg-purple-600 data-[state=active]:text-white text-xs sm:text-sm p-2 sm:p-3 min-h-[60px] sm:min-h-[70px] min-w-[100px] whitespace-nowrap rounded-md col-span-2 lg:col-span-1"
-                    >
-                      <Star className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-                      <span className="text-center leading-tight font-medium">
-                        {getTranslation('Full Analysis', 'पूर्ण विश्लेषण')}
-                      </span>
-                    </TabsTrigger>
-                  </TabsList>
+                <div className="overflow-x-auto mb-4 sm:mb-6" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                  <div className="scrollbar-hide">
+                    <TabsList className="flex w-max min-w-full sm:w-full sm:grid sm:grid-cols-2 lg:grid-cols-5 bg-purple-50 dark:bg-purple-900/30 h-auto gap-1 p-1 rounded-lg">
+                      <TabsTrigger 
+                        value="charts" 
+                        className="flex flex-col items-center gap-1 data-[state=active]:bg-purple-600 data-[state=active]:text-white text-xs sm:text-sm p-2 sm:p-3 min-h-[60px] sm:min-h-[70px] min-w-[100px] whitespace-nowrap rounded-md"
+                      >
+                        <Grid className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                        <span className="text-center leading-tight font-medium">
+                          {getTranslation('D1-D10 Charts', 'D1-D10 चार्ट')}
+                        </span>
+                      </TabsTrigger>
+                      <TabsTrigger 
+                        value="dashas" 
+                        className="flex flex-col items-center gap-1 data-[state=active]:bg-purple-600 data-[state=active]:text-white text-xs sm:text-sm p-2 sm:p-3 min-h-[60px] sm:min-h-[70px] min-w-[100px] whitespace-nowrap rounded-md"
+                      >
+                        <Clock className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                        <span className="text-center leading-tight font-medium">
+                          {getTranslation('Dasha Periods', 'दशा काल')}
+                        </span>
+                      </TabsTrigger>
+                      <TabsTrigger 
+                        value="karmic" 
+                        className="flex flex-col items-center gap-1 data-[state=active]:bg-purple-600 data-[state=active]:text-white text-xs sm:text-sm p-2 sm:p-3 min-h-[60px] sm:min-h-[70px] min-w-[100px] whitespace-nowrap rounded-md"
+                      >
+                        <Sparkles className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                        <span className="text-center leading-tight font-medium">
+                          {getTranslation('Basic Karmic', 'बुनियादी कर्मिक')}
+                        </span>
+                      </TabsTrigger>
+                      <TabsTrigger 
+                        value="karmic-complete" 
+                        className="flex flex-col items-center gap-1 data-[state=active]:bg-purple-600 data-[state=active]:text-white text-xs sm:text-sm p-2 sm:p-3 min-h-[60px] sm:min-h-[70px] min-w-[100px] whitespace-nowrap rounded-md"
+                      >
+                        <FileText className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                        <span className="text-center leading-tight font-medium">
+                          {getTranslation('Full Karmic Report', 'संपूर्ण कर्मिक रिपोर्ट')}
+                        </span>
+                      </TabsTrigger>
+                      <TabsTrigger 
+                        value="consultation" 
+                        className="flex flex-col items-center gap-1 data-[state=active]:bg-purple-600 data-[state=active]:text-white text-xs sm:text-sm p-2 sm:p-3 min-h-[60px] sm:min-h-[70px] min-w-[100px] whitespace-nowrap rounded-md col-span-2 lg:col-span-1"
+                      >
+                        <Star className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                        <span className="text-center leading-tight font-medium">
+                          {getTranslation('Full Analysis', 'पूर्ण विश्लेषण')}
+                        </span>
+                      </TabsTrigger>
+                    </TabsList>
+                  </div>
                 </div>
 
                 {/* Tab Content with Mobile Optimization */}
@@ -171,17 +173,6 @@ const KundaliResultsView: React.FC<KundaliResultsViewProps> = ({
           </div>
         </div>
       </div>
-      
-      {/* Custom Scrollbar Styles */}
-      <style jsx>{`
-        .scrollbar-hide {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-        .scrollbar-hide::-webkit-scrollbar {
-          display: none;
-        }
-      `}</style>
     </div>
   );
 };
