@@ -8,6 +8,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { ComprehensiveKundaliData } from '@/lib/advancedKundaliEngine';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+
 interface DailyHoroscopeProps {
   kundaliData?: ComprehensiveKundaliData;
 }
@@ -419,7 +420,7 @@ const EnhancedDailyHoroscope: React.FC<DailyHoroscopeProps> = ({
               
               {kundaliData && <Button variant="outline" size="sm" onClick={getAIInsights} disabled={loadingAI} className="text-blue-600 border-blue-300 hover:bg-blue-50 text-xs rounded-3xl">
                   {loadingAI ? <div className="animate-spin h-4 w-4 mr-1">⏳</div> : <Brain className="h-4 w-4 mr-1" />}
-                  {language === 'hi' ? 'AI विश्लेषण' : 'AI Analysis'}
+                  {language === 'hi' ? 'अंतर्दृष्टि' : 'Insights'}
                 </Button>}
             </div>
           </div>
@@ -579,4 +580,5 @@ const EnhancedDailyHoroscope: React.FC<DailyHoroscopeProps> = ({
       </Card>
     </div>;
 };
+
 export default EnhancedDailyHoroscope;
