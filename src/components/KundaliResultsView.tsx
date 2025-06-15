@@ -77,7 +77,7 @@ const KundaliResultsView: React.FC<KundaliResultsViewProps> = ({
             </CardContent>
           </Card>
 
-          {/* Enhanced Kundali Analysis with Mobile-Optimized Tabs */}
+          {/* Enhanced Kundali Analysis with 2-Row Mobile-Optimized Tabs */}
           <Card className="w-full border-purple-200 dark:border-purple-700 shadow-lg bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm">
             <CardHeader className="bg-gradient-to-r from-purple-100 to-indigo-100 dark:from-purple-900/50 dark:to-indigo-900/50 p-3 sm:p-4 lg:p-6">
               <CardTitle className="text-purple-800 dark:text-purple-300 flex items-center gap-2 text-base sm:text-lg lg:text-xl text-center sm:text-left">
@@ -89,54 +89,61 @@ const KundaliResultsView: React.FC<KundaliResultsViewProps> = ({
             </CardHeader>
             <CardContent className="p-2 sm:p-4 lg:p-6">
               <Tabs defaultValue="charts" className="w-full">
-                {/* Mobile-First Tab Navigation with improved scrolling */}
-                <div className="overflow-x-auto mb-4 sm:mb-6 scrollbar-hide">
-                  <TabsList className="flex w-max min-w-full sm:w-full sm:grid sm:grid-cols-2 lg:grid-cols-5 bg-purple-50 dark:bg-purple-900/30 h-auto gap-1 p-1 rounded-lg">
-                    <TabsTrigger 
-                      value="charts" 
-                      className="flex flex-col items-center gap-1 data-[state=active]:bg-purple-600 data-[state=active]:text-white text-xs sm:text-sm p-2 sm:p-3 min-h-[60px] sm:min-h-[70px] min-w-[100px] whitespace-nowrap rounded-md transition-all duration-200"
-                    >
-                      <Grid className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-                      <span className="text-center leading-tight font-medium">
-                        {getTranslation('D1-D10 Charts', 'D1-D10 चार्ट')}
-                      </span>
-                    </TabsTrigger>
-                    <TabsTrigger 
-                      value="dashas" 
-                      className="flex flex-col items-center gap-1 data-[state=active]:bg-purple-600 data-[state=active]:text-white text-xs sm:text-sm p-2 sm:p-3 min-h-[60px] sm:min-h-[70px] min-w-[100px] whitespace-nowrap rounded-md transition-all duration-200"
-                    >
-                      <Clock className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-                      <span className="text-center leading-tight font-medium">
-                        {getTranslation('Dasha Periods', 'दशा काल')}
-                      </span>
-                    </TabsTrigger>
-                    <TabsTrigger 
-                      value="karmic" 
-                      className="flex flex-col items-center gap-1 data-[state=active]:bg-purple-600 data-[state=active]:text-white text-xs sm:text-sm p-2 sm:p-3 min-h-[60px] sm:min-h-[70px] min-w-[100px] whitespace-nowrap rounded-md transition-all duration-200"
-                    >
-                      <Sparkles className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-                      <span className="text-center leading-tight font-medium">
-                        {getTranslation('Basic Karmic', 'बुनियादी कर्मिक')}
-                      </span>
-                    </TabsTrigger>
-                    <TabsTrigger 
-                      value="karmic-complete" 
-                      className="flex flex-col items-center gap-1 data-[state=active]:bg-purple-600 data-[state=active]:text-white text-xs sm:text-sm p-2 sm:p-3 min-h-[60px] sm:min-h-[70px] min-w-[100px] whitespace-nowrap rounded-md transition-all duration-200"
-                    >
-                      <FileText className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-                      <span className="text-center leading-tight font-medium">
-                        {getTranslation('Full Karmic Report', 'संपूर्ण कर्मिक रिपोर्ट')}
-                      </span>
-                    </TabsTrigger>
-                    <TabsTrigger 
-                      value="consultation" 
-                      className="flex flex-col items-center gap-1 data-[state=active]:bg-purple-600 data-[state=active]:text-white text-xs sm:text-sm p-2 sm:p-3 min-h-[60px] sm:min-h-[70px] min-w-[100px] whitespace-nowrap rounded-md col-span-2 lg:col-span-1 transition-all duration-200"
-                    >
-                      <Star className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-                      <span className="text-center leading-tight font-medium">
-                        {getTranslation('Full Analysis', 'पूर्ण विश्लेषण')}
-                      </span>
-                    </TabsTrigger>
+                {/* 2-Row Tab Navigation with better organization */}
+                <div className="mb-4 sm:mb-6 border border-purple-200 dark:border-purple-700 rounded-lg p-2 bg-purple-50 dark:bg-purple-900/30">
+                  <TabsList className="w-full h-auto bg-transparent p-0 gap-2 flex flex-col">
+                    {/* First Row - Main Charts and Analysis */}
+                    <div className="w-full grid grid-cols-3 gap-1 sm:gap-2">
+                      <TabsTrigger 
+                        value="charts" 
+                        className="flex flex-col items-center gap-1 data-[state=active]:bg-purple-600 data-[state=active]:text-white text-xs sm:text-sm p-2 sm:p-3 min-h-[60px] sm:min-h-[70px] rounded-md transition-all duration-200 border border-purple-200 dark:border-purple-600 bg-white dark:bg-gray-800"
+                      >
+                        <Grid className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                        <span className="text-center leading-tight font-medium">
+                          {getTranslation('D1-D10 Charts', 'D1-D10 चार्ट')}
+                        </span>
+                      </TabsTrigger>
+                      <TabsTrigger 
+                        value="dashas" 
+                        className="flex flex-col items-center gap-1 data-[state=active]:bg-purple-600 data-[state=active]:text-white text-xs sm:text-sm p-2 sm:p-3 min-h-[60px] sm:min-h-[70px] rounded-md transition-all duration-200 border border-purple-200 dark:border-purple-600 bg-white dark:bg-gray-800"
+                      >
+                        <Clock className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                        <span className="text-center leading-tight font-medium">
+                          {getTranslation('Dasha Periods', 'दशा काल')}
+                        </span>
+                      </TabsTrigger>
+                      <TabsTrigger 
+                        value="karmic" 
+                        className="flex flex-col items-center gap-1 data-[state=active]:bg-purple-600 data-[state=active]:text-white text-xs sm:text-sm p-2 sm:p-3 min-h-[60px] sm:min-h-[70px] rounded-md transition-all duration-200 border border-purple-200 dark:border-purple-600 bg-white dark:bg-gray-800"
+                      >
+                        <Sparkles className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                        <span className="text-center leading-tight font-medium">
+                          {getTranslation('Basic Karmic', 'बुनियादी कर्मिक')}
+                        </span>
+                      </TabsTrigger>
+                    </div>
+                    
+                    {/* Second Row - Advanced Reports */}
+                    <div className="w-full grid grid-cols-2 gap-1 sm:gap-2">
+                      <TabsTrigger 
+                        value="karmic-complete" 
+                        className="flex flex-col items-center gap-1 data-[state=active]:bg-purple-600 data-[state=active]:text-white text-xs sm:text-sm p-2 sm:p-3 min-h-[60px] sm:min-h-[70px] rounded-md transition-all duration-200 border border-purple-200 dark:border-purple-600 bg-white dark:bg-gray-800"
+                      >
+                        <FileText className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                        <span className="text-center leading-tight font-medium">
+                          {getTranslation('Full Karmic Report', 'संपूर्ण कर्मिक रिपोर्ट')}
+                        </span>
+                      </TabsTrigger>
+                      <TabsTrigger 
+                        value="consultation" 
+                        className="flex flex-col items-center gap-1 data-[state=active]:bg-purple-600 data-[state=active]:text-white text-xs sm:text-sm p-2 sm:p-3 min-h-[60px] sm:min-h-[70px] rounded-md transition-all duration-200 border border-purple-200 dark:border-purple-600 bg-white dark:bg-gray-800"
+                      >
+                        <Star className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                        <span className="text-center leading-tight font-medium">
+                          {getTranslation('Full Analysis', 'पूर्ण विश्लेषण')}
+                        </span>
+                      </TabsTrigger>
+                    </div>
                   </TabsList>
                 </div>
 
@@ -194,34 +201,6 @@ const KundaliResultsView: React.FC<KundaliResultsViewProps> = ({
           </div>
         </div>
       </div>
-      
-      {/* Add CSS for better scrolling performance */}
-      <style dangerouslySetInnerHTML={{
-        __html: `
-          .scrollbar-hide {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-            -webkit-overflow-scrolling: touch;
-          }
-          .scrollbar-hide::-webkit-scrollbar {
-            display: none;
-          }
-          /* Optimize rendering for mobile */
-          @media (max-width: 768px) {
-            * {
-              -webkit-font-smoothing: antialiased;
-              -moz-osx-font-smoothing: grayscale;
-            }
-            .backdrop-blur-sm {
-              backdrop-filter: none;
-              background: rgba(255, 255, 255, 0.9);
-            }
-            .dark .backdrop-blur-sm {
-              background: rgba(17, 24, 39, 0.9);
-            }
-          }
-        `
-      }} />
     </div>
   );
 };
