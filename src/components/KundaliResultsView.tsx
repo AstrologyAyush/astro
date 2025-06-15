@@ -6,6 +6,7 @@ import { ArrowLeft, Crown, Star, Grid, Clock, Sparkles, FileText, Bot, Target, T
 import InteractiveDashboard from './InteractiveDashboard';
 import EnhancedDailyHoroscope from './EnhancedDailyHoroscope';
 import EnhancedKundaliPDFExport from './EnhancedKundaliPDFExport';
+import EnhancedVisualKundaliPDFExport from './EnhancedVisualKundaliPDFExport';
 import DharmaAlignmentAnalysis from './DharmaAlignmentAnalysis';
 import AIEnhancementSuite from './AIEnhancementSuite';
 import EnhancedGeminiAnalysis from './EnhancedGeminiAnalysis';
@@ -59,7 +60,7 @@ const KundaliResultsView: React.FC<KundaliResultsViewProps> = ({
           
           {/* Interactive Dashboard - Mobile Optimized */}
           <Card className="w-full border-orange-200 dark:border-orange-700 shadow-lg bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm">
-            <CardHeader className="bg-gradient-to-r from-orange-100 to-red-100 dark:from-orange-900/50 dark:to-red-900/50 p-3 sm:p-4 lg:p-6">
+            <CardHeader className="bg-gradient-to-r from-orange-100 to-red-100 dark:from-orange-900/50 dark:to-red-900/50 p-3 sm:p-4 lg:p-6 space-y-2">
               <div className="flex flex-col space-y-3 sm:space-y-0 sm:flex-row sm:justify-between sm:items-center">
                 <CardTitle className="text-orange-800 dark:text-orange-300 flex items-center gap-2 text-base sm:text-lg lg:text-xl text-center sm:text-left">
                   <Crown className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-orange-600 dark:text-orange-400 flex-shrink-0" />
@@ -67,9 +68,14 @@ const KundaliResultsView: React.FC<KundaliResultsViewProps> = ({
                     {getTranslation('Interactive Dashboard', 'इंटरैक्टिव डैशबोर्ड')}
                   </span>
                 </CardTitle>
-                <div className="w-full sm:w-auto">
-                  <EnhancedKundaliPDFExport kundaliData={memoizedKundaliData} language={language} />
+                {/* Enhanced Visual PDF Export (NEW - mobile friendly) */}
+                <div className="w-full sm:w-auto py-2 sm:py-0">
+                  <EnhancedVisualKundaliPDFExport kundaliData={memoizedKundaliData} language={language} />
                 </div>
+              </div>
+              <div className="w-full sm:w-auto mt-2">
+                {/* Original PDF Export fallback, still visible for now, but stacked on mobile */}
+                <EnhancedKundaliPDFExport kundaliData={memoizedKundaliData} language={language} />
               </div>
             </CardHeader>
             <CardContent className="p-3 sm:p-4 lg:p-6">
