@@ -765,36 +765,38 @@ const EnhancedPersonalityTest: React.FC<PersonalityTestProps> = ({ language, onC
         </div>
       </CardHeader>
 
-      <CardContent className="p-6">
-        <div className="space-y-6">
+      <CardContent className="p-4 sm:p-6">
+        <div className="space-y-4 sm:space-y-6">
           <div>
-            <h3 className="text-xl font-bold text-orange-800 mb-2">
+            <h3 className="text-lg sm:text-xl font-bold text-orange-800 mb-2 leading-tight">
               {selectedQuestions[currentQuestion].title}
             </h3>
-            <p className="text-gray-700 text-lg leading-relaxed mb-4">
+            <p className="text-gray-700 text-base sm:text-lg leading-relaxed mb-4 px-1">
               {selectedQuestions[currentQuestion].scenario}
             </p>
-            <Badge variant="outline" className="border-orange-300 text-orange-700">
+            <Badge variant="outline" className="border-orange-300 text-orange-700 text-xs sm:text-sm">
               {language === 'hi' ? 'मनोवैज्ञानिक ढांचा:' : 'Framework:'} {selectedQuestions[currentQuestion].psychologicalFramework}
             </Badge>
           </div>
 
-          <div className="grid grid-cols-1 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:gap-4">
             {selectedQuestions[currentQuestion].options.map((option, index) => (
               <Button
                 key={index}
                 variant="outline"
-                className="text-left h-auto p-4 border-orange-200 hover:bg-orange-100 hover:border-orange-400 transition-all duration-200"
+                className="text-left h-auto p-3 sm:p-4 border-orange-200 hover:bg-orange-100 hover:border-orange-400 transition-all duration-200 min-h-[80px] sm:min-h-[auto]"
                 onClick={() => handleAnswer(index)}
               >
-                <div className="w-full">
-                  <div className="flex items-start gap-3">
-                    <span className="bg-orange-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">
+                <div className="w-full text-left">
+                  <div className="flex items-start gap-2 sm:gap-3">
+                    <span className="bg-orange-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">
                       {String.fromCharCode(65 + index)}
                     </span>
-                    <div className="flex-1">
-                      <p className="text-gray-800 font-medium leading-relaxed">{option.text}</p>
-                      <div className="mt-2 space-x-1">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-gray-800 font-medium leading-relaxed text-sm sm:text-base break-words pr-2">
+                        {option.text}
+                      </p>
+                      <div className="mt-2 flex flex-wrap gap-1">
                         {option.traits.map((trait, traitIndex) => (
                           <Badge key={traitIndex} variant="secondary" className="text-xs">
                             {trait}
