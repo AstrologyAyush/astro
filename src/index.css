@@ -1,3 +1,4 @@
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+Devanagari:wght@300;400;500;600;700;800;900&display=swap');
 
 @tailwind base;
@@ -350,6 +351,37 @@ input, textarea, select {
 .min-h-screen-mobile {
   min-height: 100vh;
   min-height: calc(var(--vh, 1vh) * 100);
+}
+
+/* Horizontal scrollbar hide utility for mobile tabs */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* Internet Explorer 10+ */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar { 
+  display: none;  /* Safari and Chrome */
+}
+
+/* Mobile-optimized tab navigation */
+@media (max-width: 640px) {
+  .mobile-tabs-container {
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  
+  .mobile-tabs-container::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .mobile-tab-item {
+    flex: 0 0 auto;
+    min-width: 80px;
+    white-space: nowrap;
+  }
 }
 
 /* Print styles for Karmic Report */
