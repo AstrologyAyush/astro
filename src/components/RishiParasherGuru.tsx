@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { Send, Bot, User, Sparkles, Heart } from "lucide-react";
+import { Send, User, Sparkles, Heart } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { ComprehensiveKundaliData } from '@/lib/advancedKundaliEngine';
 import { useToast } from "@/hooks/use-toast";
@@ -35,16 +35,13 @@ const RishiParasherGuru: React.FC<RishiParasherGuruProps> = ({ kundaliData, lang
   };
 
   useEffect(() => {
-    console.log('RishiParasherGuru: Initializing with kundaliData:', kundaliData);
-    
     if (!kundaliData || !kundaliData.enhancedCalculations) {
-      console.log('RishiParasherGuru: No enhanced calculations available');
       const fallbackMessage: Message = {
         id: '1',
         type: 'ai',
         content: language === 'hi' 
-          ? '🙏 नमस्कार प्रिय आत्मा! मैं महर्षि पराशर हूं, आपका कर्मिक मार्गदर्शक। आपसे मिलकर बहुत खुशी हुई! पहले आप अपनी जन्म-कुंडली बनवाइए, फिर मैं आपकी आत्मा की यात्रा के बारे में बता सकूंगा और आपके कर्मिक पाठों में मदद कर सकूंगा। 🕉️'
-          : '🙏 Hello dear soul! I am Maharishi Parashar, your karmic guide. I am so delighted to meet you! Please create your birth chart first, then I can tell you about your soul\'s journey and help you with your karmic lessons. 🕉️',
+          ? '🙏 नमस्कार प्रिय आत्मा! मैं महर्षि पराशर हूं। पहले अपनी कुंडली बनाएं, फिर मैं सहायता करूंगा। 🕉️'
+          : '🙏 Hello dear soul! I am Maharishi Parashar. Create your birth chart first, then I can help you. 🕉️',
         timestamp: new Date()
       };
       setMessages([fallbackMessage]);
@@ -54,41 +51,25 @@ const RishiParasherGuru: React.FC<RishiParasherGuruProps> = ({ kundaliData, lang
     const lagna = kundaliData.enhancedCalculations.lagna;
     const planets = kundaliData.enhancedCalculations.planets;
     const activeYogas = kundaliData.enhancedCalculations.yogas?.filter(y => y.isActive) || [];
-    const rahu = planets?.RA;
-    const ketu = planets?.KE;
-    
-    console.log('RishiParasherGuru: Creating welcome message with data:', { lagna, planets, activeYogas });
     
     const welcomeMessage: Message = {
       id: '1',
       type: 'ai',
       content: language === 'hi' 
-        ? `🙏 प्रिय ${kundaliData.birthData?.fullName || 'आत्मा'}, आपकी आत्मा से मिलकर कितनी खुशी हुई! मैं हूं महर्षि पराशर, आपका कर्मिक कोच और आध्यात्मिक मित्र।
+        ? `🙏 प्रिय ${kundaliData.birthData?.fullName || 'आत्मा'}, मैं महर्षि पराशर हूं।
 
-आपकी आत्मा की कुंडली देखकर मैं बहुत प्रभावित हूं! 
+🌟 आत्मा पथ: ${lagna?.signName || 'अज्ञात'} लग्न
+🌙 चंद्र: ${planets?.MO?.rashiName || 'अज्ञात'} राशि
+🎯 ${activeYogas.length} शुभ योग सक्रिय
 
-🌟 आत्मा का पथ: ${lagna?.signName || 'अज्ञात'} लग्न (${lagna?.degree?.toFixed(2) || '0'}°) - यह आपके जीवन का मुख्य उद्देश्य है
-🌙 मन की यात्रा: चंद्र ${planets?.MO?.rashiName || 'अज्ञात'} में - आपकी भावनात्मक प्रकृति
-☀️ जीवन शक्ति: सूर्य ${planets?.SU?.rashiName || 'अज्ञात'} में - आपकी आत्मा की शक्ति
-⭐ आत्मा का तारा: ${planets?.MO?.nakshatraName || 'अज्ञात'} नक्षत्र - आपका आध्यात्मिक स्वभाव
-🔮 भविष्य कर्म: राहु ${rahu?.rashiName || 'अज्ञात'} में - इस जन्म में सीखने वाले पाठ
-🕉️ पूर्व कर्म: केतु ${ketu?.rashiName || 'अज्ञात'} में - पिछले जन्म की दिव्यता
-🎯 ${activeYogas.length} शुभ योग सक्रिय - आपकी आत्मिक शक्तियां
+अपनी कर्मिक यात्रा के बारे में पूछें! 💫`
+        : `🙏 Dear ${kundaliData.birthData?.fullName || 'soul'}, I am Maharishi Parashar.
 
-अब बताइए प्रिय आत्मा, आप अपनी कर्मिक यात्रा के बारे में क्या जानना चाहते हैं? पूर्व जन्म के कर्म, वर्तमान जीवन के पाठ, आध्यात्मिक विकास या कर्मिक रिश्ते - कुछ भी पूछिए! मैं आपकी आत्मा के साथ हूं। 💫`
-        : `🙏 Dear soul ${kundaliData.birthData?.fullName || 'friend'}, what a joy it is to meet your beautiful spirit! I am Maharishi Parashar, your karmic coach and spiritual friend.
+🌟 Soul Path: ${lagna?.signName || 'Unknown'} ascendant
+🌙 Moon: ${planets?.MO?.rashiName || 'Unknown'}
+🎯 ${activeYogas.length} beneficial yogas active
 
-Looking at your soul's birth chart, I am deeply moved! 
-
-🌟 Soul's Path: ${lagna?.signName || 'Unknown'} ascendant (${lagna?.degree?.toFixed(2) || '0'}°) - this is your life's main purpose
-🌙 Mind's Journey: Moon in ${planets?.MO?.rashiName || 'Unknown'} - your emotional nature
-☀️ Life Force: Sun in ${planets?.SU?.rashiName || 'Unknown'} - your soul's power
-⭐ Soul Star: ${planets?.MO?.nakshatraName || 'Unknown'} nakshatra - your spiritual nature
-🔮 Future Karma: Rahu in ${rahu?.rashiName || 'Unknown'} - lessons to learn in this birth
-🕉️ Past Karma: Ketu in ${ketu?.rashiName || 'Unknown'} - divinity from previous births
-🎯 ${activeYogas.length} beneficial yogas active - your spiritual powers
-
-Now tell me dear soul, what would you like to know about your karmic journey? Past life karma, current life lessons, spiritual growth, or karmic relationships - ask me anything! I am here with your soul. 💫`,
+Ask about your karmic journey! 💫`,
       timestamp: new Date()
     };
     setMessages([welcomeMessage]);
@@ -102,8 +83,6 @@ Now tell me dear soul, what would you like to know about your karmic journey? Pa
 
   const handleSendMessage = async () => {
     if (!inputValue.trim() || isLoading) return;
-
-    console.log('RishiParasherGuru: Sending message:', inputValue);
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -122,8 +101,6 @@ Now tell me dear soul, what would you like to know about your karmic journey? Pa
         throw new Error('No birth chart data available');
       }
       
-      console.log('RishiParasherGuru: Calling edge function with data:', kundaliData);
-      
       const { data, error } = await supabase.functions.invoke('kundali-ai-analysis', {
         body: {
           kundaliData,
@@ -132,15 +109,12 @@ Now tell me dear soul, what would you like to know about your karmic journey? Pa
         }
       });
 
-      console.log('RishiParasherGuru: Edge function response:', { data, error });
-
       if (error) {
-        console.error('RishiParasherGuru: Edge function error:', error);
         throw error;
       }
 
       if (!data || !data.analysis) {
-        throw new Error('No analysis received from AI');
+        throw new Error('No response received');
       }
 
       const aiMessage: Message = {
@@ -152,35 +126,29 @@ Now tell me dear soul, what would you like to know about your karmic journey? Pa
 
       setMessages(prev => [...prev, aiMessage]);
 
-      // Store conversation in database
-      try {
-        await supabase.from('rishi_parasher_conversations').insert({
-          user_question: currentInput,
-          rishi_response: data.analysis,
-          kundali_context: kundaliData as unknown as Json,
-          session_id: `karmic_session_${Date.now()}`
-        });
-      } catch (dbError) {
-        console.warn('RishiParasherGuru: Failed to store conversation:', dbError);
-      }
+      // Store conversation without awaiting
+      supabase.from('rishi_parasher_conversations').insert({
+        user_question: currentInput,
+        rishi_response: data.analysis,
+        kundali_context: kundaliData as unknown as Json,
+        session_id: `karmic_session_${Date.now()}`
+      }).then(() => {}).catch(() => {});
 
     } catch (error) {
-      console.error('RishiParasherGuru: Error getting karmic guidance:', error);
-      
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         type: 'ai',
         content: language === 'hi' 
-          ? '🙏 प्रिय आत्मा, कुछ तकनीकी समस्या आई है! परेशान मत होइए, ब्रह्मांड हमारे साथ है। थोड़ी देर में फिर कोशिश कीजिए! आपकी आत्मा की यात्रा रुकने वाली नहीं है। 🕉️'
-          : '🙏 Dear soul, we have a small technical challenge! Please don\'t worry, the universe is with us. Try again in a moment! Your soul\'s journey will not be stopped. 🕉️',
+          ? '🙏 प्रिय आत्मा, तकनीकी समस्या है। फिर कोशिश करें। 🕉️'
+          : '🙏 Dear soul, technical issue. Please try again. 🕉️',
         timestamp: new Date()
       };
 
       setMessages(prev => [...prev, errorMessage]);
       
       toast({
-        title: language === 'hi' ? "आध्यात्मिक संदेश" : "Spiritual Message",
-        description: language === 'hi' ? "तकनीकी समस्या हुई है, फिर से कोशिश करें। आपकी आत्मा का मार्गदर्शन जारी रहेगा।" : "Technical issue occurred, please try again. Your soul's guidance will continue.",
+        title: language === 'hi' ? "तकनीकी समस्या" : "Technical Issue",
+        description: language === 'hi' ? "फिर से कोशिश करें" : "Please try again",
         variant: "destructive",
       });
     } finally {
@@ -196,19 +164,15 @@ Now tell me dear soul, what would you like to know about your karmic journey? Pa
   };
 
   const suggestedQuestions = language === 'hi' ? [
-    "मेरे पूर्व जन्म के कर्म क्या हैं?",
-    "मेरे जीवन का आध्यात्मिक उद्देश्य क्या है?",
-    "कर्मिक रिश्तों के बारे में बताएं",
-    "आत्मा की शुद्धता के उपाय",
-    "वर्तमान जीवन के पाठ",
-    "आध्यात्मिक विकास के तरीके"
+    "पूर्व जन्म कर्म?",
+    "जीवन उद्देश्य?",
+    "कर्मिक रिश्ते?",
+    "आत्मा शुद्धता?"
   ] : [
-    "What are my past life karmas?",
-    "What is my soul's spiritual purpose?",
-    "Tell me about karmic relationships",
-    "Remedies for soul purification",
-    "Current life lessons to learn",
-    "Ways for spiritual evolution"
+    "Past life karma?",
+    "Life purpose?",
+    "Karmic relationships?",
+    "Soul purification?"
   ];
 
   return (
@@ -224,19 +188,19 @@ Now tell me dear soul, what would you like to know about your karmic journey? Pa
           </div>
           <span className="flex items-center gap-1">
             <Heart className="h-3 w-3 text-purple-600" />
-            {language === 'hi' ? "महर्षि पराशर - आपका कर्मिक कोच" : "Rishi Parashar - Your Karmic Coach"}
+            {language === 'hi' ? "महर्षि पराशर" : "Rishi Parashar"}
             <Sparkles className="h-3 w-3 text-orange-500" />
           </span>
         </CardTitle>
         <div className="flex flex-wrap gap-1">
-          {suggestedQuestions.slice(0, 2).map((question, index) => (
+          {suggestedQuestions.map((question, index) => (
             <Badge 
               key={index} 
               variant="outline" 
               className="cursor-pointer hover:bg-purple-200 text-xs border-purple-300 text-purple-700 hover:text-purple-900 bg-purple-50 px-1 py-0.5"
               onClick={() => setInputValue(question)}
             >
-              {question.length > 30 ? `${question.substring(0, 30)}...` : question}
+              {question}
             </Badge>
           ))}
         </div>
@@ -305,7 +269,7 @@ Now tell me dear soul, what would you like to know about your karmic journey? Pa
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder={language === 'hi' ? "अपनी आत्मा के प्रश्न पूछें..." : "Ask your soul's questions..."}
+              placeholder={language === 'hi' ? "प्रश्न पूछें..." : "Ask question..."}
               disabled={isLoading}
               className="flex-1 bg-white border-purple-300 text-gray-900 placeholder-gray-500 text-xs h-8"
             />
