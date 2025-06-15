@@ -56,7 +56,8 @@ const KarmicReport: React.FC<KarmicReportProps> = ({ kundaliData, language }) =>
       return sum + shadbalaValue;
     }, 0);
     
-    const averageShadbala = planetValues.length > 0 ? totalShadbala / planetValues.length : 50;
+    const planetCount = planetValues.length;
+    const averageShadbala = planetCount > 0 ? (totalShadbala / planetCount) : 50;
     const alignmentPercentage = Math.min(95, Math.max(35, Math.round(averageShadbala * 1.2)));
 
     const grahaEnergies = [
