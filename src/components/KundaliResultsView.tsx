@@ -7,6 +7,7 @@ import InteractiveDashboard from './InteractiveDashboard';
 import EnhancedDailyHoroscope from './EnhancedDailyHoroscope';
 import EnhancedKundaliPDFExport from './EnhancedKundaliPDFExport';
 import DharmaAlignmentAnalysis from './DharmaAlignmentAnalysis';
+import AIEnhancementSuite from './AIEnhancementSuite';
 
 // Lazy load heavy components for better mobile performance
 const KundaliConsultationView = lazy(() => import('./KundaliConsultationView'));
@@ -189,17 +190,9 @@ const KundaliResultsView: React.FC<KundaliResultsViewProps> = ({
                   </TabsContent>
 
                   <TabsContent value="ai-enhancement" className="mt-0">
-                    <div className="text-center p-8 bg-orange-500 rounded-sm">
-                      <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full mb-4">
-                        <Bot className="h-8 w-8 text-white" />
-                      </div>
-                      <h3 className="text-lg font-semibold mb-2 text-gray-800 dark:text-gray-200">
-                        {getTranslation('AI Enhancement Coming Soon', 'AI एन्हांसमेंट जल्द आ रहा है')}
-                      </h3>
-                      <p className="text-gray-600 dark:text-gray-400 max-w-md mx-auto">
-                        {getTranslation('Advanced AI-powered analysis and personalized insights will be available here soon.', 'उन्नत AI-संचालित विश्लेषण और व्यक्तिगत अंतर्दृष्टि जल्द ही यहाँ उपलब्ध होगी।')}
-                      </p>
-                    </div>
+                    <Suspense fallback={<TabLoadingSpinner />}>
+                      <AIEnhancementSuite kundaliData={memoizedKundaliData} language={language} />
+                    </Suspense>
                   </TabsContent>
 
                   <TabsContent value="dharma" className="mt-6">
