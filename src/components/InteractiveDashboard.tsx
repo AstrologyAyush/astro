@@ -136,6 +136,33 @@ const InteractiveDashboard: React.FC<InteractiveDashboardProps> = ({ kundaliData
 
   const renderHouseInfo = (house: any) => {
     const houseInfo = houseSignifications[house.number as keyof typeof houseSignifications];
+
+    if (!houseInfo) {
+      // Render a fallback card to prevent error and communicate missing data
+      return (
+        <Card key={house.number} className="hover:shadow-md transition-all">
+          <CardContent className="p-4">
+            <div className="mb-2">
+              <h3 className="font-semibold text-red-500">
+                {getTranslation('House', 'भाव')} {house.number}
+              </h3>
+              <p className="text-sm text-gray-500">
+                {getTranslation('No info available for this house number.', 'इस भाव के लिए जानकारी उपलब्ध नहीं है।')}
+              </p>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span>{getTranslation('Sign:', 'राशि:')}</span>
+              <span className="font-medium">{house.signName ?? '-'}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span>{getTranslation('Lord:', 'स्वामी:')}</span>
+              <span className="font-medium">{house.lord ?? '-'}</span>
+            </div>
+          </CardContent>
+        </Card>
+      );
+    }
+
     const IconComponent = houseInfo.icon;
 
     return (
@@ -154,7 +181,6 @@ const InteractiveDashboard: React.FC<InteractiveDashboardProps> = ({ kundaliData
               </p>
             </div>
           </div>
-
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
               <span>{getTranslation('Sign:', 'राशि:')}</span>
