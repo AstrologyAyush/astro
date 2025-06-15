@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -43,6 +44,15 @@ const InteractiveDashboard: React.FC<InteractiveDashboardProps> = ({
     }));
   };
 
+  // Convert planets array to object format for VisualKundaliChart
+  const convertPlanetsToObject = (planetsArray: any[]) => {
+    const planetsObject: Record<string, any> = {};
+    planetsArray.forEach(planet => {
+      planetsObject[planet.id] = planet;
+    });
+    return planetsObject;
+  };
+
   const planets = extractPlanetsData();
   const ascendant = kundaliData?.enhancedCalculations?.ascendant || 1;
 
@@ -71,7 +81,7 @@ const InteractiveDashboard: React.FC<InteractiveDashboardProps> = ({
         <TabsContent value="traditional" className="mt-6">
           <VisualKundaliChart 
             chart={{
-              planets: planets,
+              planets: convertPlanetsToObject(planets),
               ascendant: ascendant
             }}
             language={language}
