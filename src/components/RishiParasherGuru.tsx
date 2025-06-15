@@ -42,6 +42,15 @@ const RishiParasherGuru: React.FC<RishiParasherGuruProps> = ({ kundaliData, lang
     return `rishi_response_${fullName}_${date}_${query}_${language}`;
   };
 
+  // Helper function to get sign name from number
+  const getSignName = (signNumber: number): string => {
+    const signs = [
+      'Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo',
+      'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'
+    ];
+    return signs[signNumber - 1] || 'Unknown';
+  };
+
   // Enhanced fallback response with specific personal recommendations
   const generatePersonalizedResponse = (query: string) => {
     const calculations = kundaliData?.enhancedCalculations;
@@ -59,7 +68,12 @@ const RishiParasherGuru: React.FC<RishiParasherGuruProps> = ({ kundaliData, lang
     const dashas = calculations.dashas;
     const currentDasha = dashas?.find(d => d.isActive);
 
-    // Declare all planetary positions at the top level
+    // Get house data helper function
+    const getHouseData = (houseNum: number) => {
+      return houses?.find(h => h.house === houseNum);
+    };
+
+    // Declare all planetary positions at the top level with proper property access
     const sunPosition = planets?.SU;
     const moonPosition = planets?.MO;
     const marsPosition = planets?.MA;
@@ -68,9 +82,10 @@ const RishiParasherGuru: React.FC<RishiParasherGuruProps> = ({ kundaliData, lang
     const mercuryPosition = planets?.ME;
     const saturnPosition = planets?.SA;
 
-    // Get specific house data - fix property access
-    const getHouseData = (houseNum: number) => {
-      return houses?.find(h => h.houseNumber === houseNum);
+    // Get sign names safely
+    const getSafeSignName = (planet: any): string => {
+      if (!planet) return 'Unknown';
+      return planet.rashiName || getSignName(planet.rashi || planet.sign || 1);
     };
 
     const queryLower = query.toLowerCase();
@@ -89,11 +104,15 @@ const RishiParasherGuru: React.FC<RishiParasherGuruProps> = ({ kundaliData, lang
       let challenges = '';
       let remedies = '';
       
-      if (sunPosition?.sign === 'Leo' || sunPosition?.sign === 'Aries') {
+      const sunSign = getSafeSignName(sunPosition);
+      const mercurySign = getSafeSignName(mercuryPosition);
+      const jupiterSign = getSafeSignName(jupiterPosition);
+      
+      if (sunSign === 'Leo' || sunSign === 'Aries') {
         specificCareerField = language === 'hi' ? 'नेतृत्व, प्रबंधन, सरकारी सेवा में बेहतरीन सफलता' : 'exceptional success in leadership, management, government service';
-      } else if (mercuryPosition?.sign === 'Gemini' || mercuryPosition?.sign === 'Virgo') {
+      } else if (mercurySign === 'Gemini' || mercurySign === 'Virgo') {
         specificCareerField = language === 'hi' ? 'संचार, लेखन, शिक्षा, आईटी क्षेत्र में विशेष प्रतिभा' : 'special talent in communication, writing, education, IT sector';
-      } else if (jupiterPosition?.sign === 'Sagittarius' || jupiterPosition?.sign === 'Pisces') {
+      } else if (jupiterSign === 'Sagittarius' || jupiterSign === 'Pisces') {
         specificCareerField = language === 'hi' ? 'शिक्षा, धर्म, न्याय, परामर्श में उत्कृष्टता' : 'excellence in education, religion, law, counseling';
       } else {
         specificCareerField = language === 'hi' ? 'आपकी ग्रह स्थिति अनुसार व्यापार और सेवा क्षेत्र उत्तम' : 'business and service sectors are excellent according to your planetary positions';
@@ -110,7 +129,7 @@ const RishiParasherGuru: React.FC<RishiParasherGuruProps> = ({ kundaliData, lang
       if (language === 'hi') {
         return `🙏 प्रिय ${birthData?.fullName}, आपके करियर के लिए व्यक्तिगत मार्गदर्शन:
 
-🌟 **आपकी विशेष प्रतिभा**: ${lagna?.sign} लग्न + ${sunPosition?.sign} में सूर्य = ${specificCareerField}
+🌟 **आपकी विशेष प्रतिभा**: ${getSafeSignName(lagna)} लग्न + ${sunSign} में सूर्य = ${specificCareerField}
 
 🎯 **तत्काल कार्य योजना**:
 1. ${sunPosition?.house === 10 ? 'तुरंत नेतृत्व की भूमिका के लिए आवेदन करें' : 'अपने कौशल को निखारने पर ध्यान दें'}
@@ -122,7 +141,7 @@ const RishiParasherGuru: React.FC<RishiParasherGuruProps> = ({ kundaliData, lang
 🚧 **मुख्य चुनौती**: ${marsPosition?.isDebilitated ? 'ऊर्जा और फोकस में कमी - नियमित व्यायाम करें' : 'प्रतिस्पर्धा में धैर्य रखें'}
 
 💊 **तुरंत उपाय**:
-- ${sunPosition?.sign === 'Leo' ? 'रविवार को सूर्य देव को जल चढ़ाएं' : 'मंगलवार को हनुमान चालीसा पढ़ें'}
+- ${sunSign === 'Leo' ? 'रविवार को सूर्य देव को जल चढ़ाएं' : 'मंगलवार को हनुमान चालीसा पढ़ें'}
 - ${birthData?.date ? `आपकी जन्म तिथि ${birthData.date} के अनुसार दान करें` : 'नियमित दान-पुण्य करें'}
 - लाल रंग का प्रयोग बढ़ाएं (कपड़े, रत्न)
 
@@ -134,7 +153,7 @@ const RishiParasherGuru: React.FC<RishiParasherGuruProps> = ({ kundaliData, lang
       } else {
         return `🙏 Dear ${birthData?.fullName}, personalized career guidance:
 
-🌟 **Your Special Talent**: ${lagna?.sign} ascendant + Sun in ${sunPosition?.sign} = ${specificCareerField}
+🌟 **Your Special Talent**: ${getSafeSignName(lagna)} ascendant + Sun in ${sunSign} = ${specificCareerField}
 
 🎯 **Immediate Action Plan**:
 1. ${sunPosition?.house === 10 ? 'Apply for leadership roles immediately' : 'Focus on skill enhancement'}
@@ -146,7 +165,7 @@ const RishiParasherGuru: React.FC<RishiParasherGuruProps> = ({ kundaliData, lang
 🚧 **Main Challenge**: ${marsPosition?.isDebilitated ? 'Lack of energy and focus - do regular exercise' : 'Be patient in competition'}
 
 💊 **Immediate Remedies**:
-- ${sunPosition?.sign === 'Leo' ? 'Offer water to Sun God on Sundays' : 'Recite Hanuman Chalisa on Tuesdays'}
+- ${sunSign === 'Leo' ? 'Offer water to Sun God on Sundays' : 'Recite Hanuman Chalisa on Tuesdays'}
 - ${birthData?.date ? `Donate according to your birth date ${birthData.date}` : 'Do regular charity'}
 - Increase use of red color (clothes, gemstones)
 
@@ -179,14 +198,17 @@ Your future is bright, ${birthData?.fullName}! 🌟`;
         marriageTiming = language === 'hi' ? 'अगले 12-24 महीनों में विवाह के संकेत' : 'marriage indications in next 12-24 months';
       }
 
+      const venusSign = getSafeSignName(venusPosition);
+      const moonSign = getSafeSignName(moonPosition);
+
       if (language === 'hi') {
         return `🙏 ${birthData?.fullName}, आपके विवाह के लिए विशेष मार्गदर्शन:
 
-💕 **आपका प्रेम स्वभाव**: ${venusPosition?.sign} में शुक्र - ${venusPosition?.sign === 'Taurus' ? 'स्थिर और गहरा प्रेम' : venusPosition?.sign === 'Libra' ? 'संतुलित और सुंदर रिश्ता' : 'भावुक और समर्पित प्रेम'}
+💕 **आपका प्रेम स्वभाव**: ${venusSign} में शुक्र - ${venusSign === 'Taurus' ? 'स्थिर और गहरा प्रेम' : venusSign === 'Libra' ? 'संतुलित और सुंदर रिश्ता' : 'भावुक और समर्पित प्रेम'}
 
 👫 **जीवनसाथी के गुण**:
-- ${seventhHouse?.sign === 'Taurus' ? 'खूबसूरत, कलाप्रेमी और स्थिर स्वभाव' : seventhHouse?.sign === 'Gemini' ? 'बुद्धिमान, मिलनसार और हंसमुख' : 'सुंदर, सहयोगी और परवाह करने वाला'}
-- ${moonPosition?.sign === 'Cancer' ? 'घर-परिवार से प्रेम करने वाला' : 'आपसे मानसिक तालमेल'}
+- ${seventhHouse ? 'खूबसूरत, कलाप्रेमी और स्थिर स्वभाव' : 'सुंदर, सहयोगी और परवाह करने वाला'}
+- ${moonSign === 'Cancer' ? 'घर-परिवार से प्रेम करने वाला' : 'आपसे मानसिक तालमेल'}
 - ${venusPosition?.house === 7 ? 'बहुत आकर्षक व्यक्तित्व' : 'अच्छा चरित्र'}
 
 🔥 **मंगल दोष स्थिति**: ${isManglik ? 'हल्का मंगल दोष है - विशेष उपाय आवश्यक' : 'कोई मंगल दोष नहीं - शुभ संकेत'}
@@ -198,9 +220,9 @@ ${isManglik ? '- मंगलवार को हनुमान मंदिर
 - ${birthData?.fullName ? `${birthData.fullName} के नाम से गुलाब के फूल चढ़ाएं` : 'देवी मां को गुलाब चढ़ाएं'}
 
 🌹 **प्रेम सफलता के लिए**:
-- ${venusPosition?.sign === 'Pisces' ? 'गुलाबी रंग पहनें' : 'हल्के रंगों का प्रयोग करें'}
+- ${venusSign === 'Pisces' ? 'गुलाबी रंग पहनें' : 'हल्के रंगों का प्रयोग करें'}
 - शुक्रवार के दिन व्रत रखें
-- ${moonPosition?.sign ? `${moonPosition.sign} राशि अनुकूल भोजन करें` : 'सात्विक भोजन करें'}
+- ${moonSign ? `${moonSign} राशि अनुकूल भोजन करें` : 'सात्विक भोजन करें'}
 
 🏠 **वैवाहिक जीवन**: ${venusPosition?.isExalted ? 'बहुत सुखी और समृद्ध दाम्पत्य जीवन' : 'प्रेम और समझदारी से भरा जीवन'}
 
@@ -208,11 +230,11 @@ ${isManglik ? '- मंगलवार को हनुमान मंदिर
       } else {
         return `🙏 ${birthData?.fullName}, special guidance for your marriage:
 
-💕 **Your Love Nature**: Venus in ${venusPosition?.sign} - ${venusPosition?.sign === 'Taurus' ? 'stable and deep love' : venusPosition?.sign === 'Libra' ? 'balanced and beautiful relationship' : 'emotional and devoted love'}
+💕 **Your Love Nature**: Venus in ${venusSign} - ${venusSign === 'Taurus' ? 'stable and deep love' : venusSign === 'Libra' ? 'balanced and beautiful relationship' : 'emotional and devoted love'}
 
 👫 **Spouse Qualities**:
-- ${seventhHouse?.sign === 'Taurus' ? 'Beautiful, artistic and stable nature' : seventhHouse?.sign === 'Gemini' ? 'Intelligent, sociable and cheerful' : 'Handsome, supportive and caring'}
-- ${moonPosition?.sign === 'Cancer' ? 'Family-loving person' : 'Mental compatibility with you'}
+- ${seventhHouse ? 'Beautiful, artistic and stable nature' : 'Handsome, supportive and caring'}
+- ${moonSign === 'Cancer' ? 'Family-loving person' : 'Mental compatibility with you'}
 - ${venusPosition?.house === 7 ? 'Very attractive personality' : 'Good character'}
 
 🔥 **Mangal Dosha Status**: ${isManglik ? 'Mild Mangal Dosha present - special remedies needed' : 'No Mangal Dosha - auspicious sign'}
@@ -224,9 +246,9 @@ ${isManglik ? '- Light oil lamp at Hanuman temple on Tuesdays\n- Donate red lent
 - ${birthData?.fullName ? `Offer roses in the name of ${birthData.fullName}` : 'Offer roses to Divine Mother'}
 
 🌹 **For Love Success**:
-- ${venusPosition?.sign === 'Pisces' ? 'Wear pink colors' : 'Use light colors'}
+- ${venusSign === 'Pisces' ? 'Wear pink colors' : 'Use light colors'}
 - Fast on Fridays
-- ${moonPosition?.sign ? `Eat foods favorable for ${moonPosition.sign} sign` : 'Eat sattvic food'}
+- ${moonSign ? `Eat foods favorable for ${moonSign} sign` : 'Eat sattvic food'}
 
 🏠 **Married Life**: ${venusPosition?.isExalted ? 'Very happy and prosperous married life' : 'Life filled with love and understanding'}
 
@@ -242,12 +264,12 @@ Your love life will be filled with happiness! 💖`;
       
       // Specific health predictions based on actual positions
       let healthTendency = '';
-      let specificCautions = '';
-      let personalizedRemedies = '';
+      const saturnSign = getSafeSignName(saturnPosition);
+      const moonSign = getSafeSignName(moonPosition);
       
-      if (saturnPosition?.sign === 'Capricorn' || saturnPosition?.sign === 'Aquarius') {
+      if (saturnSign === 'Capricorn' || saturnSign === 'Aquarius') {
         healthTendency = language === 'hi' ? 'मजबूत हड्डियां लेकिन जोड़ों का ध्यान रखें' : 'strong bones but take care of joints';
-      } else if (moonPosition?.sign === 'Cancer') {
+      } else if (moonSign === 'Cancer') {
         healthTendency = language === 'hi' ? 'पेट और पाचन संबंधी समस्याओं की संभावना' : 'possibility of stomach and digestive issues';
       } else {
         healthTendency = language === 'hi' ? 'सामान्यतः अच्छा स्वास्थ्य' : 'generally good health';
@@ -256,7 +278,7 @@ Your love life will be filled with happiness! 💖`;
       if (language === 'hi') {
         return `🙏 ${birthData?.fullName}, आपके स्वास्थ्य का व्यक्तिगत विश्लेषण:
 
-🩺 **आपकी शारीरिक प्रकृति**: ${lagna?.sign} लग्न - ${healthTendency}
+🩺 **आपकी शारीरिक प्रकृति**: ${getSafeSignName(lagna)} लग्न - ${healthTendency}
 
 ⚠️ **विशेष सावधानियां**:
 - ${saturnPosition?.house === 6 ? 'पुरानी बीमारियों से बचें, नियमित जांच कराएं' : 'तनाव और चिंता से बचें'}
@@ -264,13 +286,13 @@ Your love life will be filled with happiness! 💖`;
 - ${marsPosition?.isDebilitated ? 'ऊर्जा की कमी - आयरन की जांच कराएं' : 'दुर्घटनाओं से सावधान रहें'}
 
 🌿 **व्यक्तिगत उपचार**:
-- ${moonPosition?.sign === 'Cancer' ? 'दूध और घी का सेवन बढ़ाएं' : 'हरी सब्जियों का सेवन करें'}
-- ${saturnPosition?.sign === 'Capricorn' ? 'कैल्शियम और विटामिन डी लें' : 'प्राणायाम और ध्यान करें'}
-- ${birthData?.date ? `आपकी जन्म तिथि के अनुसार ${new Date(birthData.date).getDay() === 0 ? 'रविवार' : 'सप्ताह के दिन'} को व्रत रखें` : 'सप्ताह में एक दिन व्रत रखें'}
+- ${moonSign === 'Cancer' ? 'दूध और घी का सेवन बढ़ाएं' : 'हरी सब्जियों का सेवन करें'}
+- ${saturnSign === 'Capricorn' ? 'कैल्शियम और विटामिन डी लें' : 'प्राणायाम और ध्यान करें'}
+- ${birthData?.date ? `आपकी जन्म तिथि के अनुसार व्रत रखें` : 'सप्ताह में एक दिन व्रत रखें'}
 
 🧘 **दैनिक दिनचर्या**:
-- प्रातःकाल ${lagna?.sign === 'Leo' ? 'सूर्य नमस्कार' : 'योग और प्राणायाम'} करें
-- ${venusPosition?.sign === 'Taurus' ? 'धीमा और स्थिर व्यायाम' : 'नियमित कार्डियो एक्सरसाइज'} करें
+- प्रातःकाल ${getSafeSignName(lagna) === 'Leo' ? 'सूर्य नमस्कार' : 'योग और प्राणायाम'} करें
+- ${venusSign === 'Taurus' ? 'धीमा और स्थिर व्यायाम' : 'नियमित कार्डियो एक्सरसाइज'} करें
 - ${moonPosition?.isExalted ? 'रात को दूध पिएं' : 'समय पर भोजन करें'}
 
 ⏰ **स्वास्थ्य में सुधार**: ${currentDasha?.planet === 'JU' ? 'गुरु दशा में स्वास्थ्य में काफी सुधार' : 'अगले 6 महीनों में स्वास्थ्य बेहतर होगा'}
@@ -281,7 +303,7 @@ Your love life will be filled with happiness! 💖`;
       } else {
         return `🙏 ${birthData?.fullName}, personalized health analysis:
 
-🩺 **Your Physical Constitution**: ${lagna?.sign} ascendant - ${healthTendency}
+🩺 **Your Physical Constitution**: ${getSafeSignName(lagna)} ascendant - ${healthTendency}
 
 ⚠️ **Specific Precautions**:
 - ${saturnPosition?.house === 6 ? 'Avoid chronic diseases, get regular checkups' : 'Avoid stress and anxiety'}
@@ -289,13 +311,13 @@ Your love life will be filled with happiness! 💖`;
 - ${marsPosition?.isDebilitated ? 'Energy deficiency - check iron levels' : 'Be careful of accidents'}
 
 🌿 **Personal Treatment**:
-- ${moonPosition?.sign === 'Cancer' ? 'Increase milk and ghee intake' : 'Consume green vegetables'}
-- ${saturnPosition?.sign === 'Capricorn' ? 'Take calcium and vitamin D' : 'Do pranayama and meditation'}
-- ${birthData?.date ? `Fast on ${new Date(birthData.date).getDay() === 0 ? 'Sundays' : 'specific weekdays'} according to your birth date` : 'Fast one day a week'}
+- ${moonSign === 'Cancer' ? 'Increase milk and ghee intake' : 'Consume green vegetables'}
+- ${saturnSign === 'Capricorn' ? 'Take calcium and vitamin D' : 'Do pranayama and meditation'}
+- ${birthData?.date ? `Fast according to your birth date` : 'Fast one day a week'}
 
 🧘 **Daily Routine**:
-- Do ${lagna?.sign === 'Leo' ? 'Surya Namaskara' : 'yoga and pranayama'} in morning
-- Do ${venusPosition?.sign === 'Taurus' ? 'slow and steady exercise' : 'regular cardio exercise'}
+- Do ${getSafeSignName(lagna) === 'Leo' ? 'Surya Namaskara' : 'yoga and pranayama'} in morning
+- Do ${venusSign === 'Taurus' ? 'slow and steady exercise' : 'regular cardio exercise'}
 - ${moonPosition?.isExalted ? 'Drink milk at night' : 'Eat meals on time'}
 
 ⏰ **Health Improvement**: ${currentDasha?.planet === 'JU' ? 'Significant health improvement in Jupiter period' : 'Health will improve in next 6 months'}
@@ -310,20 +332,20 @@ Stay healthy, stay happy! 🌟`;
     if (language === 'hi') {
       return `🙏 प्रिय ${birthData?.fullName}, आपके जीवन का व्यक्तिगत मार्गदर्शन:
 
-🌟 **आपका जीवन उद्देश्य**: ${lagna?.sign} लग्न + ${sunPosition?.sign} में सूर्य = आप ${getLagnaLifePurpose(lagna?.sign, 'hi')} के लिए जन्मे हैं
+🌟 **आपका जीवन उद्देश्य**: ${getSafeSignName(lagna)} लग्न + ${getSafeSignName(sunPosition)} में सूर्य = आप ${getLagnaLifePurpose(getSafeSignName(lagna), 'hi')} के लिए जन्मे हैं
 
-🧘 **आध्यात्मिक पथ**: ${moonPosition?.sign === 'Pisces' ? 'गहन ध्यान और भक्ति' : moonPosition?.sign === 'Sagittarius' ? 'धर्म और दर्शन का अध्ययन' : 'नियमित पूजा-पाठ'}
+🧘 **आध्यात्मिक पथ**: ${getSafeSignName(moonPosition) === 'Pisces' ? 'गहन ध्यान और भक्ति' : getSafeSignName(moonPosition) === 'Sagittarius' ? 'धर्म और दर्शन का अध्ययन' : 'नियमित पूजा-पाठ'}
 
-📿 **व्यक्तिगत मंत्र**: "${getPersonalMantra(lagna?.sign, sunPosition?.sign, 'hi')}"
+📿 **व्यक्तिगत मंत्र**: "${getPersonalMantra(getSafeSignName(lagna), getSafeSignName(sunPosition), 'hi')}"
 
 ⭐ **वर्तमान जीवन चरण**: ${currentDasha?.planet === 'JU' ? 'ज्ञान और विकास का समय' : currentDasha?.planet === 'VE' ? 'प्रेम और सुख का काल' : currentDasha?.planet === 'SA' ? 'कर्म और धैर्य का दौर' : 'संतुलन और प्रगति का समय'}
 
 🎯 **आने वाले 12 महीने**:
 - ${getSpecificPrediction(currentDasha?.planet, planets, 'hi')}
 - ${yogas.length > 0 ? `आपके ${yogas[0]?.name || 'शुभ'} योग से विशेष लाभ` : 'धैर्य से मेहनत करने का समय'}
-- ${birthData?.date ? `${new Date(birthData.date).getMonth() + 1}वें महीने में महत्वपूर्ण घटना` : 'जल्द ही खुशी की खबर'}
+- ${birthData?.date ? `जल्द ही खुशी की खबर` : 'जल्द ही खुशी की खबर'}
 
-💎 **आपका व्यक्तिगत रत्न**: ${getPersonalGemstone(lagna?.sign, sunPosition, 'hi')}
+💎 **आपका व्यक्तिगत रत्न**: ${getPersonalGemstone(getSafeSignName(lagna), sunPosition, 'hi')}
 
 🔮 **भविष्य का मार्ग**: ${getFuturePath(yogas, currentDasha, 'hi')}
 
@@ -331,20 +353,20 @@ Stay healthy, stay happy! 🌟`;
     } else {
       return `🙏 Dear ${birthData?.fullName}, personalized life guidance:
 
-🌟 **Your Life Purpose**: ${lagna?.sign} ascendant + Sun in ${sunPosition?.sign} = You are born to ${getLagnaLifePurpose(lagna?.sign, 'en')}
+🌟 **Your Life Purpose**: ${getSafeSignName(lagna)} ascendant + Sun in ${getSafeSignName(sunPosition)} = You are born to ${getLagnaLifePurpose(getSafeSignName(lagna), 'en')}
 
-🧘 **Spiritual Path**: ${moonPosition?.sign === 'Pisces' ? 'deep meditation and devotion' : moonPosition?.sign === 'Sagittarius' ? 'study of religion and philosophy' : 'regular prayer and worship'}
+🧘 **Spiritual Path**: ${getSafeSignName(moonPosition) === 'Pisces' ? 'deep meditation and devotion' : getSafeSignName(moonPosition) === 'Sagittarius' ? 'study of religion and philosophy' : 'regular prayer and worship'}
 
-📿 **Personal Mantra**: "${getPersonalMantra(lagna?.sign, sunPosition?.sign, 'en')}"
+📿 **Personal Mantra**: "${getPersonalMantra(getSafeSignName(lagna), getSafeSignName(sunPosition), 'en')}"
 
 ⭐ **Current Life Phase**: ${currentDasha?.planet === 'JU' ? 'time of knowledge and growth' : currentDasha?.planet === 'VE' ? 'period of love and happiness' : currentDasha?.planet === 'SA' ? 'phase of karma and patience' : 'time of balance and progress'}
 
 🎯 **Next 12 Months**:
 - ${getSpecificPrediction(currentDasha?.planet, planets, 'en')}
 - ${yogas.length > 0 ? `Special benefits from your ${yogas[0]?.name || 'beneficial'} yoga` : 'time to work with patience'}
-- ${birthData?.date ? `Important event in ${new Date(birthData.date).getMonth() + 1}th month` : 'good news coming soon'}
+- ${birthData?.date ? `Good news coming soon` : 'good news coming soon'}
 
-💎 **Your Personal Gemstone**: ${getPersonalGemstone(lagna?.sign, sunPosition, 'en')}
+💎 **Your Personal Gemstone**: ${getPersonalGemstone(getSafeSignName(lagna), sunPosition, 'en')}
 
 🔮 **Future Path**: ${getFuturePath(yogas, currentDasha, 'en')}
 
@@ -353,7 +375,7 @@ May you prosper, ${birthData?.fullName}! My blessings are always with you. 🕉�
   };
 
   // Helper functions for personalized analysis
-  const getLagnaLifePurpose = (sign: string | undefined, lang: string) => {
+  const getLagnaLifePurpose = (sign: string, lang: string) => {
     const purposes: Record<string, { hi: string; en: string }> = {
       'Aries': { hi: 'नेतृत्व और साहस दिखाना', en: 'show leadership and courage' },
       'Taurus': { hi: 'स्थिरता और सुंदरता लाना', en: 'bring stability and beauty' },
@@ -369,10 +391,10 @@ May you prosper, ${birthData?.fullName}! My blessings are always with you. 🕉�
       'Pisces': { hi: 'आध्यात्म और करुणा फैलाना', en: 'spread spirituality and compassion' }
     };
     
-    return purposes[sign || '']?.[lang] || (lang === 'hi' ? 'एक महान उद्देश्य पूरा करना' : 'fulfill a great purpose');
+    return purposes[sign]?.[lang] || (lang === 'hi' ? 'एक महान उद्देश्य पूरा करना' : 'fulfill a great purpose');
   };
 
-  const getPersonalMantra = (lagna: string | undefined, sun: string | undefined, lang: string) => {
+  const getPersonalMantra = (lagna: string, sun: string, lang: string) => {
     if (lagna === 'Leo' || sun === 'Leo') {
       return lang === 'hi' ? 'ॐ सूर्याय नमः' : 'Om Suryaya Namah';
     } else if (lagna === 'Cancer' || sun === 'Cancer') {
@@ -396,12 +418,13 @@ May you prosper, ${birthData?.fullName}! My blessings are always with you. 🕉�
     }
   };
 
-  const getPersonalGemstone = (lagna: string | undefined, sun: any, lang: string) => {
-    if (lagna === 'Leo' || sun?.sign === 'Leo') {
+  const getPersonalGemstone = (lagna: string, sun: any, lang: string) => {
+    const sunSign = getSafeSignName(sun);
+    if (lagna === 'Leo' || sunSign === 'Leo') {
       return lang === 'hi' ? 'माणिक्य (Ruby) - शक्ति और नेतृत्व के लिए' : 'Ruby - for power and leadership';
-    } else if (lagna === 'Taurus' || sun?.sign === 'Taurus') {
+    } else if (lagna === 'Taurus' || sunSign === 'Taurus') {
       return lang === 'hi' ? 'हीरा (Diamond) - सुख और समृद्धि के लिए' : 'Diamond - for happiness and prosperity';
-    } else if (lagna === 'Sagittarius' || sun?.sign === 'Sagittarius') {
+    } else if (lagna === 'Sagittarius' || sunSign === 'Sagittarius') {
       return lang === 'hi' ? 'पुखराज (Yellow Sapphire) - ज्ञान और भाग्य के लिए' : 'Yellow Sapphire - for wisdom and fortune';
     } else {
       return lang === 'hi' ? 'मोती (Pearl) - मानसिक शांति के लिए' : 'Pearl - for mental peace';
@@ -483,8 +506,8 @@ May you prosper, ${birthData?.fullName}! My blessings are always with you. 🕉�
         ? `🙏 मेरे प्रिय पुत्र ${kundaliData.birthData?.fullName || ''}, मैं महर्षि पराशर हूं।
 
 🌟 आपका व्यक्तिगत विवरण:
-• ${lagna?.sign || 'अज्ञात'} लग्न - ${getLagnaLifePurpose(lagna?.sign, 'hi')}
-• चंद्र: ${planets?.MO?.sign || 'अज्ञात'} राशि में
+• ${getSafeSignName(lagna)} लग्न - ${getLagnaLifePurpose(getSafeSignName(lagna), 'hi')}
+• चंद्र: ${getSafeSignName(planets?.MO)} राशि में
 • वर्तमान दशा: ${currentDasha?.planet || 'अज्ञात'} - ${getSpecificPrediction(currentDasha?.planet, planets, 'hi')}
 • ${activeYogas.length} शुभ योग सक्रिय
 
@@ -492,8 +515,8 @@ May you prosper, ${birthData?.fullName}! My blessings are always with you. 🕉�
         : `🙏 My dear child ${kundaliData.birthData?.fullName || ''}, I am Maharishi Parashar.
 
 🌟 Your Personal Details:
-• ${lagna?.sign || 'Unknown'} ascendant - ${getLagnaLifePurpose(lagna?.sign, 'en')}
-• Moon: in ${planets?.MO?.sign || 'Unknown'} sign
+• ${getSafeSignName(lagna)} ascendant - ${getLagnaLifePurpose(getSafeSignName(lagna), 'en')}
+• Moon: in ${getSafeSignName(planets?.MO)} sign
 • Current dasha: ${currentDasha?.planet || 'Unknown'} - ${getSpecificPrediction(currentDasha?.planet, planets, 'en')}
 • ${activeYogas.length} beneficial yogas active
 
