@@ -1,12 +1,12 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Star, Activity, TrendingUp, Target, BarChart3, Sparkles } from "lucide-react";
+import { Star, Activity, TrendingUp, Target, BarChart3, Sparkles, Heart } from "lucide-react";
 import VisualKundaliChart from './VisualKundaliChart';
 import InteractiveKundaliChart from './InteractiveKundaliChart';
 import EnhancedPlanetaryStrengthChart from './EnhancedPlanetaryStrengthChart';
 import AIRemedySuggestions from './AIRemedySuggestions';
+import AdvancedNumerologyCompatibility from './AdvancedNumerologyCompatibility';
 
 interface InteractiveDashboardProps {
   kundaliData: any;
@@ -78,7 +78,7 @@ const InteractiveDashboard: React.FC<InteractiveDashboardProps> = ({
   return (
     <div className="space-y-6">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-2 md:grid-cols-4">
+        <TabsList className="grid w-full grid-cols-2 md:grid-cols-5">
           <TabsTrigger value="interactive" className="flex items-center gap-2">
             <Activity className="h-4 w-4" />
             {getTranslation('Interactive Chart', 'इंटरैक्टिव चार्ट')}
@@ -94,6 +94,10 @@ const InteractiveDashboard: React.FC<InteractiveDashboardProps> = ({
           <TabsTrigger value="remedies" className="flex items-center gap-2">
             <Sparkles className="h-4 w-4" />
             {getTranslation('Smart Remedies', 'स्मार्ट उपाय')}
+          </TabsTrigger>
+          <TabsTrigger value="compatibility" className="flex items-center gap-2">
+            <Heart className="h-4 w-4" />
+            {getTranslation('Compatibility', 'संगतता')}
           </TabsTrigger>
         </TabsList>
 
@@ -122,6 +126,12 @@ const InteractiveDashboard: React.FC<InteractiveDashboardProps> = ({
         <TabsContent value="remedies" className="mt-6">
           <AIRemedySuggestions 
             kundaliData={kundaliData}
+            language={language}
+          />
+        </TabsContent>
+
+        <TabsContent value="compatibility" className="mt-6">
+          <AdvancedNumerologyCompatibility 
             language={language}
           />
         </TabsContent>
