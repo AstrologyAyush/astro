@@ -1,3 +1,4 @@
+
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
@@ -24,7 +25,8 @@ serve(async (req) => {
       userQuery: userQuery?.substring(0, 100), 
       language, 
       analysisType,
-      hasKundaliData: !!kundaliData 
+      hasKundaliData: !!kundaliData,
+      hasGeminiKey: !!GEMINI_API_KEY
     });
 
     if (!kundaliData || !userQuery?.trim()) {
@@ -55,6 +57,8 @@ serve(async (req) => {
         const prompt = analysisType === 'rishi_conversation' 
           ? userQuery 
           : createDetailedKundaliPrompt(kundaliData, userQuery, language, analysisType);
+        
+        console.log('Generated prompt length:', prompt.length);
         
         const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`, {
           method: 'POST',
@@ -87,25 +91,27 @@ serve(async (req) => {
         });
 
         if (!response.ok) {
-          console.error('Gemini API error:', response.status, await response.text());
-          throw new Error(`Gemini API error: ${response.status}`);
+          const errorText = await response.text();
+          console.error('Gemini API error:', response.status, errorText);
+          throw new Error(`Gemini API error: ${response.status} - ${errorText}`);
         }
 
         const data = await response.json();
         analysis = data.candidates?.[0]?.content?.parts?.[0]?.text;
         
         if (!analysis) {
+          console.error('No analysis text received from Gemini:', data);
           throw new Error('No analysis text received from Gemini');
         }
 
-        console.log('Gemini API response received successfully');
+        console.log('Gemini API response received successfully, length:', analysis.length);
 
       } catch (apiError) {
         console.error('Gemini API failed, using fallback:', apiError);
         analysis = generateFallbackAnalysis(kundaliData, userQuery, language, analysisType);
       }
     } else {
-      console.log('No Gemini API key, using fallback analysis');
+      console.log('No Gemini API key found, using fallback analysis');
       analysis = generateFallbackAnalysis(kundaliData, userQuery, language, analysisType);
     }
 
@@ -317,82 +323,60 @@ function generateDailyHoroscopeFallback(calculations: any, currentDasha: any, ac
   if (language === 'hi') {
     return `🙏 मेरे पुत्र, आज ${today} (${weekday}) आपके लिए विशेष दिन है।
 
-**मुख्य भविष्यवाणी**: ${currentDasha ? `वर्तमान में ${currentDasha.planet} महादशा चल रही है` : 'आपकी दशा अनुकूल है'}। ${activeYogas.length > 0 ? `आपकी कुंडली में ${activeYogas.length} शुभ योग सक्रिय हैं।` : 'धैर्य और मेहनत से काम लें।'}
+Main Prediction: ${currentDasha ? `वर्तमान में ${currentDasha.planet} महादशा चल रही है` : 'आपकी दशा अनुकूल है'}। ${activeYogas.length > 0 ? `आपकी कुंडली में ${activeYogas.length} शुभ योग सक्रिय हैं।` : 'धैर्य और मेहनत से काम लें।'}
 
-**प्रेम और रिश्ते**: आज आपके रिश्तों में सामंजस्य रहेगा। ${calculations.lagna?.signName === 'Libra' ? 'तुला लग्न होने से आप स्वाभाविक रूप से संतुलन बनाने वाले हैं।' : 'प्रेम में धैर्य रखें।'}
+Love: आज आपके रिश्तों में सामंजस्य रहेगा। ${calculations.lagna?.signName === 'Libra' ? 'तुला लग्न होने से आप स्वाभाविक रूप से संतुलन बनाने वाले हैं।' : 'प्रेम में धैर्य रखें।'}
 
-**करियर और धन**: ${currentDasha?.planet === 'JU' ? 'गुरु दशा में करियर में वृद्धि संभव है।' : 'मेहनत का फल मिलेगा।'} आर्थिक मामलों में सोच-समझकर निर्णय लें।
+Career: ${currentDasha?.planet === 'JU' ? 'गुरु दशा में करियर में वृद्धि संभव है।' : 'मेहनत का फल मिलेगा।'} आर्थिक मामलों में सोच-समझकर निर्णय लें।
 
-**स्वास्थ्य**: आज अपने स्वास्थ्य का विशेष ध्यान रखें। ${calculations.lagna?.signName === 'Virgo' ? 'कन्या लग्न होने से आप स्वाभाविक रूप से स्वास्थ्य के प्रति सचेत हैं।' : 'संतुलित आहार लें।'}
+Health: आज अपने स्वास्थ्य का विशेष ध्यान रखें। ${calculations.lagna?.signName === 'Virgo' ? 'कन्या लग्न होने से आप स्वाभाविक रूप से स्वास्थ्य के प्रति सचेत हैं।' : 'संतुलित आहार लें।'}
 
-**भाग्यशाली तत्व**: 
-- संख्या: ${Math.floor(Math.random() * 9) + 1}
-- रंग: ${['लाल', 'नीला', 'हरा', 'पीला', 'सफेद'][Math.floor(Math.random() * 5)]}
-- दिशा: ${['पूर्व', 'पश्चिम', 'उत्तर', 'दक्षिण'][Math.floor(Math.random() * 4)]}
+Finance: आज वित्तीय मामलों में सावधानी बरतें। ${currentDasha?.planet === 'JU' ? 'गुरु की कृपा से लाभ संभव है।' : 'खर्च पर नियंत्रण रखें।'}
 
-**आज का मार्गदर्शन**: ${activeYogas.length > 0 ? 'आपके योग आज विशेष फल देंगे।' : 'आज धैर्य और सकारात्मकता बनाए रखें।'} ध्यान और प्रार्थना करें।
+Lucky Numbers: 3,7,9
+Lucky Colors: नीला,हरा
+Lucky Direction: पूर्व
+Auspicious Time: सुबह 6-8 बजे
+Challenges: मामूली देरी संभव है, धैर्य रखें।
+Remedies: ॐ नमः शिवाय का जप करें|जरूरतमंदों को भोजन दान करें|शाम को दीपक जलाएं
 
 मेरा आशीर्वाद आपके साथ है। 🕉️`;
   } else {
     return `🙏 Dear child, today ${today} (${weekday}) is a special day for you.
 
-**Main Prediction**: ${currentDasha ? `Currently running ${currentDasha.planet} Mahadasha` : 'Your dasha period is favorable'}. ${activeYogas.length > 0 ? `You have ${activeYogas.length} beneficial yogas active in your chart.` : 'Work with patience and dedication.'}
+Main Prediction: ${currentDasha ? `Currently running ${currentDasha.planet} Mahadasha` : 'Your dasha period is favorable'}. ${activeYogas.length > 0 ? `You have ${activeYogas.length} beneficial yogas active in your chart.` : 'Work with patience and dedication.'}
 
-**Love & Relationships**: Harmony will prevail in your relationships today. ${calculations.lagna?.signName === 'Libra' ? 'Being a Libra ascendant, you naturally bring balance to relationships.' : 'Be patient in matters of love.'}
+Love: Harmony in relationships today. ${calculations.lagna?.signName === 'Libra' ? 'Being a Libra ascendant, you naturally bring balance.' : 'Be patient in love matters.'}
 
-**Career & Finance**: ${currentDasha?.planet === 'JU' ? 'Jupiter dasha brings career growth opportunities.' : 'Your hard work will bear fruit.'} Make thoughtful decisions in financial matters.
+Career: ${currentDasha?.planet === 'JU' ? 'Jupiter dasha brings career growth opportunities.' : 'Hard work will bring results.'} Make thoughtful decisions in financial matters.
 
-**Health**: Take special care of your health today. ${calculations.lagna?.signName === 'Virgo' ? 'As a Virgo ascendant, you naturally care for health and wellness.' : 'Maintain a balanced diet.'}
+Health: Take special care of your health today. ${calculations.lagna?.signName === 'Virgo' ? 'Being a Virgo ascendant, you are naturally health-conscious.' : 'Maintain a balanced diet.'}
 
-**Lucky Elements**:
-- Number: ${Math.floor(Math.random() * 9) + 1}
-- Color: ${['Red', 'Blue', 'Green', 'Yellow', 'White'][Math.floor(Math.random() * 5)]}
-- Direction: ${['East', 'West', 'North', 'South'][Math.floor(Math.random() * 4)]}
+Finance: Be cautious in financial matters today. ${currentDasha?.planet === 'JU' ? 'Jupiter\'s grace may bring profits.' : 'Control your expenses.'}
 
-**Today's Guidance**: ${activeYogas.length > 0 ? 'Your yogas will give special results today.' : 'Maintain patience and positivity today.'} Practice meditation and prayer.
+Lucky Numbers: 3,7,9
+Lucky Colors: Blue,Green
+Lucky Direction: East
+Auspicious Time: 6-8 AM
+Challenges: Minor delays possible, stay patient.
+Remedies: Chant Om Namah Shivaya|Donate food to needy|Light a lamp in evening
 
 My blessings are with you. 🕉️`;
   }
 }
 
 function generateDivisionalChartFallback(calculations: any, language: string, userQuery: string): string {
-  const chartType = userQuery.match(/D(\d+)/)?.[0] || 'D1';
-  
   if (language === 'hi') {
-    return `🙏 मेरे पुत्र, आपके ${chartType} चार्ट का विश्लेषण:
-
-**चार्ट विशिष्ट अंतर्दृष्टि**: इस ${chartType} चार्ट में आपके ग्रहों की स्थिति विशेष फल देती है। ${calculations.lagna?.signName ? `आपका ${calculations.lagna.signName} लग्न इस चार्ट को प्रभावित करता है।` : ''}
-
-**योग विश्लेषण**: ${calculations.yogas?.length > 0 ? `आपकी कुंडली में कुल ${calculations.yogas.length} योग हैं, जिनमें से कुछ इस चार्ट को विशेष रूप से प्रभावित करते हैं।` : 'इस चार्ट में संतुलित ग्रह स्थिति है।'}
-
-**व्यावहारिक मार्गदर्शन**: इस चार्ट के अनुसार आपको धैर्य और निरंतरता से काम लेना चाहिए। ${calculations.planets?.JU ? 'गुरु की कृपा आप पर है।' : 'ग्रहों की शुभ दृष्टि आप पर है।'}
-
-**समय**: यह प्रभाव निरंतर चलता रहेगा और महत्वपूर्ण समयों में विशेष फल देगा।
-
-**उपाय**: नियमित प्रार्थना और दान-पुण्य करें। अपने आराध्य का स्मरण रखें।
-
-मेरा आशीर्वाद आपके साथ है। 🕉️`;
+    return `🙏 पुत्र, आपकी कुंडली के विभागीय चार्ट के बारे में आपका प्रश्न "${userQuery}" महत्वपूर्ण है। ${calculations.lagna?.signName ? `आपका ${calculations.lagna.signName} लग्न` : 'आपकी मुख्य कुंडली'} के आधार पर विभागीय चार्ट का विश्लेषण करते हुए मैं कह सकता हूं कि यह जीवन के विशिष्ट क्षेत्रों में गहरी अंतर्दृष्टि प्रदान करता है। धैर्य रखें और सकारात्मक कार्य करते रहें। 🕉️`;
   } else {
-    return `🙏 Dear child, analysis of your ${chartType} chart:
-
-**Chart-Specific Insights**: The planetary positions in this ${chartType} chart give special results. ${calculations.lagna?.signName ? `Your ${calculations.lagna.signName} ascendant influences this chart.` : ''}
-
-**Yoga Analysis**: ${calculations.yogas?.length > 0 ? `Your chart has ${calculations.yogas.length} yogas total, some of which specifically influence this divisional chart.` : 'This chart shows balanced planetary positions.'}
-
-**Practical Guidance**: According to this chart, you should work with patience and consistency. ${calculations.planets?.JU ? 'Jupiter\'s blessings are upon you.' : 'Beneficial planetary aspects are supporting you.'}
-
-**Timing**: This influence continues consistently and will give special results during important periods.
-
-**Remedies**: Practice regular prayer and charity. Remember your chosen deity.
-
-My blessings are with you. 🕉️`;
+    return `🙏 Dear child, your question "${userQuery}" about divisional charts is important. Based on your ${calculations.lagna?.signName ? `${calculations.lagna.signName} ascendant` : 'main chart'}, divisional chart analysis provides deep insights into specific life areas. Stay patient and continue positive actions. 🕉️`;
   }
 }
 
 function generateGeneralFallback(calculations: any, currentDasha: any, language: string): string {
   if (language === 'hi') {
-    return `🙏 मेरे पुत्र, आपकी ${calculations.lagna?.signName || 'पवित्र'} लग्न कुंडली देखकर मैं समझ गया हूं। ${currentDasha ? `वर्तमान में ${currentDasha.planet} दशा चल रही है।` : ''} धैर्य रखें और अपने कर्मों पर ध्यान दें। ${calculations.yogas?.length > 0 ? `आपकी कुंडली में ${calculations.yogas.length} योग हैं जो आपको शक्ति देते हैं।` : ''} मेरा आशीर्वाद आपके साथ है। 🕉️`;
+    return `🙏 पुत्र, ${calculations.lagna?.signName ? `आपका ${calculations.lagna.signName} लग्न` : 'आपकी कुंडली'} देखकर मैं कह सकता हूं कि ${currentDasha ? `वर्तमान ${currentDasha.planet} दशा में` : 'इस समय'} आपको धैर्य और सकारात्मक विचारों की आवश्यकता है। आपके जीवन में सुख-समृद्धि आएगी। नियमित पूजा-पाठ और सेवा करते रहें। मेरा आशीर्वाद आपके साथ है। 🕉️`;
   } else {
-    return `🙏 Dear child, looking at your ${calculations.lagna?.signName || 'sacred'} ascendant chart, I understand your path. ${currentDasha ? `Currently you're in ${currentDasha.planet} dasha period.` : ''} Be patient and focus on your karma. ${calculations.yogas?.length > 0 ? `Your chart has ${calculations.yogas.length} yogas that give you strength.` : ''} My blessings are with you. 🕉️`;
+    return `🙏 Dear child, looking at your ${calculations.lagna?.signName ? `${calculations.lagna.signName} ascendant` : 'birth chart'}, I can say that ${currentDasha ? `in the current ${currentDasha.planet} dasha` : 'at this time'} you need patience and positive thoughts. Happiness and prosperity will come into your life. Continue regular worship and service. My blessings are with you. 🕉️`;
   }
 }
