@@ -1,10 +1,9 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Crystal, Flower, Sun, Moon, Star, Zap, Heart, Shield } from "lucide-react";
+import { Gem, Flower, Sun, Moon, Star, Zap, Heart, Shield } from "lucide-react";
 
 interface AIRemedySuggestionsProps {
   kundaliData: any;
@@ -158,7 +157,7 @@ const AIRemedySuggestions: React.FC<AIRemedySuggestionsProps> = ({
       <Card className="border-emerald-200 shadow-lg">
         <CardHeader className="bg-gradient-to-r from-emerald-100 to-teal-100">
           <CardTitle className="flex items-center gap-2 text-emerald-800">
-            <Crystal className="h-5 w-5" />
+            <Gem className="h-5 w-5" />
             {getTranslation('AI-Powered Smart Remedies', 'AI-संचालित स्मार्ट उपाय')}
           </CardTitle>
         </CardHeader>
@@ -166,7 +165,7 @@ const AIRemedySuggestions: React.FC<AIRemedySuggestionsProps> = ({
           <Tabs value={activeCategory} onValueChange={setActiveCategory}>
             <TabsList className="grid grid-cols-2 md:grid-cols-4 gap-1 mb-6">
               <TabsTrigger value="gemstones" className="flex flex-col items-center gap-1 text-xs p-2">
-                <Crystal className="h-3 w-3" />
+                <Gem className="h-3 w-3" />
                 {getTranslation('Gemstones', 'रत्न')}
               </TabsTrigger>
               <TabsTrigger value="mantras" className="flex flex-col items-center gap-1 text-xs p-2">
@@ -198,7 +197,7 @@ const AIRemedySuggestions: React.FC<AIRemedySuggestionsProps> = ({
                   </CardHeader>
                   <CardContent className="p-4 space-y-3">
                     <div className="flex items-center gap-2">
-                      <Crystal className="h-5 w-5 text-blue-600" />
+                      <Gem className="h-5 w-5 text-blue-600" />
                       <span className="font-semibold text-lg">{remedies.gemstones.primary.name}</span>
                     </div>
                     <p className="text-sm text-gray-600">

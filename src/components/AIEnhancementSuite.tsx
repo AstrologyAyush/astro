@@ -2,7 +2,7 @@
 import React, { useState, Suspense, lazy } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Bot, Sparkles, Crystal, Lightbulb, TrendingUp, Heart } from "lucide-react";
+import { Bot, Sparkles, Gem, Lightbulb, TrendingUp, Heart } from "lucide-react";
 import KundaliAIChat from './KundaliAIChat';
 
 // Lazy load heavy AI components
@@ -87,7 +87,7 @@ const AIEnhancementSuite: React.FC<AIEnhancementSuiteProps> = ({
             value="remedies" 
             className="flex flex-col items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white text-xs sm:text-sm p-3 min-h-[70px] rounded-md transition-all duration-200"
           >
-            <Crystal className="h-4 w-4" />
+            <Gem className="h-4 w-4" />
             <span className="text-center font-medium">
               {getTranslation('Smart Remedies', 'स्मार्ट उपाय')}
             </span>
