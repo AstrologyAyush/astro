@@ -52,9 +52,9 @@ const EnhancedDailyHoroscope: React.FC<EnhancedDailyHoroscopeProps> = ({
 
     setIsLoading(true);
     
+    const today = new Date().toISOString().split('T')[0];
+
     try {
-      const today = new Date().toISOString().split('T')[0];
-      
       // Check if we already generated horoscope for today
       if (lastGenerated === today && horoscope) {
         setIsLoading(false);
@@ -104,7 +104,7 @@ const EnhancedDailyHoroscope: React.FC<EnhancedDailyHoroscopeProps> = ({
       const fallbackHoroscope = generateFallbackHoroscope();
       setHoroscope(fallbackHoroscope);
       setLastGenerated(today);
-      
+
       toast({
         title: getTranslation("Generated", "तैयार"),
         description: getTranslation("Horoscope generated with available data.", "उपलब्ध डेटा के साथ राशिफल तैयार किया गया।"),
