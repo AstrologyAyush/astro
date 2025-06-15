@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Brain, Star, Target, Crown } from "lucide-react";
+import { Brain, Star, Target, Crown, Eye, Users, Heart } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 interface PersonalityTestProps {
@@ -18,17 +18,32 @@ interface Question {
   options: {
     text: string;
     traits: string[];
-    planetaryInfluence: string;
+    psychProfile: string;
+    cognitiveStyle: string;
   }[];
-  astroConnection: string;
+  psychologicalFramework: string;
 }
 
 interface PersonalityResults {
   dominantTraits: string[];
-  planetaryProfile: string[];
+  psychologicalProfile: string;
+  cognitiveStyle: string;
   personalityType: string;
-  kundaliAlignment: number;
+  bigFiveScores: {
+    openness: number;
+    conscientiousness: number;
+    extraversion: number;
+    agreeableness: number;
+    neuroticism: number;
+  };
+  strengths: string[];
+  challenges: string[];
   recommendations: string[];
+  careerAlignment: string[];
+  relationshipStyle: string;
+  leadershipPotential: number;
+  emotionalIntelligence: number;
+  stressResilience: number;
 }
 
 const EnhancedPersonalityTest: React.FC<PersonalityTestProps> = ({ language, onComplete }) => {
@@ -37,174 +52,227 @@ const EnhancedPersonalityTest: React.FC<PersonalityTestProps> = ({ language, onC
   const [isComplete, setIsComplete] = useState(false);
   const [results, setResults] = useState<PersonalityResults | null>(null);
 
-  const questions: Question[] = [
+  const psychologicalQuestions: Question[] = [
     {
       id: 1,
-      title: language === 'hi' ? 'दबाव में निर्णय' : 'Decision Under Pressure',
+      title: language === 'hi' ? 'नैतिक दुविधा' : 'Moral Dilemma',
       scenario: language === 'hi' 
-        ? 'आप 5 लोगों के साथ एक कमरे में हैं, 2 घंटे में डेडलाइन है। सब कन्फ्यूज़ हैं, बॉस नहीं मिल रहा।'
-        : "You're in a room with 5 people, deadline in 2 hours. Everyone's confused, boss unreachable.",
+        ? 'आप ट्रेन ट्रैक पर खड़े हैं। एक भागती हुई ट्रेन 5 लोगों को मारने वाली है। आप लीवर खींचकर ट्रेन को दूसरे ट्रैक पर भेज सकते हैं, लेकिन वहाँ 1 व्यक्ति मर जाएगा।'
+        : "You're standing by a railway track. A runaway train will kill 5 people. You can pull a lever to divert it to another track, but 1 person will die there.",
       options: [
         {
-          text: language === 'hi' ? 'तुरंत टीम को गाइड करूंगा और जिम्मेदारी लूंगा' : 'Take immediate charge and guide the team',
-          traits: ['Leadership', 'Courage', 'Initiative'],
-          planetaryInfluence: 'Strong Sun + Mars'
+          text: language === 'hi' ? 'लीवर खींचूंगा - 1 की मौत 5 से बेहतर है' : 'Pull the lever - 1 death is better than 5',
+          traits: ['Utilitarian', 'Logical', 'Consequentialist'],
+          psychProfile: 'Rational Decision Maker',
+          cognitiveStyle: 'Analytical Thinking'
         },
         {
-          text: language === 'hi' ? 'सबकी राय लेकर सामूहिक फैसला करूंगा' : 'Gather everyone\'s opinion for collective decision',
-          traits: ['Diplomacy', 'Teamwork', 'Balance'],
-          planetaryInfluence: 'Strong Venus + Jupiter'
+          text: language === 'hi' ? 'लीवर नहीं खींचूंगा - किसी को जानबूझकर मारना गलत है' : "Won't pull lever - intentionally killing someone is wrong",
+          traits: ['Deontological', 'Principled', 'Rights-focused'],
+          psychProfile: 'Moral Absolutist',
+          cognitiveStyle: 'Values-based Thinking'
         },
         {
-          text: language === 'hi' ? 'डेटा एनालाइज़ करके बेस्ट सोल्यूशन निकालूंगा' : 'Analyze data systematically for best solution',
-          traits: ['Analytical', 'Methodical', 'Precision'],
-          planetaryInfluence: 'Strong Mercury + Saturn'
+          text: language === 'hi' ? 'फ्रीज हो जाऊंगा - यह निर्णय बहुत कठिन है' : "Freeze up - this decision is too difficult",
+          traits: ['Analysis Paralysis', 'Conflict Avoidant', 'Overwhelmed'],
+          psychProfile: 'Decision Avoidant',
+          cognitiveStyle: 'Emotional Overwhelm'
         },
         {
-          text: language === 'hi' ? 'अपनी गट फीलिंग पर भरोसा करके एक्ट करूंगा' : 'Trust my intuition and act on gut feeling',
-          traits: ['Intuitive', 'Spontaneous', 'Instinctive'],
-          planetaryInfluence: 'Strong Moon + Rahu'
+          text: language === 'hi' ? 'तुरंत चिल्लाकर सभी को चेतावनी दूंगा' : 'Immediately shout to warn everyone',
+          traits: ['Creative Problem Solving', 'Optimistic', 'Action-oriented'],
+          psychProfile: 'Solution Innovator',
+          cognitiveStyle: 'Divergent Thinking'
         }
       ],
-      astroConnection: 'Mars + Mercury'
+      psychologicalFramework: 'Moral Psychology + Trolley Problem'
     },
     {
       id: 2,
-      title: language === 'hi' ? 'अचानक मौका' : 'Unexpected Opportunity',
+      title: language === 'hi' ? 'प्राधिकरण परीक्षण' : 'Authority Test',
       scenario: language === 'hi'
-        ? 'नए शहर में जाकर रिस्की प्रोजेक्ट लीड करने का मौका। 24 घंटे में फैसला।'
-        : 'Offered to move to new city for risky high-reward project. 24 hours to decide.',
+        ? 'आपका बॉस आपको एक ऐसा काम करने को कहता है जो कानूनी तो है लेकिन आपको लगता है कि यह नैतिक रूप से गलत है। बॉस कहता है "सिर्फ ऑर्डर फॉलो करो"।'
+        : 'Your boss asks you to do something legal but you feel is morally wrong. The boss says "just follow orders".',
       options: [
         {
-          text: language === 'hi' ? 'तुरंत हां कह दूंगा, रिस्क लेने से डरता नहीं' : 'Say yes immediately, I don\'t fear risks',
-          traits: ['Risk-taker', 'Adventurous', 'Bold'],
-          planetaryInfluence: 'Strong Rahu + Mars'
+          text: language === 'hi' ? 'ऑर्डर फॉलो करूंगा - बॉस की जिम्मेदारी है' : "Follow orders - it's the boss's responsibility",
+          traits: ['Authority Compliant', 'Hierarchical', 'Responsibility Diffusion'],
+          psychProfile: 'Authority Follower',
+          cognitiveStyle: 'Conformist Thinking'
         },
         {
-          text: language === 'hi' ? 'फैमिली से पूछकर उनकी सहमति से फैसला लूंगा' : 'Consult family first, need their approval',
-          traits: ['Family-oriented', 'Considerate', 'Traditional'],
-          planetaryInfluence: 'Strong Moon + Jupiter'
+          text: language === 'hi' ? 'मना कर दूंगा - मेरे सिद्धांत समझौते की अनुमति नहीं देते' : "Refuse - my principles don't allow compromise",
+          traits: ['Autonomous', 'Principled', 'Integrity-focused'],
+          psychProfile: 'Moral Autonomist',
+          cognitiveStyle: 'Independent Thinking'
         },
         {
-          text: language === 'hi' ? 'पूरी डिटेल रिसर्च करके फिर फैसला लूंगा' : 'Research everything thoroughly before deciding',
-          traits: ['Cautious', 'Thorough', 'Practical'],
-          planetaryInfluence: 'Strong Saturn + Mercury'
+          text: language === 'hi' ? 'बॉस से पूछूंगा कि क्यों यह जरूरी है' : 'Ask the boss why this is necessary',
+          traits: ['Questioning', 'Diplomatic', 'Information-seeking'],
+          psychProfile: 'Thoughtful Inquirer',
+          cognitiveStyle: 'Critical Thinking'
         },
         {
-          text: language === 'hi' ? 'ना कह दूंगा, स्टेबिलिटी जरूरी है' : 'Decline, stability is more important',
-          traits: ['Security-focused', 'Conservative', 'Stable'],
-          planetaryInfluence: 'Strong Saturn + Venus'
+          text: language === 'hi' ? 'करूंगा लेकिन असहज महसूस करूंगा' : "Do it but feel uncomfortable",
+          traits: ['Conflict Avoidant', 'Compromising', 'Internal Tension'],
+          psychProfile: 'Reluctant Complier',
+          cognitiveStyle: 'Cognitive Dissonance'
         }
       ],
-      astroConnection: 'Rahu + Lagna'
+      psychologicalFramework: 'Milgram Obedience Study + Moral Agency'
     },
     {
       id: 3,
-      title: language === 'hi' ? 'टीम में कॉन्फ्लिक्ट' : 'Team Conflict',
+      title: language === 'hi' ? 'सामाजिक दबाव' : 'Social Pressure',
       scenario: language === 'hi'
-        ? 'टीममेट ने झूठ बोलकर आप पर इल्जाम लगाया। रेप्यूटेशन खराब हो रही है।'
-        : 'Teammate lies and blames you publicly. Your reputation is at stake.',
+        ? 'आप एक ग्रुप में हैं जहाँ सभी एक गलत जवाब पर सहमत हो रहे हैं। आपको लगता है कि आप सही हैं लेकिन बाकी सब आपसे असहमत हैं।'
+        : "You're in a group where everyone agrees on an answer you believe is wrong. You think you're right but everyone else disagrees.",
       options: [
         {
-          text: language === 'hi' ? 'तुरंत सबके सामने सच्चाई बताऊंगा' : 'Immediately expose the truth publicly',
-          traits: ['Direct', 'Confrontational', 'Justice-seeking'],
-          planetaryInfluence: 'Strong Mars + Sun'
+          text: language === 'hi' ? 'अपनी बात कहूंगा भले ही सब विरोध करें' : "State my view even if everyone opposes",
+          traits: ['Independent', 'Confident', 'Non-conformist'],
+          psychProfile: 'Independent Thinker',
+          cognitiveStyle: 'Autonomous Reasoning'
         },
         {
-          text: language === 'hi' ? 'प्राइवेट में बात करके मामला सुलझाऊंगा' : 'Handle it privately with calm discussion',
-          traits: ['Diplomatic', 'Patient', 'Peaceful'],
-          planetaryInfluence: 'Strong Venus + Jupiter'
+          text: language === 'hi' ? 'चुप रहूंगा - शायद मैं गलत हूं' : "Stay quiet - maybe I'm wrong",
+          traits: ['Conformist', 'Self-doubting', 'Group-oriented'],
+          psychProfile: 'Social Conformist',
+          cognitiveStyle: 'Social Validation Seeking'
         },
         {
-          text: language === 'hi' ? 'एविडेंस इकट्ठा करके स्ट्रॉन्ग केस बनाऊंगा' : 'Gather evidence and build a strong case',
-          traits: ['Strategic', 'Methodical', 'Calculated'],
-          planetaryInfluence: 'Strong Saturn + Mercury'
+          text: language === 'hi' ? 'प्राइवेट में एक व्यक्ति से अपनी बात कहूंगा' : 'Share my view privately with one person',
+          traits: ['Cautious', 'Strategic', 'Diplomatic'],
+          psychProfile: 'Strategic Communicator',
+          cognitiveStyle: 'Risk-averse Reasoning'
         },
         {
-          text: language === 'hi' ? 'इग्नोर करूंगा, टाइम ही सच्चाई बताएगा' : 'Ignore it, time will reveal the truth',
-          traits: ['Patient', 'Philosophical', 'Detached'],
-          planetaryInfluence: 'Strong Jupiter + Ketu'
+          text: language === 'hi' ? 'सबूत मांगूंगा और फैक्ट चेक करूंगा' : 'Ask for evidence and fact-check',
+          traits: ['Analytical', 'Evidence-based', 'Rational'],
+          psychProfile: 'Evidence Seeker',
+          cognitiveStyle: 'Scientific Thinking'
         }
       ],
-      astroConnection: 'Mars + Moon'
+      psychologicalFramework: 'Asch Conformity Experiments + Social Psychology'
     },
     {
       id: 4,
-      title: language === 'hi' ? 'मेहनत के बाद नुकसान' : 'Setback After Hard Work',
+      title: language === 'hi' ? 'संसाधन वितरण' : 'Resource Distribution',
       scenario: language === 'hi'
-        ? '6 महीने की मेहनत बर्बाद हो गई, आपकी गलती नहीं। लोग एफर्ट इग्नोर कर रहे।'
-        : '6 months of work destroyed, not your fault. People ignore your effort.',
+        ? 'आपके पास $1000 हैं। आप 3 लोगों में बांट सकते हैं: A (बहुत जरूरतमंद), B (मेहनती लेकिन गरीब), C (आपका दोस्त)। कैसे बांटेंगे?'
+        : 'You have $1000 to distribute among 3 people: A (desperately needy), B (hardworking but poor), C (your friend). How do you distribute?',
       options: [
         {
-          text: language === 'hi' ? 'गुस्से में आकर सबको बता दूंगा कि क्या हुआ' : 'Get angry and tell everyone what happened',
-          traits: ['Emotional', 'Expressive', 'Reactive'],
-          planetaryInfluence: 'Weak Mars + Moon'
+          text: language === 'hi' ? 'A को $600, B को $300, C को $100' : 'A gets $600, B gets $300, C gets $100',
+          traits: ['Empathetic', 'Need-based', 'Altruistic'],
+          psychProfile: 'Compassionate Helper',
+          cognitiveStyle: 'Empathy-driven Thinking'
         },
         {
-          text: language === 'hi' ? 'डिप्रेशन में जाऊंगा लेकिन फिर वापस शुरू करूंगा' : 'Feel depressed but eventually restart',
-          traits: ['Resilient', 'Persistent', 'Determined'],
-          planetaryInfluence: 'Strong Saturn + Sun'
+          text: language === 'hi' ? 'सभी को $333 बराबर बांटूंगा' : 'Equal $333 to everyone',
+          traits: ['Fair', 'Egalitarian', 'Justice-oriented'],
+          psychProfile: 'Equality Advocate',
+          cognitiveStyle: 'Fairness-based Thinking'
         },
         {
-          text: language === 'hi' ? 'एक्सेप्ट करके नई स्ट्रैटेजी बनाऊंगा' : 'Accept it and create new strategy',
-          traits: ['Adaptable', 'Pragmatic', 'Forward-thinking'],
-          planetaryInfluence: 'Strong Mercury + Jupiter'
+          text: language === 'hi' ? 'B को $500 (मेहनत का इनाम), A को $400, C को $100' : 'B gets $500 (reward effort), A gets $400, C gets $100',
+          traits: ['Merit-based', 'Achievement-oriented', 'Incentive-focused'],
+          psychProfile: 'Merit Rewarding',
+          cognitiveStyle: 'Achievement-based Thinking'
         },
         {
-          text: language === 'hi' ? 'कर्म मानकर शांति से आगे बढूंगा' : 'Accept as karma and move forward peacefully',
-          traits: ['Philosophical', 'Spiritual', 'Accepting'],
-          planetaryInfluence: 'Strong Jupiter + Ketu'
+          text: language === 'hi' ? 'C को $500 (दोस्ती), A को $300, B को $200' : 'C gets $500 (friendship), A gets $300, B gets $200',
+          traits: ['Loyalty-focused', 'Relationship-based', 'Tribal'],
+          psychProfile: 'Loyalty Prioritizer',
+          cognitiveStyle: 'Relationship-centered Thinking'
         }
       ],
-      astroConnection: 'Saturn + Mars'
+      psychologicalFramework: 'Distributive Justice + Social Value Orientation'
     },
     {
       id: 5,
-      title: language === 'hi' ? 'बिना अथॉरिटी के लीडरशिप' : 'Leading Without Authority',
+      title: language === 'hi' ? 'भविष्य की योजना' : 'Future Planning',
       scenario: language === 'hi'
-        ? 'नए ग्रुप में कोई लीडर नहीं। प्रेशर है परफॉर्म करने का।'
-        : 'New group, no assigned leader, pressure to perform.',
+        ? 'आपको दो विकल्प दिए गए हैं: अभी $50 या 1 साल बाद $100। वैज्ञानिक रूप से 1 साल बाद $100 बेहतर है।'
+        : "You're offered two choices: $50 now or $100 in 1 year. Scientifically, $100 in 1 year is better.",
       options: [
         {
-          text: language === 'hi' ? 'नेचुरली लीडरशिप रोल ले लूंगा' : 'Naturally take the leadership role',
-          traits: ['Natural Leader', 'Confident', 'Dominant'],
-          planetaryInfluence: 'Strong Sun + Mars'
+          text: language === 'hi' ? '$50 अभी लूंगा - भविष्य अनिश्चित है' : 'Take $50 now - future is uncertain',
+          traits: ['Present-focused', 'Risk-averse', 'Immediate gratification'],
+          psychProfile: 'Present Hedonist',
+          cognitiveStyle: 'Short-term Thinking'
         },
         {
-          text: language === 'hi' ? 'सबको साथ लेकर टीम बनाऊंगा' : 'Build team by bringing everyone together',
-          traits: ['Team Builder', 'Inclusive', 'Collaborative'],
-          planetaryInfluence: 'Strong Venus + Jupiter'
+          text: language === 'hi' ? '$100 का इंतजार करूंगा - लॉन्ग टर्म बेहतर है' : 'Wait for $100 - long-term is better',
+          traits: ['Future-oriented', 'Self-controlled', 'Strategic'],
+          psychProfile: 'Future Planner',
+          cognitiveStyle: 'Long-term Thinking'
         },
         {
-          text: language === 'hi' ? 'सपोर्टिव रोल खेलूंगा, बैकग्राउंड में मदद करूंगा' : 'Play supportive role, help from background',
-          traits: ['Supportive', 'Humble', 'Service-oriented'],
-          planetaryInfluence: 'Strong Moon + Mercury'
+          text: language === 'hi' ? 'अपनी वर्तमान जरूरत के आधार पर तय करूंगा' : 'Decide based on my current needs',
+          traits: ['Contextual', 'Practical', 'Adaptive'],
+          psychProfile: 'Situational Adaptor',
+          cognitiveStyle: 'Context-dependent Thinking'
         },
         {
-          text: language === 'hi' ? 'अपना काम करूंगा, ज्यादा इंवॉल्व नहीं होऊंगा' : 'Do my work, don\'t get too involved',
-          traits: ['Independent', 'Self-focused', 'Detached'],
-          planetaryInfluence: 'Strong Saturn + Ketu'
+          text: language === 'hi' ? 'दोनों के बीच कोई कॉम्प्रोमाइज ढूंढूंगा' : 'Look for a compromise between both',
+          traits: ['Negotiating', 'Creative', 'Win-win seeking'],
+          psychProfile: 'Creative Negotiator',
+          cognitiveStyle: 'Integrative Thinking'
         }
       ],
-      astroConnection: 'Sun + Ascendant'
+      psychologicalFramework: 'Temporal Discounting + Self-Control Research'
+    },
+    {
+      id: 6,
+      title: language === 'hi' ? 'गलती की जिम्मेदारी' : 'Responsibility for Mistakes',
+      scenario: language === 'hi'
+        ? 'टीम प्रोजेक्ट में गलती हुई। आपकी गलती नहीं थी लेकिन आप टीम लीडर हैं। क्लाइंट गुस्से में है।'
+        : "Team project failed. It wasn't your fault but you're the team leader. Client is angry.",
+      options: [
+        {
+          text: language === 'hi' ? 'जिम्मेदारी लूंगा और माफी मांगूंगा' : 'Take responsibility and apologize',
+          traits: ['Accountable', 'Leadership', 'Protective'],
+          psychProfile: 'Responsible Leader',
+          cognitiveStyle: 'Accountability-focused Thinking'
+        },
+        {
+          text: language === 'hi' ? 'सच बताऊंगा कि किसकी गलती थी' : 'Tell the truth about whose fault it was',
+          traits: ['Honest', 'Direct', 'Truth-focused'],
+          psychProfile: 'Truth Teller',
+          cognitiveStyle: 'Factual Thinking'
+        },
+        {
+          text: language === 'hi' ? 'टीम के साथ मिलकर समाधान पर फोकस करूंगा' : 'Focus on solutions with the team',
+          traits: ['Solution-oriented', 'Collaborative', 'Forward-thinking'],
+          psychProfile: 'Solution Focuser',
+          cognitiveStyle: 'Problem-solving Thinking'
+        },
+        {
+          text: language === 'hi' ? 'सिस्टम की कमी बताऊंगा जिससे यह हुआ' : 'Explain the system flaws that caused this',
+          traits: ['Systems-thinking', 'Analytical', 'Root-cause focused'],
+          psychProfile: 'Systems Analyst',
+          cognitiveStyle: 'Systematic Thinking'
+        }
+      ],
+      psychologicalFramework: 'Leadership Psychology + Attribution Theory'
     }
   ];
 
   const selectedQuestions = React.useMemo(() => {
-    // Randomly select 4-5 questions
-    const shuffled = [...questions].sort(() => 0.5 - Math.random());
-    return shuffled.slice(0, 4);
+    return psychologicalQuestions.sort(() => 0.5 - Math.random()).slice(0, 6);
   }, []);
 
   const handleAnswer = (optionIndex: number) => {
-    const newAnswers = [...answers, selectedQuestions[currentQuestion].options[optionIndex].planetaryInfluence];
+    const selectedOption = selectedQuestions[currentQuestion].options[optionIndex];
+    const newAnswers = [...answers, selectedOption.psychProfile];
     setAnswers(newAnswers);
 
     if (currentQuestion < selectedQuestions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
     } else {
-      // Calculate results
-      const results = calculatePersonalityResults(newAnswers, selectedQuestions);
+      // Calculate comprehensive results
+      const results = calculateAdvancedPersonalityResults(newAnswers, selectedQuestions);
       setResults(results);
       setIsComplete(true);
       if (onComplete) {
@@ -213,61 +281,244 @@ const EnhancedPersonalityTest: React.FC<PersonalityTestProps> = ({ language, onC
     }
   };
 
-  const calculatePersonalityResults = (answers: string[], questions: Question[]): PersonalityResults => {
-    // Analyze planetary influences
-    const planetaryCount: { [key: string]: number } = {};
-    const traitCount: { [key: string]: number } = {};
+  const calculateAdvancedPersonalityResults = (answers: string[], questions: Question[]): PersonalityResults => {
+    // Analyze psychological profiles
+    const profileCounts: { [key: string]: number } = {};
+    const cognitiveStyles: { [key: string]: number } = {};
+    const traitCounts: { [key: string]: number } = {};
 
     answers.forEach((answer, index) => {
-      const option = questions[index].options.find(opt => opt.planetaryInfluence === answer);
+      const option = questions[index].options.find(opt => opt.psychProfile === answer);
       if (option) {
-        option.traits.forEach(trait => {
-          traitCount[trait] = (traitCount[trait] || 0) + 1;
-        });
+        profileCounts[option.psychProfile] = (profileCounts[option.psychProfile] || 0) + 1;
+        cognitiveStyles[option.cognitiveStyle] = (cognitiveStyles[option.cognitiveStyle] || 0) + 1;
         
-        // Extract planetary influences
-        const planets = answer.match(/(Sun|Moon|Mars|Mercury|Jupiter|Venus|Saturn|Rahu|Ketu)/g) || [];
-        planets.forEach(planet => {
-          planetaryCount[planet] = (planetaryCount[planet] || 0) + 1;
+        option.traits.forEach(trait => {
+          traitCounts[trait] = (traitCounts[trait] || 0) + 1;
         });
       }
     });
 
-    // Determine dominant traits
-    const dominantTraits = Object.entries(traitCount)
+    // Determine dominant patterns
+    const dominantProfile = Object.entries(profileCounts)
+      .sort(([,a], [,b]) => b - a)[0][0];
+    
+    const dominantCognitiveStyle = Object.entries(cognitiveStyles)
+      .sort(([,a], [,b]) => b - a)[0][0];
+    
+    const dominantTraits = Object.entries(traitCounts)
       .sort(([,a], [,b]) => b - a)
-      .slice(0, 3)
+      .slice(0, 5)
       .map(([trait]) => trait);
 
-    // Determine planetary profile
-    const planetaryProfile = Object.entries(planetaryCount)
-      .sort(([,a], [,b]) => b - a)
-      .slice(0, 3)
-      .map(([planet]) => planet);
-
-    // Determine personality type
-    let personalityType = 'Balanced Individual';
-    if (planetaryProfile.includes('Sun') && planetaryProfile.includes('Mars')) {
-      personalityType = 'Natural Leader';
-    } else if (planetaryProfile.includes('Venus') && planetaryProfile.includes('Jupiter')) {
-      personalityType = 'Harmonious Diplomat';
-    } else if (planetaryProfile.includes('Mercury') && planetaryProfile.includes('Saturn')) {
-      personalityType = 'Analytical Strategist';
-    } else if (planetaryProfile.includes('Moon') && planetaryProfile.includes('Rahu')) {
-      personalityType = 'Intuitive Innovator';
-    }
+    // Calculate Big Five scores based on responses
+    const bigFiveScores = calculateBigFiveFromResponses(answers, questions);
+    
+    // Generate comprehensive analysis
+    const personalityType = generatePersonalityType(dominantProfile, dominantCognitiveStyle);
+    const strengths = generateStrengths(dominantTraits, dominantProfile);
+    const challenges = generateChallenges(dominantTraits, dominantProfile);
+    const recommendations = generateRecommendations(dominantProfile, dominantCognitiveStyle);
+    const careerAlignment = generateCareerAlignment(dominantProfile, dominantTraits);
+    const relationshipStyle = generateRelationshipStyle(dominantProfile, dominantTraits);
+    
+    // Calculate psychological metrics
+    const leadershipPotential = calculateLeadershipPotential(dominantTraits, answers);
+    const emotionalIntelligence = calculateEmotionalIntelligence(dominantTraits, answers);
+    const stressResilience = calculateStressResilience(dominantTraits, answers);
 
     return {
       dominantTraits,
-      planetaryProfile,
+      psychologicalProfile: dominantProfile,
+      cognitiveStyle: dominantCognitiveStyle,
       personalityType,
-      kundaliAlignment: Math.floor(Math.random() * 30) + 70, // Will be enhanced with actual Kundali data
-      recommendations: [
-        'Focus on leveraging your natural leadership abilities',
-        'Consider careers that align with your planetary strengths',
-        'Practice meditation to balance your energies'
-      ]
+      bigFiveScores,
+      strengths,
+      challenges,
+      recommendations,
+      careerAlignment,
+      relationshipStyle,
+      leadershipPotential,
+      emotionalIntelligence,
+      stressResilience
     };
+  };
+
+  const calculateBigFiveFromResponses = (answers: string[], questions: Question[]) => {
+    const scores = {
+      openness: 50,
+      conscientiousness: 50,
+      extraversion: 50,
+      agreeableness: 50,
+      neuroticism: 50
+    };
+
+    answers.forEach((answer, index) => {
+      const option = questions[index].options.find(opt => opt.psychProfile === answer);
+      if (option) {
+        // Map psychological profiles to Big Five dimensions
+        switch (option.psychProfile) {
+          case 'Independent Thinker':
+          case 'Solution Innovator':
+          case 'Creative Negotiator':
+            scores.openness += 15;
+            break;
+          case 'Responsible Leader':
+          case 'Future Planner':
+          case 'Evidence Seeker':
+            scores.conscientiousness += 15;
+            break;
+          case 'Truth Teller':
+          case 'Moral Autonomist':
+            scores.extraversion += 10;
+            break;
+          case 'Compassionate Helper':
+          case 'Equality Advocate':
+            scores.agreeableness += 15;
+            break;
+          case 'Decision Avoidant':
+          case 'Reluctant Complier':
+            scores.neuroticism += 10;
+            break;
+        }
+      }
+    });
+
+    // Normalize scores to 0-100 range
+    Object.keys(scores).forEach(key => {
+      scores[key as keyof typeof scores] = Math.max(0, Math.min(100, scores[key as keyof typeof scores]));
+    });
+
+    return scores;
+  };
+
+  const generatePersonalityType = (profile: string, cognitiveStyle: string) => {
+    const typeMap: { [key: string]: string } = {
+      'Rational Decision Maker': 'The Analytical Strategist',
+      'Moral Autonomist': 'The Principled Individual',
+      'Independent Thinker': 'The Authentic Leader',
+      'Compassionate Helper': 'The Empathetic Supporter',
+      'Future Planner': 'The Visionary Planner',
+      'Responsible Leader': 'The Accountable Guardian'
+    };
+
+    return typeMap[profile] || 'The Balanced Individual';
+  };
+
+  const generateStrengths = (traits: string[], profile: string) => {
+    const strengthMap: { [key: string]: string[] } = {
+      'Rational Decision Maker': ['Excellent analytical skills', 'Makes logical decisions under pressure', 'Objective problem-solving'],
+      'Moral Autonomist': ['Strong ethical foundation', 'Maintains integrity under pressure', 'Independent moral reasoning'],
+      'Independent Thinker': ['Thinks outside the box', 'Resists groupthink', 'Confident in unique perspectives'],
+      'Compassionate Helper': ['High emotional intelligence', 'Natural empathy', 'Excellent at understanding others'],
+      'Future Planner': ['Strategic long-term thinking', 'Excellent self-control', 'Goal-oriented behavior'],
+      'Responsible Leader': ['Takes accountability', 'Protective of team members', 'Natural leadership qualities']
+    };
+
+    return strengthMap[profile] || ['Balanced perspective', 'Adaptable thinking', 'Reasonable decision-making'];
+  };
+
+  const generateChallenges = (traits: string[], profile: string) => {
+    const challengeMap: { [key: string]: string[] } = {
+      'Rational Decision Maker': ['May appear cold or unfeeling', 'Could ignore emotional factors', 'Risk of analysis paralysis'],
+      'Moral Autonomist': ['May be seen as rigid', 'Could clash with authority', 'Difficulty with moral compromises'],
+      'Independent Thinker': ['May be seen as stubborn', 'Could alienate team members', 'Risk of isolation'],
+      'Compassionate Helper': ['May be taken advantage of', 'Could neglect own needs', 'Difficulty with tough decisions'],
+      'Future Planner': ['May miss present opportunities', 'Could be seen as inflexible', 'Risk of over-planning'],
+      'Responsible Leader': ['May take on too much burden', 'Could enable others\' irresponsibility', 'Risk of burnout']
+    };
+
+    return challengeMap[profile] || ['Need for better balance', 'Could improve consistency', 'Room for growth in decision-making'];
+  };
+
+  const generateRecommendations = (profile: string, cognitiveStyle: string) => {
+    const recommendationMap: { [key: string]: string[] } = {
+      'Rational Decision Maker': ['Practice emotional intelligence', 'Include stakeholder perspectives', 'Balance logic with intuition'],
+      'Moral Autonomist': ['Develop diplomatic communication', 'Practice situational flexibility', 'Build coalition-building skills'],
+      'Independent Thinker': ['Practice active listening', 'Develop team collaboration skills', 'Learn to communicate ideas effectively'],
+      'Compassionate Helper': ['Set clear boundaries', 'Practice assertiveness', 'Balance helping with self-care'],
+      'Future Planner': ['Practice present-moment awareness', 'Develop adaptability skills', 'Balance planning with spontaneity'],
+      'Responsible Leader': ['Learn to delegate effectively', 'Practice saying no', 'Develop team accountability systems']
+    };
+
+    return recommendationMap[profile] || ['Continue developing self-awareness', 'Practice balanced decision-making', 'Seek diverse perspectives'];
+  };
+
+  const generateCareerAlignment = (profile: string, traits: string[]) => {
+    const careerMap: { [key: string]: string[] } = {
+      'Rational Decision Maker': ['Strategy Consultant', 'Data Scientist', 'Financial Analyst', 'Operations Research'],
+      'Moral Autonomist': ['Ethics Officer', 'Lawyer', 'Human Rights Advocate', 'Compliance Manager'],
+      'Independent Thinker': ['Entrepreneur', 'Research Scientist', 'Innovation Manager', 'Creative Director'],
+      'Compassionate Helper': ['Counselor', 'Social Worker', 'Healthcare Provider', 'Non-profit Leader'],
+      'Future Planner': ['Strategic Planner', 'Investment Advisor', 'Project Manager', 'Urban Planner'],
+      'Responsible Leader': ['Team Manager', 'Operations Director', 'Department Head', 'CEO/Executive']
+    };
+
+    return careerMap[profile] || ['Management', 'Consulting', 'Education', 'Healthcare'];
+  };
+
+  const generateRelationshipStyle = (profile: string, traits: string[]) => {
+    const styleMap: { [key: string]: string } = {
+      'Rational Decision Maker': 'Logical Partner - Values clear communication and rational decision-making in relationships',
+      'Moral Autonomist': 'Principled Partner - Seeks relationships built on shared values and mutual respect',
+      'Independent Thinker': 'Autonomous Partner - Values independence while maintaining deep connections',
+      'Compassionate Helper': 'Nurturing Partner - Prioritizes emotional support and caring for partner\'s needs',
+      'Future Planner': 'Committed Partner - Focuses on long-term relationship building and shared goals',
+      'Responsible Leader': 'Protective Partner - Takes responsibility for relationship health and partner\'s wellbeing'
+    };
+
+    return styleMap[profile] || 'Balanced Partner - Adapts relationship style based on circumstances and partner needs';
+  };
+
+  const calculateLeadershipPotential = (traits: string[], answers: string[]) => {
+    let score = 50;
+    
+    const leadershipTraits = ['Accountable', 'Independent', 'Confident', 'Responsible', 'Strategic'];
+    const leadershipProfiles = ['Responsible Leader', 'Independent Thinker', 'Rational Decision Maker'];
+    
+    traits.forEach(trait => {
+      if (leadershipTraits.includes(trait)) score += 10;
+    });
+    
+    answers.forEach(answer => {
+      if (leadershipProfiles.includes(answer)) score += 8;
+    });
+    
+    return Math.min(100, Math.max(0, score));
+  };
+
+  const calculateEmotionalIntelligence = (traits: string[], answers: string[]) => {
+    let score = 50;
+    
+    const eiTraits = ['Empathetic', 'Compassionate', 'Diplomatic', 'Understanding'];
+    const eiProfiles = ['Compassionate Helper', 'Strategic Communicator', 'Thoughtful Inquirer'];
+    
+    traits.forEach(trait => {
+      if (eiTraits.includes(trait)) score += 12;
+    });
+    
+    answers.forEach(answer => {
+      if (eiProfiles.includes(answer)) score += 10;
+    });
+    
+    return Math.min(100, Math.max(0, score));
+  };
+
+  const calculateStressResilience = (traits: string[], answers: string[]) => {
+    let score = 50;
+    
+    const resilienceTraits = ['Strategic', 'Analytical', 'Future-oriented', 'Solution-oriented'];
+    const resilienceProfiles = ['Future Planner', 'Solution Focuser', 'Systems Analyst'];
+    
+    traits.forEach(trait => {
+      if (resilienceTraits.includes(trait)) score += 10;
+    });
+    
+    answers.forEach(answer => {
+      if (resilienceProfiles.includes(answer)) score += 8;
+    });
+    
+    return Math.min(100, Math.max(0, score));
   };
 
   const resetTest = () => {
@@ -279,83 +530,202 @@ const EnhancedPersonalityTest: React.FC<PersonalityTestProps> = ({ language, onC
 
   if (isComplete && results) {
     return (
-      <Card className="max-w-4xl mx-auto bg-gradient-to-br from-purple-50 to-blue-50 border-purple-200">
+      <Card className="max-w-6xl mx-auto bg-gradient-to-br from-purple-50 to-blue-50 border-purple-200">
         <CardHeader className="text-center bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-t-lg">
           <CardTitle className="text-2xl flex items-center justify-center gap-2">
             <Crown className="h-6 w-6" />
-            {language === 'hi' ? 'आपका व्यक्तित्व विश्लेषण' : 'Your Personality Analysis'}
+            {language === 'hi' ? 'आपका गहन व्यक्तित्व विश्लेषण' : 'Your In-Depth Personality Analysis'}
           </CardTitle>
+          <p className="text-purple-100">
+            {language === 'hi' ? 'मनोवैज्ञानिक विज्ञान पर आधारित व्यापक मूल्यांकन' : 'Comprehensive Assessment Based on Psychological Science'}
+          </p>
         </CardHeader>
         <CardContent className="p-6 space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card className="border-blue-200">
-              <CardHeader className="bg-blue-50">
-                <CardTitle className="text-blue-800 flex items-center gap-2">
-                  <Brain className="h-5 w-5" />
-                  {language === 'hi' ? 'व्यक्तित्व प्रकार' : 'Personality Type'}
+          {/* Personality Type */}
+          <div className="text-center">
+            <Badge variant="secondary" className="text-lg px-4 py-2 bg-gradient-to-r from-purple-500 to-blue-500 text-white">
+              {results.personalityType}
+            </Badge>
+            <p className="text-sm text-muted-foreground mt-2">
+              {language === 'hi' ? 'मुख्य व्यक्तित्व प्रकार:' : 'Primary Personality Type:'} {results.psychologicalProfile}
+            </p>
+            <p className="text-sm text-muted-foreground">
+              {language === 'hi' ? 'संज्ञानात्मक शैली:' : 'Cognitive Style:'} {results.cognitiveStyle}
+            </p>
+          </div>
+
+          {/* Big Five Scores */}
+          <Card className="border-blue-200">
+            <CardHeader className="bg-blue-50">
+              <CardTitle className="text-blue-800 flex items-center gap-2">
+                <Brain className="h-5 w-5" />
+                {language === 'hi' ? 'बिग फाइव व्यक्तित्व आयाम' : 'Big Five Personality Dimensions'}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-4 space-y-3">
+              {Object.entries(results.bigFiveScores).map(([dimension, score]) => (
+                <div key={dimension} className="space-y-1">
+                  <div className="flex justify-between items-center">
+                    <span className="capitalize font-medium">{dimension}</span>
+                    <span className="text-sm font-bold">{score}%</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div 
+                      className="bg-blue-600 h-2 rounded-full transition-all duration-1000" 
+                      style={{ width: `${score}%` }}
+                    ></div>
+                  </div>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+
+          {/* Psychological Metrics */}
+          <div className="grid md:grid-cols-3 gap-4">
+            <Card className="border-green-200">
+              <CardHeader className="bg-green-50 text-center">
+                <CardTitle className="text-green-800 text-lg">
+                  {language === 'hi' ? 'नेतृत्व क्षमता' : 'Leadership Potential'}
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-4">
-                <h3 className="text-xl font-bold text-blue-900 mb-2">{results.personalityType}</h3>
-                <div className="flex flex-wrap gap-2">
-                  {results.dominantTraits.map((trait, index) => (
-                    <Badge key={index} variant="secondary" className="bg-blue-100 text-blue-800">
-                      {trait}
-                    </Badge>
-                  ))}
+              <CardContent className="text-center p-4">
+                <div className="text-3xl font-bold text-green-700">{results.leadershipPotential}%</div>
+                <div className="w-full bg-green-200 rounded-full h-2 mt-2">
+                  <div 
+                    className="bg-green-600 h-2 rounded-full" 
+                    style={{ width: `${results.leadershipPotential}%` }}
+                  ></div>
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="border-purple-200">
-              <CardHeader className="bg-purple-50">
-                <CardTitle className="text-purple-800 flex items-center gap-2">
-                  <Star className="h-5 w-5" />
-                  {language === 'hi' ? 'ग्रह प्रभाव' : 'Planetary Influence'}
+            <Card className="border-orange-200">
+              <CardHeader className="bg-orange-50 text-center">
+                <CardTitle className="text-orange-800 text-lg">
+                  {language === 'hi' ? 'भावनात्मक बुद्धि' : 'Emotional Intelligence'}
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-4">
-                <div className="space-y-2">
-                  {results.planetaryProfile.map((planet, index) => (
-                    <div key={index} className="flex justify-between items-center">
-                      <span className="font-medium">{planet}</span>
-                      <div className="w-16 bg-purple-200 rounded-full h-2">
-                        <div 
-                          className="bg-purple-600 h-2 rounded-full" 
-                          style={{ width: `${90 - index * 20}%` }}
-                        ></div>
-                      </div>
-                    </div>
-                  ))}
+              <CardContent className="text-center p-4">
+                <div className="text-3xl font-bold text-orange-700">{results.emotionalIntelligence}%</div>
+                <div className="w-full bg-orange-200 rounded-full h-2 mt-2">
+                  <div 
+                    className="bg-orange-600 h-2 rounded-full" 
+                    style={{ width: `${results.emotionalIntelligence}%` }}
+                  ></div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-red-200">
+              <CardHeader className="bg-red-50 text-center">
+                <CardTitle className="text-red-800 text-lg">
+                  {language === 'hi' ? 'तनाव सहनशीलता' : 'Stress Resilience'}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="text-center p-4">
+                <div className="text-3xl font-bold text-red-700">{results.stressResilience}%</div>
+                <div className="w-full bg-red-200 rounded-full h-2 mt-2">
+                  <div 
+                    className="bg-red-600 h-2 rounded-full" 
+                    style={{ width: `${results.stressResilience}%` }}
+                  ></div>
                 </div>
               </CardContent>
             </Card>
           </div>
 
-          <Card className="border-green-200">
-            <CardHeader className="bg-green-50">
-              <CardTitle className="text-green-800 flex items-center gap-2">
-                <Target className="h-5 w-5" />
-                {language === 'hi' ? 'कुंडली के साथ तालमेल' : 'Kundali Alignment'}
+          {/* Strengths and Challenges */}
+          <div className="grid md:grid-cols-2 gap-6">
+            <Card className="border-green-200">
+              <CardHeader className="bg-green-50">
+                <CardTitle className="text-green-800 flex items-center gap-2">
+                  <Star className="h-5 w-5" />
+                  {language === 'hi' ? 'प्रमुख शक्तियां' : 'Key Strengths'}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-4">
+                <ul className="space-y-2">
+                  {results.strengths.map((strength, index) => (
+                    <li key={index} className="flex items-start">
+                      <span className="text-green-500 mr-2">•</span>
+                      <span className="text-sm">{strength}</span>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+
+            <Card className="border-orange-200">
+              <CardHeader className="bg-orange-50">
+                <CardTitle className="text-orange-800 flex items-center gap-2">
+                  <Target className="h-5 w-5" />
+                  {language === 'hi' ? 'विकास क्षेत्र' : 'Growth Areas'}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-4">
+                <ul className="space-y-2">
+                  {results.challenges.map((challenge, index) => (
+                    <li key={index} className="flex items-start">
+                      <span className="text-orange-500 mr-2">•</span>
+                      <span className="text-sm">{challenge}</span>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Career and Relationship */}
+          <div className="grid md:grid-cols-2 gap-6">
+            <Card className="border-blue-200">
+              <CardHeader className="bg-blue-50">
+                <CardTitle className="text-blue-800 flex items-center gap-2">
+                  <Target className="h-5 w-5" />
+                  {language === 'hi' ? 'करियर संरेखण' : 'Career Alignment'}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-4">
+                <ul className="space-y-2">
+                  {results.careerAlignment.map((career, index) => (
+                    <li key={index} className="flex items-start">
+                      <span className="text-blue-500 mr-2">•</span>
+                      <span className="text-sm font-medium">{career}</span>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+
+            <Card className="border-pink-200">
+              <CardHeader className="bg-pink-50">
+                <CardTitle className="text-pink-800 flex items-center gap-2">
+                  <Heart className="h-5 w-5" />
+                  {language === 'hi' ? 'रिश्ते की शैली' : 'Relationship Style'}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-4">
+                <p className="text-sm leading-relaxed">{results.relationshipStyle}</p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Recommendations */}
+          <Card className="border-purple-200">
+            <CardHeader className="bg-purple-50">
+              <CardTitle className="text-purple-800 flex items-center gap-2">
+                <Eye className="h-5 w-5" />
+                {language === 'hi' ? 'व्यक्तिगत विकास सुझाव' : 'Personal Development Recommendations'}
               </CardTitle>
             </CardHeader>
             <CardContent className="p-4">
-              <div className="flex items-center space-x-4">
-                <div className="flex-1">
-                  <div className="w-full bg-gray-200 rounded-full h-3">
-                    <div 
-                      className="bg-gradient-to-r from-green-500 to-blue-500 h-3 rounded-full transition-all duration-1000" 
-                      style={{ width: `${results.kundaliAlignment}%` }}
-                    ></div>
-                  </div>
-                </div>
-                <span className="text-2xl font-bold text-green-700">{results.kundaliAlignment}%</span>
-              </div>
-              <p className="text-sm text-green-600 mt-2">
-                {language === 'hi' 
-                  ? 'आपका व्यक्तित्व परीक्षण आपकी कुंडली के साथ मेल खाता है' 
-                  : 'Your personality test aligns well with your Kundali predictions'}
-              </p>
+              <ul className="space-y-2">
+                {results.recommendations.map((recommendation, index) => (
+                  <li key={index} className="flex items-start">
+                    <span className="text-purple-500 mr-2">•</span>
+                    <span className="text-sm">{recommendation}</span>
+                  </li>
+                ))}
+              </ul>
             </CardContent>
           </Card>
 
@@ -363,6 +733,14 @@ const EnhancedPersonalityTest: React.FC<PersonalityTestProps> = ({ language, onC
             <Button onClick={resetTest} variant="outline" className="border-purple-300 text-purple-700">
               {language === 'hi' ? 'फिर से करें' : 'Retake Test'}
             </Button>
+          </div>
+
+          <div className="text-xs text-muted-foreground bg-muted/20 p-3 rounded-md">
+            <p>
+              {language === 'hi' 
+                ? "यह विश्लेषण वैज्ञानिक मनोवैज्ञानिक सिद्धांतों पर आधारित है लेकिन केवल मार्गदर्शन के लिए है। व्यावसायिक सलाह के लिए योग्य मनोवैज्ञानिक से संपर्क करें।" 
+                : "This analysis is based on scientific psychological principles but is for guidance only. Consult a qualified psychologist for professional advice."}
+            </p>
           </div>
         </CardContent>
       </Card>
@@ -376,11 +754,11 @@ const EnhancedPersonalityTest: React.FC<PersonalityTestProps> = ({ language, onC
       <CardHeader className="bg-gradient-to-r from-orange-500 to-red-500 text-white">
         <CardTitle className="text-xl flex items-center gap-2">
           <Brain className="h-5 w-5" />
-          {language === 'hi' ? 'व्यक्तित्व परीक्षण' : 'Personality Test'}
+          {language === 'hi' ? 'गहन मनोवैज्ञानिक मूल्यांकन' : 'In-Depth Psychological Assessment'}
         </CardTitle>
         <div className="space-y-2">
           <div className="flex justify-between text-sm">
-            <span>{language === 'hi' ? 'प्रश्न' : 'Question'} {currentQuestion + 1} / {selectedQuestions.length}</span>
+            <span>{language === 'hi' ? 'स्थिति' : 'Scenario'} {currentQuestion + 1} / {selectedQuestions.length}</span>
             <span>{Math.round(progress)}% {language === 'hi' ? 'पूरा' : 'Complete'}</span>
           </div>
           <Progress value={progress} className="bg-white/20" />
@@ -397,7 +775,7 @@ const EnhancedPersonalityTest: React.FC<PersonalityTestProps> = ({ language, onC
               {selectedQuestions[currentQuestion].scenario}
             </p>
             <Badge variant="outline" className="border-orange-300 text-orange-700">
-              {language === 'hi' ? 'ज्योतिषीय संबंध:' : 'Astrological Connection:'} {selectedQuestions[currentQuestion].astroConnection}
+              {language === 'hi' ? 'मनोवैज्ञानिक ढांचा:' : 'Framework:'} {selectedQuestions[currentQuestion].psychologicalFramework}
             </Badge>
           </div>
 
@@ -415,8 +793,14 @@ const EnhancedPersonalityTest: React.FC<PersonalityTestProps> = ({ language, onC
                       {String.fromCharCode(65 + index)}
                     </span>
                     <div className="flex-1">
-                      <p className="text-gray-800 font-medium">{option.text}</p>
-                      <p className="text-xs text-orange-600 mt-1">{option.planetaryInfluence}</p>
+                      <p className="text-gray-800 font-medium leading-relaxed">{option.text}</p>
+                      <div className="mt-2 space-x-1">
+                        {option.traits.map((trait, traitIndex) => (
+                          <Badge key={traitIndex} variant="secondary" className="text-xs">
+                            {trait}
+                          </Badge>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </div>
