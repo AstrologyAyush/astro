@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -51,6 +52,11 @@ const RishiParasherGuru: React.FC<RishiParasherGuruProps> = ({ kundaliData, lang
     return signs[signNumber - 1] || 'Unknown';
   };
 
+  // Get house data helper function
+  const getHouseData = (houseNum: number) => {
+    return kundaliData?.enhancedCalculations?.houses?.find(h => h.number === houseNum);
+  };
+
   // Enhanced fallback response with specific personal recommendations
   const generatePersonalizedResponse = (query: string) => {
     const calculations = kundaliData?.enhancedCalculations;
@@ -68,11 +74,6 @@ const RishiParasherGuru: React.FC<RishiParasherGuruProps> = ({ kundaliData, lang
     const dashas = calculations.dashas;
     const currentDasha = dashas?.find(d => d.isActive);
 
-    // Get house data helper function
-    const getHouseData = (houseNum: number) => {
-      return houses?.find(h => h.house === houseNum);
-    };
-
     // Declare all planetary positions at the top level with proper property access
     const sunPosition = planets?.SU;
     const moonPosition = planets?.MO;
@@ -82,11 +83,19 @@ const RishiParasherGuru: React.FC<RishiParasherGuruProps> = ({ kundaliData, lang
     const mercuryPosition = planets?.ME;
     const saturnPosition = planets?.SA;
 
-    // Get sign names safely
+    // Get sign names safely using rashiName property
     const getSafeSignName = (planet: any): string => {
       if (!planet) return 'Unknown';
-      return planet.rashiName || getSignName(planet.rashi || planet.sign || 1);
+      return planet.rashiName || getSignName(planet.rashi || 1);
     };
+
+    // Get sign names for variables used later
+    const sunSign = getSafeSignName(sunPosition);
+    const moonSign = getSafeSignName(moonPosition);
+    const venusSign = getSafeSignName(venusPosition);
+    const mercurySign = getSafeSignName(mercuryPosition);
+    const jupiterSign = getSafeSignName(jupiterPosition);
+    const saturnSign = getSafeSignName(saturnPosition);
 
     const queryLower = query.toLowerCase();
 
@@ -101,12 +110,6 @@ const RishiParasherGuru: React.FC<RishiParasherGuruProps> = ({ kundaliData, lang
       // Specific career recommendations based on actual planetary positions
       let specificCareerField = '';
       let timing = '';
-      let challenges = '';
-      let remedies = '';
-      
-      const sunSign = getSafeSignName(sunPosition);
-      const mercurySign = getSafeSignName(mercuryPosition);
-      const jupiterSign = getSafeSignName(jupiterPosition);
       
       if (sunSign === 'Leo' || sunSign === 'Aries') {
         specificCareerField = language === 'hi' ? 'नेतृत्व, प्रबंधन, सरकारी सेवा में बेहतरीन सफलता' : 'exceptional success in leadership, management, government service';
@@ -198,9 +201,6 @@ Your future is bright, ${birthData?.fullName}! 🌟`;
         marriageTiming = language === 'hi' ? 'अगले 12-24 महीनों में विवाह के संकेत' : 'marriage indications in next 12-24 months';
       }
 
-      const venusSign = getSafeSignName(venusPosition);
-      const moonSign = getSafeSignName(moonPosition);
-
       if (language === 'hi') {
         return `🙏 ${birthData?.fullName}, आपके विवाह के लिए विशेष मार्गदर्शन:
 
@@ -264,8 +264,6 @@ Your love life will be filled with happiness! 💖`;
       
       // Specific health predictions based on actual positions
       let healthTendency = '';
-      const saturnSign = getSafeSignName(saturnPosition);
-      const moonSign = getSafeSignName(moonPosition);
       
       if (saturnSign === 'Capricorn' || saturnSign === 'Aquarius') {
         healthTendency = language === 'hi' ? 'मजबूत हड्डियां लेकिन जोड़ों का ध्यान रखें' : 'strong bones but take care of joints';
@@ -498,6 +496,11 @@ May you prosper, ${birthData?.fullName}! My blessings are always with you. 🕉�
     const planets = kundaliData.enhancedCalculations.planets;
     const activeYogas = kundaliData.enhancedCalculations.yogas?.filter(y => y.isActive) || [];
     const currentDasha = kundaliData.enhancedCalculations.dashas?.find(d => d.isActive);
+    
+    const getSafeSignName = (planet: any): string => {
+      if (!planet) return 'Unknown';
+      return planet.rashiName || getSignName(planet.rashi || 1);
+    };
     
     const welcomeMessage: Message = {
       id: '1',
