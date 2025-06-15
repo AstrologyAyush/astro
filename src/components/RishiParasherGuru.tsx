@@ -113,6 +113,7 @@ Now tell me dear soul, what would you like to know about your karmic journey? Pa
     };
 
     setMessages(prev => [...prev, userMessage]);
+    const currentInput = inputValue;
     setInputValue('');
     setIsLoading(true);
 
@@ -126,7 +127,7 @@ Now tell me dear soul, what would you like to know about your karmic journey? Pa
       const { data, error } = await supabase.functions.invoke('kundali-ai-analysis', {
         body: {
           kundaliData,
-          userQuery: inputValue,
+          userQuery: currentInput,
           language
         }
       });
@@ -136,6 +137,10 @@ Now tell me dear soul, what would you like to know about your karmic journey? Pa
       if (error) {
         console.error('RishiParasherGuru: Edge function error:', error);
         throw error;
+      }
+
+      if (!data || !data.analysis) {
+        throw new Error('No analysis received from AI');
       }
 
       const aiMessage: Message = {
@@ -150,7 +155,7 @@ Now tell me dear soul, what would you like to know about your karmic journey? Pa
       // Store conversation in database
       try {
         await supabase.from('rishi_parasher_conversations').insert({
-          user_question: inputValue,
+          user_question: currentInput,
           rishi_response: data.analysis,
           kundali_context: kundaliData as unknown as Json,
           session_id: `karmic_session_${Date.now()}`

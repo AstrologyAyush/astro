@@ -33,6 +33,10 @@ serve(async (req) => {
       throw new Error('No Kundali data provided');
     }
 
+    if (!userQuery || typeof userQuery !== 'string' || userQuery.trim().length === 0) {
+      throw new Error('No valid user query provided');
+    }
+
     console.log('Processing karmic coaching query:', userQuery);
     console.log('Language:', language);
 
@@ -137,7 +141,7 @@ As a karmic coach, provide guidance that helps them understand their soul's jour
           temperature: 0.8,
           topK: 40,
           topP: 0.9,
-          maxOutputTokens: 250,
+          maxOutputTokens: 300,
           candidateCount: 1,
         },
         safetySettings: [
@@ -170,7 +174,7 @@ As a karmic coach, provide guidance that helps them understand their soul's jour
     }
 
     const data = await response.json();
-    console.log('Karmic guidance received from Gemini');
+    console.log('Karmic guidance received from Gemini:', data);
     
     let analysis = data.candidates?.[0]?.content?.parts?.[0]?.text;
     
@@ -181,7 +185,7 @@ As a karmic coach, provide guidance that helps them understand their soul's jour
         : `🙏 Dear soul, looking at your beautiful ${calculations.lagna?.signName || 'sacred'} ascendant chart, I understand the direction your soul is heading. This is a time for patience and self-reflection. Look within and understand your karma. My blessings are always with you. 🕉️`;
     }
 
-    console.log('Returning karmic coaching guidance');
+    console.log('Returning karmic coaching guidance with analysis length:', analysis.length);
 
     return new Response(JSON.stringify({ analysis }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -189,6 +193,8 @@ As a karmic coach, provide guidance that helps them understand their soul's jour
 
   } catch (error) {
     console.error('Error in karmic coaching function:', error);
+    
+    const language = req.headers.get('accept-language')?.includes('hi') ? 'hi' : 'en';
     
     const fallbackResponse = {
       analysis: language === 'hi' 
