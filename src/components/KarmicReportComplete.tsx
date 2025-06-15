@@ -62,9 +62,17 @@ const KarmicReportComplete: React.FC<KarmicReportCompleteProps> = ({ kundaliData
     // Get 10th house analysis with proper type checking
     const tenthHouse = houses.find((h: any) => h.number === 10);
     const planetsInTenth = Object.entries(planets).filter(([_, data]: [string, any]) => data?.house === 10);
-    const tenthHouseLord = planetsInTenth.length > 0 
-      ? `${planetsInTenth[0][0]} in ${planetsInTenth[0][1]?.rashiName || 'Unknown'}` 
-      : (tenthHouse && typeof tenthHouse === 'object' && tenthHouse !== null && 'rashiName' in tenthHouse && typeof (tenthHouse as any).rashiName === 'string' ? (tenthHouse as any).rashiName : 'Unknown');
+    
+    // Fix the rashiName access with proper type checking
+    let tenthHouseLord = 'Unknown';
+    if (planetsInTenth.length > 0) {
+      tenthHouseLord = `${planetsInTenth[0][0]} in ${planetsInTenth[0][1]?.rashiName || 'Unknown'}`;
+    } else if (tenthHouse && typeof tenthHouse === 'object' && tenthHouse !== null) {
+      const houseObj = tenthHouse as Record<string, any>;
+      if ('rashiName' in houseObj && typeof houseObj.rashiName === 'string') {
+        tenthHouseLord = houseObj.rashiName;
+      }
+    }
 
     // Analyze planetary strengths for D10 with proper type checking
     const strongPlanets = Object.entries(planets)
@@ -108,10 +116,13 @@ const KarmicReportComplete: React.FC<KarmicReportCompleteProps> = ({ kundaliData
         reason: language === 'hi' ? 'बृहस्पति + बुध → ज्ञान और संचार' : 'Jupiter + Mercury → Knowledge and communication'
       });
     }
-    if (strongPlanets.includes('MA') && (
-      (tenthHouse && typeof tenthHouse === 'object' && tenthHouse !== null && 'rashiName' in tenthHouse && (tenthHouse as any).rashiName === 'Aries') || 
-      (tenthHouse && typeof tenthHouse === 'object' && tenthHouse !== null && 'rashiName' in tenthHouse && (tenthHouse as any).rashiName === 'Scorpio')
-    )) {
+    
+    // Fix the tenthHouse access for Mars career check
+    const tenthHouseRashi = tenthHouse && typeof tenthHouse === 'object' && tenthHouse !== null 
+      ? (tenthHouse as Record<string, any>).rashiName 
+      : null;
+    
+    if (strongPlanets.includes('MA') && (tenthHouseRashi === 'Aries' || tenthHouseRashi === 'Scorpio')) {
       idealCareers.push({
         role: language === 'hi' ? 'इंजीनियर/तकनीशियन' : 'Engineer/Technician',
         reason: language === 'hi' ? 'मंगल प्रभावी → तकनीकी और निष्पादन कौशल' : 'Strong Mars → Technical and execution skills'
@@ -224,6 +235,64 @@ const KarmicReportComplete: React.FC<KarmicReportCompleteProps> = ({ kundaliData
     };
   };
 
+  // Auto-generate on component mount
+  useEffect(() => {
+    if (kundaliData && !personalizedData) {
+      generatePersonalizedReport();
+    }
+  }, [kundaliData]);
+
+  // Fix the arithmetic operation by ensuring we only do math on numbers
+  const calculateAlignmentPercentage = () => {
+    if (!personalizedData || !kundaliData?.enhancedCalculations?.planets) {
+      return 62;
+    }
+
+    const planetValues = Object.values(kundaliData.enhancedCalculations.planets);
+    const validShadbalaValues = planetValues
+      .map((planet: any) => typeof planet?.shadbala === 'number' ? planet.shadbala : 50)
+      .filter((value): value is number => typeof value === 'number');
+
+    if (validShadbalaValues.length === 0) {
+      return 62;
+    }
+
+    const averageShadbala = validShadbalaValues.reduce((sum, value) => sum + value, 0) / validShadbalaValues.length;
+    return Math.min(95, Math.max(35, Math.round(averageShadbala * 1.2)));
+  };
+
+  const karmaData = {
+    alignmentPercentage: calculateAlignmentPercentage(),
+    grahaEnergies: personalizedData ? [
+      {
+        name: language === 'hi' ? 'बृहस्पति' : 'Jupiter',
+        role: language === 'hi' ? 'धर्म + ज्ञान' : 'Dharma + Wisdom',
+        strength: typeof kundaliData?.enhancedCalculations?.planets?.JU?.shadbala === 'number' ? kundaliData.enhancedCalculations.planets.JU.shadbala : 80,
+        color: '#F59E0B'
+      },
+      {
+        name: language === 'hi' ? 'शनि' : 'Saturn',
+        role: language === 'hi' ? 'अनुशासन + कष्ट' : 'Discipline + Suffering',
+        strength: typeof kundaliData?.enhancedCalculations?.planets?.SA?.shadbala === 'number' ? kundaliData.enhancedCalculations.planets.SA.shadbala : 75,
+        color: '#6366F1'
+      },
+      {
+        name: language === 'hi' ? 'राहु' : 'Rahu',
+        role: language === 'hi' ? 'जुनून + भ्रम' : 'Obsession + Illusion',
+        strength: typeof kundaliData?.enhancedCalculations?.planets?.RA?.shadbala === 'number' ? kundaliData.enhancedCalculations.planets.RA.shadbala : 60,
+        color: '#8B5CF6'
+      },
+      {
+        name: language === 'hi' ? 'शुक्र' : 'Venus',
+        role: language === 'hi' ? 'रचनात्मकता + आकर्षण' : 'Creativity + Charm',
+        strength: typeof kundaliData?.enhancedCalculations?.planets?.VE?.shadbala === 'number' ? kundaliData.enhancedCalculations.planets.VE.shadbala : 65,
+        color: '#EC4899'
+      }
+    ] : [],
+    dashaTimeline: [],
+    weeklyTracker: []
+  };
+
   const generatePersonalizedReport = async () => {
     setIsLoading(true);
     
@@ -273,49 +342,6 @@ const KarmicReportComplete: React.FC<KarmicReportCompleteProps> = ({ kundaliData
     } finally {
       setIsLoading(false);
     }
-  };
-
-  // Auto-generate on component mount
-  useEffect(() => {
-    if (kundaliData && !personalizedData) {
-      generatePersonalizedReport();
-    }
-  }, [kundaliData]);
-
-  const karmaData = {
-    alignmentPercentage: personalizedData ? 
-      Math.min(95, Math.max(35, Math.round((Object.values(kundaliData?.enhancedCalculations?.planets || {}).reduce((sum: number, planet: any) => {
-        const shadbalaValue = typeof planet?.shadbala === 'number' ? planet.shadbala : 50;
-        return sum + shadbalaValue;
-      }, 0) / Math.max(1, Object.keys(kundaliData?.enhancedCalculations?.planets || {}).length)) * 1.2))) : 62,
-    grahaEnergies: personalizedData ? [
-      {
-        name: language === 'hi' ? 'बृहस्पति' : 'Jupiter',
-        role: language === 'hi' ? 'धर्म + ज्ञान' : 'Dharma + Wisdom',
-        strength: typeof kundaliData?.enhancedCalculations?.planets?.JU?.shadbala === 'number' ? kundaliData.enhancedCalculations.planets.JU.shadbala : 80,
-        color: '#F59E0B'
-      },
-      {
-        name: language === 'hi' ? 'शनि' : 'Saturn',
-        role: language === 'hi' ? 'अनुशासन + कष्ट' : 'Discipline + Suffering',
-        strength: typeof kundaliData?.enhancedCalculations?.planets?.SA?.shadbala === 'number' ? kundaliData.enhancedCalculations.planets.SA.shadbala : 75,
-        color: '#6366F1'
-      },
-      {
-        name: language === 'hi' ? 'राहु' : 'Rahu',
-        role: language === 'hi' ? 'जुनून + भ्रम' : 'Obsession + Illusion',
-        strength: typeof kundaliData?.enhancedCalculations?.planets?.RA?.shadbala === 'number' ? kundaliData.enhancedCalculations.planets.RA.shadbala : 60,
-        color: '#8B5CF6'
-      },
-      {
-        name: language === 'hi' ? 'शुक्र' : 'Venus',
-        role: language === 'hi' ? 'रचनात्मकता + आकर्षण' : 'Creativity + Charm',
-        strength: typeof kundaliData?.enhancedCalculations?.planets?.VE?.shadbala === 'number' ? kundaliData.enhancedCalculations.planets.VE.shadbala : 65,
-        color: '#EC4899'
-      }
-    ] : [],
-    dashaTimeline: [],
-    weeklyTracker: []
   };
 
   return (
