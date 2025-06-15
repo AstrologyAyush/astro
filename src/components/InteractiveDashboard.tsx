@@ -1,10 +1,11 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Star, Activity, TrendingUp, Target, BarChart3, Sparkles, Heart } from "lucide-react";
 import VisualKundaliChart from './VisualKundaliChart';
 import InteractiveKundaliChart from './InteractiveKundaliChart';
-import EnhancedPlanetaryStrengthChart from './EnhancedPlanetaryStrengthChart';
+import PlanetaryStrengthChart from './PlanetaryStrengthChart';
 import AIRemedySuggestions from './AIRemedySuggestions';
 import AdvancedNumerologyCompatibility from './AdvancedNumerologyCompatibility';
 
@@ -42,7 +43,8 @@ const InteractiveDashboard: React.FC<InteractiveDashboardProps> = ({
       isExalted: planet.isExalted || false,
       isDebilitated: planet.isDebilitated || false,
       ownSign: planet.ownSign || false,
-      isRetrograde: planet.isRetrograde || false
+      isRetrograde: planet.isRetrograde || false,
+      shadbala: planet.totalStrength || planet.shadbala || 0
     }));
   };
 
@@ -117,9 +119,8 @@ const InteractiveDashboard: React.FC<InteractiveDashboardProps> = ({
         </TabsContent>
 
         <TabsContent value="strength" className="mt-6">
-          <EnhancedPlanetaryStrengthChart 
+          <PlanetaryStrengthChart 
             planets={planets}
-            language={language}
           />
         </TabsContent>
 
