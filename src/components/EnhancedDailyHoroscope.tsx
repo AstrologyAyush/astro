@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -62,34 +61,49 @@ const EnhancedDailyHoroscope: React.FC<EnhancedDailyHoroscopeProps> = ({
         return;
       }
 
-      const horoscopePrompt = createHoroscopePrompt();
+      console.log('Generating horoscope for kundali data:', kundaliData);
+
+      // Simple direct query instead of complex prompt
+      const userQuery = language === 'hi' 
+        ? `आज ${new Date().toLocaleDateString('hi-IN')} के लिए व्यक्तिगत राशिफल दें।`
+        : `Generate personalized horoscope for today ${new Date().toLocaleDateString()}.`;
       
       const { data, error } = await supabase.functions.invoke('kundali-ai-analysis', {
         body: {
           kundaliData,
-          userQuery: horoscopePrompt,
+          userQuery,
           language,
           analysisType: 'daily_horoscope'
         }
       });
 
-      if (error) throw error;
+      console.log('Supabase response:', { data, error });
 
-      const parsedHoroscope = parseHoroscopeResponse(data.analysis);
-      setHoroscope(parsedHoroscope);
-      setLastGenerated(today);
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
 
-      toast({
-        title: getTranslation("Success", "सफलता"),
-        description: getTranslation("Your personalized horoscope has been generated!", "आपका व्यक्तिगत राशिफल तैयार हो गया है!"),
-      });
+      if (data?.analysis) {
+        const parsedHoroscope = parseHoroscopeResponse(data.analysis);
+        setHoroscope(parsedHoroscope);
+        setLastGenerated(today);
+
+        toast({
+          title: getTranslation("Success", "सफलता"),
+          description: getTranslation("Your personalized horoscope has been generated!", "आपका व्यक्तिगत राशिफल तैयार हो गया है!"),
+        });
+      } else {
+        throw new Error('No analysis data received');
+      }
 
     } catch (error) {
       console.error('Error generating personalized horoscope:', error);
       
-      // Generate fallback horoscope
+      // Generate fallback horoscope immediately
       const fallbackHoroscope = generateFallbackHoroscope();
       setHoroscope(fallbackHoroscope);
+      setLastGenerated(today);
       
       toast({
         title: getTranslation("Generated", "तैयार"),
@@ -100,112 +114,66 @@ const EnhancedDailyHoroscope: React.FC<EnhancedDailyHoroscopeProps> = ({
     }
   };
 
-  const createHoroscopePrompt = () => {
-    const calc = kundaliData.enhancedCalculations;
-    const currentDasha = calc.dashas?.find(d => d.isActive);
-    const activeYogas = calc.yogas?.filter(y => y.isActive) || [];
-    
-    return language === 'hi' 
-      ? `आज ${new Date().toLocaleDateString('hi-IN')} के लिए व्यक्तिगत राशिफल बनाएं:
-
-जन्म विवरण: ${kundaliData.birthData?.fullName || 'व्यक्ति'}
-लग्न: ${calc.lagna?.signName || 'अज्ञात'}
-वर्तमान दशा: ${currentDasha?.planet || 'अज्ञात'}
-सक्रिय योग: ${activeYogas.length}
-
-कृपया निम्नलिखित प्रारूप में उत्तर दें:
-मुख्य भविष्यवाणी: [आज का मुख्य पूर्वानुमान]
-प्रेम: [प्रेम और रिश्तों के लिए]
-करियर: [करियर और काम के लिए]
-स्वास्थ्य: [स्वास्थ्य सलाह]
-वित्त: [धन और वित्त]
-भाग्यशाली संख्याएं: [1,2,3 प्रारूप में]
-भाग्यशाली रंग: [रंग1,रंग2 प्रारूप में]
-भाग्यशाली दिशा: [दिशा]
-शुभ समय: [समय]
-चुनौतियां: [आज की चुनौतियां]
-उपाय: [उपाय1|उपाय2|उपाय3 प्रारूप में]`
-      : `Generate personalized horoscope for today ${new Date().toLocaleDateString()}:
-
-Birth Details: ${kundaliData.birthData?.fullName || 'Person'}
-Ascendant: ${calc.lagna?.signName || 'Unknown'}
-Current Dasha: ${currentDasha?.planet || 'Unknown'}
-Active Yogas: ${activeYogas.length}
-
-Please respond in this exact format:
-Main Prediction: [Today's main forecast]
-Love: [Love and relationships]
-Career: [Career and work]
-Health: [Health advice]
-Finance: [Money and finance]
-Lucky Numbers: [1,2,3 format]
-Lucky Colors: [color1,color2 format]
-Lucky Direction: [direction]
-Auspicious Time: [time]
-Challenges: [Today's challenges]
-Remedies: [remedy1|remedy2|remedy3 format]`;
-  };
-
   const parseHoroscopeResponse = (response: string): HoroscopeData => {
-    const lines = response.split('\n');
-    const data: Partial<HoroscopeData> = {};
+    console.log('Parsing horoscope response:', response);
     
-    lines.forEach(line => {
-      if (line.includes('Main Prediction:') || line.includes('मुख्य भविष्यवाणी:')) {
-        data.mainPrediction = line.split(':')[1]?.trim() || '';
-      } else if (line.includes('Love:') || line.includes('प्रेम:')) {
-        data.love = line.split(':')[1]?.trim() || '';
-      } else if (line.includes('Career:') || line.includes('करियर:')) {
-        data.career = line.split(':')[1]?.trim() || '';
-      } else if (line.includes('Health:') || line.includes('स्वास्थ्य:')) {
-        data.health = line.split(':')[1]?.trim() || '';
-      } else if (line.includes('Finance:') || line.includes('वित्त:')) {
-        data.finance = line.split(':')[1]?.trim() || '';
-      } else if (line.includes('Lucky Numbers:') || line.includes('भाग्यशाली संख्याएं:')) {
-        const numbersStr = line.split(':')[1]?.trim() || '';
-        data.luckyNumbers = numbersStr.split(',').map(n => parseInt(n.trim())).filter(n => !isNaN(n));
-      } else if (line.includes('Lucky Colors:') || line.includes('भाग्यशाली रंग:')) {
-        const colorsStr = line.split(':')[1]?.trim() || '';
-        data.luckyColors = colorsStr.split(',').map(c => c.trim());
-      } else if (line.includes('Lucky Direction:') || line.includes('भाग्यशाली दिशा:')) {
-        data.luckyDirection = line.split(':')[1]?.trim() || '';
-      } else if (line.includes('Auspicious Time:') || line.includes('शुभ समय:')) {
-        data.auspiciousTime = line.split(':')[1]?.trim() || '';
-      } else if (line.includes('Challenges:') || line.includes('चुनौतियां:')) {
-        data.challenges = line.split(':')[1]?.trim() || '';
-      } else if (line.includes('Remedies:') || line.includes('उपाय:')) {
-        const remediesStr = line.split(':')[1]?.trim() || '';
-        data.remedies = remediesStr.split('|').map(r => r.trim());
-      }
-    });
+    // Simple fallback parsing - if structured response fails, use fallback
+    try {
+      const lines = response.split('\n');
+      const data: Partial<HoroscopeData> = {};
+      
+      lines.forEach(line => {
+        const lowerLine = line.toLowerCase();
+        if (lowerLine.includes('main prediction') || lowerLine.includes('मुख्य भविष्यवाणी')) {
+          data.mainPrediction = line.split(':')[1]?.trim() || '';
+        } else if (lowerLine.includes('love') || lowerLine.includes('प्रेम')) {
+          data.love = line.split(':')[1]?.trim() || '';
+        } else if (lowerLine.includes('career') || lowerLine.includes('करियर')) {
+          data.career = line.split(':')[1]?.trim() || '';
+        } else if (lowerLine.includes('health') || lowerLine.includes('स्वास्थ्य')) {
+          data.health = line.split(':')[1]?.trim() || '';
+        } else if (lowerLine.includes('finance') || lowerLine.includes('वित्त')) {
+          data.finance = line.split(':')[1]?.trim() || '';
+        }
+      });
 
-    return {
-      mainPrediction: data.mainPrediction || getTranslation('Today brings new opportunities and growth.', 'आज नए अवसर और विकास लाता है।'),
-      love: data.love || getTranslation('Harmony in relationships today.', 'आज रिश्तों में सामंजस्य।'),
-      career: data.career || getTranslation('Focus on your goals and work steadily.', 'अपने लक्ष्यों पर ध्यान दें और लगातार काम करें।'),
-      health: data.health || getTranslation('Take care of your health and stay active.', 'अपने स्वास्थ्य का ध्यान रखें और सक्रिय रहें।'),
-      finance: data.finance || getTranslation('Manage finances wisely today.', 'आज वित्त का बुद्धिमानी से प्रबंधन करें।'),
-      luckyNumbers: data.luckyNumbers?.length ? data.luckyNumbers : [3, 7, 9],
-      luckyColors: data.luckyColors?.length ? data.luckyColors : [getTranslation('Blue', 'नीला'), getTranslation('Green', 'हरा')],
-      luckyDirection: data.luckyDirection || getTranslation('East', 'पूर्व'),
-      auspiciousTime: data.auspiciousTime || getTranslation('6-8 AM', 'सुबह 6-8 बजे'),
-      challenges: data.challenges || getTranslation('Minor delays possible, stay patient.', 'मामूली देरी संभव है, धैर्य रखें।'),
-      remedies: data.remedies?.length ? data.remedies : [
-        getTranslation('Chant Om Namah Shivaya', 'ॐ नमः शिवाय का जप करें'),
-        getTranslation('Donate food to needy', 'जरूरतमंदों को भोजन दान करें'),
-        getTranslation('Light a lamp in evening', 'शाम को दीपक जलाएं')
-      ]
-    };
+      // If we didn't get structured data, treat the whole response as main prediction
+      if (!data.mainPrediction && response.length > 50) {
+        data.mainPrediction = response.substring(0, 200) + '...';
+      }
+
+      return {
+        mainPrediction: data.mainPrediction || getTranslation('Today brings new opportunities and growth based on your chart.', 'आज आपकी कुंडली के अनुसार नए अवसर और विकास लाता है।'),
+        love: data.love || getTranslation('Harmony in relationships today.', 'आज रिश्तों में सामंजस्य।'),
+        career: data.career || getTranslation('Focus on your goals and work steadily.', 'अपने लक्ष्यों पर ध्यान दें और लगातार काम करें।'),
+        health: data.health || getTranslation('Take care of your health and stay active.', 'अपने स्वास्थ्य का ध्यान रखें और सक्रिय रहें।'),
+        finance: data.finance || getTranslation('Manage finances wisely today.', 'आज वित्त का बुद्धिमानी से प्रबंधन करें।'),
+        luckyNumbers: [3, 7, 9],
+        luckyColors: [getTranslation('Blue', 'नीला'), getTranslation('Green', 'हरा')],
+        luckyDirection: getTranslation('East', 'पूर्व'),
+        auspiciousTime: getTranslation('6-8 AM', 'सुबह 6-8 बजे'),
+        challenges: getTranslation('Minor delays possible, stay patient.', 'मामूली देरी संभव है, धैर्य रखें।'),
+        remedies: [
+          getTranslation('Chant Om Namah Shivaya', 'ॐ नमः शिवाय का जप करें'),
+          getTranslation('Donate food to needy', 'जरूरतमंदों को भोजन दान करें'),
+          getTranslation('Light a lamp in evening', 'शाम को दीपक जलाएं')
+        ]
+      };
+    } catch (parseError) {
+      console.error('Error parsing horoscope response:', parseError);
+      return generateFallbackHoroscope();
+    }
   };
 
   const generateFallbackHoroscope = (): HoroscopeData => {
     const calc = kundaliData?.enhancedCalculations;
     const ascendant = calc?.lagna?.signName || 'Unknown';
+    const currentDasha = calc?.dashas?.find(d => d.isActive);
     
     return {
       mainPrediction: getTranslation(
-        `Today is favorable for your ${ascendant} ascendant. Focus on personal growth and positive actions.`,
-        `आज आपके ${ascendant} लग्न के लिए अनुकूल है। व्यक्तिगत विकास और सकारात्मक कार्यों पर ध्यान दें।`
+        `Today is favorable for your ${ascendant} ascendant. ${currentDasha ? `Currently running ${currentDasha.planet} dasha period.` : ''} Focus on personal growth and positive actions.`,
+        `आज आपके ${ascendant} लग्न के लिए अनुकूल है। ${currentDasha ? `वर्तमान में ${currentDasha.planet} दशा चल रही है।` : ''} व्यक्तिगत विकास और सकारात्मक कार्यों पर ध्यान दें।`
       ),
       love: getTranslation('Express your feelings openly today.', 'आज अपनी भावनाओं को खुलकर व्यक्त करें।'),
       career: getTranslation('Good day for important decisions at work.', 'काम पर महत्वपूर्ण निर्णयों के लिए अच्छा दिन।'),
@@ -225,7 +193,7 @@ Remedies: [remedy1|remedy2|remedy3 format]`;
   };
 
   useEffect(() => {
-    if (kundaliData?.enhancedCalculations) {
+    if (kundaliData?.enhancedCalculations && !horoscope) {
       generatePersonalizedHoroscope();
     }
   }, [kundaliData]);

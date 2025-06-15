@@ -53,7 +53,7 @@ serve(async (req) => {
       try {
         console.log('Calling Gemini API...');
         
-        // For Rishi conversation, use the userQuery directly as it already contains the full prompt
+        // Create proper prompt based on analysis type
         const prompt = analysisType === 'rishi_conversation' 
           ? userQuery 
           : createDetailedKundaliPrompt(kundaliData, userQuery, language, analysisType);
@@ -228,15 +228,19 @@ Current Weekday: ${new Date().toLocaleDateString('en', { weekday: 'long' })}
 
 User Request: ${userQuery}
 
-Based on this person's ACTUAL birth chart data, current dasha periods, and planetary positions, provide:
+Based on this person's ACTUAL birth chart data, current dasha periods, and planetary positions, provide a comprehensive daily horoscope with these sections:
 
-1. **Today's Main Prediction** - Based on current dasha and planetary transits
-2. **Love & Relationships** - Considering Venus position and 7th house influences  
-3. **Career & Finance** - Based on 10th house, Sun, and Jupiter influences
-4. **Health & Wellbeing** - Considering 6th house and current planetary aspects
-5. **Lucky Elements** - Specific numbers, colors, directions based on chart
-6. **Specific Guidance** - Actionable advice for today based on running dasha
-7. **Cautions** - Any challenging planetary influences to be aware of
+Main Prediction: [Today's main forecast based on their chart]
+Love: [Love and relationships guidance]  
+Career: [Career and work insights]
+Health: [Health advice based on 6th house and planetary influences]
+Finance: [Financial guidance]
+Lucky Numbers: [3 numbers based on their planetary positions]
+Lucky Colors: [2 colors that enhance their energy today]
+Lucky Direction: [Most auspicious direction]
+Auspicious Time: [Best time period for important activities]
+Challenges: [Potential obstacles to be aware of]
+Remedies: [Specific remedies based on their chart - separate with | character]
 
 Make predictions specific to their chart data, not generic. Use their actual planetary positions, current dasha period, and active yogas.
 Respond in ${language === 'hi' ? 'Hindi' : 'English'} with warmth and practical guidance.`;
