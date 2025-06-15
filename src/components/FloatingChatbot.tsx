@@ -49,8 +49,8 @@ const FloatingChatbot: React.FC<FloatingChatbotProps> = ({ kundaliData, numerolo
       )}
 
       {isOpen && (
-        <Card className="w-[320px] md:w-[380px] shadow-xl border-orange-200 overflow-hidden max-h-[80vh]">
-          <div className="bg-gradient-to-r from-orange-500 to-red-500 p-2 text-white flex items-center justify-between">
+        <Card className="w-[320px] md:w-[380px] shadow-xl border-orange-200 flex flex-col max-h-[80vh]">
+          <div className="bg-gradient-to-r from-orange-500 to-red-500 p-2 text-white flex items-center justify-between flex-shrink-0">
             <div className="flex items-center gap-2 min-w-0 flex-1">
               <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center overflow-hidden flex-shrink-0 relative">
                 <img 
@@ -99,7 +99,7 @@ const FloatingChatbot: React.FC<FloatingChatbotProps> = ({ kundaliData, numerolo
             </div>
           </div>
 
-          <div className="overflow-y-auto p-0 bg-gradient-to-br from-orange-50 to-red-50">
+          <div className="flex-1 bg-gradient-to-br from-orange-50 to-red-50 min-h-0">
             <RishiParasherGuru kundaliData={kundaliData} language={language} />
           </div>
         </Card>

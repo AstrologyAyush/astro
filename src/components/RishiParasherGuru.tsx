@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,7 +24,7 @@ const RishiParasherGuru: React.FC<RishiParasherGuruProps> = ({ kundaliData, lang
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [chatHeight, setChatHeight] = useState(600);
+  const [chatHeight, setChatHeight] = useState(400);
   const [isDragging, setIsDragging] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
@@ -70,9 +71,9 @@ const RishiParasherGuru: React.FC<RishiParasherGuruProps> = ({ kundaliData, lang
     const rect = chatContainerRef.current.getBoundingClientRect();
     const newHeight = e.clientY - rect.top;
     
-    // Set minimum and maximum height limits
-    const minHeight = 300;
-    const maxHeight = window.innerHeight - 100;
+    // Set minimum and maximum height limits for floating chatbot
+    const minHeight = 250;
+    const maxHeight = Math.min(500, window.innerHeight * 0.7);
     
     if (newHeight >= minHeight && newHeight <= maxHeight) {
       setChatHeight(newHeight);
@@ -242,7 +243,7 @@ Respond in ${language === 'hi' ? 'Hindi' : 'English'} in the tone of a loving, w
   // Show loading state if kundali data is not ready
   if (!kundaliData?.enhancedCalculations || !kundaliData?.birthData?.fullName) {
     return (
-      <div className="h-[600px] flex flex-col bg-white border-gray-200 rounded-lg">
+      <div className="h-[400px] flex flex-col bg-white">
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600 mx-auto mb-4"></div>
@@ -258,50 +259,50 @@ Respond in ${language === 'hi' ? 'Hindi' : 'English'} in the tone of a loving, w
   return (
     <div 
       ref={chatContainerRef}
-      className="flex flex-col bg-white border-gray-200 rounded-lg overflow-hidden relative"
+      className="flex flex-col bg-white h-full"
       style={{ height: `${chatHeight}px` }}
     >
       {/* Header */}
-      <div className="flex-shrink-0 p-4 bg-gradient-to-r from-orange-500 to-red-500 text-white">
+      <div className="flex-shrink-0 p-3 bg-gradient-to-r from-orange-500 to-red-500 text-white">
         <div className="flex items-center gap-2">
-          <Sparkles className="h-5 w-5 text-yellow-200" />
-          <h3 className="text-lg font-semibold">
+          <Sparkles className="h-4 w-4 text-yellow-200" />
+          <h3 className="text-sm font-semibold">
             {language === 'hi' ? "ऋषि पराशर - वैदिक ज्योतिष गुरु" : "Rishi Parashar - Vedic Astrology Sage"}
           </h3>
         </div>
-        <div className="flex flex-wrap gap-2 mt-3">
-          {suggestedQuestions.slice(0, 3).map((question, index) => (
+        <div className="flex flex-wrap gap-1 mt-2">
+          {suggestedQuestions.slice(0, 2).map((question, index) => (
             <Badge 
               key={index} 
               variant="outline" 
               className="cursor-pointer hover:bg-white/20 text-xs border-white/30 text-white hover:text-white bg-white/10 transition-colors"
               onClick={() => setInputValue(question)}
             >
-              {question}
+              {question.length > 30 ? question.substring(0, 30) + '...' : question}
             </Badge>
           ))}
         </div>
       </div>
       
       {/* Messages Area */}
-      <div className="flex-1 overflow-hidden">
-        <ScrollArea className="h-full p-4" ref={scrollAreaRef}>
-          <div className="space-y-4">
+      <div className="flex-1 min-h-0">
+        <ScrollArea className="h-full p-3" ref={scrollAreaRef}>
+          <div className="space-y-3">
             {messages.map((message) => (
-              <div key={message.id} className={`flex gap-3 ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}>
+              <div key={message.id} className={`flex gap-2 ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}>
                 <div className={`flex gap-2 max-w-[85%] ${message.type === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+                  <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${
                     message.type === 'user' ? 'bg-blue-600 text-white' : 'bg-gradient-to-br from-orange-400 to-red-600 text-white'
                   }`}>
-                    {message.type === 'user' ? <User className="h-4 w-4" /> : <Bot className="h-4 w-4" />}
+                    {message.type === 'user' ? <User className="h-3 w-3" /> : <Bot className="h-3 w-3" />}
                   </div>
-                  <div className={`p-3 rounded-lg ${
+                  <div className={`p-2 rounded-lg ${
                     message.type === 'user' 
                       ? 'bg-blue-600 text-white' 
                       : 'bg-gradient-to-br from-orange-500 to-red-600 text-white shadow-lg'
                   }`}>
-                    <p className="text-sm whitespace-pre-wrap leading-relaxed font-medium">{message.content}</p>
-                    <p className="text-xs opacity-80 mt-2">
+                    <p className="text-xs whitespace-pre-wrap leading-relaxed font-medium">{message.content}</p>
+                    <p className="text-xs opacity-80 mt-1">
                       {message.timestamp.toLocaleTimeString()}
                     </p>
                   </div>
@@ -309,12 +310,12 @@ Respond in ${language === 'hi' ? 'Hindi' : 'English'} in the tone of a loving, w
               </div>
             ))}
             {isLoading && (
-              <div className="flex gap-3 justify-start">
+              <div className="flex gap-2 justify-start">
                 <div className="flex gap-2 max-w-[85%]">
-                  <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 bg-gradient-to-br from-orange-400 to-red-600 text-white">
-                    <Bot className="h-4 w-4" />
+                  <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 bg-gradient-to-br from-orange-400 to-red-600 text-white">
+                    <Bot className="h-3 w-3" />
                   </div>
-                  <div className="p-3 rounded-lg bg-gradient-to-br from-orange-500 to-red-600 text-white">
+                  <div className="p-2 rounded-lg bg-gradient-to-br from-orange-500 to-red-600 text-white">
                     <div className="flex space-x-1">
                       <div className="w-2 h-2 bg-white rounded-full animate-bounce"></div>
                       <div className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
@@ -330,14 +331,14 @@ Respond in ${language === 'hi' ? 'Hindi' : 'English'} in the tone of a loving, w
 
       {/* Resize Handle */}
       <div 
-        className="flex items-center justify-center p-1 bg-gray-100 border-t border-gray-200 cursor-ns-resize hover:bg-gray-200 transition-colors"
+        className="flex items-center justify-center p-1 bg-gray-100 border-t border-gray-200 cursor-ns-resize hover:bg-gray-200 transition-colors flex-shrink-0"
         onMouseDown={handleMouseDown}
       >
-        <GripHorizontal className="h-4 w-4 text-gray-400" />
+        <GripHorizontal className="h-3 w-3 text-gray-400" />
       </div>
       
       {/* Input Area - Fixed at bottom */}
-      <div className="flex-shrink-0 border-t border-gray-200 p-4 bg-white">
+      <div className="flex-shrink-0 border-t border-gray-200 p-3 bg-white">
         <div className="flex gap-2">
           <Input
             value={inputValue}
@@ -345,15 +346,15 @@ Respond in ${language === 'hi' ? 'Hindi' : 'English'} in the tone of a loving, w
             onKeyPress={handleKeyPress}
             placeholder={language === 'hi' ? "ऋषि जी से अपना प्रश्न पूछें..." : "Ask Rishi ji your question..."}
             disabled={isLoading}
-            className="flex-1 bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-orange-500 focus:ring-orange-500"
+            className="flex-1 bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-orange-500 focus:ring-orange-500 text-sm"
           />
           <Button 
             onClick={handleSendMessage}
             disabled={!inputValue.trim() || isLoading}
-            size="icon"
-            className="bg-orange-500 hover:bg-orange-600 flex-shrink-0"
+            size="sm"
+            className="bg-orange-500 hover:bg-orange-600 flex-shrink-0 px-3"
           >
-            <Send className="h-4 w-4" />
+            <Send className="h-3 w-3" />
           </Button>
         </div>
       </div>
