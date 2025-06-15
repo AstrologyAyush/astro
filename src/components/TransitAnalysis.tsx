@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -20,6 +19,9 @@ const TransitAnalysis: React.FC<TransitAnalysisProps> = ({ kundaliData, language
     return language === 'hi' ? hi : en;
   };
 
+  // Get current year dynamically
+  const currentYear = new Date().getFullYear();
+
   useEffect(() => {
     generateCurrentTransits();
     generateUpcomingTransits();
@@ -38,7 +40,7 @@ const TransitAnalysis: React.FC<TransitAnalysisProps> = ({ kundaliData, language
         transitHouse: 7,
         effect: getTranslation('Expansion in partnerships and relationships', 'साझेदारी और रिश्तों में विस्तार'),
         intensity: 'High',
-        duration: getTranslation('Until May 2024', 'मई 2024 तक'),
+        duration: getTranslation(`Until May ${currentYear + 1}`, `मई ${currentYear + 1} तक`),
         advice: getTranslation('Good time for marriage or business partnerships', 'विवाह या व्यावसायिक साझेदारी के लिए अच्छा समय'),
         insights: getTranslation('Jupiter in the 7th house brings opportunities for meaningful partnerships and legal matters', 'सातवें भाव में गुरु अर्थपूर्ण साझेदारी और कानूनी मामलों के अवसर लाता है')
       },
@@ -51,7 +53,7 @@ const TransitAnalysis: React.FC<TransitAnalysisProps> = ({ kundaliData, language
         transitHouse: 6,
         effect: getTranslation('Discipline in daily work and health routines', 'दैनिक कार्य और स्वास्थ्य दिनचर्या में अनुशासन'),
         intensity: 'Medium',
-        duration: getTranslation('Until March 2025', 'मार्च 2025 तक'),
+        duration: getTranslation(`Until March ${currentYear + 1}`, `मार्च ${currentYear + 1} तक`),
         advice: getTranslation('Focus on building healthy habits and work discipline', 'स्वस्थ आदतें और कार्य अनुशासन बनाने पर ध्यान दें'),
         insights: getTranslation('Saturn teaches patience and helps establish long-term routines', 'शनि धैर्य सिखाता है और दीर्घकालिक दिनचर्या स्थापित करने में मदद करता है')
       },
@@ -64,7 +66,7 @@ const TransitAnalysis: React.FC<TransitAnalysisProps> = ({ kundaliData, language
         transitHouse: 2,
         effect: getTranslation('Energy boost in financial matters', 'वित्तीय मामलों में ऊर्जा की वृद्धि'),
         intensity: 'High',
-        duration: getTranslation('Until January 2024', 'जनवरी 2024 तक'),
+        duration: getTranslation(`Until January ${currentYear + 1}`, `जनवरी ${currentYear + 1} तक`),
         advice: getTranslation('Good time for investments and increasing income', 'निवेश और आय बढ़ाने के लिए अच्छा समय'),
         insights: getTranslation('Mars energizes your financial sector, bringing opportunities for wealth accumulation', 'मंगल आपके वित्तीय क्षेत्र को ऊर्जावान बनाता है, धन संचय के अवसर लाता है')
       }
@@ -81,10 +83,10 @@ const TransitAnalysis: React.FC<TransitAnalysisProps> = ({ kundaliData, language
         futureSign: 'Libra',
         futureSignHi: 'तुला',
         transitHouse: 4,
-        startDate: '2024-02-15',
+        startDate: `${currentYear}-02-15`,
         effect: getTranslation('Harmony in home and family matters', 'घर और पारिवारिक मामलों में सामंजस्य'),
         intensity: 'Medium',
-        duration: getTranslation('Feb 2024 - Mar 2024', 'फरवरी 2024 - मार्च 2024'),
+        duration: getTranslation(`Feb ${currentYear} - Mar ${currentYear}`, `फरवरी ${currentYear} - मार्च ${currentYear}`),
         advice: getTranslation('Focus on home decoration and family relationships', 'घर की सजावट और पारिवारिक रिश्तों पर ध्यान दें')
       },
       {
@@ -93,10 +95,10 @@ const TransitAnalysis: React.FC<TransitAnalysisProps> = ({ kundaliData, language
         futureSign: 'Gemini',
         futureSignHi: 'मिथुन',
         transitHouse: 10,
-        startDate: '2024-03-01',
+        startDate: `${currentYear}-03-01`,
         effect: getTranslation('Enhanced communication in career', 'करियर में बेहतर संवाद'),
         intensity: 'High',
-        duration: getTranslation('Mar 2024 - Apr 2024', 'मार्च 2024 - अप्रैल 2024'),
+        duration: getTranslation(`Mar ${currentYear} - Apr ${currentYear}`, `मार्च ${currentYear} - अप्रैल ${currentYear}`),
         advice: getTranslation('Excellent time for presentations and networking', 'प्रस्तुतियों और नेटवर्किंग के लिए उत्कृष्ट समय')
       },
       {
@@ -105,10 +107,10 @@ const TransitAnalysis: React.FC<TransitAnalysisProps> = ({ kundaliData, language
         futureSign: 'Aries',
         futureSignHi: 'मेष',
         transitHouse: 9,
-        startDate: '2024-03-20',
+        startDate: `${currentYear}-03-20`,
         effect: getTranslation('Spiritual growth and higher learning', 'आध्यात्मिक विकास और उच्च शिक्षा'),
         intensity: 'Medium',
-        duration: getTranslation('Mar 2024 - Apr 2024', 'मार्च 2024 - अप्रैल 2024'),
+        duration: getTranslation(`Mar ${currentYear} - Apr ${currentYear}`, `मार्च ${currentYear} - अप्रैल ${currentYear}`),
         advice: getTranslation('Consider taking up spiritual practices or higher studies', 'आध्यात्मिक प्रथाओं या उच्च अध्ययन पर विचार करें')
       }
     ];
@@ -119,7 +121,7 @@ const TransitAnalysis: React.FC<TransitAnalysisProps> = ({ kundaliData, language
   const generateYearlyTransits = () => {
     const yearlyTransits = [
       {
-        period: '2024 Q1',
+        period: `${currentYear} Q1`,
         majorEvents: [
           getTranslation('Jupiter aspects your 9th house - spiritual growth', 'गुरु आपके नवम भाव को देखता है - आध्यात्मिक विकास'),
           getTranslation('Saturn stabilizes career sector', 'शनि करियर क्षेत्र को स्थिर करता है')
@@ -128,7 +130,7 @@ const TransitAnalysis: React.FC<TransitAnalysisProps> = ({ kundaliData, language
         recommendation: getTranslation('Focus on long-term planning and spiritual development', 'दीर्घकालिक योजना और आध्यात्मिक विकास पर ध्यान दें')
       },
       {
-        period: '2024 Q2',
+        period: `${currentYear} Q2`,
         majorEvents: [
           getTranslation('Venus brings harmony to relationships', 'शुक्र रिश्तों में सामंजस्य लाता है'),
           getTranslation('Mars energizes financial sector', 'मंगल वित्तीय क्षेत्र को ऊर्जावान बनाता है')
@@ -137,7 +139,7 @@ const TransitAnalysis: React.FC<TransitAnalysisProps> = ({ kundaliData, language
         recommendation: getTranslation('Ideal time for investments and strengthening partnerships', 'निवेश और साझेदारी मजबूत करने के लिए आदर्श समय')
       },
       {
-        period: '2024 Q3',
+        period: `${currentYear} Q3`,
         majorEvents: [
           getTranslation('Mercury enhances communication skills', 'बुध संचार कौशल बढ़ाता है'),
           getTranslation('Sun illuminates career path', 'सूर्य करियर पथ को रोशन करता है')
@@ -267,7 +269,7 @@ const TransitAnalysis: React.FC<TransitAnalysisProps> = ({ kundaliData, language
   const renderYearlyTransits = () => (
     <div className="space-y-6">
       <h3 className="text-lg font-semibold text-purple-800 mb-4">
-        {getTranslation('2024 Yearly Transit Overview', '2024 वार्षिक गोचर अवलोकन')}
+        {getTranslation(`${currentYear} Yearly Transit Overview`, `${currentYear} वार्षिक गोचर अवलोकन`)}
       </h3>
       {yearlyTransits.map((period, index) => (
         <div key={index} className="p-4 border border-purple-200 rounded-lg bg-purple-50">
@@ -371,8 +373,8 @@ const TransitAnalysis: React.FC<TransitAnalysisProps> = ({ kundaliData, language
               'आगामी गोचर संचार, आध्यात्मिक विकास और पारिवारिक सामंजस्य के अवसर लाते हैं। करियर और रिश्तों में सकारात्मक बदलाव के लिए तैयार रहें।'
             )}
             {selectedPeriod === 'yearly' && getTranslation(
-              '2024 appears to be a year of steady progress with emphasis on foundation building, relationship enhancement, and career advancement. Plan accordingly for maximum benefit.',
-              '2024 नींव निर्माण, रिश्ते बढ़ाने और करियर प्रगति पर जोर देने के साथ निरंतर प्रगति का वर्ष प्रतीत होता है। अधिकतम लाभ के लिए तदनुसार योजना बनाएं।'
+              `${currentYear} appears to be a year of steady progress with emphasis on foundation building, relationship enhancement, and career advancement. Plan accordingly for maximum benefit.`,
+              `${currentYear} नींव निर्माण, रिश्ते बढ़ाने और करियर प्रगति पर जोर देने के साथ निरंतर प्रगति का वर्ष प्रतीत होता है। अधिकतम लाभ के लिए तदनुसार योजना बनाएं।`
             )}
           </p>
         </div>
