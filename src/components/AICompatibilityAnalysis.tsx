@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -109,7 +108,7 @@ const AICompatibilityAnalysis: React.FC<AICompatibilityAnalysisProps> = ({
         <CardHeader className="bg-gradient-to-r from-pink-100 to-rose-100">
           <CardTitle className="flex items-center gap-2 text-pink-800">
             <Heart className="h-5 w-5" />
-            {getTranslation('AI Love & Compatibility Intelligence', 'AI प्रेम और अनुकूलता बुद्धिमत्ता')}
+            {getTranslation('Love & Compatibility Intelligence', 'प्रेम और अनुकूलता बुद्धिमत्ता')}
           </CardTitle>
         </CardHeader>
         <CardContent className="p-6">

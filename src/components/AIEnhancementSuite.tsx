@@ -1,10 +1,11 @@
+
 import React, { useState, Suspense, lazy } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Bot, Sparkles, Gem, Lightbulb, TrendingUp, Heart, Brain, Zap, Target } from "lucide-react";
 import KundaliAIChat from './KundaliAIChat';
 
-// Lazy load heavy AI components
+// Lazy load heavy components
 const AIPersonalizedPredictions = lazy(() => import('./AIPersonalizedPredictions'));
 const AIRemedySuggestions = lazy(() => import('./AIRemedySuggestions'));
 const AICareerGuidance = lazy(() => import('./AICareerGuidance'));
@@ -21,7 +22,7 @@ interface AIEnhancementSuiteProps {
 const LoadingSpinner = () => (
   <div className="flex items-center justify-center py-8">
     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
-    <span className="ml-2 text-sm text-gray-600">Loading AI Enhancement...</span>
+    <span className="ml-2 text-sm text-gray-600">Loading Enhancement...</span>
   </div>
 );
 
@@ -43,12 +44,12 @@ const AIEnhancementSuite: React.FC<AIEnhancementSuiteProps> = ({
           <Bot className="h-8 w-8 text-white" />
         </div>
         <h2 className="text-2xl font-bold mb-2 text-gray-800 dark:text-gray-200">
-          {getTranslation('Advanced AI-Powered Kundali Intelligence', 'उन्नत AI-संचालित कुंडली बुद्धिमत्ता')}
+          {getTranslation('Advanced Kundali Intelligence', 'उन्नत कुंडली बुद्धिमत्ता')}
         </h2>
         <p className="text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
           {getTranslation(
-            'Experience cutting-edge artificial intelligence combined with ancient Vedic wisdom for the most comprehensive and personalized astrological insights available.',
-            'अत्याधुनिक कृत्रिम बुद्धिमत्ता के साथ प्राचीन वैदिक ज्ञान का अनुभव करें सबसे व्यापक और व्यक्तिगत ज्योतिषीय अंतर्दृष्टि के लिए।'
+            'Experience cutting-edge intelligence combined with ancient Vedic wisdom for the most comprehensive and personalized astrological insights available.',
+            'अत्याधुनिक बुद्धिमत्ता के साथ प्राचीन वैदिक ज्ञान का अनुभव करें सबसे व्यापक और व्यक्तिगत ज्योतिषीय अंतर्दृष्टि के लिए।'
           )}
         </p>
       </div>
@@ -114,7 +115,7 @@ const AIEnhancementSuite: React.FC<AIEnhancementSuiteProps> = ({
           >
             <Heart className="h-3 w-3" />
             <span className="text-center font-medium">
-              {getTranslation('Love', 'प्रेम')}
+              {getTranslation('Compatibility', 'अनुकूलता')}
             </span>
           </TabsTrigger>
 
@@ -145,7 +146,7 @@ const AIEnhancementSuite: React.FC<AIEnhancementSuiteProps> = ({
               <CardHeader className="bg-gradient-to-r from-purple-100 to-indigo-100 p-4">
                 <CardTitle className="flex items-center gap-2 text-purple-800">
                   <Bot className="h-5 w-5" />
-                  {getTranslation('Interactive AI Kundali Guru', 'इंटरैक्टिव AI कुंडली गुरु')}
+                  {getTranslation('Interactive Kundali Guru', 'इंटरैक्टिव कुंडली गुरु')}
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-0">

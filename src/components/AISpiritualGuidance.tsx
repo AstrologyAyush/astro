@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -107,7 +106,7 @@ const AISpiritualGuidance: React.FC<AISpiritualGuidanceProps> = ({
         <CardHeader className="bg-gradient-to-r from-indigo-100 to-purple-100">
           <CardTitle className="flex items-center gap-2 text-indigo-800">
             <Sparkles className="h-5 w-5" />
-            {getTranslation('AI Spiritual Guidance & Path Discovery', 'AI आध्यात्मिक मार्गदर्शन और पथ खोज')}
+            {getTranslation('Spiritual Guidance & Path Discovery', 'आध्यात्मिक मार्गदर्शन और पथ खोज')}
           </CardTitle>
         </CardHeader>
         <CardContent className="p-6">
