@@ -3,7 +3,7 @@ import React, { Suspense, lazy, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Crown, Star, Grid, Clock, Sparkles, FileText } from 'lucide-react';
+import { ArrowLeft, Crown, Star, Grid, Clock, Sparkles, FileText, Bot } from 'lucide-react';
 import InteractiveDashboard from './InteractiveDashboard';
 import EnhancedDailyHoroscope from './EnhancedDailyHoroscope';
 import EnhancedKundaliPDFExport from './EnhancedKundaliPDFExport';
@@ -77,7 +77,7 @@ const KundaliResultsView: React.FC<KundaliResultsViewProps> = ({
             </CardContent>
           </Card>
 
-          {/* Enhanced Kundali Analysis with 2-Row Mobile-Optimized Tabs */}
+          {/* Enhanced Kundali Analysis with 3-Row Mobile-Optimized Tabs */}
           <Card className="w-full border-purple-200 dark:border-purple-700 shadow-lg bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm">
             <CardHeader className="bg-gradient-to-r from-purple-100 to-indigo-100 dark:from-purple-900/50 dark:to-indigo-900/50 p-3 sm:p-4 lg:p-6">
               <CardTitle className="text-purple-800 dark:text-purple-300 flex items-center gap-2 text-base sm:text-lg lg:text-xl text-center sm:text-left">
@@ -89,10 +89,10 @@ const KundaliResultsView: React.FC<KundaliResultsViewProps> = ({
             </CardHeader>
             <CardContent className="p-2 sm:p-4 lg:p-6">
               <Tabs defaultValue="charts" className="w-full">
-                {/* 2-Row Tab Navigation with better organization */}
+                {/* 3-Row Tab Navigation with better organization */}
                 <div className="mb-4 sm:mb-6 border border-purple-200 dark:border-purple-700 rounded-lg p-2 bg-purple-50 dark:bg-purple-900/30">
                   <TabsList className="w-full h-auto bg-transparent p-0 gap-2 flex flex-col">
-                    {/* First Row - Main Charts and Analysis */}
+                    {/* First Row - Main Charts */}
                     <div className="w-full grid grid-cols-3 gap-1 sm:gap-2">
                       <TabsTrigger 
                         value="charts" 
@@ -144,6 +144,19 @@ const KundaliResultsView: React.FC<KundaliResultsViewProps> = ({
                         </span>
                       </TabsTrigger>
                     </div>
+
+                    {/* Third Row - AI Enhancement */}
+                    <div className="w-full flex justify-center">
+                      <TabsTrigger 
+                        value="ai-enhancement" 
+                        className="flex flex-col items-center gap-1 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white text-xs sm:text-sm p-2 sm:p-3 min-h-[60px] sm:min-h-[70px] rounded-md transition-all duration-200 border border-purple-200 dark:border-purple-600 bg-white dark:bg-gray-800 w-full max-w-xs"
+                      >
+                        <Bot className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                        <span className="text-center leading-tight font-medium">
+                          {getTranslation('Enhanced AI Analysis', 'एन्हांस्ड AI विश्लेषण')}
+                        </span>
+                      </TabsTrigger>
+                    </div>
                   </TabsList>
                 </div>
 
@@ -180,6 +193,23 @@ const KundaliResultsView: React.FC<KundaliResultsViewProps> = ({
                         language={language}
                       />
                     </Suspense>
+                  </TabsContent>
+
+                  <TabsContent value="ai-enhancement" className="mt-0">
+                    <div className="text-center p-8">
+                      <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full mb-4">
+                        <Bot className="h-8 w-8 text-white" />
+                      </div>
+                      <h3 className="text-lg font-semibold mb-2 text-gray-800 dark:text-gray-200">
+                        {getTranslation('AI Enhancement Coming Soon', 'AI एन्हांसमेंट जल्द आ रहा है')}
+                      </h3>
+                      <p className="text-gray-600 dark:text-gray-400 max-w-md mx-auto">
+                        {getTranslation(
+                          'Advanced AI-powered analysis and personalized insights will be available here soon.',
+                          'उन्नत AI-संचालित विश्लेषण और व्यक्तिगत अंतर्दृष्टि जल्द ही यहाँ उपलब्ध होगी।'
+                        )}
+                      </p>
+                    </div>
                   </TabsContent>
                 </div>
               </Tabs>
