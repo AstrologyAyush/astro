@@ -126,13 +126,18 @@ Ask about your karmic journey! 💫`,
 
       setMessages(prev => [...prev, aiMessage]);
 
-      // Store conversation without awaiting
-      supabase.from('rishi_parasher_conversations').insert({
-        user_question: currentInput,
-        rishi_response: data.analysis,
-        kundali_context: kundaliData as unknown as Json,
-        session_id: `karmic_session_${Date.now()}`
-      }).catch(() => {});
+      // Store conversation properly with try-catch
+      try {
+        await supabase.from('rishi_parasher_conversations').insert({
+          user_question: currentInput,
+          rishi_response: data.analysis,
+          kundali_context: kundaliData as unknown as Json,
+          session_id: `karmic_session_${Date.now()}`
+        });
+      } catch (insertError) {
+        // Silent fail for conversation storage
+        console.log('Conversation storage failed:', insertError);
+      }
 
     } catch (error) {
       const errorMessage: Message = {
