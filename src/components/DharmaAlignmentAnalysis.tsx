@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Compass, Target, Clock, Zap, Shield, TrendingUp, AlertTriangle, CheckCircle, Star, Crown, Info, Lightbulb } from 'lucide-react';
 
 interface DharmaAlignmentAnalysisProps {
@@ -364,8 +365,60 @@ const DharmaAlignmentAnalysis: React.FC<DharmaAlignmentAnalysisProps> = ({ kunda
             </Alert>
           </div>
 
-          {/* Fixed Layout Grid - Responsive */}
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          {/* Mobile Responsive Cards with Carousel */}
+          <div className="block md:hidden">
+            <Carousel className="w-full">
+              <CarouselContent>
+                {/* Dharma Score Card */}
+                <CarouselItem>
+                  <div className="text-center p-6 bg-gradient-to-br from-purple-50 to-indigo-50 rounded-xl border border-purple-200 mx-2">
+                    <div className="text-4xl font-bold mb-2" style={{ color: getAlignmentColor(dharmaScore) }}>
+                      {dharmaScore}%
+                    </div>
+                    <div className="text-sm text-gray-600 mb-3">
+                      {getTranslation('Dharma Alignment Score', 'धर्म संरेखण स्कोर')}
+                    </div>
+                    <Progress value={dharmaScore} className="h-2" />
+                  </div>
+                </CarouselItem>
+
+                {/* Current Dasha Card */}
+                <CarouselItem>
+                  <div className="text-center p-6 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl border border-blue-200 mx-2">
+                    <div className="text-2xl font-bold text-blue-700 mb-2">
+                      {dashaAlignment.current_dasha}
+                    </div>
+                    <div className="text-sm text-gray-600 mb-3">
+                      {getTranslation('Current Mahadasha', 'वर्तमान महादशा')}
+                    </div>
+                    <Badge className={`${dashaAlignment.alignment_level === 'High' ? 'bg-green-600' : 'bg-yellow-600'} text-white`}>
+                      {dashaAlignment.alignment_level} {getTranslation('Alignment', 'संरेखण')}
+                    </Badge>
+                  </div>
+                </CarouselItem>
+
+                {/* 10th House Strength Card */}
+                <CarouselItem>
+                  <div className="text-center p-6 bg-gradient-to-br from-orange-50 to-red-50 rounded-xl border border-orange-200 mx-2">
+                    <div className="text-3xl font-bold text-orange-700 mb-2">
+                      {tenthHouseAnalysis.strength || 0}%
+                    </div>
+                    <div className="text-sm text-gray-600 mb-3">
+                      {getTranslation('10th House Strength', '10वें भाव की शक्ति')}
+                    </div>
+                    <Badge variant="outline" className="border-orange-300 text-orange-700">
+                      {tenthHouseAnalysis.sign} {getTranslation('Sign', 'राशि')}
+                    </Badge>
+                  </div>
+                </CarouselItem>
+              </CarouselContent>
+              <CarouselPrevious className="left-2" />
+              <CarouselNext className="right-2" />
+            </Carousel>
+          </div>
+
+          {/* Desktop Grid Layout */}
+          <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {/* Dharma Score */}
             <div className="text-center p-6 bg-gradient-to-br from-purple-50 to-indigo-50 rounded-xl border border-purple-200">
               <div className="text-4xl font-bold mb-2" style={{ color: getAlignmentColor(dharmaScore) }}>
@@ -391,7 +444,7 @@ const DharmaAlignmentAnalysis: React.FC<DharmaAlignmentAnalysisProps> = ({ kunda
             </div>
 
             {/* 10th House Strength */}
-            <div className="text-center p-6 bg-gradient-to-br from-orange-50 to-red-50 rounded-xl border border-orange-200 md:col-span-2 xl:col-span-1">
+            <div className="text-center p-6 bg-gradient-to-br from-orange-50 to-red-50 rounded-xl border border-orange-200 md:col-span-2 lg:col-span-1">
               <div className="text-3xl font-bold text-orange-700 mb-2">
                 {tenthHouseAnalysis.strength || 0}%
               </div>
