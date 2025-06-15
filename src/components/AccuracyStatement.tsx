@@ -1,29 +1,23 @@
 
 import React from 'react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
-interface AccuracyStatementProps {
-  language: 'hi' | 'en';
-  kundaliData: any;
-}
-
-const AccuracyStatement: React.FC<AccuracyStatementProps> = ({ language, kundaliData }) => {
-  const getTranslation = (en: string, hi: string) => {
-    return language === 'hi' ? hi : en;
-  };
-
-  if (kundaliData) return null; // Don't show when kundali is generated
+const AccuracyStatement: React.FC = () => {
+  const { t } = useLanguage();
 
   return (
-    <div className="mt-8 md:mt-12 text-center bg-gradient-to-r from-orange-100 to-red-100 p-4 md:p-6 rounded-lg border border-orange-200 mx-4">
-      <h3 className="text-base md:text-lg font-semibold text-orange-800 mb-2">
-        {getTranslation('Accuracy Guarantee', 'सटीकता की गारंटी')}
+    <div className="text-center py-8 px-4 bg-gradient-to-r from-orange-50 to-red-50 dark:from-gray-800 dark:to-gray-700 rounded-lg mb-8 border border-orange-100 dark:border-gray-600">
+      <h3 className="text-lg font-semibold mb-2 text-gray-800 dark:text-gray-200">
+        {t('all_rights_reserved', 'All rights reserved.')}
       </h3>
-      <p className="text-orange-700 text-sm max-w-3xl mx-auto leading-relaxed">
-        {getTranslation(
-          'Our advanced calculation system uses Swiss Ephemeris data, the same astronomical calculations used by NASA and the most accurate astrological calculations in the world. Analysis according to Rishi Parasher scriptures.',
-          'हमारी उन्नत गणना प्रणाली Swiss Ephemeris डेटा का उपयोग करती है, जो NASA और दुनिया की सबसे सटीक ज्योतिषीय गणना है। पं. ऋषि पराशर के शास्त्रों के अनुसार विश्लेषण।'
-        )}
+      <p className="text-sm text-gray-600 dark:text-gray-400 max-w-md mx-auto">
+        Rishi Parasher 500+ years of knowledge
       </p>
+      <div className="flex justify-center mt-4">
+        <div className="w-8 h-8 text-orange-500">
+          ✨
+        </div>
+      </div>
     </div>
   );
 };
