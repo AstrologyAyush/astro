@@ -34,14 +34,16 @@ const FloatingChatbot: React.FC<FloatingChatbotProps> = ({ kundaliData, numerolo
       {!isOpen && (
         <Button
           onClick={toggleChat}
-          className="flex items-center justify-center bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white rounded-full p-3 shadow-lg w-14 h-14"
+          className="flex items-center justify-center bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white rounded-full p-3 shadow-lg w-14 h-14 relative"
         >
-          <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center overflow-hidden">
+          <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center overflow-hidden relative">
             <img 
               src="/lovable-uploads/8cb18da4-1ec3-40d2-8e2d-5f0efcfc10da.png" 
               alt="Rishi Parasher" 
               className="w-full h-full object-cover"
             />
+            {/* Live indicator dot */}
+            <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white animate-pulse"></div>
           </div>
         </Button>
       )}
@@ -50,16 +52,24 @@ const FloatingChatbot: React.FC<FloatingChatbotProps> = ({ kundaliData, numerolo
         <Card className="w-[320px] md:w-[380px] shadow-xl border-orange-200 overflow-hidden max-h-[80vh]">
           <div className="bg-gradient-to-r from-orange-500 to-red-500 p-2 text-white flex items-center justify-between">
             <div className="flex items-center gap-2 min-w-0 flex-1">
-              <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center overflow-hidden flex-shrink-0">
+              <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center overflow-hidden flex-shrink-0 relative">
                 <img 
                   src="/lovable-uploads/8cb18da4-1ec3-40d2-8e2d-5f0efcfc10da.png" 
                   alt="Rishi Parasher" 
                   className="w-full h-full object-cover"
                 />
+                {/* Live indicator dot */}
+                <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-green-400 rounded-full border border-white animate-pulse"></div>
               </div>
-              <span className="font-bold text-sm truncate">
-                {language === 'hi' ? 'ऋषि पराशर' : 'Rishi Parasher'}
-              </span>
+              <div className="flex flex-col">
+                <span className="font-bold text-sm truncate">
+                  {language === 'hi' ? 'ऋषि पराशर' : 'Rishi Parasher'}
+                </span>
+                <span className="text-xs opacity-80 flex items-center gap-1">
+                  <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
+                  {language === 'hi' ? 'लाइव' : 'Live'}
+                </span>
+              </div>
             </div>
             
             <div className="flex items-center gap-1 flex-shrink-0">
