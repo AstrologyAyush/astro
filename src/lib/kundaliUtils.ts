@@ -199,6 +199,10 @@ export function generateKundaliChart(birthData: BirthData): KundaliChart {
   const jd = getJulianDay(year, month, day, hour);
   const ayanamsa = calculateAyanamsa(jd);
   
+  // Calculate houses first to get ascendant
+  const houses = calculateHouses(jd, birthData.latitude, birthData.longitude);
+  const ascendant = Math.floor(houses[0] / 30) + 1;
+  
   // Calculate planetary positions
   const planets: Record<string, PlanetPosition> = {};
   
@@ -210,13 +214,16 @@ export function generateKundaliChart(birthData: BirthData): KundaliChart {
     const nakshatra = Math.floor(siderealLongitude / (360 / 27)) + 1;
     const nakshatraPada = Math.floor((siderealLongitude % (360 / 27)) / (360 / 27 / 4)) + 1;
     
+    // Calculate proper house position relative to ascendant
+    const housePosition = ((rashi - ascendant + 12) % 12) + 1;
+    
     planets[planetData.id] = {
       id: planetData.id,
       name: planetData.name,
       longitude: siderealLongitude,
       rashi,
       rashiName: ZODIAC_SIGNS[rashi - 1]?.name || 'Unknown',
-      house: rashi,
+      house: housePosition,
       sign: rashi,
       degree: siderealLongitude,
       degreeInSign,
@@ -227,11 +234,7 @@ export function generateKundaliChart(birthData: BirthData): KundaliChart {
     };
   });
   
-  // Calculate houses
-  const houses = calculateHouses(jd, birthData.latitude, birthData.longitude);
-  
-  // Calculate ascendant
-  const ascendant = Math.floor(houses[0] / 30) + 1;
+  // Houses and ascendant already calculated above
   
   // Calculate yogas
   const yogas = calculateYogas(planets);

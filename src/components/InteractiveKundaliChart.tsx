@@ -39,10 +39,14 @@ const InteractiveKundaliChart: React.FC<InteractiveKundaliChartProps> = ({
     return language === 'hi' ? hi : en;
   };
 
-  // Create houses array with planets
+  // Create houses array with planets (fix house calculation)
   const houses = Array.from({ length: 12 }, (_, index) => {
     const houseNumber = index + 1;
-    const planetsInHouse = planets.filter(planet => planet.house === houseNumber);
+    // Fix: Calculate proper house positions relative to ascendant
+    const planetsInHouse = planets.filter(planet => {
+      const properHouse = ((planet.rashi - ascendant + 12) % 12) + 1;
+      return properHouse === houseNumber;
+    });
     return {
       number: houseNumber,
       planets: planetsInHouse

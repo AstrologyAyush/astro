@@ -7,6 +7,7 @@ import EnhancedKundaliPDFExport from './EnhancedKundaliPDFExport';
 import { Badge } from "@/components/ui/badge";
 import { Star, Crown, Shield, Zap, Target, Heart, Download, FileText, Sparkles, Sun, Moon } from "lucide-react";
 import { TraditionalDashaDisplay } from './TraditionalDashaDisplay';
+import SimpleComprehensiveAnalysis from './SimpleComprehensiveAnalysis';
 
 interface DetailedKundaliDisplayProps {
   kundaliData: ComprehensiveKundaliData;
@@ -239,8 +240,13 @@ const DetailedKundaliDisplay: React.FC<DetailedKundaliDisplayProps> = ({
               </CardContent>
             </Card>
 
+            {/* Simple Comprehensive Analysis */}
+            <div className="lg:col-span-2">
+              <SimpleComprehensiveAnalysis kundaliData={kundaliData} language={language} />
+            </div>
+
             {/* Life Path Insights */}
-            <Card className="border-2 border-purple-200 shadow-xl bg-white hover:shadow-2xl transition-all duration-300 lg:col-span-2">
+            <Card className="border-2 border-purple-200 shadow-xl bg-white hover:shadow-2xl transition-all duration-300 lg:col-span-2 hidden">
               <CardHeader className="bg-gradient-to-r from-purple-100 to-pink-100 rounded-t-lg">
                 <CardTitle className="text-purple-800 flex items-center gap-3 text-xl font-bold">
                   <div className="p-2 bg-purple-500 rounded-full">

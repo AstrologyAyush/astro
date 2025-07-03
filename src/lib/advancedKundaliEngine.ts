@@ -683,18 +683,21 @@ function calculateShadbala(planetId: string, rashi: number, longitude: number): 
 export function calculateHouses(lagna: LagnaDetails, planets: Record<string, PlanetData>): HouseDetails[] {
   const houses: HouseDetails[] = [];
   
+  // First, calculate proper house positions for all planets
+  Object.values(planets).forEach(planet => {
+    planet.house = ((planet.rashi - lagna.sign + 12) % 12) + 1;
+  });
+  
   for (let i = 0; i < 12; i++) {
     const houseNumber = i + 1;
-    const houseSign = ((i) % 12) + 1;
+    const houseSign = ((lagna.sign - 1 + i) % 12) + 1;
     const signName = ZODIAC_SIGNS[houseSign - 1].name;
     const lord = ZODIAC_SIGNS[houseSign - 1].lord;
     
     const planetsInHouse: string[] = [];
     Object.values(planets).forEach(planet => {
-      const planetHouse = ((planet.rashi - 1) + i) % 12 + 1;
-      if (planetHouse === houseNumber) {
+      if (planet.house === houseNumber) {
         planetsInHouse.push(planet.name);
-        planet.house = houseNumber;
       }
     });
     

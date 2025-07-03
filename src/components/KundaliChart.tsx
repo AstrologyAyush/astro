@@ -87,15 +87,17 @@ const KundaliChart: React.FC<KundaliChartProps> = ({ kundaliData, language = 'en
   const generateHouseData = () => {
     const houseData = Array.from({ length: 12 }, (_, i) => ({
       number: i + 1,
-      sign: zodiacSigns[language][i],
+      sign: zodiacSigns[language][(ascendant - 1 + i) % 12],
       houseName: houseNames[language][i],
       planets: []
     }));
 
-    // Place planets in houses
+    // Place planets in houses based on proper house calculation
     Object.entries(planets).forEach(([planetName, planetInfo]: [string, any]) => {
-      if (planetInfo && typeof planetInfo.house === 'number') {
-        const houseIndex = planetInfo.house - 1;
+      if (planetInfo && typeof planetInfo.rashi === 'number') {
+        // Calculate proper house position relative to ascendant
+        const properHouse = ((planetInfo.rashi - ascendant + 12) % 12) + 1;
+        const houseIndex = properHouse - 1;
         if (houseIndex >= 0 && houseIndex < 12) {
           houseData[houseIndex].planets.push(planetNames[language][planetName as keyof typeof planetNames.en] || planetName);
         }
