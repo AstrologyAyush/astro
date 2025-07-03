@@ -34,11 +34,6 @@ const InteractiveKundaliChart: React.FC<InteractiveKundaliChartProps> = ({
 }) => {
   const [selectedPlanet, setSelectedPlanet] = useState<Planet | null>(null);
   const [hoveredPlanet, setHoveredPlanet] = useState<Planet | null>(null);
-  const [zoomLevel, setZoomLevel] = useState(1);
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
-  const [translate, setTranslate] = useState({ x: 0, y: 0 });
-  const chartRef = useRef<HTMLDivElement>(null);
 
   const getTranslation = (en: string, hi: string) => {
     return language === 'hi' ? hi : en;
@@ -60,39 +55,36 @@ const InteractiveKundaliChart: React.FC<InteractiveKundaliChartProps> = ({
     return adjustedHouse;
   };
 
-  // Handle zoom
-  const handleZoom = (direction: 'in' | 'out') => {
-    setZoomLevel(prev => {
-      const newZoom = direction === 'in' ? prev * 1.2 : prev / 1.2;
-      return Math.max(0.5, Math.min(3, newZoom));
-    });
-  };
-
-  // Handle drag
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if (e.button === 0) { // Left click only
-      setIsDragging(true);
-      setDragStart({ x: e.clientX - translate.x, y: e.clientY - translate.y });
+  // House meanings for better understanding
+  const houseTranslations = {
+    hi: {
+      1: 'स्वयं - व्यक्तित्व',
+      2: 'धन - पैसा',
+      3: 'भाई-बहन - साहस',
+      4: 'माता - घर',
+      5: 'संतान - शिक्षा',
+      6: 'शत्रु - रोग',
+      7: 'जीवनसाथी - विवाह',
+      8: 'आयु - गुप्त बातें',
+      9: 'भाग्य - धर्म',
+      10: 'कर्म - नौकरी',
+      11: 'लाभ - आय',
+      12: 'हानि - खर्च'
+    },
+    en: {
+      1: 'Self - Personality',
+      2: 'Wealth - Money',
+      3: 'Siblings - Courage',
+      4: 'Mother - Home',
+      5: 'Children - Education',
+      6: 'Enemies - Health',
+      7: 'Spouse - Marriage',
+      8: 'Longevity - Secrets',
+      9: 'Fortune - Religion',
+      10: 'Career - Job',
+      11: 'Gains - Income',
+      12: 'Losses - Expenses'
     }
-  };
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (isDragging) {
-      setTranslate({
-        x: e.clientX - dragStart.x,
-        y: e.clientY - dragStart.y
-      });
-    }
-  };
-
-  const handleMouseUp = () => {
-    setIsDragging(false);
-  };
-
-  // Reset view
-  const resetView = () => {
-    setZoomLevel(1);
-    setTranslate({ x: 0, y: 0 });
   };
 
   // Handle planet click
@@ -102,160 +94,189 @@ const InteractiveKundaliChart: React.FC<InteractiveKundaliChartProps> = ({
 
   return (
     <div className="w-full max-w-4xl mx-auto space-y-4">
-      {/* Controls */}
-      <div className="flex justify-center gap-2 flex-wrap">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => handleZoom('in')}
-          className="flex items-center gap-1"
-        >
-          <ZoomIn className="h-4 w-4" />
-          {getTranslation('Zoom In', 'ज़ूम इन')}
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => handleZoom('out')}
-          className="flex items-center gap-1"
-        >
-          <ZoomOut className="h-4 w-4" />
-          {getTranslation('Zoom Out', 'ज़ूम आउट')}
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={resetView}
-          className="flex items-center gap-1"
-        >
-          <RotateCcw className="h-4 w-4" />
-          {getTranslation('Reset', 'रीसेट')}
-        </Button>
-      </div>
-
       <Card className="border-orange-200 dark:border-orange-700 shadow-lg overflow-hidden">
         <CardHeader className="p-3 sm:p-4 lg:p-6 bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900/30 dark:to-red-900/30">
           <CardTitle className="text-center text-base sm:text-lg lg:text-xl text-orange-800 dark:text-orange-300">
-            {getTranslation('Interactive Kundali Chart', 'इंटरैक्टिव कुंडली चार्ट')}
+            {getTranslation('Simple Kundali Chart', 'सरल कुंडली चार्ट')}
           </CardTitle>
           <p className="text-center text-sm text-orange-600 dark:text-orange-400">
-            {getTranslation('Click planets for details • Drag to pan • Use zoom controls', 'विवरण के लिए ग्रहों पर क्लिक करें • खींचने के लिए ड्रैग करें • ज़ूम नियंत्रण का उपयोग करें')}
+            {getTranslation('Click on any house to learn its meaning', 'किसी भी भाव पर क्लिक करके उसका अर्थ जानें')}
           </p>
         </CardHeader>
         
-        <CardContent 
-          className="p-3 sm:p-4 lg:p-6 overflow-hidden cursor-grab active:cursor-grabbing"
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseUp}
-        >
+        <CardContent className="p-3 sm:p-4 lg:p-6">
           <div className="relative w-full max-w-lg mx-auto">
-            {/* Chart container with zoom and pan */}
-            <div 
-              ref={chartRef}
-              className="aspect-square border-2 border-orange-500 dark:border-orange-400 relative bg-white dark:bg-gray-800 rounded-lg overflow-hidden"
-              style={{
-                transform: `scale(${zoomLevel}) translate(${translate.x / zoomLevel}px, ${translate.y / zoomLevel}px)`,
-                transformOrigin: 'center center',
-                transition: isDragging ? 'none' : 'transform 0.2s ease-out'
-              }}
-            >
-              {/* Main grid - 4x4 */}
-              <div className="grid grid-cols-4 grid-rows-4 h-full gap-0">
-                {Array.from({ length: 16 }, (_, index) => {
-                  const row = Math.floor(index / 4);
-                  const col = index % 4;
-                  
-                  // Define house positions
-                  const housePositions = [
-                    { row: 0, col: 1, house: 12 }, { row: 0, col: 2, house: 1 }, { row: 0, col: 3, house: 2 }, { row: 0, col: 0, house: 3 },
-                    { row: 1, col: 0, house: 11 }, { row: 1, col: 1, house: -1 }, { row: 1, col: 2, house: -1 }, { row: 1, col: 3, house: 4 },
-                    { row: 2, col: 0, house: 10 }, { row: 2, col: 1, house: -1 }, { row: 2, col: 2, house: -1 }, { row: 2, col: 3, house: 5 },
-                    { row: 3, col: 0, house: 9 }, { row: 3, col: 1, house: 8 }, { row: 3, col: 2, house: 7 }, { row: 3, col: 3, house: 6 }
-                  ];
-                  
-                  const position = housePositions.find(pos => pos.row === row && pos.col === col);
-                  
-                  // Center cells
-                  if (!position || position.house === -1) {
-                    return (
-                      <div 
-                        key={index} 
-                        className="w-full h-full bg-gradient-to-br from-orange-100 to-yellow-100 dark:from-orange-800/30 dark:to-yellow-800/30 border border-orange-300 dark:border-orange-600 flex items-center justify-center"
-                      >
-                        {row === 1 && col === 1 && (
-                          <div className="text-center">
-                            <div className="text-sm font-bold text-orange-800 dark:text-orange-300">
-                              {getTranslation('Birth', 'जन्म')}
-                            </div>
-                            <div className="text-xs text-orange-600 dark:text-orange-400">
-                              {getTranslation('Chart', 'चार्ट')}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  }
+            {/* Simple 3x3 Chart Grid */}
+            <div className="aspect-square border-2 border-orange-500 dark:border-orange-400 relative bg-white dark:bg-gray-800 rounded-lg overflow-hidden">
+              <div className="grid grid-cols-3 grid-rows-3 h-full gap-1 p-2">
+                {/* House 12 */}
+                <div className="border border-gray-300 dark:border-gray-600 p-2 bg-orange-50 dark:bg-orange-900/20 flex flex-col items-center justify-center relative rounded">
+                  <div className="absolute top-1 left-1 w-6 h-6 bg-orange-500 text-white rounded-full flex items-center justify-center text-xs font-bold">12</div>
+                  <div className="text-xs text-center mt-6 text-gray-600 dark:text-gray-400">{houseTranslations[language][12]}</div>
+                  <div className="flex flex-wrap justify-center gap-1 mt-1">
+                    {houses[11].planets.map((planet, idx) => (
+                      <span key={idx} className="text-purple-600 text-lg cursor-pointer" onClick={() => handlePlanetClick(planet)} title={planet.name}>
+                        {getPlanetDetails(planet.id)?.symbol}
+                      </span>
+                    ))}
+                  </div>
+                </div>
 
-                  const house = houses[position.house - 1];
-                  const displayHouseNumber = getHousePosition(position.house);
-                  
-                  return (
-                    <div 
-                      key={index}
-                      className="w-full h-full border border-gray-300 dark:border-gray-600 p-1 bg-orange-50 dark:bg-orange-900/20 flex flex-col items-center justify-center relative hover:bg-orange-100 dark:hover:bg-orange-900/30 transition-colors"
-                    >
-                      {/* House number */}
-                      <div className="absolute -top-1 -left-1 w-5 h-5 bg-orange-500 text-white rounded-full flex items-center justify-center text-xs font-bold z-10">
-                        {displayHouseNumber}
-                      </div>
-                      
-                      {/* Planets in house */}
-                      <div className="flex flex-wrap justify-center gap-1 mt-2">
-                        {house.planets.map((planet, planetIndex) => {
-                          const planetDetails = getPlanetDetails(planet.id);
-                          const isSelected = selectedPlanet?.id === planet.id;
-                          const isHovered = hoveredPlanet?.id === planet.id;
-                          
-                          return (
-                            <div
-                              key={planetIndex}
-                              className={`
-                                relative cursor-pointer text-lg transition-all duration-200 
-                                ${isSelected ? 'scale-125 text-purple-800 font-bold' : 'text-purple-600 dark:text-purple-400'}
-                                ${isHovered ? 'scale-110' : ''}
-                                hover:scale-110 hover:text-purple-800 dark:hover:text-purple-200
-                              `}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handlePlanetClick(planet);
-                              }}
-                              onMouseEnter={() => setHoveredPlanet(planet)}
-                              onMouseLeave={() => setHoveredPlanet(null)}
-                              title={`${planetDetails?.name} - ${planet.degreeInSign.toFixed(1)}°`}
-                            >
-                              {planetDetails?.symbol}
-                              {planet.isRetrograde && (
-                                <span className="absolute -top-1 -right-1 text-xs text-red-500">R</span>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  );
-                })}
+                {/* House 1 */}
+                <div className="border border-gray-300 dark:border-gray-600 p-2 bg-green-50 dark:bg-green-900/20 flex flex-col items-center justify-center relative rounded">
+                  <div className="absolute top-1 left-1 w-6 h-6 bg-green-500 text-white rounded-full flex items-center justify-center text-xs font-bold">1</div>
+                  <div className="text-xs text-center mt-6 text-gray-600 dark:text-gray-400">{houseTranslations[language][1]}</div>
+                  <div className="flex flex-wrap justify-center gap-1 mt-1">
+                    {houses[0].planets.map((planet, idx) => (
+                      <span key={idx} className="text-purple-600 text-lg cursor-pointer" onClick={() => handlePlanetClick(planet)} title={planet.name}>
+                        {getPlanetDetails(planet.id)?.symbol}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* House 2 */}
+                <div className="border border-gray-300 dark:border-gray-600 p-2 bg-orange-50 dark:bg-orange-900/20 flex flex-col items-center justify-center relative rounded">
+                  <div className="absolute top-1 left-1 w-6 h-6 bg-orange-500 text-white rounded-full flex items-center justify-center text-xs font-bold">2</div>
+                  <div className="text-xs text-center mt-6 text-gray-600 dark:text-gray-400">{houseTranslations[language][2]}</div>
+                  <div className="flex flex-wrap justify-center gap-1 mt-1">
+                    {houses[1].planets.map((planet, idx) => (
+                      <span key={idx} className="text-purple-600 text-lg cursor-pointer" onClick={() => handlePlanetClick(planet)} title={planet.name}>
+                        {getPlanetDetails(planet.id)?.symbol}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* House 11 */}
+                <div className="border border-gray-300 dark:border-gray-600 p-2 bg-orange-50 dark:bg-orange-900/20 flex flex-col items-center justify-center relative rounded">
+                  <div className="absolute top-1 left-1 w-6 h-6 bg-orange-500 text-white rounded-full flex items-center justify-center text-xs font-bold">11</div>
+                  <div className="text-xs text-center mt-6 text-gray-600 dark:text-gray-400">{houseTranslations[language][11]}</div>
+                  <div className="flex flex-wrap justify-center gap-1 mt-1">
+                    {houses[10].planets.map((planet, idx) => (
+                      <span key={idx} className="text-purple-600 text-lg cursor-pointer" onClick={() => handlePlanetClick(planet)} title={planet.name}>
+                        {getPlanetDetails(planet.id)?.symbol}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Center - Ascendant */}
+                <div className="border-2 border-yellow-500 dark:border-yellow-400 bg-gradient-to-br from-yellow-100 to-orange-100 dark:from-yellow-900/40 dark:to-orange-900/40 flex items-center justify-center rounded">
+                  <div className="text-center">
+                    <div className="text-sm font-bold text-yellow-800 dark:text-yellow-300">{getTranslation('Ascendant', 'लग्न')}</div>
+                    <div className="text-lg font-bold text-yellow-700 dark:text-yellow-200">{ascendant}</div>
+                  </div>
+                </div>
+
+                {/* House 3 */}
+                <div className="border border-gray-300 dark:border-gray-600 p-2 bg-orange-50 dark:bg-orange-900/20 flex flex-col items-center justify-center relative rounded">
+                  <div className="absolute top-1 left-1 w-6 h-6 bg-orange-500 text-white rounded-full flex items-center justify-center text-xs font-bold">3</div>
+                  <div className="text-xs text-center mt-6 text-gray-600 dark:text-gray-400">{houseTranslations[language][3]}</div>
+                  <div className="flex flex-wrap justify-center gap-1 mt-1">
+                    {houses[2].planets.map((planet, idx) => (
+                      <span key={idx} className="text-purple-600 text-lg cursor-pointer" onClick={() => handlePlanetClick(planet)} title={planet.name}>
+                        {getPlanetDetails(planet.id)?.symbol}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* House 10 */}
+                <div className="border border-gray-300 dark:border-gray-600 p-2 bg-blue-50 dark:bg-blue-900/20 flex flex-col items-center justify-center relative rounded">
+                  <div className="absolute top-1 left-1 w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs font-bold">10</div>
+                  <div className="text-xs text-center mt-6 text-gray-600 dark:text-gray-400">{houseTranslations[language][10]}</div>
+                  <div className="flex flex-wrap justify-center gap-1 mt-1">
+                    {houses[9].planets.map((planet, idx) => (
+                      <span key={idx} className="text-purple-600 text-lg cursor-pointer" onClick={() => handlePlanetClick(planet)} title={planet.name}>
+                        {getPlanetDetails(planet.id)?.symbol}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* House 9 */}
+                <div className="border border-gray-300 dark:border-gray-600 p-2 bg-orange-50 dark:bg-orange-900/20 flex flex-col items-center justify-center relative rounded">
+                  <div className="absolute top-1 left-1 w-6 h-6 bg-orange-500 text-white rounded-full flex items-center justify-center text-xs font-bold">9</div>
+                  <div className="text-xs text-center mt-6 text-gray-600 dark:text-gray-400">{houseTranslations[language][9]}</div>
+                  <div className="flex flex-wrap justify-center gap-1 mt-1">
+                    {houses[8].planets.map((planet, idx) => (
+                      <span key={idx} className="text-purple-600 text-lg cursor-pointer" onClick={() => handlePlanetClick(planet)} title={planet.name}>
+                        {getPlanetDetails(planet.id)?.symbol}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* House 4 */}
+                <div className="border border-gray-300 dark:border-gray-600 p-2 bg-pink-50 dark:bg-pink-900/20 flex flex-col items-center justify-center relative rounded">
+                  <div className="absolute top-1 left-1 w-6 h-6 bg-pink-500 text-white rounded-full flex items-center justify-center text-xs font-bold">4</div>
+                  <div className="text-xs text-center mt-6 text-gray-600 dark:text-gray-400">{houseTranslations[language][4]}</div>
+                  <div className="flex flex-wrap justify-center gap-1 mt-1">
+                    {houses[3].planets.map((planet, idx) => (
+                      <span key={idx} className="text-purple-600 text-lg cursor-pointer" onClick={() => handlePlanetClick(planet)} title={planet.name}>
+                        {getPlanetDetails(planet.id)?.symbol}
+                      </span>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* Hover tooltip */}
+            {/* Additional houses in corners */}
+            <div className="absolute -top-8 -right-8 w-16 h-16 border border-gray-300 bg-orange-50 dark:bg-orange-900/20 rounded flex flex-col items-center justify-center">
+              <div className="text-xs font-bold text-orange-500">5</div>
+              <div className="text-xs text-center text-gray-600">{houseTranslations[language][5].split(' - ')[0]}</div>
+              <div className="flex gap-1 mt-1">
+                {houses[4].planets.map((planet, idx) => (
+                  <span key={idx} className="text-purple-600 text-sm cursor-pointer" onClick={() => handlePlanetClick(planet)}>
+                    {getPlanetDetails(planet.id)?.symbol}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <div className="absolute -bottom-8 -right-8 w-16 h-16 border border-gray-300 bg-orange-50 dark:bg-orange-900/20 rounded flex flex-col items-center justify-center">
+              <div className="text-xs font-bold text-orange-500">6</div>
+              <div className="text-xs text-center text-gray-600">{houseTranslations[language][6].split(' - ')[0]}</div>
+              <div className="flex gap-1 mt-1">
+                {houses[5].planets.map((planet, idx) => (
+                  <span key={idx} className="text-purple-600 text-sm cursor-pointer" onClick={() => handlePlanetClick(planet)}>
+                    {getPlanetDetails(planet.id)?.symbol}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <div className="absolute -bottom-8 -left-8 w-16 h-16 border border-gray-300 bg-red-50 dark:bg-red-900/20 rounded flex flex-col items-center justify-center">
+              <div className="text-xs font-bold text-red-500">7</div>
+              <div className="text-xs text-center text-gray-600">{houseTranslations[language][7].split(' - ')[0]}</div>
+              <div className="flex gap-1 mt-1">
+                {houses[6].planets.map((planet, idx) => (
+                  <span key={idx} className="text-purple-600 text-sm cursor-pointer" onClick={() => handlePlanetClick(planet)}>
+                    {getPlanetDetails(planet.id)?.symbol}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <div className="absolute -top-8 -left-8 w-16 h-16 border border-gray-300 bg-orange-50 dark:bg-orange-900/20 rounded flex flex-col items-center justify-center">
+              <div className="text-xs font-bold text-orange-500">8</div>
+              <div className="text-xs text-center text-gray-600">{houseTranslations[language][8].split(' - ')[0]}</div>
+              <div className="flex gap-1 mt-1">
+                {houses[7].planets.map((planet, idx) => (
+                  <span key={idx} className="text-purple-600 text-sm cursor-pointer" onClick={() => handlePlanetClick(planet)}>
+                    {getPlanetDetails(planet.id)?.symbol}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Simple hover tooltip */}
             {hoveredPlanet && (
-              <div className="absolute top-4 left-4 bg-black/80 text-white p-2 rounded-lg text-xs z-50 pointer-events-none">
+              <div className="absolute top-4 left-4 bg-black/80 text-white p-2 rounded-lg text-sm z-50 pointer-events-none">
                 <div className="font-bold">{hoveredPlanet.name}</div>
                 <div>{getTranslation('House', 'भाव')}: {hoveredPlanet.house}</div>
-                <div>{getTranslation('Sign', 'राशि')}: {hoveredPlanet.rashiName}</div>
-                <div>{getTranslation('Degree', 'अंश')}: {hoveredPlanet.degreeInSign.toFixed(2)}°</div>
               </div>
             )}
           </div>
