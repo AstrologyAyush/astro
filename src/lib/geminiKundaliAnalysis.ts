@@ -611,7 +611,7 @@ function getGeneralHealth(sun: any, mars: any, saturn: any): string {
     : 'Generally balanced health constitution requiring regular lifestyle maintenance';
 }
 
-function getVulnerableAreas(sixthHouse: any[], eighthHouse: any[], saturn: any): string[] {
+function getVulnerableAreas(sixthHouse: any[], eighthHouse: any[], saturn: any, mars: any, moon: any): string[] {
   const areas = [];
   
   if (saturn?.house === 1) areas.push('Bone and joint health');
@@ -675,6 +675,7 @@ function getDefaultSpiritual(kundaliData: any) {
   const jupiter = planets.JU || planets.Jupiter;
   const ketu = planets.KE || planets.Ketu;
   const sun = planets.SU || planets.Sun;
+  const saturn = planets.SA || planets.Saturn;
   const ninthHousePlanets = Object.values(planets).filter((p: any) => p.house === 9);
   const twelfthHousePlanets = Object.values(planets).filter((p: any) => p.house === 12);
   
