@@ -13,6 +13,7 @@ import AccuracyStatement from '@/components/AccuracyStatement';
 import KundaliResultsView from '@/components/KundaliResultsView';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { generateAdvancedKundali, EnhancedBirthData, ComprehensiveKundaliData } from '@/lib/advancedKundaliEngine';
+import { generateCorrectedKundali, CorrectedBirthData } from '@/lib/correctVedicKundaliEngine';
 import { getGeminiKundaliAnalysis } from '@/lib/geminiKundaliAnalysis';
 import { saveEnhancedKundali } from '@/lib/supabaseKundaliStorage';
 import { useToast } from "@/hooks/use-toast";
@@ -121,9 +122,34 @@ const Index = () => {
       // Enhanced loading time for comprehensive calculations
       await new Promise(resolve => setTimeout(resolve, 3000));
 
+      // Test with corrected engine first to verify accuracy
+      console.log('🔯 Testing corrected Vedic calculations...');
+      const correctedData: CorrectedBirthData = {
+        fullName: processedBirthData.fullName,
+        date: processedBirthData.date,
+        time: processedBirthData.time,
+        place: processedBirthData.place,
+        latitude: processedBirthData.latitude,
+        longitude: processedBirthData.longitude,
+        timezone: processedBirthData.timezone
+      };
+      
+      const correctedResult = generateCorrectedKundali(correctedData);
+      console.log('✅ Corrected Kundali generated for verification');
+      
       // Generate comprehensive Kundali with all traditional elements
       console.log('🔯 Generating comprehensive Vedic calculations...');
       const result = generateAdvancedKundali(processedBirthData);
+      
+      // Log comparison for your test case
+      if (processedBirthData.fullName.toLowerCase().includes('ayush')) {
+        console.log('🎯 VERIFICATION FOR AYUSH UPADHYAY:');
+        console.log('Expected: Lagna Cancer (Ashlesha Pada 2), Moon Gemini (Punarvasu Pada 3), Sun Aries (Bharani Pada 2)');
+        console.log('Corrected Results:');
+        console.log(`- Lagna: ${correctedResult.lagna.signName} (${correctedResult.lagna.nakshatra} Pada ${correctedResult.lagna.nakshatraPada})`);
+        console.log(`- Moon: ${correctedResult.planets.MO.rashiName} (${correctedResult.planets.MO.nakshatraName} Pada ${correctedResult.planets.MO.nakshatraPada})`);
+        console.log(`- Sun: ${correctedResult.planets.SU.rashiName} (${correctedResult.planets.SU.nakshatraName} Pada ${correctedResult.planets.SU.nakshatraPada})`);
+      }
 
       if (!result) {
         throw new Error('Failed to generate Kundali data');
