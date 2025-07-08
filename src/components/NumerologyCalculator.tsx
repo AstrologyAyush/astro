@@ -186,38 +186,104 @@ const NumerologyCalculator: React.FC = () => {
 
                 <Separator className="my-6" />
 
-                <div className="space-y-4">
-                  <div>
-                    <h4 className="font-medium text-gray-800 mb-2 flex items-center gap-2">
-                      <Shield className="h-4 w-4 text-blue-500" />
-                      {t('pinnacle_numbers')}
+                <div className="space-y-6">
+                  <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                    <h4 className="font-semibold text-blue-800 mb-3 flex items-center gap-2">
+                      <Shield className="h-5 w-5 text-blue-600" />
+                      Your Life Journey Stages 🌟
                     </h4>
-                    <div className="flex gap-2 flex-wrap">
-                      {profile.pinnacles.map((pinnacle, index) => <Badge key={index} variant="outline" className="bg-blue-50">
-                          {t('phase')} {index + 1}: {pinnacle}
-                        </Badge>)}
+                    <p className="text-sm text-blue-700 mb-3">
+                      Think of your life like a video game with different levels! Each stage brings new opportunities and adventures.
+                    </p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {profile.pinnacles.map((pinnacle, index) => {
+                        const stageNames = ['Childhood & Teen Years', 'Young Adult Life', 'Middle Age Adventures', 'Wisdom Years'];
+                        const stageAges = ['Age 0-28', 'Age 29-37', 'Age 38-46', 'Age 47+'];
+                        const stageEmojis = ['🧒', '🧑', '👨‍💼', '👴'];
+                        return (
+                          <div key={index} className="bg-white p-3 rounded border border-blue-100">
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className="text-lg">{stageEmojis[index]}</span>
+                              <div className="text-2xl font-bold text-blue-600">{pinnacle}</div>
+                            </div>
+                            <div className="text-sm font-medium text-blue-800">{stageNames[index]}</div>
+                            <div className="text-xs text-blue-600">{stageAges[index]}</div>
+                            <div className="text-xs text-blue-700 mt-1">
+                              {pinnacle === 1 && "Leadership time! You'll learn to be independent and make your own decisions."}
+                              {pinnacle === 2 && "Friendship & teamwork phase! Great time for making close friends and learning cooperation."}
+                              {pinnacle === 3 && "Creative expression time! Perfect for art, music, writing, and sharing your talents."}
+                              {pinnacle === 4 && "Building & organizing phase! Time to work hard and create something lasting."}
+                              {pinnacle === 5 && "Adventure & freedom time! Lots of new experiences and exciting changes ahead."}
+                              {pinnacle === 6 && "Family & caring phase! You'll focus on helping others and creating harmony."}
+                              {pinnacle === 7 && "Learning & discovery time! Perfect for studying, research, and understanding life deeply."}
+                              {pinnacle === 8 && "Success & achievement phase! Great time for business, leadership, and material success."}
+                              {pinnacle === 9 && "Giving back time! You'll help others and make the world a better place."}
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
 
-                  <div>
-                    <h4 className="font-medium text-gray-800 mb-2 flex items-center gap-2">
-                      <AlertCircle className="h-4 w-4 text-orange-500" />
-                      {t('challenge_numbers')}
+                  <div className="bg-orange-50 p-4 rounded-lg border border-orange-200">
+                    <h4 className="font-semibold text-orange-800 mb-3 flex items-center gap-2">
+                      <AlertCircle className="h-5 w-5 text-orange-600" />
+                      Life Lessons to Master 💪
                     </h4>
-                    <div className="flex gap-2 flex-wrap">
-                      {profile.challenges.map((challenge, index) => <Badge key={index} variant="secondary">
-                          {t('challenge')} {index + 1}: {challenge}
-                        </Badge>)}
+                    <p className="text-sm text-orange-700 mb-3">
+                      These are like boss battles in your life journey! Don't worry - once you understand them, they become your superpowers.
+                    </p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {profile.challenges.map((challenge, index) => {
+                        const challengeNames = ['Early Life Lesson', 'Teen/Young Adult Lesson', 'Life-Long Learning', 'Main Life Challenge'];
+                        return (
+                          <div key={index} className="bg-white p-3 rounded border border-orange-100">
+                            <div className="flex items-center gap-2 mb-2">
+                              <div className="text-2xl font-bold text-orange-600">{challenge}</div>
+                              <span className="text-lg">🎯</span>
+                            </div>
+                            <div className="text-sm font-medium text-orange-800">{challengeNames[index]}</div>
+                            <div className="text-xs text-orange-700 mt-1">
+                              {challenge === 0 && "Learn to be yourself! Don't let others decide who you should be."}
+                              {challenge === 1 && "Build confidence! Believe in yourself and take initiative."}
+                              {challenge === 2 && "Practice patience! Learn to work well with others and be a good friend."}
+                              {challenge === 3 && "Express yourself! Don't hide your talents - share them with the world."}
+                              {challenge === 4 && "Stay organized! Learn to plan ahead and work steadily toward your goals."}
+                              {challenge === 5 && "Find balance! Enjoy freedom but also learn responsibility."}
+                              {challenge === 6 && "Care without overdoing! Help others but don't forget to take care of yourself."}
+                              {challenge === 7 && "Trust your inner wisdom! Sometimes the best answers come from within."}
+                              {challenge === 8 && "Use power wisely! Success is great, but stay humble and fair."}
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
 
-                  <div>
-                    <h4 className="font-medium text-gray-800 mb-2">
-                      {t('personal_year_2025')}
+                  <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
+                    <h4 className="font-semibold text-purple-800 mb-3 flex items-center gap-2">
+                      <Calendar className="h-5 w-5 text-purple-600" />
+                      Your 2025 Theme 🎨
                     </h4>
-                    <Badge className="bg-purple-100 text-purple-800 text-lg px-4 py-2">
-                      {profile.personalYear}
-                    </Badge>
+                    <div className="flex items-center gap-4">
+                      <div className="text-4xl font-bold text-purple-600">{profile.personalYear}</div>
+                      <div className="flex-1">
+                        <div className="text-sm text-purple-700 mb-2">
+                          {profile.personalYear === 1 && "🚀 NEW BEGINNINGS YEAR! Time to start fresh projects and be a leader."}
+                          {profile.personalYear === 2 && "🤝 FRIENDSHIP & COOPERATION YEAR! Focus on teamwork and making connections."}
+                          {profile.personalYear === 3 && "🎨 CREATIVITY & FUN YEAR! Perfect time for art, music, and expressing yourself."}
+                          {profile.personalYear === 4 && "🏗️ BUILDING & HARD WORK YEAR! Time to focus on studies and creating solid foundations."}
+                          {profile.personalYear === 5 && "🌟 ADVENTURE & CHANGE YEAR! Expect exciting new experiences and opportunities."}
+                          {profile.personalYear === 6 && "❤️ FAMILY & CARING YEAR! Focus on home, family, and helping others."}
+                          {profile.personalYear === 7 && "🔍 LEARNING & DISCOVERY YEAR! Great time for studying and understanding yourself better."}
+                          {profile.personalYear === 8 && "💼 SUCCESS & ACHIEVEMENT YEAR! Your hard work will pay off with recognition."}
+                          {profile.personalYear === 9 && "🌍 COMPLETION & GIVING YEAR! Time to finish projects and help others."}
+                        </div>
+                        <div className="text-xs text-purple-600">
+                          This energy will influence your whole year - use it wisely!
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </CardContent>
