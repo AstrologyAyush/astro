@@ -55,50 +55,24 @@ interface EnhancedKundaliAnalysis {
   };
 }
 
-const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent';
+import { supabase } from '@/integrations/supabase/client';
 
 export async function getGeminiKundaliAnalysis(kundaliData: any): Promise<EnhancedKundaliAnalysis> {
-  if (!GEMINI_API_KEY) {
-    console.warn('Gemini API key not configured, using fallback analysis');
-    return getFallbackAnalysis(kundaliData);
-  }
-
   try {
-    const prompt = createDetailedKundaliPrompt(kundaliData);
-    
-    const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        contents: [{
-          parts: [{
-            text: prompt
-          }]
-        }],
-        generationConfig: {
-          temperature: 0.7,
-          topK: 40,
-          topP: 0.95,
-          maxOutputTokens: 2048,
-        }
-      })
+    const { data, error } = await supabase.functions.invoke('gemini-kundali-analysis', {
+      body: { kundaliData }
     });
 
-    if (!response.ok) {
-      throw new Error(`Gemini API error: ${response.status}`);
+    if (error) {
+      console.error('Error calling Gemini analysis function:', error);
+      return getFallbackAnalysis(kundaliData);
     }
 
-    const data: GeminiResponse = await response.json();
-    const analysisText = data.candidates[0]?.content?.parts[0]?.text;
-    
-    if (!analysisText) {
-      throw new Error('No analysis text received from Gemini');
+    if (data?.analysis) {
+      return data.analysis;
     }
 
-    return parseGeminiResponse(analysisText, kundaliData);
+    throw new Error('No analysis received from function');
     
   } catch (error) {
     console.error('Error getting Gemini analysis:', error);

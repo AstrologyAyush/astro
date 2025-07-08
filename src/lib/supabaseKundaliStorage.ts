@@ -27,7 +27,7 @@ export async function saveEnhancedKundali(
     const { data: { user } } = await supabase.auth.getUser();
     
     if (!user) {
-      console.warn('No authenticated user found for saving Kundali');
+      console.log('No authenticated user - Kundali generated but not saved');
       return null;
     }
 

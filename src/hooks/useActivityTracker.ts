@@ -33,7 +33,7 @@ export const useActivityTracker = () => {
       const { data: { user } } = await supabase.auth.getUser();
       
       // Allow anonymous tracking for certain activities
-      const anonymousActivities = ['page_analytics', 'error_tracking', 'chart_interaction'];
+      const anonymousActivities = ['page_analytics', 'error_tracking', 'chart_interaction', 'kundali_calculation', 'feature_usage'];
       
       if (!user && !anonymousActivities.includes(activityType)) {
         console.warn('Cannot track activity: User not authenticated');
