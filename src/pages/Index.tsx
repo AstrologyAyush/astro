@@ -10,9 +10,9 @@ import HeroSection from '@/components/HeroSection';
 import LanguageToggle from '@/components/LanguageToggle';
 import FeatureCards from '@/components/FeatureCards';
 import AccuracyStatement from '@/components/AccuracyStatement';
-import NativeKundaliResultsView from '@/components/NativeKundaliResultsView';
+import KundaliResultsView from '@/components/KundaliResultsView';
 import LoadingSpinner from '@/components/LoadingSpinner';
-import { generateNativeVedicKundali, BirthData, KundaliResult } from '@/lib/nativeVedicKundaliEngine';
+import { generateAdvancedKundali, EnhancedBirthData, ComprehensiveKundaliData } from '@/lib/advancedKundaliEngine';
 import { getGeminiKundaliAnalysis } from '@/lib/geminiKundaliAnalysis';
 import { saveEnhancedKundali } from '@/lib/supabaseKundaliStorage';
 import { useToast } from "@/hooks/use-toast";
@@ -24,7 +24,7 @@ import { usePageAnalytics } from '@/hooks/usePageAnalytics';
 import { useEnhancedAnalytics } from '@/hooks/useEnhancedAnalytics';
 
 const Index = () => {
-  const [kundaliData, setKundaliData] = useState<KundaliResult | null>(null);
+  const [kundaliData, setKundaliData] = useState<ComprehensiveKundaliData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [language, setLanguage] = useState<'hi' | 'en'>('en');
   const { toast } = useToast();
@@ -46,7 +46,7 @@ const Index = () => {
       console.log('📝 Input birth data:', birthData);
       
       // Enhanced data processing with better validation
-      let processedBirthData: BirthData;
+      let processedBirthData: EnhancedBirthData;
       
       try {
         // Handle different date formats
@@ -67,20 +67,20 @@ const Index = () => {
           throw new Error('Birth date is required and must be a valid date');
         }
         
-        // Handle time format - remove seconds for our new engine
+        // Handle time format
         if (typeof birthData.timeOfBirth === 'string') {
           timeString = birthData.timeOfBirth;
-          // Remove seconds if present
-          if (timeString.split(':').length === 3) {
-            timeString = timeString.split(':').slice(0, 2).join(':');
+          // Ensure time has seconds
+          if (timeString.split(':').length === 2) {
+            timeString += ':00';
           }
         } else if (birthData.time) {
           timeString = birthData.time;
-          if (timeString.split(':').length === 3) {
-            timeString = timeString.split(':').slice(0, 2).join(':');
+          if (timeString.split(':').length === 2) {
+            timeString += ':00';
           }
         } else {
-          timeString = '12:10'; // Default time
+          timeString = '12:00:00'; // Default time
         }
         
         // Validate coordinates
@@ -96,9 +96,10 @@ const Index = () => {
         }
         
         processedBirthData = {
-          name: birthData.name || birthData.fullName || 'Unknown',
-          dob: dateString,
+          fullName: birthData.name || birthData.fullName || 'Unknown',
+          date: dateString,
           time: timeString,
+          place: birthData.placeOfBirth || birthData.place || 'Unknown',
           latitude: latitude,
           longitude: longitude,
           timezone: 5.5 // IST timezone
@@ -122,7 +123,7 @@ const Index = () => {
 
       // Generate comprehensive Kundali with all traditional elements
       console.log('🔯 Generating comprehensive Vedic calculations...');
-      const result = generateNativeVedicKundali(processedBirthData);
+      const result = generateAdvancedKundali(processedBirthData);
 
       if (!result) {
         throw new Error('Failed to generate Kundali data');
@@ -133,8 +134,8 @@ const Index = () => {
       // Track successful conversion
       trackConversion('kundali_generation_completed', 1, { 
         calculationTime: Date.now() - Date.now(),
-        hasYogas: result.yogas?.length > 0,
-        hasDashas: result.dashas?.length > 0
+        hasYogas: result.enhancedCalculations?.yogas?.length > 0,
+        hasDashas: result.enhancedCalculations?.dashas?.length > 0
       });
 
       // Save to Supabase with enhanced error handling
@@ -372,8 +373,11 @@ const Index = () => {
             </TabsContent>
           </Tabs>
         ) : (
-          <div className="animate-slide-up">
-            <NativeKundaliResultsView kundaliData={kundaliData} language={language} onBack={() => setKundaliData(null)} />
+          <div className="animate-slide-up space-y-6 sm:space-y-8">
+            <KundaliResultsView kundaliData={kundaliData} language={language} onBack={() => setKundaliData(null)} />
+            
+            {/* Mobile-optimized Life Path Report */}
+            <LifePathReport kundaliData={kundaliData} language={language} />
           </div>
         )}
 
