@@ -260,6 +260,69 @@ const StandalonePersonalityTest: React.FC = () => {
     };
   };
 
+  const getEnergyExplanation = (element: string, language: string) => {
+    const explanations: Record<string, any> = {
+      fire: {
+        en: "Fire energy represents passion, action, and leadership. You're a natural born leader who loves to take charge and make things happen. You have incredible drive and enthusiasm that inspires others around you.",
+        hi: "अग्नि ऊर्जा जुनून, कार्य और नेतृत्व का प्रतिनिधित्व करती है। आप एक प्राकृतिक नेता हैं जो जिम्मेदारी लेना और चीजों को साकार करना पसंद करते हैं।"
+      },
+      earth: {
+        en: "Earth energy represents stability, practicality, and reliability. You're the rock that others lean on - steady, dependable, and always there when people need you. You build lasting foundations.",
+        hi: "पृथ्वी ऊर्जा स्थिरता, व्यावहारिकता और विश्वसनीयता का प्रतिनिधित्व करती है। आप वह चट्टान हैं जिस पर दूसरे भरोसा करते हैं।"
+      },
+      air: {
+        en: "Air energy represents communication, intellect, and social connection. You're a natural communicator who loves sharing ideas and connecting with people. Your mind is always buzzing with new thoughts.",
+        hi: "वायु ऊर्जा संचार, बुद्धि और सामाजिक संपर्क का प्रतिनिधित्व करती है। आप एक प्राकृतिक संचारक हैं जो विचार साझा करना पसंद करते हैं।"
+      },
+      water: {
+        en: "Water energy represents emotions, intuition, and healing. You feel deeply and understand others' emotions naturally. You have a gift for healing and helping people through difficult times.",
+        hi: "जल ऊर्जा भावनाओं, अंतर्ज्ञान और उपचार का प्रतिनिधित्व करती है। आप गहराई से महसूस करते हैं और दूसरों की भावनाओं को समझते हैं।"
+      }
+    };
+    return explanations[element]?.[language] || '';
+  };
+
+  const getLifeApproach = (element: string, language: string) => {
+    const approaches: Record<string, any> = {
+      fire: {
+        en: "You tackle life head-on with confidence and courage. When you see a goal, you charge towards it with determination. You prefer action over endless planning and inspire others to follow your lead.",
+        hi: "आप आत्मविश्वास और साहस के साथ जीवन का सामना करते हैं। जब आप कोई लक्ष्य देखते हैं, तो दृढ़ संकल्प के साथ उसकी ओर बढ़ते हैं।"
+      },
+      earth: {
+        en: "You approach life with careful planning and steady progress. You build things to last and prefer proven methods over risky experiments. Security and stability are your priorities.",
+        hi: "आप सावधानीपूर्वक योजना और स्थिर प्रगति के साथ जीवन से निपटते हैं। आप चीजों को टिकाऊ बनाते हैं और जोखिम भरे प्रयोगों पर सिद्ध तरीकों को प्राथमिकता देते हैं।"
+      },
+      air: {
+        en: "You approach life through learning, sharing, and connecting. You love exploring new ideas and discussing them with others. Flexibility and variety keep you energized and engaged.",
+        hi: "आप सीखने, साझा करने और जुड़ने के माध्यम से जीवन से निपटते हैं। आप नए विचारों की खोज करना और उन्हें दूसरों के साथ साझा करना पसंद करते हैं।"
+      },
+      water: {
+        en: "You approach life with empathy and intuition as your guides. You feel your way through situations and make decisions based on what feels right in your heart. Helping others is your natural calling.",
+        hi: "आप सहानुभूति और अंतर्ज्ञान को अपना मार्गदर्शक मानकर जीवन से निपटते हैं। आप स्थितियों को महसूस करते हैं और दिल में सही लगने के आधार पर निर्णय लेते हैं।"
+      }
+    };
+    return approaches[element]?.[language] || '';
+  };
+
+  const getEnergyBalanceAnalysis = (elementScores: Record<string, number>, language: string) => {
+    const sortedElements = Object.entries(elementScores).sort(([,a], [,b]) => b - a);
+    const [highest, second, third, lowest] = sortedElements;
+    
+    const highestPercent = Math.round((highest[1] / 15) * 100);
+    const secondPercent = Math.round((second[1] / 15) * 100);
+    const gap = highestPercent - secondPercent;
+    
+    if (gap < 10) {
+      return language === 'en' 
+        ? `You have a beautifully balanced personality! Your ${highest[0]} energy (${highestPercent}%) works closely with your ${second[0]} energy (${secondPercent}%). This balance gives you flexibility and multiple approaches to handle different situations. You can be both ${highest[0] === 'fire' ? 'passionate' : highest[0] === 'earth' ? 'practical' : highest[0] === 'air' ? 'intellectual' : 'empathetic'} and ${second[0] === 'fire' ? 'passionate' : second[0] === 'earth' ? 'practical' : second[0] === 'air' ? 'intellectual' : 'empathetic'} depending on what the situation needs.`
+        : `आपका व्यक्तित्व खूबसूरती से संतुलित है! आपकी ${highest[0]} ऊर्जा (${highestPercent}%) आपकी ${second[0]} ऊर्जा (${secondPercent}%) के साथ मिलकर काम करती है। यह संतुलन आपको लचीलापन देता है।`;
+    } else {
+      return language === 'en'
+        ? `You have a strong ${highest[0]} personality (${highestPercent}%) with ${second[0]} as your secondary strength (${secondPercent}%). Your ${third[0]} and ${lowest[0]} energies are lower but still contribute to your unique personality blend. This strong ${highest[0]} energy makes you particularly good at ${highest[0] === 'fire' ? 'leading and taking action' : highest[0] === 'earth' ? 'creating stability and solving practical problems' : highest[0] === 'air' ? 'communicating and generating ideas' : 'understanding emotions and helping others heal'}.`
+        : `आपका ${highest[0]} व्यक्तित्व मजबूत है (${highestPercent}%) और ${second[0]} आपकी द्वितीयक शक्ति है (${secondPercent}%)। यह मजबूत ${highest[0]} ऊर्जा आपको विशेष रूप से अच्छा बनाती है।`;
+    }
+  };
+
   const getCareerOptions = (element: string, lang: string) => {
     const careers: Record<string, any> = {
       fire: {
@@ -323,6 +386,169 @@ const StandalonePersonalityTest: React.FC = () => {
     return careers[element]?.[lang] || [];
   };
 
+  const getThingsToAvoid = (element: string, language: string) => {
+    const avoidances: Record<string, any> = {
+      fire: {
+        en: [
+          {
+            title: "Being too Impulsive",
+            description: "You might make quick decisions without thinking through the consequences.",
+            solution: "Take a 5-minute pause before major decisions. Ask yourself: 'What could go wrong?'"
+          },
+          {
+            title: "Burning Out from Overcommitment",
+            description: "Your enthusiasm can lead you to say yes to too many things at once.",
+            solution: "Use a calendar and limit yourself to 3 major commitments at a time."
+          },
+          {
+            title: "Being Impatient with Others",
+            description: "You might get frustrated when others can't keep up with your pace.",
+            solution: "Remember that everyone has different speeds. Practice deep breathing when you feel impatient."
+          }
+        ],
+        hi: [
+          {
+            title: "अत्यधिक आवेगशील होना",
+            description: "आप परिणामों के बारे में सोचे बिना तुरंत निर्णय ले सकते हैं।",
+            solution: "महत्वपूर्ण निर्णयों से पहले 5 मिनट रुकें। खुद से पूछें: 'क्या गलत हो सकता है?'"
+          },
+          {
+            title: "अधिक प्रतिबद्धता से थकान",
+            description: "आपका उत्साह आपको एक साथ बहुत सी चीजों के लिए हां कहने पर मजबूर कर सकता है।",
+            solution: "कैलेंडर का उपयोग करें और खुद को एक समय में 3 मुख्य प्रतिबद्धताओं तक सीमित करें।"
+          }
+        ]
+      },
+      earth: {
+        en: [
+          {
+            title: "Being Too Resistant to Change",
+            description: "You might miss opportunities because you prefer familiar routines.",
+            solution: "Try one small new thing each week. Start with low-risk changes like a new route to work."
+          },
+          {
+            title: "Over-Planning and Under-Doing",
+            description: "You might spend too much time planning and not enough time taking action.",
+            solution: "Set a planning deadline. After 2 hours of planning, take one small action step."
+          },
+          {
+            title: "Being Overly Critical of Mistakes",
+            description: "You might be too hard on yourself and others when things don't go perfectly.",
+            solution: "Practice the '80% rule' - if something is 80% right, that's often good enough to move forward."
+          }
+        ],
+        hi: [
+          {
+            title: "परिवर्तन के प्रति अत्यधिक प्रतिरोध",
+            description: "आप अवसरों को खो सकते हैं क्योंकि आप परिचित दिनचर्या को प्राथमिकता देते हैं।",
+            solution: "हर सप्ताह एक छोटी नई चीज आजमाएं। कम जोखिम वाले बदलावों से शुरुआत करें।"
+          }
+        ]
+      },
+      air: {
+        en: [
+          {
+            title: "Getting Scattered and Unfocused",
+            description: "You might start many projects but have trouble finishing them.",
+            solution: "Use the 'One Thing' rule - focus on completing one project before starting another."
+          },
+          {
+            title: "Overthinking Simple Decisions",
+            description: "You might analyze things so much that you get paralyzed by choices.",
+            solution: "Set a decision deadline. For small choices, give yourself maximum 5 minutes to decide."
+          },
+          {
+            title: "Talking More Than Listening",
+            description: "Your love of sharing ideas might sometimes overwhelm others.",
+            solution: "Practice the 70/30 rule - listen 70% of the time, talk 30% of the time."
+          }
+        ],
+        hi: [
+          {
+            title: "बिखराव और ध्यान की कमी",
+            description: "आप कई परियोजनाएं शुरू कर सकते हैं लेकिन उन्हें पूरा करने में कठिनाई हो सकती है।",
+            solution: "'एक चीज' नियम का उपयोग करें - दूसरी शुरू करने से पहले एक परियोजना पूरी करने पर ध्यान दें।"
+          }
+        ]
+      },
+      water: {
+        en: [
+          {
+            title: "Taking on Others' Emotions Too Much",
+            description: "You might absorb others' negative feelings and make them your own.",
+            solution: "Practice emotional boundaries. After helping someone, do a 5-minute meditation to release their emotions."
+          },
+          {
+            title: "Avoiding Conflict Even When Necessary",
+            description: "Your desire for harmony might prevent you from addressing important issues.",
+            solution: "Remember that healthy conflict can strengthen relationships. Practice gentle honesty."
+          },
+          {
+            title: "Being Too Self-Critical",
+            description: "You might judge yourself harshly when you can't help everyone.",
+            solution: "Practice self-compassion. Treat yourself with the same kindness you show others."
+          }
+        ],
+        hi: [
+          {
+            title: "दूसरों की भावनाओं को अत्यधिक अपनाना",
+            description: "आप दूसरों की नकारात्मक भावनाओं को अवशोषित कर सकते हैं और उन्हें अपना बना सकते हैं।",
+            solution: "भावनात्मक सीमाओं का अभ्यास करें। किसी की मदद के बाद, उनकी भावनाओं को छोड़ने के लिए 5 मिनट का ध्यान करें।"
+          }
+        ]
+      }
+    };
+    return avoidances[element]?.[language] || [];
+  };
+
+  const getPersonalizedGrowthPath = (dominantElement: string, elementScores: Record<string, number>, language: string) => {
+    const sortedElements = Object.entries(elementScores).sort(([,a], [,b]) => b - a);
+    const [highest, second] = sortedElements;
+    const secondPercent = Math.round((second[1] / 15) * 100);
+    
+    const growthPaths: Record<string, any> = {
+      fire: {
+        en: `As a Fire spirit, focus on developing patience and emotional intelligence this month. Your natural leadership is strong, but balancing it with your ${second[0]} energy (${secondPercent}%) will make you even more effective. Practice active listening and consider others' perspectives before making decisions.`,
+        hi: `अग्नि व्यक्तित्व के रूप में, इस महीने धैर्य और भावनात्मक बुद्धिमत्ता विकसित करने पर ध्यान दें। आपका प्राकृतिक नेतृत्व मजबूत है।`
+      },
+      earth: {
+        en: `As an Earth guardian, work on embracing change and spontaneity this month. Your stability is your superpower, but incorporating your ${second[0]} energy (${secondPercent}%) will add flexibility. Try saying 'yes' to one unexpected opportunity each week.`,
+        hi: `पृथ्वी संरक्षक के रूप में, इस महीने परिवर्तन और सहजता को अपनाने पर काम करें। आपकी स्थिरता आपकी महाशक्ति है।`
+      },
+      air: {
+        en: `As an Air thinker, focus on turning ideas into action this month. Your creativity and communication skills are excellent, but combining them with your ${second[0]} energy (${secondPercent}%) will help you finish what you start. Set one concrete goal and stick to it.`,
+        hi: `वायु चिंतक के रूप में, इस महीने विचारों को कार्यों में बदलने पर ध्यान दें। आपकी रचनात्मकता और संचार कौशल उत्कृष्ट हैं।`
+      },
+      water: {
+        en: `As a Water healer, work on setting healthy boundaries this month. Your empathy is beautiful, but balancing it with your ${second[0]} energy (${secondPercent}%) will prevent emotional burnout. Practice saying 'no' with compassion when you need to recharge.`,
+        hi: `जल चिकित्सक के रूप में, इस महीने स्वस्थ सीमाएं निर्धारित करने पर काम करें। आपकी सहानुभूति सुंदर है।`
+      }
+    };
+    return growthPaths[dominantElement]?.[language] || '';
+  };
+
+  const getCompatibilityInsights = (dominantElement: string, language: string) => {
+    const compatibility: Record<string, any> = {
+      fire: {
+        en: "You work amazingly with Earth people (they help ground your ideas) and Air people (they match your energy and add creativity). Water people teach you emotional intelligence. Be patient with Earth people's slower pace - they're building something lasting!",
+        hi: "आप पृथ्वी लोगों के साथ अद्भुत रूप से काम करते हैं (वे आपके विचारों को आधार देते हैं) और वायु लोगों के साथ (वे आपकी ऊर्जा से मेल खाते हैं)।"
+      },
+      earth: {
+        en: "You're the perfect complement to Fire people (you help them plan and execute) and Water people (you provide stability for their emotions). Air people inspire you with new ideas. Remember, Fire people aren't being reckless - they just move faster!",
+        hi: "आप अग्नि लोगों के लिए सही पूरक हैं (आप उन्हें योजना बनाने और क्रियान्वित करने में मदद करते हैं) और जल लोगों के लिए।"
+      },
+      air: {
+        en: "You thrive with Fire people (they help turn your ideas into action) and other Air people (great brainstorming sessions!). Earth people help you focus and Water people add emotional depth. Don't take Earth people's 'slow' approach personally - they're being thorough!",
+        hi: "आप अग्नि लोगों के साथ फलते-फूलते हैं (वे आपके विचारों को कार्यों में बदलने में मदद करते हैं) और अन्य वायु लोगों के साथ।"
+      },
+      water: {
+        en: "You naturally connect with Earth people (they appreciate your depth) and other Water people (instant emotional understanding). Fire people energize you and Air people help you express your feelings. Remember, Fire people's directness isn't personal - they're just focused!",
+        hi: "आप प्राकृतिक रूप से पृथ्वी लोगों से जुड़ते हैं (वे आपकी गहराई की सराहना करते हैं) और अन्य जल लोगों से।"
+      }
+    };
+    return compatibility[dominantElement]?.[language] || '';
+  };
+
   const restartTest = () => {
     setCurrentQuestion(0);
     setAnswers({});
@@ -350,26 +576,59 @@ const StandalonePersonalityTest: React.FC = () => {
               <div className="text-center">
                 <div className="inline-flex items-center bg-gradient-to-r from-purple-500 to-blue-500 text-white px-6 py-3 rounded-full text-lg font-semibold shadow-lg">
                   <Brain className="h-5 w-5 mr-2" />
-                  {result.dominantElement === 'fire' && language === 'en' ? '🔥 Fire Person' : 
+                  {result.dominantElement === 'fire' && language === 'en' ? '🔥 Fire Spirit' : 
                    result.dominantElement === 'fire' && language === 'hi' ? '🔥 अग्नि व्यक्तित्व' :
-                   result.dominantElement === 'earth' && language === 'en' ? '🌍 Earth Person' :
+                   result.dominantElement === 'earth' && language === 'en' ? '🌍 Earth Guardian' :
                    result.dominantElement === 'earth' && language === 'hi' ? '🌍 पृथ्वी व्यक्तित्व' :
-                   result.dominantElement === 'air' && language === 'en' ? '💨 Air Person' :
+                   result.dominantElement === 'air' && language === 'en' ? '💨 Air Thinker' :
                    result.dominantElement === 'air' && language === 'hi' ? '💨 वायु व्यक्तित्व' :
-                   result.dominantElement === 'water' && language === 'en' ? '💧 Water Person' :
+                   result.dominantElement === 'water' && language === 'en' ? '💧 Water Healer' :
                    '💧 जल व्यक्तित्व'}
                 </div>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
-                  {language === 'en' ? 'Your dominant personality type' : 'आपका मुख्य व्यक्तित्व प्रकार'}
+                  {language === 'en' ? 'Your dominant energy type' : 'आपका मुख्य ऊर्जा प्रकार'}
                 </p>
               </div>
 
-              {/* Power Percentages */}
+              {/* Energy Type Deep Explanation */}
+              <div className="bg-gradient-to-br from-yellow-50 via-orange-50 to-red-50 dark:from-gray-800 dark:via-gray-700 dark:to-gray-600 p-6 rounded-xl border border-yellow-200 dark:border-gray-600">
+                <h3 className="text-xl font-bold mb-4 text-gray-800 dark:text-gray-200 flex items-center">
+                  <span className="text-2xl mr-3">
+                    {result.dominantElement === 'fire' ? '🔥' : 
+                     result.dominantElement === 'earth' ? '🌍' : 
+                     result.dominantElement === 'air' ? '💨' : '💧'}
+                  </span>
+                  {language === 'en' ? `Understanding Your ${result.dominantElement.charAt(0).toUpperCase() + result.dominantElement.slice(1)} Energy` : 
+                   `आपकी ${result.dominantElement} ऊर्जा को समझना`}
+                </h3>
+                
+                <div className="space-y-4">
+                  <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
+                    <h4 className="font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                      {language === 'en' ? '🌟 What This Energy Means:' : '🌟 इस ऊर्जा का अर्थ:'}
+                    </h4>
+                    <p className="text-gray-600 dark:text-gray-400">
+                      {getEnergyExplanation(result.dominantElement, language)}
+                    </p>
+                  </div>
+                  
+                  <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
+                    <h4 className="font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                      {language === 'en' ? '🎯 How You Approach Life:' : '🎯 आप जीवन से कैसे निपटते हैं:'}
+                    </h4>
+                    <p className="text-gray-600 dark:text-gray-400">
+                      {getLifeApproach(result.dominantElement, language)}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Power Levels with Enhanced Analysis */}
               <div className="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-gray-700 dark:to-gray-600 p-6 rounded-xl">
                 <h3 className="text-xl font-bold text-center mb-4 text-gray-800 dark:text-gray-200">
-                  🌟 {language === 'en' ? 'Your Power Levels' : 'आपकी शक्ति के स्तर'}
+                  ⚡ {language === 'en' ? 'Your Complete Energy Profile' : 'आपकी पूर्ण ऊर्जा प्रोफ़ाइल'}
                 </h3>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-4 mb-6">
                   {Object.entries(result.elementScores).map(([element, score]) => {
                     const percentage = Math.round((score / 15) * 100);
                     const elementEmoji = element === 'fire' ? '🔥' : element === 'earth' ? '🌍' : element === 'air' ? '💨' : '💧';
@@ -378,17 +637,43 @@ const StandalonePersonalityTest: React.FC = () => {
                                       element === 'air' ? (language === 'en' ? 'Air Energy' : 'वायु ऊर्जा') :
                                       (language === 'en' ? 'Water Energy' : 'जल ऊर्जा');
                     
+                    const isHighest = element === result.dominantElement;
+                    
                     return (
-                      <div key={element} className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm">
+                      <div key={element} className={`p-4 rounded-lg shadow-sm border-2 ${
+                        isHighest 
+                          ? 'bg-gradient-to-br from-yellow-100 to-orange-100 dark:from-yellow-900/30 dark:to-orange-900/30 border-yellow-400 dark:border-yellow-600' 
+                          : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-600'
+                      }`}>
                         <div className="text-center">
                           <div className="text-2xl mb-1">{elementEmoji}</div>
                           <div className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">{elementName}</div>
-                          <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">{percentage}%</div>
-                          <Progress value={percentage} className="h-2 mt-2" />
+                          <div className={`text-2xl font-bold ${isHighest ? 'text-orange-600 dark:text-orange-400' : 'text-gray-900 dark:text-gray-100'}`}>
+                            {percentage}%
+                          </div>
+                          <Progress 
+                            value={percentage} 
+                            className={`h-3 mt-2 ${isHighest ? 'bg-yellow-200 dark:bg-yellow-800' : ''}`}
+                          />
+                          {isHighest && (
+                            <div className="text-xs text-orange-600 dark:text-orange-400 font-medium mt-1">
+                              {language === 'en' ? 'Dominant' : 'प्रमुख'}
+                            </div>
+                          )}
                         </div>
                       </div>
                     );
                   })}
+                </div>
+
+                {/* Secondary Energy Analysis */}
+                <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
+                  <h4 className="font-semibold text-gray-700 dark:text-gray-300 mb-3">
+                    🔄 {language === 'en' ? 'Your Energy Balance Analysis:' : 'आपका ऊर्जा संतुलन विश्लेषण:'}
+                  </h4>
+                  <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
+                    {getEnergyBalanceAnalysis(result.elementScores, language)}
+                  </p>
                 </div>
               </div>
 
@@ -464,6 +749,57 @@ const StandalonePersonalityTest: React.FC = () => {
                       </div>
                     </div>
                   ))}
+                </div>
+              </div>
+
+              {/* What to Avoid */}
+              <div className="bg-red-50 dark:bg-red-900/20 p-6 rounded-xl border border-red-200 dark:border-red-800">
+                <h3 className="text-xl font-semibold mb-4 text-red-700 dark:text-red-400 flex items-center">
+                  ⚠️ {language === 'en' ? 'Things to Avoid & Watch Out For' : 'बचने योग्य चीजें और सतर्कताएं'}
+                </h3>
+                <div className="space-y-4">
+                  {getThingsToAvoid(result.dominantElement, language).map((avoidance, index) => (
+                    <div key={index} className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm">
+                      <div className="flex items-start">
+                        <span className="text-red-500 mr-3 text-lg">⚠️</span>
+                        <div className="flex-1">
+                          <h4 className="font-semibold text-gray-800 dark:text-gray-200 mb-2">{avoidance.title}</h4>
+                          <p className="text-gray-600 dark:text-gray-400 text-sm mb-2">{avoidance.description}</p>
+                          <div className="bg-green-50 dark:bg-green-900/20 p-2 rounded border-l-4 border-green-400">
+                            <p className="text-green-700 dark:text-green-400 text-sm font-medium">
+                              💡 {language === 'en' ? 'Better approach: ' : 'बेहतर तरीका: '}{avoidance.solution}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Personalized Growth Path */}
+              <div className="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-gray-800 dark:via-gray-700 dark:to-gray-600 p-6 rounded-xl border border-indigo-200 dark:border-gray-600">
+                <h3 className="text-xl font-semibold mb-4 text-indigo-700 dark:text-indigo-400 flex items-center">
+                  🌱 {language === 'en' ? 'Your Personal Growth Journey' : 'आपकी व्यक्तिगत विकास यात्रा'}
+                </h3>
+                <div className="space-y-4">
+                  <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
+                    <h4 className="font-semibold text-gray-700 dark:text-gray-300 mb-2 flex items-center">
+                      🎯 {language === 'en' ? 'Focus Areas for This Month:' : 'इस महीने के लिए मुख्य क्षेत्र:'}
+                    </h4>
+                    <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
+                      {getPersonalizedGrowthPath(result.dominantElement, result.elementScores, language)}
+                    </p>
+                  </div>
+                  
+                  <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
+                    <h4 className="font-semibold text-gray-700 dark:text-gray-300 mb-2 flex items-center">
+                      🤝 {language === 'en' ? 'Who You Work Best With:' : 'आप किसके साथ बेहतर काम करते हैं:'}
+                    </h4>
+                    <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
+                      {getCompatibilityInsights(result.dominantElement, language)}
+                    </p>
+                  </div>
                 </div>
               </div>
 
