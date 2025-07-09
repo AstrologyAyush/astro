@@ -260,6 +260,69 @@ const StandalonePersonalityTest: React.FC = () => {
     };
   };
 
+  const getCareerOptions = (element: string, lang: string) => {
+    const careers: Record<string, any> = {
+      fire: {
+        en: [
+          { emoji: '👨‍💼', title: 'Business Leader', description: 'Start companies, lead teams, make big decisions' },
+          { emoji: '🎬', title: 'Entertainment', description: 'Actor, director, performer, artist' },
+          { emoji: '⚖️', title: 'Lawyer', description: 'Fight for justice, argue cases, defend rights' },
+          { emoji: '🚀', title: 'Entrepreneur', description: 'Create new products, innovate, take risks' }
+        ],
+        hi: [
+          { emoji: '👨‍💼', title: 'व्यावसायिक नेता', description: 'कंपनियां शुरू करें, टीमों का नेतृत्व करें, बड़े फैसले लें' },
+          { emoji: '🎬', title: 'मनोरंजन', description: 'अभिनेता, निर्देशक, कलाकार, प्रदर्शनकर्ता' },
+          { emoji: '⚖️', title: 'वकील', description: 'न्याय के लिए लड़ें, मामलों की पैरवी करें' },
+          { emoji: '🚀', title: 'उद्यमी', description: 'नए उत्पाद बनाएं, नवाचार करें, जोखिम उठाएं' }
+        ]
+      },
+      earth: {
+        en: [
+          { emoji: '🏥', title: 'Healthcare', description: 'Doctor, nurse, therapist, help people heal' },
+          { emoji: '🏗️', title: 'Engineering', description: 'Build bridges, design systems, solve problems' },
+          { emoji: '💰', title: 'Finance', description: 'Banking, accounting, financial planning' },
+          { emoji: '👨‍🌾', title: 'Agriculture', description: 'Farming, environmental work, sustainability' }
+        ],
+        hi: [
+          { emoji: '🏥', title: 'स्वास्थ्य सेवा', description: 'डॉक्टर, नर्स, चिकित्सक, लोगों की मदद करें' },
+          { emoji: '🏗️', title: 'इंजीनियरिंग', description: 'पुल बनाएं, सिस्टम डिज़ाइन करें, समस्याएं हल करें' },
+          { emoji: '💰', title: 'वित्त', description: 'बैंकिंग, लेखांकन, वित्तीय योजना' },
+          { emoji: '👨‍🌾', title: 'कृषि', description: 'खेती, पर्यावरण कार्य, स्थिरता' }
+        ]
+      },
+      air: {
+        en: [
+          { emoji: '👨‍🏫', title: 'Education', description: 'Teacher, professor, trainer, share knowledge' },
+          { emoji: '📰', title: 'Media & Communication', description: 'Journalist, writer, social media manager' },
+          { emoji: '💻', title: 'Technology', description: 'Software developer, tech consultant, innovator' },
+          { emoji: '🎨', title: 'Creative Arts', description: 'Designer, artist, creative director' }
+        ],
+        hi: [
+          { emoji: '👨‍🏫', title: 'शिक्षा', description: 'शिक्षक, प्रोफेसर, प्रशिक्षक, ज्ञान साझा करें' },
+          { emoji: '📰', title: 'मीडिया और संचार', description: 'पत्रकार, लेखक, सोशल मीडिया प्रबंधक' },
+          { emoji: '💻', title: 'तकनीक', description: 'सॉफ्टवेयर डेवलपर, तकनीकी सलाहकार, नवप्रवर्तक' },
+          { emoji: '🎨', title: 'रचनात्मक कला', description: 'डिज़ाइनर, कलाकार, रचनात्मक निर्देशक' }
+        ]
+      },
+      water: {
+        en: [
+          { emoji: '🧠', title: 'Psychology', description: 'Counselor, therapist, help people emotionally' },
+          { emoji: '👥', title: 'Social Work', description: 'Help communities, support those in need' },
+          { emoji: '🎭', title: 'Arts & Music', description: 'Musician, artist, express deep emotions' },
+          { emoji: '🌿', title: 'Healing Arts', description: 'Alternative medicine, yoga instructor, wellness' }
+        ],
+        hi: [
+          { emoji: '🧠', title: 'मनोविज्ञान', description: 'परामर्शदाता, चिकित्सक, भावनात्मक मदद करें' },
+          { emoji: '👥', title: 'सामाजिक कार्य', description: 'समुदायों की मदद करें, जरूरतमंदों का समर्थन करें' },
+          { emoji: '🎭', title: 'कला और संगीत', description: 'संगीतकार, कलाकार, गहरी भावनाओं को व्यक्त करें' },
+          { emoji: '🌿', title: 'उपचार कला', description: 'वैकल्पिक चिकित्सा, योग प्रशिक्षक, कल्याण' }
+        ]
+      }
+    };
+
+    return careers[element]?.[lang] || [];
+  };
+
   const restartTest = () => {
     setCurrentQuestion(0);
     setAnswers({});
@@ -283,76 +346,148 @@ const StandalonePersonalityTest: React.FC = () => {
             </CardHeader>
             
             <CardContent className="p-6 space-y-6">
+              {/* Personality Type Header */}
               <div className="text-center">
-                <Badge variant="secondary" className="text-lg px-4 py-2 bg-gradient-to-r from-purple-500 to-blue-500 text-white">
-                  {result.dominantElement.toUpperCase()} - {result.dominantGuna.toUpperCase()}
-                </Badge>
+                <div className="inline-flex items-center bg-gradient-to-r from-purple-500 to-blue-500 text-white px-6 py-3 rounded-full text-lg font-semibold shadow-lg">
+                  <Brain className="h-5 w-5 mr-2" />
+                  {result.dominantElement === 'fire' && language === 'en' ? '🔥 Fire Person' : 
+                   result.dominantElement === 'fire' && language === 'hi' ? '🔥 अग्नि व्यक्तित्व' :
+                   result.dominantElement === 'earth' && language === 'en' ? '🌍 Earth Person' :
+                   result.dominantElement === 'earth' && language === 'hi' ? '🌍 पृथ्वी व्यक्तित्व' :
+                   result.dominantElement === 'air' && language === 'en' ? '💨 Air Person' :
+                   result.dominantElement === 'air' && language === 'hi' ? '💨 वायु व्यक्तित्व' :
+                   result.dominantElement === 'water' && language === 'en' ? '💧 Water Person' :
+                   '💧 जल व्यक्तित्व'}
+                </div>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+                  {language === 'en' ? 'Your dominant personality type' : 'आपका मुख्य व्यक्तित्व प्रकार'}
+                </p>
               </div>
 
-              <div className="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-gray-700 dark:to-gray-600 p-4 rounded-lg">
-                <p className="text-lg leading-relaxed text-gray-800 dark:text-gray-200">
+              {/* Power Percentages */}
+              <div className="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-gray-700 dark:to-gray-600 p-6 rounded-xl">
+                <h3 className="text-xl font-bold text-center mb-4 text-gray-800 dark:text-gray-200">
+                  🌟 {language === 'en' ? 'Your Power Levels' : 'आपकी शक्ति के स्तर'}
+                </h3>
+                <div className="grid grid-cols-2 gap-4">
+                  {Object.entries(result.elementScores).map(([element, score]) => {
+                    const percentage = Math.round((score / 15) * 100);
+                    const elementEmoji = element === 'fire' ? '🔥' : element === 'earth' ? '🌍' : element === 'air' ? '💨' : '💧';
+                    const elementName = element === 'fire' ? (language === 'en' ? 'Fire Energy' : 'अग्नि ऊर्जा') :
+                                      element === 'earth' ? (language === 'en' ? 'Earth Energy' : 'पृथ्वी ऊर्जा') :
+                                      element === 'air' ? (language === 'en' ? 'Air Energy' : 'वायु ऊर्जा') :
+                                      (language === 'en' ? 'Water Energy' : 'जल ऊर्जा');
+                    
+                    return (
+                      <div key={element} className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm">
+                        <div className="text-center">
+                          <div className="text-2xl mb-1">{elementEmoji}</div>
+                          <div className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">{elementName}</div>
+                          <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">{percentage}%</div>
+                          <Progress value={percentage} className="h-2 mt-2" />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Simple Description */}
+              <div className="bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-gray-700 dark:to-gray-600 p-6 rounded-xl border-l-4 border-yellow-400">
+                <h3 className="text-lg font-bold mb-3 text-gray-800 dark:text-gray-200 flex items-center">
+                  <Heart className="h-5 w-5 mr-2 text-red-500" />
+                  {language === 'en' ? 'What This Means For You' : 'आपके लिए इसका क्या मतलब है'}
+                </h3>
+                <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
                   {result.description[language]}
                 </p>
               </div>
 
+              {/* Career & Use Cases */}
               <div className="grid md:grid-cols-2 gap-6">
-                <div>
-                  <h3 className="text-xl font-semibold mb-3 text-green-600 dark:text-green-400 flex items-center">
+                <div className="bg-green-50 dark:bg-green-900/20 p-6 rounded-xl">
+                  <h3 className="text-xl font-semibold mb-4 text-green-700 dark:text-green-400 flex items-center">
                     <Star className="h-5 w-5 mr-2" />
-                    {t('strengths')}
+                    💪 {language === 'en' ? 'Your Superpowers' : 'आपकी महाशक्तियां'}
                   </h3>
-                  <ul className="space-y-2">
+                  <div className="space-y-3">
                     {result.strengths[language].map((strength, index) => (
-                      <li key={index} className="flex items-start">
-                        <span className="text-green-500 mr-2">•</span>
-                        <span className="text-gray-700 dark:text-gray-300">{strength}</span>
-                      </li>
+                      <div key={index} className="flex items-start bg-white dark:bg-gray-800 p-3 rounded-lg shadow-sm">
+                        <span className="text-green-500 mr-3 text-lg">✨</span>
+                        <div>
+                          <p className="font-medium text-gray-800 dark:text-gray-200">{strength}</p>
+                          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                            {language === 'en' ? 'This helps you shine in leadership and teamwork!' : 'यह आपको नेतृत्व और टीम वर्क में चमकने में मदद करता है!'}
+                          </p>
+                        </div>
+                      </div>
                     ))}
-                  </ul>
-                </div>
-
-                <div>
-                  <h3 className="text-xl font-semibold mb-3 text-orange-600 dark:text-orange-400 flex items-center">
-                    <Target className="h-5 w-5 mr-2" />
-                    {t('growth_areas')}
-                  </h3>
-                  <ul className="space-y-2">
-                    {result.challenges[language].map((challenge, index) => (
-                      <li key={index} className="flex items-start">
-                        <span className="text-orange-500 mr-2">•</span>
-                        <span className="text-gray-700 dark:text-gray-300">{challenge}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-
-              <div>
-                <h3 className="text-xl font-semibold mb-3 text-blue-600 dark:text-blue-400 flex items-center">
-                  <Lightbulb className="h-5 w-5 mr-2" />
-                  {t('recommendations')}
-                </h3>
-                <ul className="space-y-2">
-                  {result.recommendations[language].map((recommendation, index) => (
-                    <li key={index} className="flex items-start">
-                      <span className="text-blue-500 mr-2">•</span>
-                      <span className="text-gray-700 dark:text-gray-300">{recommendation}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {Object.entries(result.elementScores).map(([element, score]) => (
-                  <div key={element} className="text-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                    <div className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">
-                      {element.toUpperCase()}
-                    </div>
-                    <div className="text-lg font-bold text-gray-900 dark:text-gray-100">
-                      {Math.round((score / 25) * 100)}%
-                    </div>
                   </div>
-                ))}
+                </div>
+
+                <div className="bg-orange-50 dark:bg-orange-900/20 p-6 rounded-xl">
+                  <h3 className="text-xl font-semibold mb-4 text-orange-700 dark:text-orange-400 flex items-center">
+                    <Target className="h-5 w-5 mr-2" />
+                    🎯 {language === 'en' ? 'Things to Work On' : 'सुधार के क्षेत्र'}
+                  </h3>
+                  <div className="space-y-3">
+                    {result.challenges[language].map((challenge, index) => (
+                      <div key={index} className="flex items-start bg-white dark:bg-gray-800 p-3 rounded-lg shadow-sm">
+                        <span className="text-orange-500 mr-3 text-lg">🎯</span>
+                        <div>
+                          <p className="font-medium text-gray-800 dark:text-gray-200">{challenge}</p>
+                          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                            {language === 'en' ? 'Working on this will make you even better!' : 'इस पर काम करने से आप और भी बेहतर बनेंगे!'}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Career Options */}
+              <div className="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-xl">
+                <h3 className="text-xl font-semibold mb-4 text-blue-700 dark:text-blue-400 flex items-center">
+                  <Lightbulb className="h-5 w-5 mr-2" />
+                  🚀 {language === 'en' ? 'Perfect Careers For You' : 'आपके लिए आदर्श करियर'}
+                </h3>
+                <div className="grid md:grid-cols-2 gap-4">
+                  {getCareerOptions(result.dominantElement, language).map((career, index) => (
+                    <div key={index} className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border-l-4 border-blue-400">
+                      <div className="flex items-center">
+                        <span className="text-2xl mr-3">{career.emoji}</span>
+                        <div>
+                          <p className="font-semibold text-gray-800 dark:text-gray-200">{career.title}</p>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">{career.description}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Action Steps */}
+              <div className="bg-purple-50 dark:bg-purple-900/20 p-6 rounded-xl">
+                <h3 className="text-xl font-semibold mb-4 text-purple-700 dark:text-purple-400 flex items-center">
+                  <Lightbulb className="h-5 w-5 mr-2" />
+                  📝 {language === 'en' ? 'What You Can Do Today' : 'आज आप क्या कर सकते हैं'}
+                </h3>
+                <div className="space-y-3">
+                  {result.recommendations[language].map((recommendation, index) => (
+                    <div key={index} className="flex items-start bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm">
+                      <span className="bg-purple-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3 mt-1">
+                        {index + 1}
+                      </span>
+                      <div>
+                        <p className="font-medium text-gray-800 dark:text-gray-200">{recommendation}</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                          {language === 'en' ? 'Start small and build your confidence!' : 'छोटी शुरुआत करें और अपना आत्मविश्वास बढ़ाएं!'}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
 
               <div className="flex gap-4 justify-center">
