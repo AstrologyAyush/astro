@@ -30,25 +30,33 @@ const DharmaAlignmentAnalysis: React.FC<DharmaAlignmentAnalysisProps> = ({ kunda
   }, [kundaliData]);
 
   const analyzeDharmaAlignment = () => {
-    // Analyze 10th house
-    const tenthHouse = kundaliData.enhancedCalculations?.houses?.find(h => h.number === 10) || {};
+    // Extract actual Kundali data with proper null checking
+    const planets = kundaliData?.enhancedCalculations?.planets || kundaliData?.planets || {};
+    const houses = kundaliData?.enhancedCalculations?.houses || [];
+    const lagna = kundaliData?.enhancedCalculations?.lagna || {};
+    const dashas = kundaliData?.enhancedCalculations?.dashas || [];
+    
+    // Analyze 10th house with real data
+    const tenthHouse = houses.find(h => h.number === 10) || {};
+    const planetsInTenth = Object.entries(planets).filter(([_, data]: [string, any]) => data?.house === 10);
     const tenthHouseLord = getTenthHouseLord(tenthHouse);
     
-    // Analyze current dasha
-    const currentDasha = kundaliData.enhancedCalculations?.dashas?.find(d => d.isActive) || {};
+    // Analyze current dasha with real data
+    const currentDasha = dashas.find(d => d.isActive) || {};
     
-    // Calculate dharma alignment score
-    const score = calculateDharmaScore(tenthHouse, currentDasha);
+    // Calculate dharma alignment score based on actual planetary positions
+    const score = calculateRealDharmaScore(tenthHouse, currentDasha, planets, lagna);
     setDharmaScore(score);
 
-    // Generate 10th house analysis
+    // Generate real 10th house analysis based on actual data
+    const realPlanetsInTenth = planetsInTenth.map(([name, _]) => name);
     setTenthHouseAnalysis({
-      sign: tenthHouse.signName || 'Unknown',
+      sign: tenthHouse.signName || lagna.signName || 'Unknown',
       lord: tenthHouseLord,
-      planetsInHouse: tenthHouse.planetsInHouse || [],
-      strength: calculateHouseStrength(tenthHouse),
-      career_potential: getCareerPotential(tenthHouse),
-      dharma_indicators: getDharmaIndicators(tenthHouse)
+      planetsInHouse: realPlanetsInTenth,
+      strength: calculateRealHouseStrength(tenthHouse, planetsInTenth, planets),
+      career_potential: getRealCareerPotential(planetsInTenth, planets),
+      dharma_indicators: getRealDharmaIndicators(planets, lagna)
     });
 
     // Generate D10 chart analysis
@@ -119,22 +127,55 @@ const DharmaAlignmentAnalysis: React.FC<DharmaAlignmentAnalysisProps> = ({ kunda
     ]);
   };
 
-  const calculateDharmaScore = (tenthHouse: any, currentDasha: any) => {
+  const calculateRealDharmaScore = (tenthHouse: any, currentDasha: any, planets: any, lagna: any) => {
     let score = 50; // Base score
     
-    // Add points for beneficial planets in 10th house
-    if (tenthHouse.planetsInHouse?.includes('Jupiter')) score += 15;
-    if (tenthHouse.planetsInHouse?.includes('Sun')) score += 10;
-    if (tenthHouse.planetsInHouse?.includes('Mercury')) score += 8;
+    // Real planetary strength analysis
+    const jupiterStrength = planets?.JU?.shadbala || planets?.Jupiter?.shadbala || 50;
+    const sunStrength = planets?.SU?.shadbala || planets?.Sun?.shadbala || 50;
+    const saturnStrength = planets?.SA?.shadbala || planets?.Saturn?.shadbala || 50;
+    const marsStrength = planets?.MA?.shadbala || planets?.Mars?.shadbala || 50;
     
-    // Add points for favorable dasha
-    if (['Jupiter', 'Sun', 'Venus'].includes(currentDasha.planet)) score += 10;
+    // Adjust score based on actual planetary strengths
+    if (jupiterStrength > 70) score += 20; // Strong Jupiter = dharmic alignment
+    else if (jupiterStrength < 40) score -= 10;
     
-    // Subtract points for malefic influences
-    if (tenthHouse.planetsInHouse?.includes('Saturn')) score -= 5;
-    if (tenthHouse.planetsInHouse?.includes('Rahu')) score -= 8;
+    if (sunStrength > 70) score += 15; // Strong Sun = leadership dharma
+    else if (sunStrength < 40) score -= 8;
     
-    return Math.min(100, Math.max(0, score));
+    // 10th house lord strength
+    const tenthLordPlanet = Object.values(planets).find((p: any) => p?.house === 10);
+    if (tenthLordPlanet && typeof (tenthLordPlanet as any)?.shadbala === 'number' && (tenthLordPlanet as any).shadbala > 60) score += 12;
+    
+    // Current dasha alignment with actual data
+    if (currentDasha?.planet) {
+      const dashaPlanet = planets[currentDasha.planet] || planets[currentDasha.planet.toUpperCase()];
+      if (dashaPlanet?.shadbala > 60) score += 15;
+      else if (dashaPlanet?.shadbala < 40) score -= 10;
+    }
+    
+    // Lagna lord strength for overall life direction
+    if (lagna?.signName) {
+      const lagnaLordStrength = getLagnaLordStrength(lagna.signName, planets);
+      if (lagnaLordStrength > 60) score += 10;
+      else if (lagnaLordStrength < 40) score -= 8;
+    }
+    
+    // Malefic influences with real data
+    if (saturnStrength < 30) score -= 12; // Very weak Saturn = discipline issues
+    if (marsStrength < 30) score -= 8; // Very weak Mars = execution issues
+    
+    return Math.min(95, Math.max(25, score));
+  };
+  
+  const getLagnaLordStrength = (lagnaSign: string, planets: any) => {
+    const signLords: { [key: string]: string } = {
+      'Aries': 'MA', 'Taurus': 'VE', 'Gemini': 'ME', 'Cancer': 'MO',
+      'Leo': 'SU', 'Virgo': 'ME', 'Libra': 'VE', 'Scorpio': 'MA',
+      'Sagittarius': 'JU', 'Capricorn': 'SA', 'Aquarius': 'SA', 'Pisces': 'JU'
+    };
+    const lordPlanet = signLords[lagnaSign];
+    return planets[lordPlanet]?.shadbala || 50;
   };
 
   const getTenthHouseLord = (tenthHouse: any) => {
@@ -147,31 +188,100 @@ const DharmaAlignmentAnalysis: React.FC<DharmaAlignmentAnalysisProps> = ({ kunda
     return signLords[tenthHouse.signName] || 'Unknown';
   };
 
-  const calculateHouseStrength = (house: any) => {
-    // Simplified strength calculation
-    let strength = 50;
-    if (house.planetsInHouse?.length > 0) strength += 20;
-    if (house.planetsInHouse?.includes('Jupiter')) strength += 15;
-    if (house.planetsInHouse?.includes('Sun')) strength += 10;
-    return Math.min(100, strength);
+  const calculateRealHouseStrength = (house: any, planetsInTenth: any[], planets: any) => {
+    let strength = 40; // Base strength
+    
+    // Add strength based on actual planets in 10th house
+    planetsInTenth.forEach(([planetName, planetData]) => {
+      const shadbala = planetData?.shadbala || 50;
+      if (shadbala > 70) strength += 15;
+      else if (shadbala > 50) strength += 10;
+      else if (shadbala < 30) strength -= 10;
+      
+      // Benefic vs malefic consideration
+      if (['JU', 'VE', 'ME'].includes(planetName)) strength += 8; // Natural benefics
+      if (['SA', 'MA'].includes(planetName)) strength -= 5; // Natural malefics (can be good for 10th house)
+      if (['RA', 'KE'].includes(planetName)) strength -= 8; // Nodes
+    });
+    
+    return Math.min(95, Math.max(20, strength));
   };
 
-  const getCareerPotential = (tenthHouse: any) => {
-    const potentials = [
-      getTranslation('Government service', 'सरकारी सेवा'),
-      getTranslation('Business leadership', 'व्यावसायिक नेतृत्व'),
-      getTranslation('Professional expertise', 'व्यावसायिक विशेषज्ञता'),
-      getTranslation('Public recognition', 'सार्वजनिक मान्यता')
-    ];
-    return potentials.slice(0, 2 + (tenthHouse.planetsInHouse?.length || 0));
+  const getRealCareerPotential = (planetsInTenth: any[], planets: any) => {
+    const potentials = [];
+    
+    // Analyze actual planets in 10th house for career potential
+    planetsInTenth.forEach(([planetName, planetData]) => {
+      switch(planetName) {
+        case 'SU': case 'Sun':
+          potentials.push(getTranslation('Government leadership roles', 'सरकारी नेतृत्व भूमिकाएं'));
+          break;
+        case 'JU': case 'Jupiter':
+          potentials.push(getTranslation('Teaching, counseling, advisory roles', 'शिक्षण, परामर्श, सलाहकार भूमिकाएं'));
+          break;
+        case 'SA': case 'Saturn':
+          potentials.push(getTranslation('Long-term institutional work', 'दीर्घकालिक संस्थागत कार्य'));
+          break;
+        case 'MA': case 'Mars':
+          potentials.push(getTranslation('Engineering, military, sports', 'इंजीनियरिंग, सैन्य, खेल'));
+          break;
+        case 'VE': case 'Venus':
+          potentials.push(getTranslation('Arts, entertainment, luxury goods', 'कला, मनोरंजन, लक्जरी सामान'));
+          break;
+        case 'ME': case 'Mercury':
+          potentials.push(getTranslation('Communication, writing, technology', 'संचार, लेखन, प्रौद्योगिकी'));
+          break;
+      }
+    });
+    
+    // If no specific planets, give general potential
+    if (potentials.length === 0) {
+      potentials.push(
+        getTranslation('General management and administration', 'सामान्य प्रबंधन और प्रशासन'),
+        getTranslation('Public service opportunities', 'लोक सेवा के अवसर')
+      );
+    }
+    
+    return potentials.slice(0, 4);
   };
 
-  const getDharmaIndicators = (tenthHouse: any) => {
-    return [
-      getTranslation('Service orientation', 'सेवा अभिविन्यास'),
-      getTranslation('Ethical leadership', 'नैतिक नेतृत्व'),
-      getTranslation('Social responsibility', 'सामाजिक जिम्मेदारी')
-    ];
+  const getRealDharmaIndicators = (planets: any, lagna: any) => {
+    const indicators = [];
+    
+    // Jupiter strength indicates dharmic alignment
+    const jupiterStrength = planets?.JU?.shadbala || planets?.Jupiter?.shadbala || 50;
+    if (jupiterStrength > 60) {
+      indicators.push(getTranslation('Strong spiritual wisdom and guidance ability', 'मजबूत आध्यात्मिक बुद्धि और मार्गदर्शन क्षमता'));
+    }
+    
+    // Sun strength indicates leadership dharma
+    const sunStrength = planets?.SU?.shadbala || planets?.Sun?.shadbala || 50;
+    if (sunStrength > 60) {
+      indicators.push(getTranslation('Natural leadership and authority', 'प्राकृतिक नेतृत्व और अधिकार'));
+    }
+    
+    // Moon strength indicates emotional dharma
+    const moonStrength = planets?.MO?.shadbala || planets?.Moon?.shadbala || 50;
+    if (moonStrength > 60) {
+      indicators.push(getTranslation('Nurturing and caring for others', 'दूसरों का पोषण और देखभाल'));
+    }
+    
+    // Venus strength indicates harmony dharma
+    const venusStrength = planets?.VE?.shadbala || planets?.Venus?.shadbala || 50;
+    if (venusStrength > 60) {
+      indicators.push(getTranslation('Creating beauty and harmony in society', 'समाज में सुंदरता और सामंजस्य निर्माण'));
+    }
+    
+    // If no strong indicators, provide general dharmic qualities
+    if (indicators.length === 0) {
+      indicators.push(
+        getTranslation('Service to community and society', 'समुदाय और समाज की सेवा'),
+        getTranslation('Ethical decision making', 'नैतिक निर्णय लेना'),
+        getTranslation('Truthfulness and integrity', 'सत्यता और ईमानदारी')
+      );
+    }
+    
+    return indicators.slice(0, 3);
   };
 
   const getCareerTiming = (dasha: any) => {

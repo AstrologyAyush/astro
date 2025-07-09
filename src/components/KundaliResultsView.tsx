@@ -17,7 +17,7 @@ const TraditionalDashaAnalysis = lazy(() => import('./TraditionalDashaAnalysis')
 
 // Lazy load heavy components for better mobile performance
 const KundaliConsultationView = lazy(() => import('./KundaliConsultationView'));
-const EnhancedDivisionalCharts = lazy(() => import('./EnhancedDivisionalCharts'));
+const EnhancedDivisionalChartsFixed = lazy(() => import('./EnhancedDivisionalChartsFixed'));
 const DetailedDashaDisplay = lazy(() => import('./DetailedDashaDisplay'));
 const KarmicReport = lazy(() => import('./KarmicReport'));
 const KarmicReportComplete = lazy(() => import('./KarmicReportComplete'));
@@ -197,7 +197,7 @@ const KundaliResultsView: React.FC<KundaliResultsViewProps> = ({
                 <div className="min-h-[300px]">
                   <TabsContent value="enhanced-charts" className="mt-0">
                     <Suspense fallback={<TabLoadingSpinner />}>
-                      <EnhancedDivisionalCharts kundaliData={memoizedKundaliData} language={language} />
+                      <EnhancedDivisionalChartsFixed kundaliData={memoizedKundaliData} language={language} />
                     </Suspense>
                   </TabsContent>
 

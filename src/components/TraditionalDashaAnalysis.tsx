@@ -14,7 +14,7 @@ import {
   Lightbulb,
   Heart
 } from 'lucide-react';
-import { TraditionalDashaDisplay } from './TraditionalDashaDisplay';
+import FixedTraditionalDashaCalculator from './FixedTraditionalDashaCalculator';
 
 interface TraditionalDashaAnalysisProps {
   kundaliData: any;
@@ -280,7 +280,7 @@ const TraditionalDashaAnalysis: React.FC<TraditionalDashaAnalysisProps> = ({ kun
         </CardContent>
       </Card>
 
-      {/* Traditional Dasha Display */}
+      {/* Fixed Traditional Dasha Calculator */}
       <Card className="border-orange-200">
         <CardHeader className="bg-gradient-to-r from-orange-50 to-red-50">
           <CardTitle className="text-orange-800 flex items-center gap-2">
@@ -288,15 +288,11 @@ const TraditionalDashaAnalysis: React.FC<TraditionalDashaAnalysisProps> = ({ kun
             {getTranslation('Traditional Vimshottari Dasha Analysis', 'पारंपरिक विम्शोत्तरी दशा विश्लेषण')}
           </CardTitle>
           <p className="text-sm text-orange-600 mt-2">
-            {getTranslation('Detailed planetary period calculations based on ancient Vedic methods', 'प्राचीन वैदिक विधियों पर आधारित विस्तृत ग्रहीय काल गणना')}
+            {getTranslation('Accurate planetary period calculations based on Moon\'s nakshatra position', 'चंद्र नक्षत्र स्थिति पर आधारित सटीक ग्रहीय काल गणना')}
           </p>
         </CardHeader>
         <CardContent className="p-6">
-          <TraditionalDashaDisplay
-            birthDate={birthData.birthDate}
-            moonLongitude={birthData.moonLongitude}
-            moonNakshatra={birthData.moonNakshatra}
-          />
+          <FixedTraditionalDashaCalculator kundaliData={kundaliData} language={language} />
         </CardContent>
       </Card>
     </div>

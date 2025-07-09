@@ -54,7 +54,8 @@ const EnhancedGeminiAnalysis: React.FC<EnhancedGeminiAnalysisProps> = ({
   };
 
   useEffect(() => {
-    if (kundaliData) {
+    if (kundaliData && !analysis) {
+      // Auto-generate analysis on mount
       generateAnalysis();
     }
   }, [kundaliData]);
