@@ -11,6 +11,10 @@ import DharmaAlignmentAnalysis from './DharmaAlignmentAnalysis';
 import AIEnhancementSuite from './AIEnhancementSuite';
 import EnhancedGeminiAnalysis from './EnhancedGeminiAnalysis';
 
+// New personalized components
+const PersonalizedLifeInsights = lazy(() => import('./PersonalizedLifeInsights'));
+const TraditionalDashaAnalysis = lazy(() => import('./TraditionalDashaAnalysis'));
+
 // Lazy load heavy components for better mobile performance
 const KundaliConsultationView = lazy(() => import('./KundaliConsultationView'));
 const EnhancedDivisionalCharts = lazy(() => import('./EnhancedDivisionalCharts'));
@@ -58,23 +62,39 @@ const KundaliResultsView: React.FC<KundaliResultsViewProps> = ({
             </Button>
           </div>
           
-          {/* Interactive Dashboard - Mobile Optimized */}
+          {/* Personalized Life Insights */}
           <Card className="w-full border-orange-200 dark:border-orange-700 shadow-lg bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm">
             <CardHeader className="bg-gradient-to-r from-orange-100 to-red-100 dark:from-orange-900/50 dark:to-red-900/50 p-3 sm:p-4 lg:p-6 space-y-2">
               <div className="flex flex-col space-y-3 sm:space-y-0 sm:flex-row sm:justify-between sm:items-center">
                 <CardTitle className="text-orange-800 dark:text-orange-300 flex items-center gap-2 text-base sm:text-lg lg:text-xl text-center sm:text-left">
                   <Crown className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-orange-600 dark:text-orange-400 flex-shrink-0" />
                   <span className="leading-tight">
-                    {getTranslation('Interactive Dashboard', 'इंटरैक्टिव डैशबोर्ड')}
+                    {getTranslation('Your Personalized Life Blueprint', 'आपका व्यक्तिगत जीवन खाका')}
                   </span>
                 </CardTitle>
-                {/* Enhanced Visual PDF Export (NEW - mobile friendly) */}
                 <div className="w-full sm:w-auto py-2 sm:py-0">
                   <EnhancedVisualKundaliPDFExport kundaliData={memoizedKundaliData} language={language} />
                 </div>
               </div>
+              <p className="text-sm text-orange-600 dark:text-orange-400">
+                {getTranslation('Discover how each planetary chart shapes your destiny', 'जानिए कैसे प्रत्येक ग्रहीय चार्ट आपकी नियति को आकार देता है')}
+              </p>
+            </CardHeader>
+            <CardContent className="p-3 sm:p-4 lg:p-6">
+              <PersonalizedLifeInsights kundaliData={memoizedKundaliData} language={language} />
+            </CardContent>
+          </Card>
+
+          {/* Interactive Dashboard - Mobile Optimized */}
+          <Card className="w-full border-blue-200 dark:border-blue-700 shadow-lg bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm">
+            <CardHeader className="bg-gradient-to-r from-blue-100 to-cyan-100 dark:from-blue-900/50 dark:to-cyan-900/50 p-3 sm:p-4 lg:p-6 space-y-2">
+              <CardTitle className="text-blue-800 dark:text-blue-300 flex items-center gap-2 text-base sm:text-lg lg:text-xl text-center sm:text-left">
+                <Grid className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-blue-600 dark:text-blue-400 flex-shrink-0" />
+                <span className="leading-tight">
+                  {getTranslation('Interactive Chart Analysis', 'इंटरैक्टिव चार्ट विश्लेषण')}
+                </span>
+              </CardTitle>
               <div className="w-full sm:w-auto mt-2">
-                {/* Original PDF Export fallback, still visible for now, but stacked on mobile */}
                 <EnhancedKundaliPDFExport kundaliData={memoizedKundaliData} language={language} />
               </div>
             </CardHeader>
@@ -157,7 +177,7 @@ const KundaliResultsView: React.FC<KundaliResultsViewProps> = ({
                   <TabsTrigger value="dashas" className="flex flex-col items-center gap-1 data-[state=active]:bg-purple-600 data-[state=active]:text-white text-xs sm:text-sm p-2 sm:p-3 min-h-[60px] sm:min-h-[70px] rounded-md transition-all duration-200 border border-purple-200 dark:border-purple-600 bg-white dark:bg-gray-800">
                     <Calendar className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
                     <span className="text-center leading-tight font-medium">
-                      {getTranslation('Traditional Dasha', 'पारंपरिक दशा')}
+                      {getTranslation('Life Timing', 'जीवन समय')}
                     </span>
                   </TabsTrigger>
                   <TabsTrigger value="karmic" className="flex flex-col items-center gap-1 data-[state=active]:bg-purple-600 data-[state=active]:text-white text-xs sm:text-sm p-2 sm:p-3 min-h-[60px] sm:min-h-[70px] rounded-md transition-all duration-200 border border-purple-200 dark:border-purple-600 bg-white dark:bg-gray-800">
@@ -183,7 +203,7 @@ const KundaliResultsView: React.FC<KundaliResultsViewProps> = ({
 
                   <TabsContent value="dashas" className="mt-0">
                     <Suspense fallback={<TabLoadingSpinner />}>
-                      <DetailedDashaDisplay kundaliData={memoizedKundaliData} language={language} />
+                      <TraditionalDashaAnalysis kundaliData={memoizedKundaliData} language={language} />
                     </Suspense>
                   </TabsContent>
 
