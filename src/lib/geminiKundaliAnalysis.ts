@@ -1,3 +1,4 @@
+
 /**
  * Gemini AI Integration for Enhanced Kundali Analysis
  * Provides intelligent interpretations and predictions
@@ -16,7 +17,7 @@ interface GeminiResponse {
   }>;
 }
 
-interface EnhancedKundaliAnalysis {
+export interface EnhancedKundaliAnalysis {
   detailedPersonality: {
     coreNature: string;
     mentalTendencies: string;
@@ -58,738 +59,448 @@ interface EnhancedKundaliAnalysis {
 import { supabase } from '@/integrations/supabase/client';
 
 export async function getGeminiKundaliAnalysis(kundaliData: any): Promise<EnhancedKundaliAnalysis> {
+  console.log('🚀 Starting Gemini Kundali Analysis...');
+  
   try {
+    console.log('📡 Calling Supabase Edge Function...');
     const { data, error } = await supabase.functions.invoke('gemini-kundali-analysis', {
       body: { kundaliData }
     });
 
+    console.log('📥 Edge function response:', { data, error });
+
     if (error) {
-      console.error('Error calling Gemini analysis function:', error);
-      return getFallbackAnalysis(kundaliData);
+      console.error('❌ Error calling Gemini analysis function:', error);
+      throw new Error(`Edge function error: ${error.message}`);
     }
 
     if (data?.analysis) {
+      console.log('✅ Successfully received analysis from Gemini');
       return data.analysis;
     }
 
-    throw new Error('No analysis received from function');
+    if (data?.error) {
+      console.error('❌ Gemini API error:', data.error);
+      throw new Error(`Gemini API error: ${data.error}`);
+    }
+
+    console.warn('⚠️ No analysis received, using fallback');
+    return getFallbackAnalysis(kundaliData);
     
   } catch (error) {
-    console.error('Error getting Gemini analysis:', error);
+    console.error('💥 Error in getGeminiKundaliAnalysis:', error);
+    // Return fallback analysis instead of throwing
     return getFallbackAnalysis(kundaliData);
   }
-}
-
-function createDetailedKundaliPrompt(kundaliData: any): string {
-  // Safely extract data with fallbacks
-  const birthData = kundaliData?.birthData || {};
-  const chart = kundaliData?.chart || kundaliData?.enhancedCalculations || {};
-  const planets = chart?.planets || {};
-  const houses = chart?.houses || [];
-  const yogas = chart?.yogas || [];
-  const dashas = chart?.dashas || [];
-  const doshas = chart?.doshas || [];
-  
-  return `As an expert Vedic astrologer, provide a comprehensive analysis of this birth chart:
-
-BIRTH DETAILS:
-- Name: ${birthData.fullName || 'Unknown'}
-- Date: ${birthData.date || 'Unknown'}
-- Time: ${birthData.time || 'Unknown'}
-- Place: ${birthData.place || 'Unknown'}
-
-LAGNA (ASCENDANT):
-- Sign: ${chart.ascendant || chart.lagna?.rashiName || 'Unknown'}
-
-PLANETARY POSITIONS:
-${Object.values(planets).length > 0 ? 
-  Object.values(planets).map((planet: any) => 
-    `- ${planet.name || 'Unknown'}: ${planet.rashiName || 'Unknown'} ${planet.degree?.toFixed(1) || '0'}° (House ${planet.house || 'Unknown'})`
-  ).join('\n') : 'No planetary data available'}
-
-ACTIVE YOGAS:
-${yogas.filter((y: any) => y.isActive || y.present).length > 0 ? 
-  yogas.filter((y: any) => y.isActive || y.present).map((yoga: any) => `- ${yoga.name}: ${yoga.description || 'Present'}`).join('\n') :
-  'No active yogas found'}
-
-CURRENT DASHA:
-${dashas.find((d: any) => d.isActive)?.planet || 'Unknown'}
-
-DOSHAS:
-${doshas.filter((d: any) => d.isPresent).length > 0 ? 
-  doshas.filter((d: any) => d.isPresent).map((dosha: any) => `- ${dosha.name}: ${dosha.severity || 'Present'}`).join('\n') :
-  'No significant doshas'}
-
-Please provide a detailed analysis covering personality, career, relationships, health, spiritual path, and timing predictions based on traditional Vedic astrology principles.
-
-Format your response as structured sections with clear headings.`;
-}
-
-function parseGeminiResponse(analysisText: string, kundaliData: any): EnhancedKundaliAnalysis {
-  // Parse the Gemini response and structure it
-  // This is a simplified parser - in production, you'd want more sophisticated parsing
-  
-  try {
-    // Extract sections using regex or string manipulation
-    const sections = analysisText.split(/\d+\.\s+[A-Z\s]+:|[A-Z\s]+:/);
-    
-    return {
-      detailedPersonality: {
-        coreNature: extractSection(analysisText, 'core nature|temperament') || getDefaultPersonality(kundaliData).coreNature,
-        mentalTendencies: extractSection(analysisText, 'mental|thought') || getDefaultPersonality(kundaliData).mentalTendencies,
-        emotionalPatterns: extractSection(analysisText, 'emotional|emotion') || getDefaultPersonality(kundaliData).emotionalPatterns,
-        spiritualInclinations: extractSection(analysisText, 'spiritual|religious') || getDefaultPersonality(kundaliData).spiritualInclinations
-      },
-      careerGuidance: {
-        idealProfessions: extractListItems(analysisText, 'profession|career') || getDefaultCareer(kundaliData).idealProfessions,
-        businessAptitude: extractSection(analysisText, 'business') || getDefaultCareer(kundaliData).businessAptitude,
-        leadershipQualities: extractSection(analysisText, 'leadership') || getDefaultCareer(kundaliData).leadershipQualities,
-        creativePotential: extractSection(analysisText, 'creative|artistic') || getDefaultCareer(kundaliData).creativePotential
-      },
-      relationshipInsights: {
-        marriageTimings: extractSection(analysisText, 'marriage|timing') || getDefaultRelationships(kundaliData).marriageTimings,
-        partnerQualities: extractSection(analysisText, 'partner|spouse') || getDefaultRelationships(kundaliData).partnerQualities,
-        familyLife: extractSection(analysisText, 'family|domestic') || getDefaultRelationships(kundaliData).familyLife,
-        friendshipPatterns: extractSection(analysisText, 'friend|social') || getDefaultRelationships(kundaliData).friendshipPatterns
-      },
-      healthPredictions: {
-        generalHealth: extractSection(analysisText, 'health|constitution') || getDefaultHealth(kundaliData).generalHealth,
-        vulnerableAreas: extractListItems(analysisText, 'vulnerable|weak') || getDefaultHealth(kundaliData).vulnerableAreas,
-        preventiveMeasures: extractListItems(analysisText, 'preventive|prevention') || getDefaultHealth(kundaliData).preventiveMeasures,
-        mentalWellbeing: extractSection(analysisText, 'mental.*well|emotional.*well') || getDefaultHealth(kundaliData).mentalWellbeing
-      },
-      spiritualPath: {
-        dharma: extractSection(analysisText, 'dharma|purpose') || getDefaultSpiritual(kundaliData).dharma,
-        karmaLessons: extractSection(analysisText, 'karma|lesson') || getDefaultSpiritual(kundaliData).karmaLessons,
-        spiritualPractices: extractListItems(analysisText, 'practice|meditation') || getDefaultSpiritual(kundaliData).spiritualPractices,
-        lifeGoals: extractSection(analysisText, 'goal|ultimate') || getDefaultSpiritual(kundaliData).lifeGoals
-      },
-      timingPredictions: {
-        currentPhase: extractSection(analysisText, 'current|phase') || getDefaultTiming(kundaliData).currentPhase,
-        upcomingOpportunities: extractListItems(analysisText, 'opportunit|upcoming') || getDefaultTiming(kundaliData).upcomingOpportunities,
-        challengesToWatch: extractListItems(analysisText, 'challenge|watch') || getDefaultTiming(kundaliData).challengesToWatch,
-        auspiciousPeriods: extractListItems(analysisText, 'auspicious|favorable') || getDefaultTiming(kundaliData).auspiciousPeriods
-      }
-    };
-  } catch (error) {
-    console.error('Error parsing Gemini response:', error);
-    return getFallbackAnalysis(kundaliData);
-  }
-}
-
-function extractSection(text: string, pattern: string): string {
-  const regex = new RegExp(`(${pattern})[^.]*[.!?]`, 'gi');
-  const match = text.match(regex);
-  return match ? match[0].trim() : '';
-}
-
-function extractListItems(text: string, pattern: string): string[] {
-  const regex = new RegExp(`(${pattern})[^.]*[.!?]`, 'gi');
-  const matches = text.match(regex);
-  return matches ? matches.map(m => m.trim()) : [];
 }
 
 function getFallbackAnalysis(kundaliData: any): EnhancedKundaliAnalysis {
-  return {
-    detailedPersonality: getDefaultPersonality(kundaliData),
-    careerGuidance: getDefaultCareer(kundaliData),
-    relationshipInsights: getDefaultRelationships(kundaliData),
-    healthPredictions: getDefaultHealth(kundaliData),
-    spiritualPath: getDefaultSpiritual(kundaliData),
-    timingPredictions: getDefaultTiming(kundaliData)
-  };
-}
-
-function getDefaultPersonality(kundaliData: any) {
+  console.log('🔄 Generating fallback analysis...');
+  
+  // Extract key data points for personalized fallback
   const chart = kundaliData?.chart || kundaliData?.enhancedCalculations || {};
   const planets = chart?.planets || {};
   const ascendant = chart?.ascendant || chart?.lagna?.rashiName || 'Unknown';
+  const birthData = kundaliData?.birthData || {};
   
-  // Analyze Sun for core nature
-  const sun = planets.SU || planets.Sun;
-  const moon = planets.MO || planets.Moon;
-  const mercury = planets.ME || planets.Mercury;
-  const ascendantHouse = chart?.houses?.find((h: any) => h.number === 1);
+  // Get strongest and weakest planets
+  const planetStrengths = Object.values(planets).map((planet: any) => ({
+    name: planet.name || planet.id,
+    strength: planet.strength || 50,
+    house: planet.house,
+    rashiName: planet.rashiName
+  })).sort((a, b) => b.strength - a.strength);
   
-  const sunHouse = sun?.house || 'unknown';
-  const moonHouse = moon?.house || 'unknown';
+  const strongestPlanet = planetStrengths[0];
+  const weakestPlanet = planetStrengths[planetStrengths.length - 1];
   
-  // Personality based on Sun position
-  const sunPersonality = getSunPersonality(sunHouse, sun?.rashiName);
-  const moonPersonality = getMoonPersonality(moonHouse, moon?.rashiName);
-  const mercuryMind = getMercuryMind(mercury?.house, mercury?.rashiName);
+  // Get current dasha
+  const dashas = chart?.dashas || chart?.dashaPeriods || [];
+  const currentDasha = dashas.find((d: any) => d.isActive) || dashas[0];
   
   return {
-    coreNature: `With ${ascendant} ascendant and Sun in ${sun?.rashiName || 'unknown sign'} (${sunHouse}th house), ${sunPersonality}. Your fundamental approach to life is shaped by ${getAscendantNature(ascendant)}.`,
-    mentalTendencies: `Your Moon in ${moon?.rashiName || 'unknown sign'} (${moonHouse}th house) creates ${moonPersonality}. ${mercuryMind}`,
-    emotionalPatterns: `Emotionally, you ${getEmotionalPattern(moonHouse, moon?.rashiName)}. Your reactions are ${getMoodPattern(moon?.rashiName)}.`,
-    spiritualInclinations: `Your spiritual path is indicated by ${getJupiterInfluence(planets.JU || planets.Jupiter)} and ${getKetaInfluence(planets.KE || planets.Ketu)}.`
+    detailedPersonality: {
+      coreNature: `With ${ascendant} ascendant, you have a ${getAscendantPersonality(ascendant)} nature. Your strongest planet ${strongestPlanet?.name || 'Sun'} in ${strongestPlanet?.rashiName || 'unknown sign'} (${strongestPlanet?.house || 'unknown'}th house) gives you ${getPlanetStrength(strongestPlanet?.name || 'Sun', strongestPlanet?.house || 1)}.`,
+      
+      mentalTendencies: `Your mind is influenced by ${planets.MO?.rashiName || planets.Moon?.rashiName || 'lunar placement'} Moon in ${planets.MO?.house || planets.Moon?.house || 'unknown'}th house, creating ${getMoonPersonality(planets.MO?.house || planets.Moon?.house || 1, planets.MO?.rashiName || planets.Moon?.rashiName || 'Cancer')}. Mercury in ${planets.ME?.rashiName || planets.Mercury?.rashiName || 'unknown sign'} influences your communication style.`,
+      
+      emotionalPatterns: `Your emotional nature is shaped by Moon's position, showing ${getEmotionalPattern(planets.MO?.house || planets.Moon?.house || 4)}. You tend to ${getMoodPattern(planets.MO?.rashiName || planets.Moon?.rashiName || 'Cancer')}.`,
+      
+      spiritualInclinations: `Your spiritual path is guided by Jupiter in ${planets.JU?.rashiName || planets.Jupiter?.rashiName || 'unknown sign'} (${planets.JU?.house || planets.Jupiter?.house || 'unknown'}th house) and Ketu in ${planets.KE?.rashiName || planets.Ketu?.rashiName || 'unknown sign'}, indicating ${getSpiritualPath(planets.JU?.house || planets.Jupiter?.house || 9)}.`
+    },
+    
+    careerGuidance: {
+      idealProfessions: getCareerSuggestions(planets.SU?.house || planets.Sun?.house || 10, strongestPlanet?.name || 'Sun'),
+      businessAptitude: getBusinessAptitude(planets.MA?.house || planets.Mars?.house, planets.JU?.house || planets.Jupiter?.house),
+      leadershipQualities: getLeadershipQualities(planets.SU?.house || planets.Sun?.house, strongestPlanet?.name),
+      creativePotential: getCreativePotential(planets.VE?.house || planets.Venus?.house, planets.ME?.house || planets.Mercury?.house)
+    },
+    
+    relationshipInsights: {
+      marriageTimings: getMarriageTiming(planets.VE?.house || planets.Venus?.house, planets.JU?.house || planets.Jupiter?.house),
+      partnerQualities: getPartnerQualities(planets.VE?.rashiName || planets.Venus?.rashiName, planets.VE?.house || planets.Venus?.house),
+      familyLife: getFamilyLife(planets.MO?.house || planets.Moon?.house, planets.JU?.house || planets.Jupiter?.house),
+      friendshipPatterns: getFriendshipPatterns(planets.ME?.house || planets.Mercury?.house)
+    },
+    
+    healthPredictions: {
+      generalHealth: getHealthPrediction(ascendant, weakestPlanet?.name),
+      vulnerableAreas: getVulnerableAreas(weakestPlanet?.house, planets.SA?.house || planets.Saturn?.house),
+      preventiveMeasures: getPreventiveMeasures(weakestPlanet?.name, ascendant),
+      mentalWellbeing: getMentalWellbeing(planets.MO?.house || planets.Moon?.house, planets.ME?.house || planets.Mercury?.house)
+    },
+    
+    spiritualPath: {
+      dharma: getDharmaPath(planets.JU?.house || planets.Jupiter?.house, planets.SU?.house || planets.Sun?.house),
+      karmaLessons: getKarmaLessons(planets.KE?.house || planets.Ketu?.house, planets.SA?.house || planets.Saturn?.house),
+      spiritualPractices: getSpiritualPractices(planets.JU?.house || planets.Jupiter?.house, planets.KE?.house || planets.Ketu?.house),
+      lifeGoals: getLifeGoals(ascendant, planets.JU?.house || planets.Jupiter?.house)
+    },
+    
+    timingPredictions: {
+      currentPhase: getCurrentPhase(currentDasha?.planet || 'Jupiter', new Date().getFullYear() - (birthData.year || 2000)),
+      upcomingOpportunities: getUpcomingOpportunities(currentDasha?.planet || 'Jupiter'),
+      challengesToWatch: getChallengesToWatch(weakestPlanet?.name || 'Saturn', currentDasha?.planet),
+      auspiciousPeriods: getAuspiciousPeriods(strongestPlanet?.name || 'Jupiter', currentDasha?.planet)
+    }
   };
 }
 
-function getSunPersonality(house: number | string, sign: string): string {
-  const houseTraits: Record<string, string> = {
-    '1': 'you have strong self-confidence and natural leadership qualities',
-    '2': 'you value security and have a practical approach to wealth building',
-    '3': 'you are communicative, brave, and enjoy taking initiatives',
-    '4': 'you are emotionally driven and value home and family deeply',
-    '5': 'you are creative, intelligent, and enjoy learning and teaching',
-    '6': 'you are service-oriented and have strong problem-solving abilities',
-    '7': 'you are partnership-focused and diplomatic in your approach',
-    '8': 'you are interested in mysteries, research, and transformation',
-    '9': 'you are philosophical, religious, and seek higher knowledge',
-    '10': 'you are career-focused and have natural authority',
-    '11': 'you are socially connected and goal-oriented',
-    '12': 'you are spiritually inclined and enjoy solitude'
+// Helper functions for personalized analysis
+function getAscendantPersonality(ascendant: string): string {
+  const personalities: Record<string, string> = {
+    'Aries': 'dynamic, energetic, and pioneering',
+    'Taurus': 'stable, practical, and determined',
+    'Gemini': 'curious, adaptable, and communicative',
+    'Cancer': 'nurturing, intuitive, and emotional',
+    'Leo': 'confident, creative, and leadership-oriented',
+    'Virgo': 'analytical, perfectionist, and service-minded',
+    'Libra': 'diplomatic, harmonious, and aesthetically inclined',
+    'Scorpio': 'intense, transformative, and mysterious',
+    'Sagittarius': 'philosophical, adventurous, and optimistic',
+    'Capricorn': 'ambitious, disciplined, and responsible',
+    'Aquarius': 'innovative, humanitarian, and independent',
+    'Pisces': 'compassionate, intuitive, and spiritually inclined'
   };
-  return houseTraits[house?.toString()] || 'you have unique leadership qualities';
+  return personalities[ascendant] || 'uniquely balanced';
 }
 
-function getMoonPersonality(house: number | string, sign: string): string {
-  const moonTraits: Record<string, string> = {
-    '1': 'emotional sensitivity and intuitive responses to life',
-    '2': 'attachment to material security and family values',
-    '3': 'changeable moods but courage in communication',
-    '4': 'deep emotional connection to home and mother',
-    '5': 'creative emotional expression and love for children',
-    '6': 'service mentality with emotional involvement in daily work',
-    '7': 'emotional dependence on partnerships and public approval',
-    '8': 'intense emotional depth and interest in hidden matters',
-    '9': 'emotional connection to religion, philosophy, and higher learning',
-    '10': 'emotional investment in career and public reputation',
-    '11': 'emotional fulfillment through friendships and social causes',
-    '12': 'need for emotional privacy and spiritual contemplation'
+function getPlanetStrength(planet: string, house: number): string {
+  const effects: Record<string, Record<number, string>> = {
+    'Sun': {
+      1: 'strong leadership abilities and commanding presence',
+      10: 'career success and authority in professional life',
+      5: 'creativity and intelligence in self-expression',
+      9: 'wisdom and philosophical nature'
+    },
+    'Moon': {
+      1: 'emotional sensitivity and intuitive nature',
+      4: 'strong connection to home and mother',
+      7: 'emotional needs in partnerships',
+      10: 'public recognition and emotional fulfillment through career'
+    },
+    'Mars': {
+      1: 'courage, energy, and pioneering spirit',
+      10: 'drive for success and competitive nature',
+      3: 'courage and initiative in communication',
+      6: 'ability to overcome obstacles and enemies'
+    }
   };
-  return moonTraits[house?.toString()] || 'emotional complexity and depth';
+  return effects[planet]?.[house] || 'positive influence in life areas';
 }
 
-function getMercuryMind(house: number | string, sign: string): string {
-  const mercuryTraits: Record<string, string> = {
-    '1': 'You think quickly and express yourself with confidence.',
-    '2': 'Your thinking is practical and focused on material security.',
-    '3': 'You have excellent communication skills and quick wit.',
-    '4': 'Your mind is influenced by family traditions and emotional security.',
-    '5': 'You think creatively and enjoy intellectual pursuits.',
-    '6': 'Your thinking is analytical and detail-oriented.',
-    '7': 'You think in terms of partnerships and seek mental harmony with others.',
-    '8': 'Your mind is drawn to research, mysteries, and deep subjects.',
-    '9': 'You think philosophically and seek higher knowledge.',
-    '10': 'Your thinking is structured and focused on career achievements.',
-    '11': 'You think progressively and enjoy group discussions.',
-    '12': 'Your mind seeks solitude and spiritual understanding.'
+function getMoonPersonality(house: number, sign: string): string {
+  const moonHouses: Record<number, string> = {
+    1: 'emotional responsiveness and changing moods',
+    2: 'emotional attachment to family and material security',
+    3: 'emotional courage and protective nature towards siblings',
+    4: 'deep emotional connection to home and heritage',
+    5: 'emotional creativity and love for children',
+    6: 'emotional involvement in daily work and health matters',
+    7: 'emotional dependence on partnerships',
+    8: 'intense emotional depth and interest in mysteries',
+    9: 'emotional connection to higher wisdom and spirituality',
+    10: 'emotional investment in career and public image',
+    11: 'emotional fulfillment through friendships and goals',
+    12: 'need for emotional solitude and spiritual practices'
   };
-  return mercuryTraits[house?.toString()] || 'You have a unique way of processing information.';
+  return moonHouses[house] || 'complex emotional patterns';
 }
 
-function getAscendantNature(ascendant: string): string {
-  const ascendantTraits: Record<string, string> = {
-    'Aries': 'boldness, independence, and pioneering spirit',
-    'Taurus': 'stability, patience, and practical determination',
-    'Gemini': 'adaptability, curiosity, and communication skills',
-    'Cancer': 'nurturing nature, emotional depth, and protective instincts',
-    'Leo': 'confidence, creativity, and natural leadership',
-    'Virgo': 'analytical mind, perfectionism, and service orientation',
-    'Libra': 'diplomacy, balance-seeking, and aesthetic appreciation',
-    'Scorpio': 'intensity, transformation, and investigative nature',
-    'Sagittarius': 'optimism, philosophical thinking, and love of freedom',
-    'Capricorn': 'ambition, discipline, and structured approach',
-    'Aquarius': 'innovation, humanitarian ideals, and independent thinking',
-    'Pisces': 'compassion, intuition, and spiritual sensitivity'
+function getEmotionalPattern(house: number): string {
+  const patterns: Record<number, string> = {
+    1: 'you express emotions directly and openly',
+    4: 'you seek emotional security through family and home',
+    7: 'you need emotional validation through relationships',
+    10: 'you connect emotions with your public image and career',
+    12: 'you prefer emotional privacy and introspection'
   };
-  return ascendantTraits[ascendant] || 'unique personality traits';
-}
-
-function getEmotionalPattern(house: number | string, sign: string): string {
-  if (house === '4') return 'feel most secure at home and with family';
-  if (house === '7') return 'need emotional connection through partnerships';
-  if (house === '10') return 'tie your emotions to your career and public image';
-  if (house === '12') return 'need emotional privacy and spiritual connection';
-  return 'have complex emotional patterns that influence your daily life';
+  return patterns[house] || 'you have unique emotional responses';
 }
 
 function getMoodPattern(sign: string): string {
-  const moodTraits: Record<string, string> = {
-    'Aries': 'quick and direct',
-    'Cancer': 'deeply felt and protective',
-    'Libra': 'balanced and harmony-seeking',
-    'Capricorn': 'controlled and structured',
-    'Scorpio': 'intense and transformative',
-    'Pisces': 'flowing and compassionate'
+  const moods: Record<string, string> = {
+    'Aries': 'react quickly and directly to emotional stimuli',
+    'Cancer': 'have deep, nurturing emotional responses',
+    'Libra': 'seek emotional balance and harmony',
+    'Capricorn': 'maintain emotional control and practicality',
+    'Scorpio': 'experience intense and transformative emotions',
+    'Pisces': 'have flowing, compassionate emotional nature'
   };
-  return moodTraits[sign] || 'uniquely influenced by your lunar nature';
+  return moods[sign] || 'have complex emotional patterns';
 }
 
-function getJupiterInfluence(jupiter: any): string {
-  if (!jupiter) return 'wisdom and higher learning';
-  const house = jupiter.house;
-  if (house === 1) return 'Jupiter in 1st house blessing you with wisdom and optimism';
-  if (house === 5) return 'Jupiter in 5th house enhancing your creativity and spiritual learning';
-  if (house === 9) return 'Jupiter in 9th house strengthening your religious and philosophical nature';
-  if (house === 12) return 'Jupiter in 12th house inclining you toward spirituality and charitable service';
-  return `Jupiter in ${house}th house guiding your spiritual growth through ${getHouseSignificance(house)}`;
-}
-
-function getKetaInfluence(ketu: any): string {
-  if (!ketu) return 'past-life karma influences';
-  const house = ketu.house;
-  if (house === 1) return 'Ketu in 1st house creating spiritual detachment and unique personality';
-  if (house === 12) return 'Ketu in 12th house strongly inclining you toward moksha and liberation';
-  return `Ketu in ${house}th house creating spiritual lessons through ${getHouseSignificance(house)}`;
-}
-
-function getHouseSignificance(house: number): string {
-  const significance: Record<number, string> = {
-    1: 'self-development',
-    2: 'family and wealth matters',
-    3: 'communication and courage',
-    4: 'home and emotional security',
-    5: 'creativity and education',
-    6: 'service and health',
-    7: 'relationships and partnerships',
-    8: 'transformation and research',
-    9: 'higher learning and dharma',
-    10: 'career and reputation',
-    11: 'gains and social connections',
-    12: 'spirituality and liberation'
+function getCareerSuggestions(sunHouse: number, strongestPlanet: string): string[] {
+  const careerMap: Record<string, string[]> = {
+    'Sun': ['Government service', 'Leadership roles', 'Administration', 'Politics', 'Management'],
+    'Moon': ['Healthcare', 'Hospitality', 'Public relations', 'Food industry', 'Psychology'],
+    'Mars': ['Engineering', 'Military', 'Sports', 'Real estate', 'Surgery', 'Police'],
+    'Mercury': ['Communication', 'Writing', 'Teaching', 'Business', 'Technology', 'Media'],
+    'Jupiter': ['Teaching', 'Law', 'Finance', 'Counseling', 'Religious work', 'Academia'],
+    'Venus': ['Arts', 'Entertainment', 'Beauty industry', 'Fashion', 'Luxury goods', 'Design'],
+    'Saturn': ['Mining', 'Construction', 'Agriculture', 'Research', 'Social work', 'Administration']
   };
-  return significance[house] || 'life experiences';
-}
-
-function getDefaultCareer(kundaliData: any) {
-  const chart = kundaliData?.chart || kundaliData?.enhancedCalculations || {};
-  const planets = chart?.planets || {};
-  const houses = chart?.houses || [];
   
-  // Analyze 10th house for career
-  const tenthHouseLord = planets.SU || planets.Sun; // Simplified - should calculate actual 10th lord
-  const jupiter = planets.JU || planets.Jupiter;
-  const mercury = planets.ME || planets.Mercury;
-  const mars = planets.MA || planets.Mars;
-  const venus = planets.VE || planets.Venus;
-  
-  // Career based on planets in 10th house and 10th lord
-  const careerPlanets = Object.values(planets).filter((p: any) => p.house === 10);
-  const professions = getCareerByPlanets(careerPlanets, tenthHouseLord);
-  
-  return {
-    idealProfessions: professions,
-    businessAptitude: getBusinessAptitude(mars, jupiter, mercury),
-    leadershipQualities: getLeadershipQualities(planets.SU || planets.Sun, mars),
-    creativePotential: getCreativePotential(venus, mercury, jupiter)
+  const houseCareer: Record<number, string[]> = {
+    10: ['Executive positions', 'Public service', 'Authority roles'],
+    6: ['Service industry', 'Healthcare', 'Problem-solving roles'],
+    2: ['Finance', 'Banking', 'Family business'],
+    11: ['Social work', 'Network marketing', 'Large organizations']
   };
+  
+  const careers = careerMap[strongestPlanet] || ['Professional services'];
+  const houseCareers = houseCareer[sunHouse] || [];
+  
+  return [...new Set([...careers.slice(0, 3), ...houseCareers.slice(0, 2)])];
 }
 
-function getCareerByPlanets(careerPlanets: any[], tenthLord: any): string[] {
-  const careers = [];
+function getBusinessAptitude(marsHouse?: number, jupiterHouse?: number): string {
+  let score = 50;
+  let factors = [];
   
-  careerPlanets.forEach((planet: any) => {
-    switch (planet.name || planet.id) {
-      case 'Sun':
-      case 'SU':
-        careers.push('Government service', 'Leadership roles', 'Administration', 'Politics');
-        break;
-      case 'Moon':
-      case 'MO':
-        careers.push('Healthcare', 'Hospitality', 'Public relations', 'Food industry');
-        break;
-      case 'Mars':
-      case 'MA':
-        careers.push('Engineering', 'Military', 'Sports', 'Real estate', 'Surgery');
-        break;
-      case 'Mercury':
-      case 'ME':
-        careers.push('Communication', 'Writing', 'Teaching', 'Business', 'Technology');
-        break;
-      case 'Jupiter':
-      case 'JU':
-        careers.push('Teaching', 'Law', 'Finance', 'Counseling', 'Religious work');
-        break;
-      case 'Venus':
-      case 'VE':
-        careers.push('Arts', 'Entertainment', 'Beauty industry', 'Fashion', 'Luxury goods');
-        break;
-      case 'Saturn':
-      case 'SA':
-        careers.push('Mining', 'Construction', 'Agriculture', 'Research', 'Social work');
-        break;
-    }
-  });
-  
-  return careers.length > 0 ? careers.slice(0, 5) : ['Professional services', 'Management', 'Consulting'];
-}
-
-function getBusinessAptitude(mars: any, jupiter: any, mercury: any): string {
-  let score = 0;
-  let details = [];
-  
-  if (mars?.house === 10 || mars?.house === 11) {
-    score += 30;
-    details.push('Mars gives initiative and competitive spirit');
-  }
-  if (jupiter?.house === 2 || jupiter?.house === 11) {
+  if (marsHouse === 10 || marsHouse === 11) {
     score += 25;
-    details.push('Jupiter brings wisdom in financial matters');
+    factors.push('Mars gives drive and competitive spirit');
   }
-  if (mercury?.house === 3 || mercury?.house === 10) {
+  if (jupiterHouse === 2 || jupiterHouse === 11) {
     score += 20;
-    details.push('Mercury enhances business communication skills');
+    factors.push('Jupiter brings wisdom in financial matters');
   }
   
-  if (score >= 50) return `Excellent business aptitude (${score}%). ${details.join('. ')}.`;
-  if (score >= 30) return `Good business potential (${score}%). ${details.join('. ')}.`;
-  return `Moderate business aptitude. Focus on developing entrepreneurial skills through experience.`;
+  if (score >= 70) return `Excellent business potential (${score}%). ${factors.join('. ')}.`;
+  if (score >= 50) return `Good business aptitude (${score}%). ${factors.join('. ')}.`;
+  return 'Moderate business potential. Consider partnerships or gradual business development.';
 }
 
-function getLeadershipQualities(sun: any, mars: any): string {
+function getLeadershipQualities(sunHouse?: number, strongestPlanet?: string): string {
   const qualities = [];
   
-  if (sun?.house === 1) qualities.push('natural authority and self-confidence');
-  if (sun?.house === 10) qualities.push('career leadership and public recognition');
-  if (mars?.house === 1) qualities.push('courage and pioneering spirit');
-  if (mars?.house === 10) qualities.push('executive abilities and decisive action');
+  if (sunHouse === 1) qualities.push('natural authority and charisma');
+  if (sunHouse === 10) qualities.push('career leadership and public recognition');
+  if (strongestPlanet === 'Mars') qualities.push('courage and decisive action');
+  if (strongestPlanet === 'Jupiter') qualities.push('wisdom-based leadership');
   
   return qualities.length > 0 
     ? `Strong leadership indicated through ${qualities.join(', ')}`
-    : 'Leadership potential present but needs development through experience';
+    : 'Leadership potential exists but needs development through experience';
 }
 
-function getCreativePotential(venus: any, mercury: any, jupiter: any): string {
+function getCreativePotential(venusHouse?: number, mercuryHouse?: number): string {
   const creative = [];
   
-  if (venus?.house === 5) creative.push('artistic expression and aesthetic sense');
-  if (mercury?.house === 5) creative.push('creative writing and communication');
-  if (jupiter?.house === 5) creative.push('wisdom-based creativity and teaching ability');
+  if (venusHouse === 5) creative.push('artistic expression and aesthetic sense');
+  if (venusHouse === 1) creative.push('personal creative magnetism');
+  if (mercuryHouse === 5) creative.push('creative communication and writing');
+  if (mercuryHouse === 3) creative.push('innovative thinking and expression');
   
   return creative.length > 0 
     ? `High creative potential in ${creative.join(', ')}`
-    : 'Creative abilities present in unique forms suited to your chart';
+    : 'Creative abilities present in unique forms suited to your nature';
 }
 
-function getDefaultRelationships(kundaliData: any) {
-  const chart = kundaliData?.chart || kundaliData?.enhancedCalculations || {};
-  const planets = chart?.planets || {};
+function getMarriageTiming(venusHouse?: number, jupiterHouse?: number): string {
+  const timings = [];
   
-  // Analyze 7th house and Venus for relationships
-  const venus = planets.VE || planets.Venus;
-  const mars = planets.MA || planets.Mars;
-  const jupiter = planets.JU || planets.Jupiter;
-  const mercury = planets.ME || planets.Mercury;
-  const seventhHousePlanets = Object.values(planets).filter((p: any) => p.house === 7);
+  if (venusHouse === 7) timings.push('Venus in 7th house suggests marriage in mid-twenties');
+  if (jupiterHouse === 7) timings.push('Jupiter in 7th house indicates marriage after 25');
+  if (venusHouse === 1) timings.push('Early attraction but marriage after personal development');
   
-  return {
-    marriageTimings: getMarriageTiming(venus, jupiter, seventhHousePlanets),
-    partnerQualities: getPartnerQualities(venus, seventhHousePlanets),
-    familyLife: getFamilyLife(planets.MO || planets.Moon, jupiter),
-    friendshipPatterns: getFriendshipPatterns(mercury, venus)
-  };
+  return timings.length > 0 
+    ? timings.join('. ')
+    : 'Marriage timing indicates traditional patterns with focus on compatibility';
 }
 
-function getMarriageTiming(venus: any, jupiter: any, seventhHousePlanets: any[]): string {
-  let timing = [];
-  
-  if (venus?.house === 7) timing.push('Venus in 7th house indicates marriage in mid-twenties');
-  if (jupiter?.house === 7) timing.push('Jupiter in 7th house suggests marriage in late twenties');
-  if (seventhHousePlanets.some((p: any) => p.name === 'Sun' || p.id === 'SU')) {
-    timing.push('Sun in 7th house may delay marriage slightly but brings stable partnership');
-  }
-  
-  return timing.length > 0 
-    ? timing.join('. ') 
-    : 'Marriage timing indicates traditional age ranges with focus on compatibility';
-}
-
-function getPartnerQualities(venus: any, seventhHousePlanets: any[]): string {
+function getPartnerQualities(venusSign?: string, venusHouse?: number): string {
   const qualities = [];
   
-  if (venus?.house === 1) qualities.push('beautiful, artistic, and charming partner');
-  if (venus?.house === 7) qualities.push('harmonious, diplomatic partner who values beauty');
-  if (venus?.house === 10) qualities.push('successful, career-oriented partner');
-  
-  seventhHousePlanets.forEach((planet: any) => {
-    switch (planet.name || planet.id) {
-      case 'Jupiter':
-      case 'JU':
-        qualities.push('wise, spiritual, and well-educated partner');
-        break;
-      case 'Mars':
-      case 'MA':
-        qualities.push('energetic, independent, and protective partner');
-        break;
-      case 'Mercury':
-      case 'ME':
-        qualities.push('intelligent, communicative, and business-minded partner');
-        break;
-    }
-  });
+  if (venusHouse === 7) qualities.push('harmonious, diplomatic partner');
+  if (venusHouse === 10) qualities.push('successful, career-oriented partner');
+  if (venusSign === 'Libra') qualities.push('balanced, aesthetically inclined partner');
+  if (venusSign === 'Taurus') qualities.push('stable, materially secure partner');
   
   return qualities.length > 0 
     ? `Partner will be ${qualities.join(', ')}`
-    : 'Partner will complement your nature and support your life journey';
+    : 'Partner will complement your nature and support your growth';
 }
 
-function getFamilyLife(moon: any, jupiter: any): string {
+function getFamilyLife(moonHouse?: number, jupiterHouse?: number): string {
   const aspects = [];
   
-  if (moon?.house === 4) aspects.push('strong emotional bond with mother and home');
-  if (jupiter?.house === 4) aspects.push('blessing and wisdom in family matters');
-  if (moon?.house === 2) aspects.push('family wealth and emotional security through family');
+  if (moonHouse === 4) aspects.push('strong emotional bond with mother and family heritage');
+  if (jupiterHouse === 4) aspects.push('blessings and wisdom in family matters');
+  if (moonHouse === 2) aspects.push('emotional and financial security through family');
   
   return aspects.length > 0 
     ? `Family life blessed with ${aspects.join(', ')}`
-    : 'Generally supportive family environment with mutual care and respect';
+    : 'Generally harmonious family relationships with mutual support';
 }
 
-function getFriendshipPatterns(mercury: any, venus: any): string {
-  const patterns = [];
-  
-  if (mercury?.house === 11) patterns.push('wide social circle through communication');
-  if (venus?.house === 11) patterns.push('friendships through artistic and social activities');
-  if (mercury?.house === 3) patterns.push('close friendships with siblings and neighbors');
-  
-  return patterns.length > 0 
-    ? `Friendship patterns show ${patterns.join(', ')}`
-    : 'Selective in friendships but deeply loyal to chosen companions';
-}
-
-function getDefaultHealth(kundaliData: any) {
-  const chart = kundaliData?.chart || kundaliData?.enhancedCalculations || {};
-  const planets = chart?.planets || {};
-  
-  // Analyze 6th house, Mars, Saturn for health
-  const mars = planets.MA || planets.Mars;
-  const saturn = planets.SA || planets.Saturn;
-  const sun = planets.SU || planets.Sun;
-  const moon = planets.MO || planets.Moon;
-  const mercury = planets.ME || planets.Mercury;
-  const sixthHousePlanets = Object.values(planets).filter((p: any) => p.house === 6);
-  const eighthHousePlanets = Object.values(planets).filter((p: any) => p.house === 8);
-  
-  return {
-    generalHealth: getGeneralHealth(sun, mars, saturn),
-    vulnerableAreas: getVulnerableAreas(sixthHousePlanets, eighthHousePlanets, saturn, mars, moon),
-    preventiveMeasures: getPreventiveMeasures(mars, saturn, moon),
-    mentalWellbeing: getMentalWellbeing(moon, mercury)
+function getFriendshipPatterns(mercuryHouse?: number): string {
+  const patterns: Record<number, string> = {
+    11: 'wide social circle and many acquaintances',
+    3: 'close friendships with intellectual connections',
+    7: 'partnerships that develop into friendships',
+    5: 'friendships through creative and educational activities'
   };
+  
+  return patterns[mercuryHouse || 11] || 'selective but loyal friendships';
 }
 
-function getGeneralHealth(sun: any, mars: any, saturn: any): string {
-  const factors = [];
+function getHealthPrediction(ascendant: string, weakestPlanet?: string): string {
+  const constitution: Record<string, string> = {
+    'Aries': 'strong physical energy but prone to headaches and stress',
+    'Taurus': 'robust constitution but watch throat and weight issues',
+    'Gemini': 'nervous energy requiring mental stimulation and rest',
+    'Cancer': 'sensitive digestive system needing emotional balance',
+    'Leo': 'strong vitality but watch heart and spine health',
+    'Virgo': 'detailed health awareness with digestive sensitivities'
+  };
   
-  if (sun?.house === 1) factors.push('strong vitality and good immunity');
-  if (mars?.house === 1) factors.push('good physical energy and strength');
-  if (saturn?.house === 6) factors.push('ability to overcome chronic health issues');
-  if (mars?.house === 8) factors.push('need for caution in physical activities');
+  const base = constitution[ascendant] || 'balanced constitution requiring regular care';
+  const weakness = weakestPlanet ? ` Special attention needed for ${weakestPlanet}-related health areas.` : '';
   
-  return factors.length > 0 
-    ? `Health constitution shows ${factors.join(', ')}`
-    : 'Generally balanced health constitution requiring regular lifestyle maintenance';
+  return base + weakness;
 }
 
-function getVulnerableAreas(sixthHouse: any[], eighthHouse: any[], saturn: any, mars: any, moon: any): string[] {
-  const areas = [];
+function getVulnerableAreas(weakestHouse?: number, saturnHouse?: number): string[] {
+  const areas = ['Stress management', 'Regular health checkups'];
   
-  if (saturn?.house === 1) areas.push('Bone and joint health');
-  if (saturn?.house === 6) areas.push('Chronic digestive issues');
-  if (mars?.house === 6) areas.push('Inflammatory conditions');
-  if (moon?.house === 6) areas.push('Emotional eating patterns');
+  if (saturnHouse === 1) areas.push('Bone and joint health');
+  if (saturnHouse === 6) areas.push('Chronic health patterns');
+  if (weakestHouse === 6) areas.push('Digestive health');
+  if (weakestHouse === 8) areas.push('Immunity and vitality');
   
-  sixthHouse.forEach((planet: any) => {
-    switch (planet.name || planet.id) {
-      case 'Sun':
-      case 'SU':
-        areas.push('Heart and circulation');
-        break;
-      case 'Moon':
-      case 'MO':
-        areas.push('Digestive system and emotional health');
-        break;
-      case 'Saturn':
-      case 'SA':
-        areas.push('Chronic conditions and immunity');
-        break;
-    }
-  });
-  
-  return areas.length > 0 ? areas : ['Stress-related concerns', 'Lifestyle-related issues'];
+  return areas;
 }
 
-function getPreventiveMeasures(mars: any, saturn: any, moon: any): string[] {
-  const measures = ['Regular health checkups', 'Balanced nutrition'];
+function getPreventiveMeasures(weakestPlanet?: string, ascendant?: string): string[] {
+  const measures = ['Regular exercise', 'Balanced nutrition', 'Adequate rest'];
   
-  if (mars?.house === 6 || mars?.house === 8) {
-    measures.push('Avoid aggressive physical activities', 'Anti-inflammatory diet');
-  }
-  if (saturn?.house === 1 || saturn?.house === 6) {
-    measures.push('Bone health supplements', 'Regular physiotherapy');
-  }
-  if (moon?.house === 6) {
-    measures.push('Emotional wellness practices', 'Digestive health care');
-  }
+  if (weakestPlanet === 'Saturn') measures.push('Bone health supplements', 'Regular massage');
+  if (weakestPlanet === 'Mars') measures.push('Avoid inflammatory foods', 'Cooling practices');
+  if (ascendant === 'Cancer') measures.push('Emotional wellness practices', 'Digestive care');
   
   return measures;
 }
 
-function getMentalWellbeing(moon: any, mercury: any): string {
+function getMentalWellbeing(moonHouse?: number, mercuryHouse?: number): string {
   const factors = [];
   
-  if (moon?.house === 1) factors.push('emotional sensitivity requires mindfulness');
-  if (moon?.house === 12) factors.push('natural inclination toward meditation');
-  if (mercury?.house === 12) factors.push('mental peace through spiritual study');
+  if (moonHouse === 12) factors.push('natural inclination toward meditation and solitude');
+  if (mercuryHouse === 12) factors.push('mental peace through spiritual study');
+  if (moonHouse === 1) factors.push('emotional awareness and mindfulness practices');
   
   return factors.length > 0 
     ? `Mental wellbeing supported by ${factors.join(', ')}`
-    : 'Mental health maintained through balanced lifestyle and spiritual practices';
+    : 'Mental health maintained through balanced lifestyle and stress management';
 }
 
-function getDefaultSpiritual(kundaliData: any) {
-  const chart = kundaliData?.chart || kundaliData?.enhancedCalculations || {};
-  const planets = chart?.planets || {};
-  
-  // Analyze 9th, 12th houses, Jupiter, Ketu for spirituality
-  const jupiter = planets.JU || planets.Jupiter;
-  const ketu = planets.KE || planets.Ketu;
-  const sun = planets.SU || planets.Sun;
-  const saturn = planets.SA || planets.Saturn;
-  const ninthHousePlanets = Object.values(planets).filter((p: any) => p.house === 9);
-  const twelfthHousePlanets = Object.values(planets).filter((p: any) => p.house === 12);
-  
-  return {
-    dharma: getDharmaPath(jupiter, sun, ninthHousePlanets),
-    karmaLessons: getKarmaLessons(ketu, saturn),
-    spiritualPractices: getSpiritualPractices(jupiter, ketu, twelfthHousePlanets),
-    lifeGoals: getLifeGoals(jupiter, sun, chart?.ascendant)
+function getSpiritualPath(jupiterHouse?: number): string {
+  const paths: Record<number, string> = {
+    9: 'traditional religious or philosophical study',
+    12: 'meditation, contemplation, and charitable service',
+    1: 'personal spiritual development and self-realization',
+    5: 'creative spiritual expression and wisdom sharing'
   };
-}
-
-function getDharmaPath(jupiter: any, sun: any, ninthHouse: any[]): string {
-  if (jupiter?.house === 9) return 'Your dharma involves teaching, guiding others, and spreading wisdom';
-  if (sun?.house === 9) return 'Your dharma is to lead by example and inspire others toward higher values';
-  if (jupiter?.house === 10) return 'Your dharma is fulfilled through professional service and ethical leadership';
   
-  return 'Your life purpose involves serving others while pursuing personal spiritual growth';
+  return paths[jupiterHouse || 9] || 'balanced spiritual growth through life experience';
 }
 
-function getKarmaLessons(ketu: any, saturn: any): string {
+function getDharmaPath(jupiterHouse?: number, sunHouse?: number): string {
+  if (jupiterHouse === 9) return 'Your dharma involves teaching, guiding others, and spreading wisdom';
+  if (sunHouse === 10) return 'Your dharma is fulfilled through leadership and professional service';
+  if (jupiterHouse === 12) return 'Your life purpose involves spiritual service and helping others';
+  
+  return 'Your dharma unfolds through serving others while pursuing personal growth';
+}
+
+function getKarmaLessons(ketuHouse?: number, saturnHouse?: number): string {
   const lessons = [];
   
-  if (ketu?.house === 1) lessons.push('learning detachment from ego and self-importance');
-  if (ketu?.house === 7) lessons.push('understanding true partnership beyond attachment');
-  if (saturn?.house === 1) lessons.push('developing patience and self-discipline');
-  if (saturn?.house === 10) lessons.push('learning responsibility and service in career');
+  if (ketuHouse === 1) lessons.push('learning detachment from ego');
+  if (ketuHouse === 7) lessons.push('understanding true partnership beyond attachment');
+  if (saturnHouse === 10) lessons.push('developing patience and responsibility in career');
   
   return lessons.length > 0 
-    ? `Key karma lessons include ${lessons.join(', ')}`
-    : 'Learning balance between material duties and spiritual aspirations';
+    ? `Key lessons include ${lessons.join(', ')}`
+    : 'Learning balance between material duties and spiritual growth';
 }
 
-function getSpiritualPractices(jupiter: any, ketu: any, twelfthHouse: any[]): string[] {
-  const practices = ['Meditation', 'Prayer'];
+function getSpiritualPractices(jupiterHouse?: number, ketuHouse?: number): string[] {
+  const practices = ['Meditation', 'Prayer', 'Study of wisdom texts'];
   
-  if (jupiter?.house === 12) practices.push('Charitable service', 'Study of scriptures');
-  if (ketu?.house === 12) practices.push('Detached service', 'Silent meditation');
-  if (twelfthHouse.some((p: any) => p.name === 'Venus' || p.id === 'VE')) {
-    practices.push('Devotional music', 'Artistic meditation');
-  }
+  if (jupiterHouse === 12) practices.push('Charitable service', 'Pilgrimage');
+  if (ketuHouse === 12) practices.push('Silent meditation', 'Detached service');
+  if (jupiterHouse === 9) practices.push('Religious study', 'Teaching others');
   
   return practices;
 }
 
-function getLifeGoals(jupiter: any, sun: any, ascendant: string): string {
-  if (jupiter?.house === 12) return 'Ultimate goal of spiritual liberation and service to humanity';
-  if (sun?.house === 12) return 'Achievement of self-realization through surrender and service';
-  if (ascendant === 'Pisces') return 'Spiritual evolution through compassion and universal love';
+function getLifeGoals(ascendant?: string, jupiterHouse?: number): string {
+  if (jupiterHouse === 12) return 'Ultimate goal of spiritual liberation and universal service';
+  if (ascendant === 'Pisces') return 'Spiritual evolution through compassion and artistic expression';
+  if (ascendant === 'Capricorn') return 'Achievement through disciplined effort leading to wisdom';
   
-  return 'Balance between material success and spiritual fulfillment leading to inner peace';
+  return 'Balance between material success and spiritual fulfillment';
 }
 
-function getDefaultTiming(kundaliData: any) {
-  const chart = kundaliData?.chart || kundaliData?.enhancedCalculations || {};
-  const planets = chart?.planets || {};
-  const dashas = chart?.dashas || chart?.dashaPeriods || [];
-  const currentDasha = dashas.find((d: any) => d.isActive);
+function getCurrentPhase(dashaLord?: string, age?: number): string {
+  const ageGroup = age && age < 25 ? 'young' : age && age < 45 ? 'middle' : 'mature';
   
-  return {
-    currentPhase: getCurrentPhaseAnalysis(currentDasha, planets),
-    upcomingOpportunities: getUpcomingOpportunities(currentDasha, planets),
-    challengesToWatch: getChallengesToWatch(currentDasha, planets),
-    auspiciousPeriods: getAuspiciousPeriods(currentDasha, planets)
+  if (dashaLord === 'Jupiter') return `Currently in Jupiter period - a time of wisdom, growth, and spiritual development. Perfect for ${ageGroup} adults to expand knowledge and seek higher meaning.`;
+  if (dashaLord === 'Saturn') return `Saturn period brings discipline, hard work, and life lessons. For ${ageGroup} individuals, this is time for patience and building solid foundations.`;
+  if (dashaLord === 'Venus') return `Venus period enhances creativity, relationships, and material pleasures. Good time for ${ageGroup} people to focus on partnerships and artistic pursuits.`;
+  
+  return `Currently experiencing ${dashaLord} period energies, bringing unique opportunities for growth and development`;
+}
+
+function getUpcomingOpportunities(dashaLord?: string): string[] {
+  const opportunities: Record<string, string[]> = {
+    'Jupiter': ['Higher education', 'Teaching opportunities', 'Spiritual growth', 'International connections'],
+    'Venus': ['Creative projects', 'Relationship developments', 'Artistic recognition', 'Material gains'],
+    'Sun': ['Leadership roles', 'Government opportunities', 'Public recognition', 'Authority positions'],
+    'Moon': ['Emotional healing', 'Family prosperity', 'Public favor', 'Nurturing roles']
   };
+  
+  return opportunities[dashaLord || 'Jupiter'] || ['Personal development', 'New beginnings', 'Skill enhancement'];
 }
 
-function getCurrentPhaseAnalysis(dasha: any, planets: any): string {
-  if (!dasha) return 'Currently in a transitional period requiring patience and preparation';
+function getChallengesToWatch(weakestPlanet?: string, currentDasha?: string): string[] {
+  const challenges = ['Maintaining balance', 'Health awareness'];
   
-  const dashaLord = dasha.planet || dasha.planetSanskrit;
-  const planetData = planets[dashaLord] || planets[dashaLord?.toUpperCase()];
+  if (weakestPlanet === 'Saturn') challenges.push('Avoid delays', 'Practice patience');
+  if (weakestPlanet === 'Mars') challenges.push('Control anger', 'Avoid accidents');
+  if (currentDasha === 'Rahu') challenges.push('Avoid confusion', 'Stay grounded');
   
-  if (dashaLord === 'Jupiter' || dashaLord === 'JU') {
-    return 'Jupiter period brings wisdom, learning opportunities, and spiritual growth';
-  }
-  if (dashaLord === 'Venus' || dashaLord === 'VE') {
-    return 'Venus period enhances creativity, relationships, and material comforts';
-  }
-  if (dashaLord === 'Sun' || dashaLord === 'SU') {
-    return 'Sun period focuses on leadership, recognition, and personal authority';
-  }
-  if (dashaLord === 'Mars' || dashaLord === 'MA') {
-    return 'Mars period brings energy, initiative, and opportunities for bold action';
-  }
-  
-  return `Currently in ${dashaLord} period, bringing its unique energies and life lessons`;
+  return challenges;
 }
 
-function getUpcomingOpportunities(dasha: any, planets: any): string[] {
-  if (!dasha) return ['Personal development', 'New beginnings', 'Skill enhancement'];
+function getAuspiciousPeriods(strongestPlanet?: string, currentDasha?: string): string[] {
+  const periods = ['Your birthday month', 'Festival seasons'];
   
-  const dashaLord = dasha.planet || dasha.planetSanskrit;
-  
-  if (dashaLord === 'Jupiter' || dashaLord === 'JU') {
-    return ['Higher education opportunities', 'Teaching or mentoring roles', 'Spiritual advancement', 'Legal or advisory positions'];
-  }
-  if (dashaLord === 'Venus' || dashaLord === 'VE') {
-    return ['Artistic projects', 'Relationship developments', 'Luxury purchases', 'Beauty or fashion ventures'];
-  }
-  if (dashaLord === 'Mercury' || dashaLord === 'ME') {
-    return ['Communication projects', 'Business ventures', 'Educational pursuits', 'Technology investments'];
-  }
-  
-  return ['Career advancement', 'Personal growth', 'New relationships'];
-}
-
-function getChallengesToWatch(dasha: any, planets: any): string[] {
-  if (!dasha) return ['Health considerations', 'Financial planning', 'Relationship balance'];
-  
-  const dashaLord = dasha.planet || dasha.planetSanskrit;
-  
-  if (dashaLord === 'Saturn' || dashaLord === 'SA') {
-    return ['Delays in projects', 'Health issues', 'Increased responsibilities', 'Patience requirements'];
-  }
-  if (dashaLord === 'Mars' || dashaLord === 'MA') {
-    return ['Aggressive reactions', 'Conflicts', 'Hasty decisions', 'Accident-prone periods'];
-  }
-  if (dashaLord === 'Rahu' || dashaLord === 'RA') {
-    return ['Confusing situations', 'Foreign complications', 'Over-ambition', 'Unconventional challenges'];
-  }
-  
-  return ['Maintaining balance', 'Avoiding extremes', 'Health awareness'];
-}
-
-function getAuspiciousPeriods(dasha: any, planets: any): string[] {
-  const periods = ['Your birthday period', 'Festival seasons'];
-  
-  if (dasha) {
-    const dashaLord = dasha.planet || dasha.planetSanskrit;
-    
-    if (dashaLord === 'Jupiter' || dashaLord === 'JU') {
-      periods.push('Thursday periods', 'Guru Purnima', 'Educational milestone dates');
-    }
-    if (dashaLord === 'Venus' || dashaLord === 'VE') {
-      periods.push('Friday periods', 'Spring season', 'Artistic events');
-    }
-    if (dashaLord === 'Sun' || dashaLord === 'SU') {
-      periods.push('Sunday periods', 'Summer solstice', 'Leadership opportunities');
-    }
-  }
+  if (strongestPlanet === 'Jupiter') periods.push('Thursday periods', 'Guru Purnima');
+  if (strongestPlanet === 'Venus') periods.push('Friday periods', 'Spring season');
+  if (currentDasha === 'Sun') periods.push('Sunday periods', 'Summer months');
   
   return periods;
 }

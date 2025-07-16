@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, User, Briefcase, Heart, Activity, Target, Clock } from "lucide-react";
+import { Sparkles, User, Briefcase, Heart, Activity, Target, Clock, RefreshCw } from "lucide-react";
 import { getGeminiKundaliAnalysis, EnhancedKundaliAnalysis } from '@/lib/geminiKundaliAnalysis';
 import { useToast } from "@/hooks/use-toast";
 
@@ -20,6 +20,7 @@ const EnhancedGeminiAnalysis: React.FC<EnhancedGeminiAnalysisProps> = ({
   const [analysis, setAnalysis] = useState<EnhancedKundaliAnalysis | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('personality');
+  const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
   const getTranslation = (en: string, hi: string) => {
@@ -27,9 +28,20 @@ const EnhancedGeminiAnalysis: React.FC<EnhancedGeminiAnalysisProps> = ({
   };
 
   const generateAnalysis = async () => {
+    console.log('🤖 Starting Enhanced Gemini Analysis generation...');
     setIsLoading(true);
+    setError(null);
+    
     try {
+      console.log('📊 Kundali data for analysis:', {
+        hasData: !!kundaliData,
+        chartKeys: kundaliData?.chart ? Object.keys(kundaliData.chart) : [],
+        enhancedKeys: kundaliData?.enhancedCalculations ? Object.keys(kundaliData.enhancedCalculations) : []
+      });
+
       const result = await getGeminiKundaliAnalysis(kundaliData);
+      console.log('✅ Analysis received:', result);
+      
       setAnalysis(result);
       toast({
         title: getTranslation("Analysis Complete", "विश्लेषण पूर्ण"),
@@ -39,7 +51,8 @@ const EnhancedGeminiAnalysis: React.FC<EnhancedGeminiAnalysisProps> = ({
         ),
       });
     } catch (error) {
-      console.error('Error generating Gemini analysis:', error);
+      console.error('❌ Error generating Gemini analysis:', error);
+      setError(error instanceof Error ? error.message : 'Unknown error occurred');
       toast({
         title: getTranslation("Error", "त्रुटि"),
         description: getTranslation(
@@ -54,12 +67,32 @@ const EnhancedGeminiAnalysis: React.FC<EnhancedGeminiAnalysisProps> = ({
   };
 
   useEffect(() => {
-    if (kundaliData && !analysis) {
-      // Auto-generate analysis on mount
+    if (kundaliData && !analysis && !isLoading) {
+      console.log('🔄 Auto-generating analysis on component mount');
       generateAnalysis();
     }
   }, [kundaliData]);
 
+  // Error state
+  if (error && !analysis) {
+    return (
+      <Card className="text-center p-8 border-red-200">
+        <CardContent>
+          <div className="text-red-500 mb-4">⚠️</div>
+          <h3 className="text-lg font-semibold mb-2 text-red-800">
+            {getTranslation('Analysis Error', 'विश्लेषण त्रुटि')}
+          </h3>
+          <p className="text-red-600 mb-4 text-sm">{error}</p>
+          <Button onClick={generateAnalysis} className="bg-red-600 hover:bg-red-700">
+            <RefreshCw className="h-4 w-4 mr-2" />
+            {getTranslation('Try Again', 'पुनः प्रयास करें')}
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Initial state - no analysis generated yet
   if (!analysis && !isLoading) {
     return (
       <Card className="text-center p-8">
@@ -70,11 +103,12 @@ const EnhancedGeminiAnalysis: React.FC<EnhancedGeminiAnalysisProps> = ({
           </h3>
           <p className="text-gray-600 mb-4">
             {getTranslation(
-              'Get deep insights powered by advanced AI technology',
-              'उन्नत AI तकनीक द्वारा गहरी अंतर्दृष्टि प्राप्त करें'
+              'Get deep insights powered by advanced AI technology based on your birth chart',
+              'आपकी जन्मपत्रिका के आधार पर उन्नत AI तकनीक द्वारा गहरी अंतर्दृष्टि प्राप्त करें'
             )}
           </p>
           <Button onClick={generateAnalysis} className="bg-purple-600 hover:bg-purple-700">
+            <Sparkles className="h-4 w-4 mr-2" />
             {getTranslation('Generate Analysis', 'विश्लेषण तैयार करें')}
           </Button>
         </CardContent>
@@ -82,6 +116,7 @@ const EnhancedGeminiAnalysis: React.FC<EnhancedGeminiAnalysisProps> = ({
     );
   }
 
+  // Loading state
   if (isLoading) {
     return (
       <Card className="text-center p-8">
@@ -91,8 +126,11 @@ const EnhancedGeminiAnalysis: React.FC<EnhancedGeminiAnalysisProps> = ({
             {getTranslation('Generating Enhanced Analysis...', 'उन्नत विश्लेषण तैयार हो रहा है...')}
           </h3>
           <p className="text-gray-600">
-            {getTranslation('Please wait while AI analyzes your birth chart', 'कृपया प्रतीक्षा करें जबकि AI आपकी जन्मपत्रिका का विश्लेषण कर रहा है')}
+            {getTranslation('Please wait while AI analyzes your birth chart...', 'कृपया प्रतीक्षा करें जबकि AI आपकी जन्मपत्रिका का विश्लेषण कर रहा है...')}
           </p>
+          <div className="mt-4 text-sm text-purple-600">
+            {getTranslation('This may take up to 30 seconds', 'इसमें 30 सेकंड तक का समय लग सकता है')}
+          </div>
         </CardContent>
       </Card>
     );
@@ -102,10 +140,21 @@ const EnhancedGeminiAnalysis: React.FC<EnhancedGeminiAnalysisProps> = ({
     <div className="space-y-6">
       <Card className="border-purple-200 shadow-lg">
         <CardHeader className="bg-gradient-to-r from-purple-100 to-indigo-100">
-          <CardTitle className="flex items-center gap-2 text-purple-800">
-            <Sparkles className="h-5 w-5" />
-            {getTranslation('Enhanced AI Analysis', 'उन्नत AI विश्लेषण')}
-          </CardTitle>
+          <div className="flex justify-between items-center">
+            <CardTitle className="flex items-center gap-2 text-purple-800">
+              <Sparkles className="h-5 w-5" />
+              {getTranslation('Enhanced AI Analysis', 'उन्नत AI विश्लेषण')}
+            </CardTitle>
+            <Button 
+              onClick={generateAnalysis} 
+              variant="outline" 
+              size="sm"
+              disabled={isLoading}
+            >
+              <RefreshCw className={`h-4 w-4 mr-1 ${isLoading ? 'animate-spin' : ''}`} />
+              {getTranslation('Refresh', 'रीफ्रेश')}
+            </Button>
+          </div>
         </CardHeader>
         <CardContent className="p-6">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -142,19 +191,19 @@ const EnhancedGeminiAnalysis: React.FC<EnhancedGeminiAnalysisProps> = ({
                   <h4 className="font-semibold text-blue-800 mb-2">
                     {getTranslation('Core Nature', 'मूल प्रकृति')}
                   </h4>
-                  <p className="text-blue-700">{analysis?.detailedPersonality.coreNature}</p>
+                  <p className="text-blue-700">{analysis?.detailedPersonality?.coreNature || getTranslation('Analyzing your fundamental nature...', 'आपकी मूल प्रकृति का विश्लेषण...')}</p>
                 </div>
                 <div className="bg-green-50 p-4 rounded-lg">
                   <h4 className="font-semibold text-green-800 mb-2">
                     {getTranslation('Mental Tendencies', 'मानसिक प्रवृत्तियां')}
                   </h4>
-                  <p className="text-green-700">{analysis?.detailedPersonality.mentalTendencies}</p>
+                  <p className="text-green-700">{analysis?.detailedPersonality?.mentalTendencies || getTranslation('Understanding your thought patterns...', 'आपके विचार पैटर्न को समझना...')}</p>
                 </div>
                 <div className="bg-purple-50 p-4 rounded-lg">
                   <h4 className="font-semibold text-purple-800 mb-2">
                     {getTranslation('Emotional Patterns', 'भावनात्मक पैटर्न')}
                   </h4>
-                  <p className="text-purple-700">{analysis?.detailedPersonality.emotionalPatterns}</p>
+                  <p className="text-purple-700">{analysis?.detailedPersonality?.emotionalPatterns || getTranslation('Analyzing emotional responses...', 'भावनात्मक प्रतिक्रियाओं का विश्लेषण...')}</p>
                 </div>
               </div>
             </TabsContent>
@@ -166,24 +215,27 @@ const EnhancedGeminiAnalysis: React.FC<EnhancedGeminiAnalysisProps> = ({
                     {getTranslation('Ideal Professions', 'आदर्श व्यवसाय')}
                   </h4>
                   <div className="flex flex-wrap gap-2">
-                    {analysis?.careerGuidance.idealProfessions.map((profession, index) => (
-                      <Badge key={index} variant="outline" className="bg-orange-100 text-orange-800">
-                        {profession}
-                      </Badge>
-                    ))}
+                    {analysis?.careerGuidance?.idealProfessions?.length > 0 ? 
+                      analysis.careerGuidance.idealProfessions.map((profession, index) => (
+                        <Badge key={index} variant="outline" className="bg-orange-100 text-orange-800">
+                          {profession}
+                        </Badge>
+                      )) :
+                      <span className="text-orange-700">{getTranslation('Analyzing career potentials...', 'करियर क्षमताओं का विश्लेषण...')}</span>
+                    }
                   </div>
                 </div>
                 <div className="bg-yellow-50 p-4 rounded-lg">
                   <h4 className="font-semibold text-yellow-800 mb-2">
                     {getTranslation('Business Aptitude', 'व्यापारिक योग्यता')}
                   </h4>
-                  <p className="text-yellow-700">{analysis?.careerGuidance.businessAptitude}</p>
+                  <p className="text-yellow-700">{analysis?.careerGuidance?.businessAptitude || getTranslation('Evaluating business potential...', 'व्यापारिक क्षमता का मूल्यांकन...')}</p>
                 </div>
                 <div className="bg-indigo-50 p-4 rounded-lg">
                   <h4 className="font-semibold text-indigo-800 mb-2">
                     {getTranslation('Leadership Qualities', 'नेतृत्व गुण')}
                   </h4>
-                  <p className="text-indigo-700">{analysis?.careerGuidance.leadershipQualities}</p>
+                  <p className="text-indigo-700">{analysis?.careerGuidance?.leadershipQualities || getTranslation('Assessing leadership abilities...', 'नेतृत्व क्षमताओं का आकलन...')}</p>
                 </div>
               </div>
             </TabsContent>
@@ -194,19 +246,19 @@ const EnhancedGeminiAnalysis: React.FC<EnhancedGeminiAnalysisProps> = ({
                   <h4 className="font-semibold text-pink-800 mb-2">
                     {getTranslation('Marriage Timing', 'विवाह का समय')}
                   </h4>
-                  <p className="text-pink-700">{analysis?.relationshipInsights.marriageTimings}</p>
+                  <p className="text-pink-700">{analysis?.relationshipInsights?.marriageTimings || getTranslation('Analyzing marriage prospects...', 'विवाह की संभावनाओं का विश्लेषण...')}</p>
                 </div>
                 <div className="bg-rose-50 p-4 rounded-lg">
                   <h4 className="font-semibold text-rose-800 mb-2">
                     {getTranslation('Partner Qualities', 'साथी के गुण')}
                   </h4>
-                  <p className="text-rose-700">{analysis?.relationshipInsights.partnerQualities}</p>
+                  <p className="text-rose-700">{analysis?.relationshipInsights?.partnerQualities || getTranslation('Understanding ideal partner traits...', 'आदर्श साथी के गुणों को समझना...')}</p>
                 </div>
                 <div className="bg-red-50 p-4 rounded-lg">
                   <h4 className="font-semibold text-red-800 mb-2">
                     {getTranslation('Family Life', 'पारिवारिक जीवन')}
                   </h4>
-                  <p className="text-red-700">{analysis?.relationshipInsights.familyLife}</p>
+                  <p className="text-red-700">{analysis?.relationshipInsights?.familyLife || getTranslation('Examining family dynamics...', 'पारिवारिक गतिशीलता की जांच...')}</p>
                 </div>
               </div>
             </TabsContent>
@@ -217,18 +269,21 @@ const EnhancedGeminiAnalysis: React.FC<EnhancedGeminiAnalysisProps> = ({
                   <h4 className="font-semibold text-green-800 mb-2">
                     {getTranslation('General Health', 'सामान्य स्वास्थ्य')}
                   </h4>
-                  <p className="text-green-700">{analysis?.healthPredictions.generalHealth}</p>
+                  <p className="text-green-700">{analysis?.healthPredictions?.generalHealth || getTranslation('Assessing overall health constitution...', 'समग्र स्वास्थ्य संविधान का आकलन...')}</p>
                 </div>
                 <div className="bg-yellow-50 p-4 rounded-lg">
                   <h4 className="font-semibold text-yellow-800 mb-2">
                     {getTranslation('Vulnerable Areas', 'संवेदनशील क्षेत्र')}
                   </h4>
                   <div className="flex flex-wrap gap-2">
-                    {analysis?.healthPredictions.vulnerableAreas.map((area, index) => (
-                      <Badge key={index} variant="outline" className="bg-yellow-100 text-yellow-800">
-                        {area}
-                      </Badge>
-                    ))}
+                    {analysis?.healthPredictions?.vulnerableAreas?.length > 0 ? 
+                      analysis.healthPredictions.vulnerableAreas.map((area, index) => (
+                        <Badge key={index} variant="outline" className="bg-yellow-100 text-yellow-800">
+                          {area}
+                        </Badge>
+                      )) :
+                      <span className="text-yellow-700">{getTranslation('Identifying health patterns...', 'स्वास्थ्य पैटर्न की पहचान...')}</span>
+                    }
                   </div>
                 </div>
                 <div className="bg-blue-50 p-4 rounded-lg">
@@ -236,12 +291,15 @@ const EnhancedGeminiAnalysis: React.FC<EnhancedGeminiAnalysisProps> = ({
                     {getTranslation('Preventive Measures', 'निवारक उपाय')}
                   </h4>
                   <ul className="text-blue-700 space-y-1">
-                    {analysis?.healthPredictions.preventiveMeasures.map((measure, index) => (
-                      <li key={index} className="flex items-center gap-2">
-                        <span className="w-1.5 h-1.5 bg-blue-600 rounded-full"></span>
-                        {measure}
-                      </li>
-                    ))}
+                    {analysis?.healthPredictions?.preventiveMeasures?.length > 0 ? 
+                      analysis.healthPredictions.preventiveMeasures.map((measure, index) => (
+                        <li key={index} className="flex items-center gap-2">
+                          <span className="w-1.5 h-1.5 bg-blue-600 rounded-full"></span>
+                          {measure}
+                        </li>
+                      )) :
+                      <li className="text-blue-700">{getTranslation('Preparing health recommendations...', 'स्वास्थ्य सिफारिशें तैयार कर रहे हैं...')}</li>
+                    }
                   </ul>
                 </div>
               </div>
@@ -253,25 +311,28 @@ const EnhancedGeminiAnalysis: React.FC<EnhancedGeminiAnalysisProps> = ({
                   <h4 className="font-semibold text-purple-800 mb-2">
                     {getTranslation('Life Dharma', 'जीवन धर्म')}
                   </h4>
-                  <p className="text-purple-700">{analysis?.spiritualPath.dharma}</p>
+                  <p className="text-purple-700">{analysis?.spiritualPath?.dharma || getTranslation('Discovering your life purpose...', 'आपके जीवन के उद्देश्य की खोज...')}</p>
                 </div>
                 <div className="bg-indigo-50 p-4 rounded-lg">
                   <h4 className="font-semibold text-indigo-800 mb-2">
                     {getTranslation('Karma Lessons', 'कर्म पाठ')}
                   </h4>
-                  <p className="text-indigo-700">{analysis?.spiritualPath.karmaLessons}</p>
+                  <p className="text-indigo-700">{analysis?.spiritualPath?.karmaLessons || getTranslation('Understanding karmic patterns...', 'कर्मिक पैटर्न को समझना...')}</p>
                 </div>
                 <div className="bg-violet-50 p-4 rounded-lg">
                   <h4 className="font-semibold text-violet-800 mb-2">
                     {getTranslation('Spiritual Practices', 'आध्यात्मिक अभ्यास')}
                   </h4>
                   <ul className="text-violet-700 space-y-1">
-                    {analysis?.spiritualPath.spiritualPractices.map((practice, index) => (
-                      <li key={index} className="flex items-center gap-2">
-                        <span className="w-1.5 h-1.5 bg-violet-600 rounded-full"></span>
-                        {practice}
-                      </li>
-                    ))}
+                    {analysis?.spiritualPath?.spiritualPractices?.length > 0 ? 
+                      analysis.spiritualPath.spiritualPractices.map((practice, index) => (
+                        <li key={index} className="flex items-center gap-2">
+                          <span className="w-1.5 h-1.5 bg-violet-600 rounded-full"></span>
+                          {practice}
+                        </li>
+                      )) :
+                      <li className="text-violet-700">{getTranslation('Identifying spiritual practices...', 'आध्यात्मिक प्रथाओं की पहचान...')}</li>
+                    }
                   </ul>
                 </div>
               </div>
@@ -283,19 +344,22 @@ const EnhancedGeminiAnalysis: React.FC<EnhancedGeminiAnalysisProps> = ({
                   <h4 className="font-semibold text-teal-800 mb-2">
                     {getTranslation('Current Phase', 'वर्तमान चरण')}
                   </h4>
-                  <p className="text-teal-700">{analysis?.timingPredictions.currentPhase}</p>
+                  <p className="text-teal-700">{analysis?.timingPredictions?.currentPhase || getTranslation('Analyzing current life phase...', 'वर्तमान जीवन चरण का विश्लेषण...')}</p>
                 </div>
                 <div className="bg-cyan-50 p-4 rounded-lg">
                   <h4 className="font-semibold text-cyan-800 mb-2">
                     {getTranslation('Upcoming Opportunities', 'आगामी अवसर')}
                   </h4>
                   <ul className="text-cyan-700 space-y-1">
-                    {analysis?.timingPredictions.upcomingOpportunities.map((opportunity, index) => (
-                      <li key={index} className="flex items-center gap-2">
-                        <span className="w-1.5 h-1.5 bg-cyan-600 rounded-full"></span>
-                        {opportunity}
-                      </li>
-                    ))}
+                    {analysis?.timingPredictions?.upcomingOpportunities?.length > 0 ? 
+                      analysis.timingPredictions.upcomingOpportunities.map((opportunity, index) => (
+                        <li key={index} className="flex items-center gap-2">
+                          <span className="w-1.5 h-1.5 bg-cyan-600 rounded-full"></span>
+                          {opportunity}
+                        </li>
+                      )) :
+                      <li className="text-cyan-700">{getTranslation('Identifying future opportunities...', 'भविष्य के अवसरों की पहचान...')}</li>
+                    }
                   </ul>
                 </div>
                 <div className="bg-emerald-50 p-4 rounded-lg">
@@ -303,11 +367,14 @@ const EnhancedGeminiAnalysis: React.FC<EnhancedGeminiAnalysisProps> = ({
                     {getTranslation('Auspicious Periods', 'शुभ काल')}
                   </h4>
                   <div className="flex flex-wrap gap-2">
-                    {analysis?.timingPredictions.auspiciousPeriods.map((period, index) => (
-                      <Badge key={index} variant="outline" className="bg-emerald-100 text-emerald-800">
-                        {period}
-                      </Badge>
-                    ))}
+                    {analysis?.timingPredictions?.auspiciousPeriods?.length > 0 ? 
+                      analysis.timingPredictions.auspiciousPeriods.map((period, index) => (
+                        <Badge key={index} variant="outline" className="bg-emerald-100 text-emerald-800">
+                          {period}
+                        </Badge>
+                      )) :
+                      <span className="text-emerald-700">{getTranslation('Calculating auspicious timings...', 'शुभ समय की गणना...')}</span>
+                    }
                   </div>
                 </div>
               </div>
