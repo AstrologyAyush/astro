@@ -1,4 +1,3 @@
-
 /**
  * Gemini AI Integration for Enhanced Kundali Analysis
  * Provides intelligent interpretations and predictions
@@ -504,5 +503,3 @@ function getAuspiciousPeriods(strongestPlanet?: string, currentDasha?: string): 
   
   return periods;
 }
-
-export type { EnhancedKundaliAnalysis };
