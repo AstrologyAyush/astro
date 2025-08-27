@@ -13,19 +13,28 @@ const responseCache = new Map();
 const CACHE_TTL = 10 * 60 * 1000; // 10 minutes
 
 serve(async (req) => {
+  console.log('🔥 EDGE FUNCTION: Request received', req.method, req.url);
+  
   if (req.method === 'OPTIONS') {
+    console.log('🔥 EDGE FUNCTION: Handling OPTIONS request');
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    console.log('🔥 EDGE FUNCTION: Processing request...');
     const requestBody = await req.json();
+    console.log('🔥 EDGE FUNCTION: Request body parsed successfully');
     const { kundaliData, userQuery, language = 'en', analysisType = 'general' } = requestBody;
+    console.log('🔥 EDGE FUNCTION: Extracted parameters:', { analysisType, language, hasKundaliData: !!kundaliData, userQueryLength: userQuery?.length });
 
     if (!kundaliData || !userQuery?.trim()) {
+      console.log('🔥 EDGE FUNCTION: Missing required data');
       throw new Error('Missing required data: kundaliData and userQuery are required');
     }
 
+    console.log('🔥 EDGE FUNCTION: GEMINI_API_KEY available:', !!GEMINI_API_KEY);
     if (!GEMINI_API_KEY) {
+      console.log('🔥 EDGE FUNCTION: No Gemini API key, using fallback');
       return new Response(JSON.stringify({ 
         analysis: generateFallbackAnalysis(kundaliData, userQuery, language, analysisType)
       }), {
@@ -105,6 +114,7 @@ Keep response conversational yet profound, showing your ancient wisdom while bei
         : createDetailedKundaliPrompt(kundaliData, userQuery, language, analysisType);
       
       const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`;
+      console.log('🔥 EDGE FUNCTION: Calling Gemini API...');
       
       const response = await fetch(geminiUrl, {
         method: 'POST',
@@ -142,13 +152,17 @@ Keep response conversational yet profound, showing your ancient wisdom while bei
       }
 
       const data = await response.json();
+      console.log('🔥 EDGE FUNCTION: Gemini response received:', !!data);
       analysis = data.candidates?.[0]?.content?.parts?.[0]?.text;
+      console.log('🔥 EDGE FUNCTION: Analysis extracted:', !!analysis);
       
       if (!analysis) {
+        console.log('🔥 EDGE FUNCTION: No analysis text in response, using fallback');
         throw new Error('No analysis text received from Gemini');
       }
 
     } catch (apiError) {
+      console.log('🔥 EDGE FUNCTION: API Error, using fallback:', apiError.message);
       analysis = generateFallbackAnalysis(kundaliData, userQuery, language, analysisType);
     }
 
@@ -172,11 +186,15 @@ Keep response conversational yet profound, showing your ancient wisdom while bei
       }
     }
 
+    console.log('🔥 EDGE FUNCTION: Sending response with analysis length:', analysis?.length);
     return new Response(JSON.stringify({ analysis }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
   } catch (error) {
+    console.log('🔥 EDGE FUNCTION: MAIN ERROR CAUGHT:', error.message);
+    console.log('🔥 EDGE FUNCTION: Error stack:', error.stack);
+    
     const language = req.headers.get('accept-language')?.includes('hi') ? 'hi' : 'en';
     
     const fallbackResponse = {
