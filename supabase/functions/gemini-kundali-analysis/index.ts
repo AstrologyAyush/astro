@@ -17,6 +17,7 @@ serve(async (req) => {
     
     const geminiApiKey = Deno.env.get('GEMINI_API_KEY');
     if (!geminiApiKey) {
+      console.error('GEMINI_API_KEY not found in environment');
       return new Response(
         JSON.stringify({ error: 'Gemini API key not configured' }), 
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -63,6 +64,7 @@ serve(async (req) => {
     });
 
   } catch (error) {
+    console.error('Error in gemini-kundali-analysis function:', error);
     return new Response(
       JSON.stringify({ error: error.message }), 
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

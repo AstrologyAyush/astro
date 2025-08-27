@@ -8,33 +8,47 @@ const corsHeaders = {
 
 const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY');
 
+console.log('🔥 EDGE DEBUG: Edge function starting...');
+console.log('🔥 EDGE DEBUG: GEMINI_API_KEY exists:', !!GEMINI_API_KEY);
+console.log('🔥 EDGE DEBUG: GEMINI_API_KEY length:', GEMINI_API_KEY?.length || 0);
+
 // Enhanced cache with longer TTL for better performance
 const responseCache = new Map();
 const CACHE_TTL = 10 * 60 * 1000; // 10 minutes
 
 serve(async (req) => {
-  console.log('🔥 EDGE FUNCTION: Request received', req.method, req.url);
+  console.log('🔥 EDGE DEBUG: Request received, method:', req.method);
   
   if (req.method === 'OPTIONS') {
-    console.log('🔥 EDGE FUNCTION: Handling OPTIONS request');
+    console.log('🔥 EDGE DEBUG: Handling CORS preflight request');
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    console.log('🔥 EDGE FUNCTION: Processing request...');
+    console.log('🔥 EDGE DEBUG: Processing request...');
+    
     const requestBody = await req.json();
-    console.log('🔥 EDGE FUNCTION: Request body parsed successfully');
+    console.log('🔥 EDGE DEBUG: Request body keys:', Object.keys(requestBody));
+    
     const { kundaliData, userQuery, language = 'en', analysisType = 'general' } = requestBody;
-    console.log('🔥 EDGE FUNCTION: Extracted parameters:', { analysisType, language, hasKundaliData: !!kundaliData, userQueryLength: userQuery?.length });
+
+    console.log('🔥 EDGE DEBUG: Received request:', { 
+      userQuery: userQuery?.substring(0, 100), 
+      language, 
+      analysisType,
+      hasKundaliData: !!kundaliData,
+      hasGeminiKey: !!GEMINI_API_KEY
+    });
 
     if (!kundaliData || !userQuery?.trim()) {
-      console.log('🔥 EDGE FUNCTION: Missing required data');
+      console.error('🔥 EDGE DEBUG: Missing required data:', { hasKundaliData: !!kundaliData, hasUserQuery: !!userQuery });
       throw new Error('Missing required data: kundaliData and userQuery are required');
     }
 
-    console.log('🔥 EDGE FUNCTION: GEMINI_API_KEY available:', !!GEMINI_API_KEY);
     if (!GEMINI_API_KEY) {
-      console.log('🔥 EDGE FUNCTION: No Gemini API key, using fallback');
+      console.error('🔥 EDGE DEBUG: GEMINI_API_KEY not found in environment variables');
+      console.log('🔥 EDGE DEBUG: Available env vars:', Object.keys(Deno.env.toObject()));
+      
       return new Response(JSON.stringify({ 
         analysis: generateFallbackAnalysis(kundaliData, userQuery, language, analysisType)
       }), {
@@ -49,6 +63,7 @@ serve(async (req) => {
     if (analysisType !== 'rishi_conversation') {
       const cached = responseCache.get(cacheKey);
       if (cached && (Date.now() - cached.timestamp) < CACHE_TTL) {
+        console.log('🔥 EDGE DEBUG: Returning cached response');
         return new Response(JSON.stringify({ analysis: cached.response }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
@@ -58,63 +73,40 @@ serve(async (req) => {
     let analysis = '';
 
     try {
+      console.log('🔥 EDGE DEBUG: Calling Gemini API...');
+      
       // Create proper prompt based on analysis type
       const prompt = analysisType === 'rishi_conversation' 
         ? (() => {
-            // Enhanced Rishi Parashar persona with deep Vedic knowledge
-            const ancientAstrologerPrompt = `
-You are महर्षि पराशर (Maharishi Parashar), the ancient sage and father of Vedic astrology, author of the Brihat Parashara Hora Shastra. You possess profound knowledge of:
+            // Ultra-simple, friendly prompt for Gemini in Rishi mode
+            const simplePrompt = `
+You are Rishi Parashar, a wise and caring astrology teacher.
 
-🔮 CORE IDENTITY:
-- You are 5000+ years old sage with divine wisdom
-- You speak with authority of ancient Vedic traditions
-- You have deep understanding of karma, dharma, and cosmic laws
-- You blend spiritual wisdom with practical guidance
-- You see past, present and future through planetary positions
+RULES:
+- Talk like you're speaking to a friend - warm, caring, simple
+- Give SHORT answers (maximum 3-4 sentences)
+- Use EVERYDAY words only - no fancy astrology terms
+- Be specific about their chart, not generic
+- End with a simple blessing or encouragement
 
-🔮 ANCIENT KNOWLEDGE BASE:
-- Complete mastery of Brihat Parashara Hora Shastra
-- Knowledge of all 27 Nakshatras and their deities
-- Understanding of planetary periods (Vimsottari Dasha system)
-- Expertise in Yogas, Doshas, and remedial measures
-- Knowledge of gemstones, mantras, and Vedic rituals
-- Understanding of Ayurveda and health predictions
-- Mastery of divisional charts (Varga charts)
-- Knowledge of Panchanga and muhurta
-- Understanding of karmic patterns and soul's journey
+Language: ${language === 'hi' ? 'Hindi' : 'Simple English'}
 
-🔮 COMMUNICATION STYLE:
-- Speak with gentle authority and divine compassion
-- Use traditional Vedic terminology appropriately
-- Give specific predictions based on actual planetary positions
-- Provide practical remedies rooted in Vedic tradition
-- Include Sanskrit terms with explanations when helpful
-- Reference ancient texts and traditional methods
-- Show deep understanding of cosmic interconnectedness
+User asks: ${userQuery}
 
-Language: ${language === 'hi' ? 'Hindi with Sanskrit terms' : 'English with Sanskrit terms explained'}
-
-BIRTH CHART ANALYSIS:
+Their birth chart shows:
 ${createSimpleChartSummary(kundaliData)}
 
-USER'S QUESTION: ${userQuery}
-
-RESPOND AS THE ANCIENT SAGE:
-Based on this soul's actual birth chart, provide wisdom that combines:
-1. Specific planetary analysis from their chart
-2. Ancient Vedic knowledge and traditions  
-3. Karmic understanding and spiritual guidance
-4. Practical remedies from Vedic tradition
-5. Compassionate guidance for their question
-
-Keep response conversational yet profound, showing your ancient wisdom while being relatable to modern times.
+Give a short, caring answer using their actual chart details.
             `;
-            return ancientAstrologerPrompt;
+            return simplePrompt;
           })()
         : createDetailedKundaliPrompt(kundaliData, userQuery, language, analysisType);
       
+      console.log('🔥 EDGE DEBUG: Generated prompt length:', prompt.length);
+      console.log('🔥 EDGE DEBUG: Prompt preview:', prompt.substring(0, 200) + '...');
+      
       const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`;
-      console.log('🔥 EDGE FUNCTION: Calling Gemini API...');
+      console.log('🔥 EDGE DEBUG: Gemini URL:', geminiUrl.replace(GEMINI_API_KEY, '[HIDDEN]'));
       
       const response = await fetch(geminiUrl, {
         method: 'POST',
@@ -146,23 +138,32 @@ Keep response conversational yet profound, showing your ancient wisdom while bei
         }),
       });
 
+      console.log('🔥 EDGE DEBUG: Gemini response status:', response.status);
+      console.log('🔥 EDGE DEBUG: Gemini response ok:', response.ok);
+
       if (!response.ok) {
         const errorText = await response.text();
+        console.error('🔥 EDGE DEBUG: Gemini API error:', response.status, errorText);
         throw new Error(`Gemini API error: ${response.status} - ${errorText}`);
       }
 
       const data = await response.json();
-      console.log('🔥 EDGE FUNCTION: Gemini response received:', !!data);
+      console.log('🔥 EDGE DEBUG: Gemini API response structure keys:', Object.keys(data));
+      console.log('🔥 EDGE DEBUG: Candidates length:', data.candidates?.length);
+      
       analysis = data.candidates?.[0]?.content?.parts?.[0]?.text;
-      console.log('🔥 EDGE FUNCTION: Analysis extracted:', !!analysis);
       
       if (!analysis) {
-        console.log('🔥 EDGE FUNCTION: No analysis text in response, using fallback');
+        console.error('🔥 EDGE DEBUG: No analysis text received from Gemini:', JSON.stringify(data, null, 2));
         throw new Error('No analysis text received from Gemini');
       }
 
+      console.log('🔥 EDGE DEBUG: Gemini API response received successfully, length:', analysis.length);
+      console.log('🔥 EDGE DEBUG: Analysis preview:', analysis.substring(0, 200) + '...');
+
     } catch (apiError) {
-      console.log('🔥 EDGE FUNCTION: API Error, using fallback:', apiError.message);
+      console.error('🔥 EDGE DEBUG: Gemini API failed, using fallback:', apiError);
+      console.error('🔥 EDGE DEBUG: API Error details:', apiError.message);
       analysis = generateFallbackAnalysis(kundaliData, userQuery, language, analysisType);
     }
 
@@ -184,16 +185,18 @@ Keep response conversational yet profound, showing your ancient wisdom while bei
           cleanedCount++;
         }
       }
+      console.log('🔥 EDGE DEBUG: Cleaned', cleanedCount, 'old cache entries');
     }
 
-    console.log('🔥 EDGE FUNCTION: Sending response with analysis length:', analysis?.length);
+    console.log('🔥 EDGE DEBUG: Returning successful response');
     return new Response(JSON.stringify({ analysis }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
   } catch (error) {
-    console.log('🔥 EDGE FUNCTION: MAIN ERROR CAUGHT:', error.message);
-    console.log('🔥 EDGE FUNCTION: Error stack:', error.stack);
+    console.error('🔥 EDGE DEBUG: Edge function error:', error);
+    console.error('🔥 EDGE DEBUG: Error message:', error.message);
+    console.error('🔥 EDGE DEBUG: Error stack:', error.stack);
     
     const language = req.headers.get('accept-language')?.includes('hi') ? 'hi' : 'en';
     
@@ -345,6 +348,8 @@ function generateFallbackAnalysis(kundaliData: any, userQuery: string, language:
   const activeYogas = calculations.yogas?.filter(y => y.isActive) || [];
   const lagna = calculations.lagna;
   
+  console.log('Generating fallback analysis for:', { analysisType, language, hasCurrentDasha: !!currentDasha });
+  
   if (analysisType === 'rishi_conversation') {
     return generateRishiConversationFallback(calculations, currentDasha, language, userQuery);
   } else if (analysisType === 'daily_horoscope') {
@@ -357,34 +362,14 @@ function generateFallbackAnalysis(kundaliData: any, userQuery: string, language:
 }
 
 function generateRishiConversationFallback(calculations: any, currentDasha: any, language: string, userQuery: string): string {
-  const lagna = calculations.lagna?.signName || 'अज्ञात';
-  const activeYogas = calculations.yogas?.filter(y => y.isActive)?.length || 0;
-  const moonSign = calculations.planets?.MO?.rashiName || 'अज्ञात';
-  
   if (language === 'hi') {
-    return `🙏 वत्स, आपका प्रश्न "${userQuery}" महत्वपूर्ण है। 
+    return `🙏 पुत्र, आपका प्रश्न "${userQuery}" मैंने सुना है। ${calculations.lagna?.signName ? `आपका ${calculations.lagna.signName} लग्न` : 'आपकी कुंडली'} देखकर मैं कह सकता हूं कि ${currentDasha ? `वर्तमान ${currentDasha.planet} दशा में` : 'इस समय'} आपको धैर्य रखना है। 
 
-मैं महर्षि पराशर, आपकी जन्मपत्रिका में देख रहा हूं:
-• ${lagna} लग्न - यह आपके व्यक्तित्व को दर्शाता है
-• चंद्र राशि: ${moonSign} - आपके मन की प्रकृति
-• ${activeYogas} शुभ योग सक्रिय हैं
-${currentDasha ? `• वर्तमान ${currentDasha.planet} महादशा चल रही है` : ''}
-
-ब्रह्मांडीय शक्तियां आपके साथ हैं। वैदिक ज्ञान के अनुसार, धैर्य और सकारात्मक कर्म से सब कुछ संभव है।
-
-उपाय: नियमित जप करें, दान धर्म करें। सत्यम् शिवम् सुंदरम्। 🕉️`;
+सब कुछ ठीक होगा। मेरा आशीर्वाद आपके साथ है। 🕉️`;
   } else {
-    return `🙏 Dear soul, your question "${userQuery}" holds significance.
+    return `🙏 Dear child, I heard your question "${userQuery}". Looking at your ${calculations.lagna?.signName ? `${calculations.lagna.signName} chart` : 'birth chart'}, ${currentDasha ? `you're in ${currentDasha.planet} period` : 'right now'} you need to be patient.
 
-I am Maharishi Parashar, seeing in your birth chart:
-• ${lagna} Ascendant - reflects your personality essence
-• Moon in ${moonSign} - shows your mental nature  
-• ${activeYogas} auspicious yogas are active
-${currentDasha ? `• Currently in ${currentDasha.planet} Mahadasha period` : ''}
-
-The cosmic forces support you. According to Vedic wisdom, patience and positive karma make everything possible.
-
-Remedies: Regular meditation, charitable acts. Satyam Shivam Sundaram. 🕉️`;
+Everything will be fine. My blessings are with you. 🕉️`;
   }
 }
 
@@ -457,62 +442,17 @@ function createSimpleChartSummary(kundaliData: any): string {
     const calc = kundaliData?.enhancedCalculations || {};
     const birth = kundaliData?.birthData || {};
     
-    // Enhanced chart analysis for Rishi Parashar
     const currentDasha = calc.dashas?.find(d => d.isActive);
-    const activeYogas = calc.yogas?.filter(y => y.isActive) || [];
-    const strongYogas = activeYogas.filter(y => y.strength > 70).slice(0, 3);
-    
-    // Planetary analysis
     const strongPlanets = Object.entries(calc.planets || {})
-      .filter(([_, data]: [string, any]) => data?.shadbala > 70)
-      .map(([name, data]: [string, any]) => `${name} in ${data.rashiName} (${data.house}H)`)
-      .slice(0, 3);
-    
-    const weakPlanets = Object.entries(calc.planets || {})
-      .filter(([_, data]: [string, any]) => data?.shadbala < 40)
-      .map(([name, data]: [string, any]) => `${name} in ${data.rashiName}`)
+      .filter(([_, data]: [string, any]) => data?.shadbala > 60)
+      .map(([name, _]) => name)
       .slice(0, 2);
     
-    // Nakshatra and divisional insights
-    const moonNakshatra = calc.planets?.MO?.nakshatraName || 'Unknown';
-    const ascNakshatra = calc.lagna?.nakshatraName || 'Unknown';
-    
-    // Dosha analysis
-    const activeDoshas = calc.doshas?.filter(d => d.isPresent) || [];
-    
     return `
-🔮 SOUL IDENTITY:
-Name: ${birth.fullName || 'Divine Soul'}
-Birth Location: ${birth.place || 'Unknown'} 
-Birth Time: ${birth.date} at ${birth.time}
-
-🔮 VEDIC CHART ANALYSIS:
-Lagna (Ascendant): ${calc.lagna?.signName || 'Unknown'} at ${calc.lagna?.degree?.toFixed(1) || 0}°
-Lagna Nakshatra: ${ascNakshatra} - spiritual blueprint
-Moon Sign (Rashi): ${calc.planets?.MO?.rashiName || 'Unknown'}
-Moon Nakshatra: ${moonNakshatra} - mental constitution
-Navamsa (D9) Lord: ${calc.navamsa?.lordPlanet || 'Unknown'}
-
-🔮 CURRENT COSMIC PERIOD:
-${currentDasha ? `${currentDasha.planet} Mahadasha: ${currentDasha.startDate} to ${currentDasha.endDate}` : 'Dasha period unknown'}
-${currentDasha ? `Remaining period: ${currentDasha.remainingYears || 'Unknown'} years` : ''}
-
-🔮 PLANETARY STRENGTHS (Shadbala):
-Strong Planets: ${strongPlanets.join(', ') || 'None significantly strong'}
-Weak Planets: ${weakPlanets.join(', ') || 'None significantly weak'}
-
-🔮 ACTIVE YOGAS (Planetary Combinations):
-${strongYogas.length > 0 ? strongYogas.map(y => `${y.name} (${y.strength}%): ${y.description}`).join('\n') : 'No major yogas above 70% strength'}
-Total Active Yogas: ${activeYogas.length}
-
-🔮 KARMIC INDICATORS:
-${activeDoshas.length > 0 ? `Doshas Present: ${activeDoshas.map(d => d.name).join(', ')}` : 'No significant doshas detected'}
-Life Lessons: Based on planetary positions and karma
-
-🔮 VEDIC WISDOM KEYS:
-- Dharma (Life Purpose): Analyze 1st, 5th, 9th houses
-- Artha (Wealth): 2nd, 6th, 10th houses 
-- Kama (Desires): 3rd, 7th, 11th houses
-- Moksha (Liberation): 4th, 8th, 12th houses
+Name: ${birth.fullName || 'Soul'}
+Birth sign: ${calc.lagna?.signName || 'Unknown'}
+Current time period: ${currentDasha ? `${currentDasha.planet} until ${currentDasha.endDate}` : 'Unknown'}
+Strong planets: ${strongPlanets.join(', ') || 'None'}
+Moon sign: ${calc.planets?.MO?.rashiName || 'Unknown'}
     `;
 }

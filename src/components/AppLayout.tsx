@@ -31,6 +31,9 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const isLoginPage = location.pathname === '/login';
   const isProfilePage = location.pathname === '/profile';
 
+  const toggleLanguage = () => {
+    setLanguage(language === 'hi' ? 'en' : 'hi');
+  };
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300 w-full">
@@ -58,41 +61,16 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                 )}
               </Button>
 
-              {/* Language Dropdown */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="h-8 px-2 rounded-full text-xs border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
-                  >
-                    <Languages className="h-3 w-3 mr-1" />
-                    {language === 'hi' ? 'हिं' : language === 'te' ? 'తె' : language === 'mr' ? 'मर' : language === 'sa' ? 'सं' : 'EN'}
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-40 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
-                  <DropdownMenuItem onClick={() => setLanguage('en')} className="flex items-center justify-between">
-                    English
-                    {language === 'en' && <span className="text-orange-500">✓</span>}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setLanguage('hi')} className="flex items-center justify-between">
-                    हिंदी
-                    {language === 'hi' && <span className="text-orange-500">✓</span>}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setLanguage('te')} className="flex items-center justify-between">
-                    తెలుగు
-                    {language === 'te' && <span className="text-orange-500">✓</span>}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setLanguage('mr')} className="flex items-center justify-between">
-                    मराठी
-                    {language === 'mr' && <span className="text-orange-500">✓</span>}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setLanguage('sa')} className="flex items-center justify-between">
-                    संस्कृत
-                    {language === 'sa' && <span className="text-orange-500">✓</span>}
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              {/* Language Toggle */}
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={toggleLanguage} 
+                className="h-8 px-2 rounded-full text-xs border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
+              >
+                <Languages className="h-3 w-3 mr-1" />
+                {language === 'hi' ? 'EN' : 'हिं'}
+              </Button>
 
               {/* Menu Dropdown for small screens */}
               <DropdownMenu>
@@ -309,24 +287,14 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                 {isDark ? t('light_mode') : t('dark_mode')}
               </Button>
 
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start"
-                  >
-                    <Languages className="h-4 w-4 mr-2" />
-                    {language === 'hi' ? 'हिंदी' : language === 'te' ? 'తెలుగు' : language === 'mr' ? 'मराठी' : language === 'sa' ? 'संस्कृत' : 'English'}
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="w-full bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
-                  <DropdownMenuItem onClick={() => setLanguage('en')}>English</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setLanguage('hi')}>हिंदी</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setLanguage('te')}>తెలుగు</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setLanguage('mr')}>मराठी</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setLanguage('sa')}>संस्कृत</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <Button
+                variant="outline"
+                onClick={toggleLanguage}
+                className="w-full justify-start"
+              >
+                <Languages className="h-4 w-4 mr-2" />
+                {language === 'hi' ? 'English' : 'हिंदी'}
+              </Button>
             </div>
           </div>
         </nav>

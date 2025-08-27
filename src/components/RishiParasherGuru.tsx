@@ -157,7 +157,6 @@ ${enhancedCalc.doshas?.filter(d => d.isPresent).map(d => `${d.name}: ${d.severit
     };
 
     setMessages(prev => [...prev, userMessage]);
-    const currentInput = inputValue;
     setInputValue('');
     setIsLoading(true);
     setConnectionStatus('online');
@@ -174,7 +173,7 @@ ${enhancedCalc.doshas?.filter(d => d.isPresent).map(d => `${d.name}: ${d.severit
 
 ${chartContext}
 
-User Question: ${currentInput}
+User Question: ${inputValue}
 
 Based on this person's ACTUAL birth chart data, current dasha periods, and planetary positions, provide a wise, compassionate response. Be specific to their chart - don't give generic answers. Address their question directly while weaving in relevant astrological insights from their chart.
 
@@ -183,17 +182,12 @@ Respond in ${language === 'hi' ? 'Hindi' : 'English'} in the tone of a loving, w
       console.log('🔥 RISHI DEBUG: About to call Supabase edge function...');
       console.log('🔥 RISHI DEBUG: Request payload preview:', {
         hasKundaliData: !!kundaliData,
-        userQuery: currentInput,
+        userQuery: enhancedPrompt.substring(0, 100) + '...',
         language,
         analysisType: 'rishi_conversation'
       });
 
-      // Add timeout to the edge function call
-      const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('Request timeout')), 30000)
-      );
-
-      const responsePromise = supabase.functions.invoke('kundali-ai-analysis', {
+      const { data, error } = await supabase.functions.invoke('kundali-ai-analysis', {
         body: {
           kundaliData,
           userQuery: enhancedPrompt,
@@ -201,8 +195,6 @@ Respond in ${language === 'hi' ? 'Hindi' : 'English'} in the tone of a loving, w
           analysisType: 'rishi_conversation'
         }
       });
-
-      const { data, error } = await Promise.race([responsePromise, timeoutPromise]) as any;
 
       console.log('🔥 RISHI DEBUG: Supabase response received');
       console.log('🔥 RISHI DEBUG: Error:', error);
@@ -213,9 +205,9 @@ Respond in ${language === 'hi' ? 'Hindi' : 'English'} in the tone of a loving, w
         throw error;
       }
 
-      if (!data || !data.analysis) {
-        console.error('🔥 RISHI DEBUG: No analysis received from edge function');
-        throw new Error('No analysis received from edge function');
+      if (!data) {
+        console.error('🔥 RISHI DEBUG: No data received from edge function');
+        throw new Error('No data received from edge function');
       }
 
       console.log('🔥 RISHI DEBUG: Analysis content:', data.analysis);
@@ -223,7 +215,9 @@ Respond in ${language === 'hi' ? 'Hindi' : 'English'} in the tone of a loving, w
       const rishiMessage: Message = {
         id: (Date.now() + 1).toString(),
         type: 'rishi',
-        content: data.analysis,
+        content: data.analysis || (language === 'hi' 
+          ? 'पुत्र, तकनीकी समस्या के कारण मैं इस समय उत्तर नहीं दे सकता। कृपया बाद में प्रयास करें।'
+          : 'Dear child, due to technical issues, I cannot respond at this moment. Please try again later.'),
         timestamp: new Date()
       };
 
@@ -231,49 +225,29 @@ Respond in ${language === 'hi' ? 'Hindi' : 'English'} in the tone of a loving, w
       setConnectionStatus('online');
       console.log('🔥 RISHI DEBUG: Message added to chat successfully');
 
-    } catch (error: any) {
+    } catch (error) {
       console.error('🔥 RISHI DEBUG: Complete error details:', error);
       console.error('🔥 RISHI DEBUG: Error message:', error.message);
       console.error('🔥 RISHI DEBUG: Error stack:', error.stack);
       
       setConnectionStatus('error');
       
-      // Generate fallback response based on actual chart data
-      const chartCalc = kundaliData?.enhancedCalculations || {};
-      const currentDasha = chartCalc.dashas?.find(d => d.isActive);
-      const lagna = chartCalc.lagna?.signName || 'Unknown';
-      const activeYogas = chartCalc.yogas?.filter(y => y.isActive)?.length || 0;
-      
-      let fallbackContent = '';
-      
-      if (currentInput.toLowerCase().includes('career')) {
-        fallbackContent = language === 'hi' 
-          ? `🙏 पुत्र, आपके करियर के बारे में पूछा गया प्रश्न महत्वपूर्ण है। आपका ${lagna} लग्न और ${currentDasha ? `वर्तमान ${currentDasha.planet} महादशा` : 'दशा काल'} देखकर मैं कह सकता हूं कि मेहनत और धैर्य से आपको सफलता मिलेगी। ${activeYogas} शुभ योग आपकी सहायता करेंगे। 🕉️`
-          : `🙏 Dear child, your career question is important. Looking at your ${lagna} ascendant and ${currentDasha ? `current ${currentDasha.planet} period` : 'planetary period'}, I can say that with hard work and patience, you will achieve success. ${activeYogas} auspicious yogas will help you. 🕉️`;
-      } else if (currentInput.toLowerCase().includes('marriage') || currentInput.toLowerCase().includes('love')) {
-        fallbackContent = language === 'hi' 
-          ? `🙏 पुत्र, प्रेम और विवाह के विषय में आपका प्रश्न देखा है। ${lagna} लग्न वाले व्यक्ति के लिए ${currentDasha ? `${currentDasha.planet} दशा में` : 'इस समय'} धैर्य रखना आवश्यक है। उचित समय पर सब कुछ घटित होगा। 🕉️`
-          : `🙏 Dear child, I see your question about love and marriage. For someone with ${lagna} ascendant, ${currentDasha ? `in ${currentDasha.planet} period` : 'at this time'} patience is essential. Everything will happen at the right time. 🕉️`;
-      } else {
-        fallbackContent = language === 'hi' 
-          ? `🙏 पुत्र, आपका प्रश्न "${currentInput}" महत्वपूर्ण है। ${lagna} लग्न और ${currentDasha ? `${currentDasha.planet} महादशा` : 'वर्तमान दशा'} के आधार पर मैं कह सकता हूं कि धैर्य और सकारात्मक कर्म से सब कुछ संभव है। मेरा आशीर्वाद आपके साथ है। 🕉️`
-          : `🙏 Dear child, your question "${currentInput}" is significant. Based on your ${lagna} ascendant and ${currentDasha ? `${currentDasha.planet} period` : 'current period'}, I can say that with patience and positive actions, everything is possible. My blessings are with you. 🕉️`;
-      }
-
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         type: 'rishi',
-        content: fallbackContent,
+        content: language === 'hi' 
+          ? '🙏 पुत्र, ब्रह्मांडीय ऊर्जाओं में व्यवधान है। कृपया थोड़ी देर बाद पुनः प्रयास करें। आपकी कुंडली के अनुसार धैर्य रखना आपके लिए शुभ है।'
+          : '🙏 Dear child, there is a disturbance in cosmic energies. Please try again after some time. According to your chart, patience is auspicious for you.',
         timestamp: new Date(),
-        isError: false // Don't show as error since we have a meaningful response
+        isError: true
       };
 
       setMessages(prev => [...prev, errorMessage]);
       
       toast({
-        title: language === 'hi' ? "ऋषि जी से जुड़ाव" : "Connected with Rishi ji",
-        description: language === 'hi' ? "आपको उत्तर मिल गया है" : "You have received a response",
-        variant: "default",
+        title: language === 'hi' ? "कनेक्शन त्रुटि" : "Connection Error",
+        description: language === 'hi' ? "ऋषि जी से संपर्क में समस्या हुई है। कृपया पुनः प्रयास करें।" : "There was an issue connecting with Rishi ji. Please try again.",
+        variant: "destructive",
       });
     } finally {
       setIsLoading(false);

@@ -7,63 +7,13 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
+  // Allows to automatically instanciate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "13.0.4"
+    PostgrestVersion: "12.2.3 (519615d)"
   }
   public: {
     Tables: {
-      conversation_participants: {
-        Row: {
-          conversation_id: string
-          joined_at: string | null
-          user_id: string
-        }
-        Insert: {
-          conversation_id: string
-          joined_at?: string | null
-          user_id: string
-        }
-        Update: {
-          conversation_id?: string
-          joined_at?: string | null
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "conversation_participants_conversation_id_fkey"
-            columns: ["conversation_id"]
-            isOneToOne: false
-            referencedRelation: "conversations"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      conversations: {
-        Row: {
-          created_at: string | null
-          created_by: string | null
-          id: string
-          is_group: boolean | null
-          name: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          created_by?: string | null
-          id?: string
-          is_group?: boolean | null
-          name?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          created_by?: string | null
-          id?: string
-          is_group?: boolean | null
-          name?: string | null
-        }
-        Relationships: []
-      }
       kundali_reports: {
         Row: {
           birth_data: Json
@@ -98,38 +48,6 @@ export type Database = {
             columns: ["profile_id"]
             isOneToOne: false
             referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      messages: {
-        Row: {
-          content: string
-          conversation_id: string | null
-          created_at: string | null
-          id: string
-          sender_id: string | null
-        }
-        Insert: {
-          content: string
-          conversation_id?: string | null
-          created_at?: string | null
-          id?: string
-          sender_id?: string | null
-        }
-        Update: {
-          content?: string
-          conversation_id?: string | null
-          created_at?: string | null
-          id?: string
-          sender_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "messages_conversation_id_fkey"
-            columns: ["conversation_id"]
-            isOneToOne: false
-            referencedRelation: "conversations"
             referencedColumns: ["id"]
           },
         ]
@@ -378,8 +296,8 @@ export type Database = {
     Functions: {
       has_role: {
         Args: {
-          _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
+          _role: Database["public"]["Enums"]["app_role"]
         }
         Returns: boolean
       }
