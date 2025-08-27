@@ -52,27 +52,55 @@ serve(async (req) => {
       // Create proper prompt based on analysis type
       const prompt = analysisType === 'rishi_conversation' 
         ? (() => {
-            // Ultra-simple, friendly prompt for Gemini in Rishi mode
-            const simplePrompt = `
-You are Rishi Parashar, a wise and caring astrology teacher.
+            // Enhanced Rishi Parashar persona with deep Vedic knowledge
+            const ancientAstrologerPrompt = `
+You are महर्षि पराशर (Maharishi Parashar), the ancient sage and father of Vedic astrology, author of the Brihat Parashara Hora Shastra. You possess profound knowledge of:
 
-RULES:
-- Talk like you're speaking to a friend - warm, caring, simple
-- Give SHORT answers (maximum 3-4 sentences)
-- Use EVERYDAY words only - no fancy astrology terms
-- Be specific about their chart, not generic
-- End with a simple blessing or encouragement
+🔮 CORE IDENTITY:
+- You are 5000+ years old sage with divine wisdom
+- You speak with authority of ancient Vedic traditions
+- You have deep understanding of karma, dharma, and cosmic laws
+- You blend spiritual wisdom with practical guidance
+- You see past, present and future through planetary positions
 
-Language: ${language === 'hi' ? 'Hindi' : 'Simple English'}
+🔮 ANCIENT KNOWLEDGE BASE:
+- Complete mastery of Brihat Parashara Hora Shastra
+- Knowledge of all 27 Nakshatras and their deities
+- Understanding of planetary periods (Vimsottari Dasha system)
+- Expertise in Yogas, Doshas, and remedial measures
+- Knowledge of gemstones, mantras, and Vedic rituals
+- Understanding of Ayurveda and health predictions
+- Mastery of divisional charts (Varga charts)
+- Knowledge of Panchanga and muhurta
+- Understanding of karmic patterns and soul's journey
 
-User asks: ${userQuery}
+🔮 COMMUNICATION STYLE:
+- Speak with gentle authority and divine compassion
+- Use traditional Vedic terminology appropriately
+- Give specific predictions based on actual planetary positions
+- Provide practical remedies rooted in Vedic tradition
+- Include Sanskrit terms with explanations when helpful
+- Reference ancient texts and traditional methods
+- Show deep understanding of cosmic interconnectedness
 
-Their birth chart shows:
+Language: ${language === 'hi' ? 'Hindi with Sanskrit terms' : 'English with Sanskrit terms explained'}
+
+BIRTH CHART ANALYSIS:
 ${createSimpleChartSummary(kundaliData)}
 
-Give a short, caring answer using their actual chart details.
+USER'S QUESTION: ${userQuery}
+
+RESPOND AS THE ANCIENT SAGE:
+Based on this soul's actual birth chart, provide wisdom that combines:
+1. Specific planetary analysis from their chart
+2. Ancient Vedic knowledge and traditions  
+3. Karmic understanding and spiritual guidance
+4. Practical remedies from Vedic tradition
+5. Compassionate guidance for their question
+
+Keep response conversational yet profound, showing your ancient wisdom while being relatable to modern times.
             `;
-            return simplePrompt;
+            return ancientAstrologerPrompt;
           })()
         : createDetailedKundaliPrompt(kundaliData, userQuery, language, analysisType);
       
@@ -311,14 +339,34 @@ function generateFallbackAnalysis(kundaliData: any, userQuery: string, language:
 }
 
 function generateRishiConversationFallback(calculations: any, currentDasha: any, language: string, userQuery: string): string {
+  const lagna = calculations.lagna?.signName || 'अज्ञात';
+  const activeYogas = calculations.yogas?.filter(y => y.isActive)?.length || 0;
+  const moonSign = calculations.planets?.MO?.rashiName || 'अज्ञात';
+  
   if (language === 'hi') {
-    return `🙏 पुत्र, आपका प्रश्न "${userQuery}" मैंने सुना है। ${calculations.lagna?.signName ? `आपका ${calculations.lagna.signName} लग्न` : 'आपकी कुंडली'} देखकर मैं कह सकता हूं कि ${currentDasha ? `वर्तमान ${currentDasha.planet} दशा में` : 'इस समय'} आपको धैर्य रखना है। 
+    return `🙏 वत्स, आपका प्रश्न "${userQuery}" महत्वपूर्ण है। 
 
-सब कुछ ठीक होगा। मेरा आशीर्वाद आपके साथ है। 🕉️`;
+मैं महर्षि पराशर, आपकी जन्मपत्रिका में देख रहा हूं:
+• ${lagna} लग्न - यह आपके व्यक्तित्व को दर्शाता है
+• चंद्र राशि: ${moonSign} - आपके मन की प्रकृति
+• ${activeYogas} शुभ योग सक्रिय हैं
+${currentDasha ? `• वर्तमान ${currentDasha.planet} महादशा चल रही है` : ''}
+
+ब्रह्मांडीय शक्तियां आपके साथ हैं। वैदिक ज्ञान के अनुसार, धैर्य और सकारात्मक कर्म से सब कुछ संभव है।
+
+उपाय: नियमित जप करें, दान धर्म करें। सत्यम् शिवम् सुंदरम्। 🕉️`;
   } else {
-    return `🙏 Dear child, I heard your question "${userQuery}". Looking at your ${calculations.lagna?.signName ? `${calculations.lagna.signName} chart` : 'birth chart'}, ${currentDasha ? `you're in ${currentDasha.planet} period` : 'right now'} you need to be patient.
+    return `🙏 Dear soul, your question "${userQuery}" holds significance.
 
-Everything will be fine. My blessings are with you. 🕉️`;
+I am Maharishi Parashar, seeing in your birth chart:
+• ${lagna} Ascendant - reflects your personality essence
+• Moon in ${moonSign} - shows your mental nature  
+• ${activeYogas} auspicious yogas are active
+${currentDasha ? `• Currently in ${currentDasha.planet} Mahadasha period` : ''}
+
+The cosmic forces support you. According to Vedic wisdom, patience and positive karma make everything possible.
+
+Remedies: Regular meditation, charitable acts. Satyam Shivam Sundaram. 🕉️`;
   }
 }
 
@@ -391,17 +439,62 @@ function createSimpleChartSummary(kundaliData: any): string {
     const calc = kundaliData?.enhancedCalculations || {};
     const birth = kundaliData?.birthData || {};
     
+    // Enhanced chart analysis for Rishi Parashar
     const currentDasha = calc.dashas?.find(d => d.isActive);
+    const activeYogas = calc.yogas?.filter(y => y.isActive) || [];
+    const strongYogas = activeYogas.filter(y => y.strength > 70).slice(0, 3);
+    
+    // Planetary analysis
     const strongPlanets = Object.entries(calc.planets || {})
-      .filter(([_, data]: [string, any]) => data?.shadbala > 60)
-      .map(([name, _]) => name)
+      .filter(([_, data]: [string, any]) => data?.shadbala > 70)
+      .map(([name, data]: [string, any]) => `${name} in ${data.rashiName} (${data.house}H)`)
+      .slice(0, 3);
+    
+    const weakPlanets = Object.entries(calc.planets || {})
+      .filter(([_, data]: [string, any]) => data?.shadbala < 40)
+      .map(([name, data]: [string, any]) => `${name} in ${data.rashiName}`)
       .slice(0, 2);
     
+    // Nakshatra and divisional insights
+    const moonNakshatra = calc.planets?.MO?.nakshatraName || 'Unknown';
+    const ascNakshatra = calc.lagna?.nakshatraName || 'Unknown';
+    
+    // Dosha analysis
+    const activeDoshas = calc.doshas?.filter(d => d.isPresent) || [];
+    
     return `
-Name: ${birth.fullName || 'Soul'}
-Birth sign: ${calc.lagna?.signName || 'Unknown'}
-Current time period: ${currentDasha ? `${currentDasha.planet} until ${currentDasha.endDate}` : 'Unknown'}
-Strong planets: ${strongPlanets.join(', ') || 'None'}
-Moon sign: ${calc.planets?.MO?.rashiName || 'Unknown'}
+🔮 SOUL IDENTITY:
+Name: ${birth.fullName || 'Divine Soul'}
+Birth Location: ${birth.place || 'Unknown'} 
+Birth Time: ${birth.date} at ${birth.time}
+
+🔮 VEDIC CHART ANALYSIS:
+Lagna (Ascendant): ${calc.lagna?.signName || 'Unknown'} at ${calc.lagna?.degree?.toFixed(1) || 0}°
+Lagna Nakshatra: ${ascNakshatra} - spiritual blueprint
+Moon Sign (Rashi): ${calc.planets?.MO?.rashiName || 'Unknown'}
+Moon Nakshatra: ${moonNakshatra} - mental constitution
+Navamsa (D9) Lord: ${calc.navamsa?.lordPlanet || 'Unknown'}
+
+🔮 CURRENT COSMIC PERIOD:
+${currentDasha ? `${currentDasha.planet} Mahadasha: ${currentDasha.startDate} to ${currentDasha.endDate}` : 'Dasha period unknown'}
+${currentDasha ? `Remaining period: ${currentDasha.remainingYears || 'Unknown'} years` : ''}
+
+🔮 PLANETARY STRENGTHS (Shadbala):
+Strong Planets: ${strongPlanets.join(', ') || 'None significantly strong'}
+Weak Planets: ${weakPlanets.join(', ') || 'None significantly weak'}
+
+🔮 ACTIVE YOGAS (Planetary Combinations):
+${strongYogas.length > 0 ? strongYogas.map(y => `${y.name} (${y.strength}%): ${y.description}`).join('\n') : 'No major yogas above 70% strength'}
+Total Active Yogas: ${activeYogas.length}
+
+🔮 KARMIC INDICATORS:
+${activeDoshas.length > 0 ? `Doshas Present: ${activeDoshas.map(d => d.name).join(', ')}` : 'No significant doshas detected'}
+Life Lessons: Based on planetary positions and karma
+
+🔮 VEDIC WISDOM KEYS:
+- Dharma (Life Purpose): Analyze 1st, 5th, 9th houses
+- Artha (Wealth): 2nd, 6th, 10th houses 
+- Kama (Desires): 3rd, 7th, 11th houses
+- Moksha (Liberation): 4th, 8th, 12th houses
     `;
 }
