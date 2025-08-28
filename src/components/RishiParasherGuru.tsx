@@ -209,7 +209,13 @@ Respond in ${language === 'hi' ? 'Hindi' : 'English'} as a caring astrology ment
         analysisType: 'rishi_conversation'
       });
 
-      const { data, error } = await supabase.functions.invoke('kundali-ai-analysis', {
+      // Create a timeout promise for 30 seconds
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Function call timeout after 30 seconds')), 30000);
+      });
+
+      // Race between the function call and timeout
+      const functionPromise = supabase.functions.invoke('kundali-ai-analysis', {
         body: {
           kundaliData,
           userQuery: enhancedPrompt,
@@ -217,6 +223,9 @@ Respond in ${language === 'hi' ? 'Hindi' : 'English'} as a caring astrology ment
           analysisType: 'rishi_conversation'
         }
       });
+
+      console.log('🔥 RISHI DEBUG: Function call initiated, waiting for response...');
+      const { data, error } = await Promise.race([functionPromise, timeoutPromise]) as any;
 
       console.log('🔥 RISHI DEBUG: Supabase response received');
       console.log('🔥 RISHI DEBUG: Error:', error);
