@@ -2,8 +2,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 interface LanguageContextType {
-  language: 'en' | 'hi';
-  setLanguage: (lang: 'en' | 'hi') => void;
+  language: 'en' | 'hi' | 'te' | 'mr' | 'sa';
+  setLanguage: (lang: 'en' | 'hi' | 'te' | 'mr' | 'sa') => void;
   t: (key: string) => string;
 }
 
@@ -361,6 +361,102 @@ const translations = {
     'capricorn': 'मकर',
     'aquarius': 'कुम्भ',
     'pisces': 'मीन'
+  },
+  te: {
+    // App Navigation
+    'home': 'ఇల్లు',
+    'kundali': 'కుండలి',
+    'profile': 'ప్రొఫైల్',
+    'login': 'లాగిన్',
+    'personality_test': 'వ్యక్తిత్వ పరీక్ష',
+    'daily_horoscope': 'రోజువారీ రాశిఫలం',
+    'numerology': 'న్యూమరాలజీ',
+    
+    // Common
+    'loading': 'లోడ్ చేస్తోంది...',
+    'error': 'లోపం',
+    'success': 'విజయవంతం',
+    'submit': 'సమర్పించు',
+    'cancel': 'రద్దు చేయి',
+    'continue': 'కొనసాగించు',
+    'back': 'వెనుకకు',
+    'next': 'తదుపరి',
+    'finish': 'ముగించు',
+    
+    // Kundali Specific
+    'birth_chart': 'జన్మ కుండలి',
+    'kundali_chart': 'కుండలి చార్ట్',
+    'planetary_positions': 'గ్రహ స్థానాలు',
+    'house_analysis': 'భావ విశ్లేషణ',
+    'dasha_periods': 'దశా కాలాలు',
+    'yogas_doshas': 'యోగాలు & దోషాలు',
+    'predictions': 'భవిష్యవాణులు',
+    'test': 'పరీక్ష',
+    'daily': 'రోజువారీ'
+  },
+  mr: {
+    // App Navigation
+    'home': 'घर',
+    'kundali': 'कुंडली',
+    'profile': 'प्रोफाइल',
+    'login': 'लॉगिन',
+    'personality_test': 'व्यक्तिमत्त्व चाचणी',
+    'daily_horoscope': 'दैनिक राशिभविष्य',
+    'numerology': 'अंकशास्त्र',
+    
+    // Common
+    'loading': 'लोड होत आहे...',
+    'error': 'त्रुटी',
+    'success': 'यशस्वी',
+    'submit': 'सबमिट करा',
+    'cancel': 'रद्द करा',
+    'continue': 'चालू ठेवा',
+    'back': 'मागे',
+    'next': 'पुढे',
+    'finish': 'संपवा',
+    
+    // Kundali Specific
+    'birth_chart': 'जन्म कुंडली',
+    'kundali_chart': 'कुंडली चार्ट',
+    'planetary_positions': 'ग्रह स्थिती',
+    'house_analysis': 'भाव विश्लेषण',
+    'dasha_periods': 'दशा काळ',
+    'yogas_doshas': 'योग आणि दोष',
+    'predictions': 'भविष्यवाणी',
+    'test': 'चाचणी',
+    'daily': 'दैनिक'
+  },
+  sa: {
+    // App Navigation
+    'home': 'गृहम्',
+    'kundali': 'कुण्डली',
+    'profile': 'परिचयः',
+    'login': 'प्रवेशः',
+    'personality_test': 'व्यक्तित्व परीक्षा',
+    'daily_horoscope': 'दैनिक राशिफलम्',
+    'numerology': 'अङ्कशास्त्रम्',
+    
+    // Common
+    'loading': 'आरोप्यते...',
+    'error': 'दोषः',
+    'success': 'सफलता',
+    'submit': 'समर्पयतु',
+    'cancel': 'निरसनम्',
+    'continue': 'अग्रे गच्छतु',
+    'back': 'पश्चात्',
+    'next': 'अग्रिमः',
+    'finish': 'समाप्तिः',
+    
+    // Kundali Specific
+    'birth_chart': 'जन्म कुण्डली',
+    'kundali_chart': 'कुण्डली चार्ट',
+    'planetary_positions': 'ग्रह स्थानानि',
+    'house_analysis': 'भाव विश्लेषणम्',
+    'dasha_periods': 'दशा कालाः',
+    'yogas_doshas': 'योगाः दोषाः च',
+    'predictions': 'भविष्यवाणी',
+    'test': 'परीक्षा',
+    'daily': 'दैनिकम्'
   }
 };
 
@@ -375,16 +471,16 @@ export const useLanguage = () => {
 };
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [language, setLanguageState] = useState<'en' | 'hi'>('en');
+  const [language, setLanguageState] = useState<'en' | 'hi' | 'te' | 'mr' | 'sa'>('en');
 
   useEffect(() => {
-    const savedLanguage = localStorage.getItem('language') as 'en' | 'hi';
-    if (savedLanguage && (savedLanguage === 'en' || savedLanguage === 'hi')) {
+    const savedLanguage = localStorage.getItem('language') as 'en' | 'hi' | 'te' | 'mr' | 'sa';
+    if (savedLanguage && ['en', 'hi', 'te', 'mr', 'sa'].includes(savedLanguage)) {
       setLanguageState(savedLanguage);
     }
   }, []);
 
-  const setLanguage = (lang: 'en' | 'hi') => {
+  const setLanguage = (lang: 'en' | 'hi' | 'te' | 'mr' | 'sa') => {
     setLanguageState(lang);
     localStorage.setItem('language', lang);
   };
