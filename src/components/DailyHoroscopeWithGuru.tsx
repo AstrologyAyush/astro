@@ -251,21 +251,38 @@ const DailyHoroscopeWithGuru: React.FC = () => {
 
     setIsAsking(true);
     try {
+      // Create minimal kundali data for Rishi chat
+      const minimalKundaliData = {
+        birthData: {
+          fullName: "User",
+          date: new Date().toLocaleDateString()
+        },
+        enhancedCalculations: {
+          lagna: { signName: zodiacSigns[selectedSign].name.en },
+          dashas: [],
+          yogas: []
+        }
+      };
+
       const { data, error } = await supabase.functions.invoke('kundali-ai-analysis', {
         body: {
-          prompt: `As Rishi Parasher, the ancient Vedic sage and father of astrology, answer this question with wisdom, compassion, and practical guidance. Keep the response concise but meaningful. Question: "${question}". Current context: The person is asking about ${zodiacSigns[selectedSign].name.en} sign guidance.`,
-          context: `Vedic astrology guidance from Rishi Parasher perspective`
+          kundaliData: minimalKundaliData,
+          userQuery: `Question about ${zodiacSigns[selectedSign].name.en} sign: ${question}`,
+          language,
+          analysisType: 'rishi_conversation'
         }
       });
 
       if (error) throw error;
       
-      setGuruResponse(data.response || "The cosmic energies guide you towards wisdom and truth. Trust in the divine plan and follow your dharma.");
+      setGuruResponse(data.analysis || (language === 'hi' 
+        ? "ब्रह्मांडीय ऊर्जाएं आपको ज्ञान और सत्य की ओर मार्गदर्शन करती हैं। दिव्य योजना में विश्वास रखें।"
+        : "The cosmic energies guide you towards wisdom and truth. Trust in the divine plan."));
     } catch (error) {
       console.error('Error getting Rishi Parasher guidance:', error);
       setGuruResponse(language === 'hi' 
-        ? "ब्रह्मांडीय ऊर्जाएं आपको ज्ञान और सत्य की ओर मार्गदर्शन करती हैं। दिव्य योजना में विश्वास रखें और अपने धर्म का पालन करें।"
-        : "The cosmic energies guide you towards wisdom and truth. Trust in the divine plan and follow your dharma."
+        ? "तकनीकी समस्या आई है। कृपया पुनः प्रयास करें।"
+        : "Technical issue occurred. Please try again."
       );
     } finally {
       setIsAsking(false);

@@ -77,29 +77,7 @@ serve(async (req) => {
       
       // Create proper prompt based on analysis type
       const prompt = analysisType === 'rishi_conversation' 
-        ? (() => {
-            // Ultra-simple, friendly prompt for Gemini in Rishi mode
-            const simplePrompt = `
-You are Rishi Parashar, a wise and caring astrology teacher.
-
-RULES:
-- Talk like you're speaking to a friend - warm, caring, simple
-- Give SHORT answers (maximum 3-4 sentences)
-- Use EVERYDAY words only - no fancy astrology terms
-- Be specific about their chart, not generic
-- End with a simple blessing or encouragement
-
-Language: ${language === 'hi' ? 'Hindi' : 'Simple English'}
-
-User asks: ${userQuery}
-
-Their birth chart shows:
-${createSimpleChartSummary(kundaliData)}
-
-Give a short, caring answer using their actual chart details.
-            `;
-            return simplePrompt;
-          })()
+        ? createRishiConversationPrompt(kundaliData, userQuery, language)
         : createDetailedKundaliPrompt(kundaliData, userQuery, language, analysisType);
       
       console.log('🔥 EDGE DEBUG: Generated prompt length:', prompt.length);
@@ -361,15 +339,31 @@ function generateFallbackAnalysis(kundaliData: any, userQuery: string, language:
   }
 }
 
+function createRishiConversationPrompt(kundaliData: any, userQuery: string, language: string): string {
+  const calculations = kundaliData.enhancedCalculations || {};
+  const birthData = kundaliData.birthData || {};
+  const currentDasha = calculations.dashas?.find(d => d.isActive);
+  const activeYogas = calculations.yogas?.filter(y => y.isActive) || [];
+
+  // Create simple chart summary for Rishi
+  const chartSummary = `Birth: ${birthData.fullName} - ${calculations.lagna?.signName || 'Unknown'} ascendant. ${currentDasha ? `Currently in ${currentDasha.planet} period.` : ''} ${activeYogas.length} active yogas.`;
+
+  return language === 'hi' 
+    ? `मैं एक बुजुर्ग ज्योतिषी हूं। मुझसे पूछा गया: "${userQuery}". व्यक्ति का चार्ट: ${chartSummary}. मुझे हिंदी में दोस्ताना, छोटा (2-3 वाक्य), व्यावहारिक उत्तर देना है।`
+    : `I'm an elderly astrologer. Asked: "${userQuery}". Person's chart: ${chartSummary}. I should give a friendly, short (2-3 sentences), practical answer in simple English.`;
+}
+
+function createSimpleChartSummary(kundaliData: any): string {
+  const calculations = kundaliData.enhancedCalculations || {};
+  const currentDasha = calculations.dashas?.find(d => d.isActive);
+  return `${calculations.lagna?.signName || 'Unknown'} ascendant, ${currentDasha ? `${currentDasha.planet} period` : 'stable period'}`;
+}
+
 function generateRishiConversationFallback(calculations: any, currentDasha: any, language: string, userQuery: string): string {
   if (language === 'hi') {
-    return `🙏 पुत्र, आपका प्रश्न "${userQuery}" मैंने सुना है। ${calculations.lagna?.signName ? `आपका ${calculations.lagna.signName} लग्न` : 'आपकी कुंडली'} देखकर मैं कह सकता हूं कि ${currentDasha ? `वर्तमान ${currentDasha.planet} दशा में` : 'इस समय'} आपको धैर्य रखना है। 
-
-सब कुछ ठीक होगा। मेरा आशीर्वाद आपके साथ है। 🕉️`;
+    return `🙏 पुत्र, आपका प्रश्न सुना। ${calculations.lagna?.signName ? `आपका ${calculations.lagna.signName} लग्न` : 'आपकी कुंडली'} देखकर ${currentDasha ? `${currentDasha.planet} दशा में` : 'इस समय'} धैर्य रखें। सब ठीक होगा। 🕉️`;
   } else {
-    return `🙏 Dear child, I heard your question "${userQuery}". Looking at your ${calculations.lagna?.signName ? `${calculations.lagna.signName} chart` : 'birth chart'}, ${currentDasha ? `you're in ${currentDasha.planet} period` : 'right now'} you need to be patient.
-
-Everything will be fine. My blessings are with you. 🕉️`;
+    return `🙏 I heard your question, child. Your ${calculations.lagna?.signName || 'chart'} shows ${currentDasha ? `${currentDasha.planet} period` : 'stability'} ahead. Be patient. All will be well. 🕉️`;
   }
 }
 
