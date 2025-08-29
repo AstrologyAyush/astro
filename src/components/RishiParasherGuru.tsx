@@ -202,7 +202,8 @@ Respond in ${language === 'hi' ? 'Hindi' : 'English'} in the tone of a loving, w
 
       if (error) {
         console.error('🔥 RISHI DEBUG: Edge function error:', error);
-        throw error;
+        console.error('🔥 RISHI DEBUG: Error details:', JSON.stringify(error, null, 2));
+        throw new Error(`Edge function error: ${error.message || JSON.stringify(error)}`);
       }
 
       if (!data) {
@@ -210,12 +211,12 @@ Respond in ${language === 'hi' ? 'Hindi' : 'English'} in the tone of a loving, w
         throw new Error('No data received from edge function');
       }
 
-      console.log('🔥 RISHI DEBUG: Analysis content:', data.analysis);
+      console.log('🔥 RISHI DEBUG: Analysis content:', data?.analysis);
 
       const rishiMessage: Message = {
         id: (Date.now() + 1).toString(),
         type: 'rishi',
-        content: data.analysis || (language === 'hi' 
+        content: data?.analysis || data?.response || (language === 'hi' 
           ? 'पुत्र, तकनीकी समस्या के कारण मैं इस समय उत्तर नहीं दे सकता। कृपया बाद में प्रयास करें।'
           : 'Dear child, due to technical issues, I cannot respond at this moment. Please try again later.'),
         timestamp: new Date()
@@ -227,8 +228,8 @@ Respond in ${language === 'hi' ? 'Hindi' : 'English'} in the tone of a loving, w
 
     } catch (error) {
       console.error('🔥 RISHI DEBUG: Complete error details:', error);
-      console.error('🔥 RISHI DEBUG: Error message:', error.message);
-      console.error('🔥 RISHI DEBUG: Error stack:', error.stack);
+      console.error('🔥 RISHI DEBUG: Error message:', error?.message);
+      console.error('🔥 RISHI DEBUG: Error stack:', error?.stack);
       
       setConnectionStatus('error');
       

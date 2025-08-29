@@ -167,7 +167,11 @@ serve(async (req) => {
     }
 
     console.log('🔥 EDGE DEBUG: Returning successful response');
-    return new Response(JSON.stringify({ analysis }), {
+    return new Response(JSON.stringify({ 
+      analysis,
+      status: analysis.includes('तकनीकी समस्या') || analysis.includes('technical issue') ? 'fallback' : 'success',
+      source: analysis.includes('🙏') ? 'fallback' : 'gemini'
+    }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
@@ -181,7 +185,9 @@ serve(async (req) => {
     const fallbackResponse = {
       analysis: language === 'hi' 
         ? "🙏 मेरे पुत्र, तकनीकी समस्या आई है। आपकी कुंडली के अनुसार धैर्य रखें और पुनः प्रयास करें। ब्रह्मांड आपके साथ है। 🕉️"
-        : "🙏 Dear child, a technical issue occurred. According to your chart, be patient and try again. The universe is with you. 🕉️"
+        : "🙏 Dear child, a technical issue occurred. According to your chart, be patient and try again. The universe is with you. 🕉️",
+      status: 'error',
+      source: 'fallback'
     };
 
     return new Response(JSON.stringify(fallbackResponse), {
