@@ -438,15 +438,6 @@ function generateGeneralFallback(calculations: any, currentDasha: any, language:
   }
 }
 
-function createSimpleChartSummary(kundaliData: any): string {
-    const calc = kundaliData?.enhancedCalculations || {};
-    const birth = kundaliData?.birthData || {};
-    
-    const currentDasha = calc.dashas?.find(d => d.isActive);
-    const strongPlanets = Object.entries(calc.planets || {})
-      .filter(([_, data]: [string, any]) => data?.shadbala > 60)
-      .map(([name, _]) => name)
-      .slice(0, 2);
     
     return `
 Name: ${birth.fullName || 'Soul'}

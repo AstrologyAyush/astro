@@ -581,6 +581,7 @@ function getPersonalizedSpiritual(kundaliData: any) {
   const planets = chart?.planets || {};
   
   const jupiter = planets.JU || planets.Jupiter || {};
+  const saturn = planets.SA || planets.Saturn || {};
   const ketu = planets.KE || planets.Ketu || {};
   
   return {
