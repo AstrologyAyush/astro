@@ -437,13 +437,3 @@ function generateGeneralFallback(calculations: any, currentDasha: any, language:
     return `🙏 Dear child, looking at your ${calculations.lagna?.signName ? `${calculations.lagna.signName} ascendant` : 'birth chart'}, I can say that ${currentDasha ? `in the current ${currentDasha.planet} dasha` : 'at this time'} you need patience and positive thoughts. Happiness and prosperity will come into your life. Continue regular worship and service. My blessings are with you. 🕉️`;
   }
 }
-
-    
-    return `
-Name: ${birth.fullName || 'Soul'}
-Birth sign: ${calc.lagna?.signName || 'Unknown'}
-Current time period: ${currentDasha ? `${currentDasha.planet} until ${currentDasha.endDate}` : 'Unknown'}
-Strong planets: ${strongPlanets.join(', ') || 'None'}
-Moon sign: ${calc.planets?.MO?.rashiName || 'Unknown'}
-    `;
-}
