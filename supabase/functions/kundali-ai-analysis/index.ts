@@ -78,7 +78,7 @@ serve(async (req) => {
       
       // Create proper prompt based on analysis type
       const prompt = analysisType === 'rishi_conversation' 
-        ? createRishiConversationPrompt(kundaliData, userQuery, language)
+        ? createRishiConversationPrompt(kundaliData, userQuery, language, requestBody.imageData)
         : createDetailedKundaliPrompt(kundaliData, userQuery, language, analysisType);
       
       console.log('🔥 EDGE DEBUG: Generated prompt length:', prompt.length);
@@ -92,29 +92,47 @@ serve(async (req) => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          contents: [{
-            parts: [{
-              text: prompt
-            }]
-          }],
-          generationConfig: {
-            temperature: analysisType === 'rishi_conversation' ? 0.7 : 0.7,
-            topK: analysisType === 'rishi_conversation' ? 20 : 40,
-            topP: analysisType === 'rishi_conversation' ? 0.8 : 0.95,
-            maxOutputTokens: analysisType === 'rishi_conversation' ? 400 : 2048,
-          },
-          safetySettings: [
-            {
-              category: "HARM_CATEGORY_HARASSMENT",
-              threshold: "BLOCK_MEDIUM_AND_ABOVE"
+        body: JSON.stringify((() => {
+          const requestContent: any = {
+            contents: [{
+              parts: [{
+                text: prompt
+              }]
+            }],
+            generationConfig: {
+              temperature: analysisType === 'rishi_conversation' ? 0.7 : 0.7,
+              topK: analysisType === 'rishi_conversation' ? 20 : 40,
+              topP: analysisType === 'rishi_conversation' ? 0.8 : 0.95,
+              maxOutputTokens: analysisType === 'rishi_conversation' ? 400 : 2048,
             },
-            {
-              category: "HARM_CATEGORY_HATE_SPEECH",
-              threshold: "BLOCK_MEDIUM_AND_ABOVE"
-            }
-          ]
-        }),
+            safetySettings: [
+              {
+                category: "HARM_CATEGORY_HARASSMENT",
+                threshold: "BLOCK_MEDIUM_AND_ABOVE"
+              },
+              {
+                category: "HARM_CATEGORY_HATE_SPEECH",
+                threshold: "BLOCK_MEDIUM_AND_ABOVE"
+              }
+            ]
+          };
+
+          // Add image data if provided for Rishi conversations
+          if (requestBody.imageData && analysisType === 'rishi_conversation') {
+            console.log('🔥 EDGE DEBUG: Adding image data to request');
+            // Remove data URL prefix if present
+            const base64Image = requestBody.imageData.replace(/^data:image\/[^;]+;base64,/, '');
+            
+            requestContent.contents[0].parts.push({
+              inlineData: {
+                mimeType: "image/jpeg",
+                data: base64Image
+              }
+            });
+          }
+
+          return requestContent;
+        })()),
       });
 
       console.log('🔥 EDGE DEBUG: Gemini response status:', response.status);
@@ -346,18 +364,24 @@ function generateFallbackAnalysis(kundaliData: any, userQuery: string, language:
   }
 }
 
-function createRishiConversationPrompt(kundaliData: any, userQuery: string, language: string): string {
+function createRishiConversationPrompt(kundaliData: any, userQuery: string, language: string, imageData?: string): string {
   const calculations = kundaliData.enhancedCalculations || {};
   const birthData = kundaliData.birthData || {};
   const currentDasha = calculations.dashas?.find(d => d.isActive);
   const activeYogas = calculations.yogas?.filter(y => y.isActive) || [];
+  const strongYogas = activeYogas.filter(y => y.strength > 60);
 
-  // Create simple chart summary for Rishi
-  const chartSummary = `Birth: ${birthData.fullName} - ${calculations.lagna?.signName || 'Unknown'} ascendant. ${currentDasha ? `Currently in ${currentDasha.planet} period.` : ''} ${activeYogas.length} active yogas.`;
+  // Create detailed chart summary for Rishi
+  const chartSummary = `
+NATIVE: ${birthData.fullName} - ${calculations.lagna?.signName || 'Unknown'} Ascendant at ${calculations.lagna?.degree?.toFixed(1)}°
+CURRENT DASHA: ${currentDasha ? `${currentDasha.planet} Mahadasha (${currentDasha.startDate} to ${currentDasha.endDate})` : 'Unknown period'}
+MOON SIGN: ${calculations.planets?.MO?.rashiName || 'Unknown'} (Nakshatra: ${calculations.planets?.MO?.nakshatraName || 'Unknown'})
+POWERFUL YOGAS: ${strongYogas.map(y => `${y.name} (${y.strength}%)`).join(', ') || 'None strong'}
+KEY PLANETS: ${Object.entries(calculations.planets || {}).filter(([_, data]: [string, any]) => data?.isExalted || data?.isDebilitated || (data?.shadbala && data.shadbala > 80)).map(([planet, data]: [string, any]) => `${planet} in ${data.rashiName} ${data.isExalted ? '[EXALTED]' : data.isDebilitated ? '[DEBILITATED]' : '[STRONG]'}`).join(', ') || 'Balanced chart'}`;
 
   return language === 'hi' 
-    ? `मैं एक बुजुर्ग ज्योतिषी हूं। मुझसे पूछा गया: "${userQuery}". व्यक्ति का चार्ट: ${chartSummary}. मुझे हिंदी में दोस्ताना, छोटा (2-3 वाक्य), व्यावहारिक उत्तर देना है।`
-    : `I'm an elderly astrologer. Asked: "${userQuery}". Person's chart: ${chartSummary}. I should give a friendly, short (2-3 sentences), practical answer in simple English.`;
+    ? `मैं ऋषि पराशर हूं - वैदिक ज्योतिष के महान आचार्य। मुझसे पूछा गया: "${userQuery}". इस व्यक्ति की कुंडली: ${chartSummary}. ${imageData ? 'मैं उनकी भेजी गई छवि को भी देख और समझ सकता हूं।' : ''} मुझे अत्यंत संक्षिप्त (2-3 वाक्य), व्यक्तिगत, और उनके ग्रहों की वास्तविक स्थितियों के आधार पर सटीक उत्तर देना है। विशिष्ट महादशा, योग, और ग्रह स्थितियों का उल्लेख करते हुए व्यावहारिक सलाह देनी है।`
+    : `I am Rishi Parashar - the great sage of Vedic astrology. Asked: "${userQuery}". This person's chart: ${chartSummary}. ${imageData ? 'I can also see and understand the image they shared.' : ''} I must give extremely concise (2-3 sentences), personal, accurate guidance based on their actual planetary positions. Must mention specific dasha periods, yogas, and planetary placements while giving practical advice.`;
 }
 
 function createSimpleChartSummary(kundaliData: any): string {
@@ -367,10 +391,28 @@ function createSimpleChartSummary(kundaliData: any): string {
 }
 
 function generateRishiConversationFallback(calculations: any, currentDasha: any, language: string, userQuery: string): string {
+  const lagna = calculations.lagna?.signName || 'Unknown';
+  const activeYogas = calculations.yogas?.filter(y => y.isActive) || [];
+  const strongYogas = activeYogas.filter(y => y.strength > 60);
+  
+  // Analyze the question for specific guidance
+  const questionLower = userQuery.toLowerCase();
+  let specificGuidance = '';
+  
+  if (questionLower.includes('marriage') || questionLower.includes('विवाह') || questionLower.includes('शादी')) {
+    specificGuidance = language === 'hi' 
+      ? `आपके ${lagna} लग्न और ${currentDasha ? `${currentDasha.planet} महादशा` : 'वर्तमान समय'} में विवाह के योग बन रहे हैं।`
+      : `Your ${lagna} ascendant and ${currentDasha ? `${currentDasha.planet} period` : 'current time'} shows marriage possibilities.`;
+  } else if (questionLower.includes('career') || questionLower.includes('job') || questionLower.includes('करियर')) {
+    specificGuidance = language === 'hi'
+      ? `${currentDasha ? `${currentDasha.planet} महादशा` : 'वर्तमान काल'} में करियर की संभावनाएं बेहतर हैं।`
+      : `${currentDasha ? `${currentDasha.planet} period` : 'Current time'} brings better career prospects.`;
+  }
+
   if (language === 'hi') {
-    return `🙏 पुत्र, आपका प्रश्न सुना। ${calculations.lagna?.signName ? `आपका ${calculations.lagna.signName} लग्न` : 'आपकी कुंडली'} देखकर ${currentDasha ? `${currentDasha.planet} दशा में` : 'इस समय'} धैर्य रखें। सब ठीक होगा। 🕉️`;
+    return `🙏 ${specificGuidance || `आपका ${lagna} लग्न देखकर`} ${strongYogas.length > 0 ? `आपकी कुंडली में ${strongYogas.length} प्रबल योग हैं जो` : ''} आपको सफलता दिलाएंगे। ${currentDasha ? `वर्तमान ${currentDasha.planet} काल` : 'यह समय'} अनुकूल है। धैर्य रखें। 🕉️`;
   } else {
-    return `🙏 I heard your question, child. Your ${calculations.lagna?.signName || 'chart'} shows ${currentDasha ? `${currentDasha.planet} period` : 'stability'} ahead. Be patient. All will be well. 🕉️`;
+    return `🙏 ${specificGuidance || `Looking at your ${lagna} ascendant`} ${strongYogas.length > 0 ? `with ${strongYogas.length} strong yogas` : ''} shows positive outcomes. ${currentDasha ? `This ${currentDasha.planet} period` : 'Current time'} is favorable. Be patient. 🕉️`;
   }
 }
 

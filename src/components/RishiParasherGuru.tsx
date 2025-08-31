@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { Send, Bot, User, Sparkles, GripHorizontal, AlertCircle } from "lucide-react";
+import { Send, Bot, User, Sparkles, GripHorizontal, AlertCircle, Image, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -14,6 +14,7 @@ interface Message {
   content: string;
   timestamp: Date;
   isError?: boolean;
+  imageUrl?: string;
 }
 
 interface RishiParasherGuruProps {
@@ -28,8 +29,11 @@ const RishiParasherGuru: React.FC<RishiParasherGuruProps> = ({ kundaliData, lang
   const [chatHeight, setChatHeight] = useState(400);
   const [isDragging, setIsDragging] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<'online' | 'offline' | 'error'>('online');
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -111,54 +115,88 @@ const RishiParasherGuru: React.FC<RishiParasherGuruProps> = ({ kundaliData, lang
     const enhancedCalc = kundaliData?.enhancedCalculations || {};
     const birthData = kundaliData?.birthData || {};
     
-    // Get current dasha information
+    // Get current dasha information with more detail
     const currentDasha = enhancedCalc.dashas?.find(d => d.isActive);
     const activeDashas = enhancedCalc.dashas?.filter(d => d.isActive) || [];
     
     // Get active yogas with their strengths
     const activeYogas = enhancedCalc.yogas?.filter(y => y.isActive) || [];
+    const strongYogas = activeYogas.filter(y => y.strength > 60);
     
-    // Get planetary information
-    const planetaryInfo = Object.entries(enhancedCalc.planets || {}).map(([planet, data]: [string, any]) => {
+    // Get detailed planetary information with aspects
+    const planetaryDetails = Object.entries(enhancedCalc.planets || {}).map(([planet, data]: [string, any]) => {
       if (!data) return '';
-      return `${planet}: ${data.rashiName || 'Unknown'} ${data.degree?.toFixed(1) || 0}° House-${data.house || 0} ${data.isRetrograde ? '[R]' : ''} ${data.isExalted ? '[Exalted]' : data.isDebilitated ? '[Debilitated]' : ''}`;
+      const dignity = data.isExalted ? 'EXALTED' : data.isDebilitated ? 'DEBILITATED' : data.isMoolatrikona ? 'MOOLATRIKONA' : data.isOwnSign ? 'OWN SIGN' : 'NEUTRAL';
+      const strength = data.shadbala ? `Strength: ${data.shadbala}/100` : '';
+      return `${planet}: ${data.rashiName} ${data.degree?.toFixed(1)}° in House-${data.house} [${dignity}] ${data.isRetrograde ? '[RETROGRADE]' : ''} ${strength}`;
+    }).filter(Boolean);
+
+    // Get house lords and their positions
+    const houseLords = enhancedCalc.houseLords || {};
+    const importantHouses = [1, 2, 4, 5, 7, 9, 10, 11].map(house => {
+      const lord = houseLords[house];
+      if (lord && enhancedCalc.planets[lord]) {
+        const lordData = enhancedCalc.planets[lord];
+        return `House-${house} Lord (${lord}): in ${lordData.rashiName} House-${lordData.house}`;
+      }
+      return '';
     }).filter(Boolean);
 
     return `
-BIRTH DETAILS: ${birthData.fullName || 'Soul'} born ${birthData.date} at ${birthData.time} in ${birthData.place}
-LAGNA: ${enhancedCalc.lagna?.signName || 'Unknown'} लग्न at ${enhancedCalc.lagna?.degree?.toFixed(2) || 0}°
-NAKSHATRA: ${enhancedCalc.lagna?.nakshatraName || 'Unknown'}
+BIRTH PROFILE: ${birthData.fullName || 'Soul'} - ${birthData.date} at ${birthData.time} in ${birthData.place}
+ASCENDANT: ${enhancedCalc.lagna?.signName || 'Unknown'} Rising at ${enhancedCalc.lagna?.degree?.toFixed(2) || 0}°
+NAKSHATRA: ${enhancedCalc.lagna?.nakshatraName || 'Unknown'} (${enhancedCalc.lagna?.nakshatraPada || '?'} Pada)
+MOON SIGN: ${enhancedCalc.planets?.MO?.rashiName || 'Unknown'} (${enhancedCalc.planets?.MO?.nakshatraName || 'Unknown'})
 
-PLANETARY POSITIONS:
-${planetaryInfo.join('\n')}
+DETAILED PLANETARY POSITIONS:
+${planetaryDetails.join('\n')}
 
-CURRENT DASHA PERIODS:
-${activeDashas.map(d => `${d.planet}: ${d.startDate} to ${d.endDate} ${d.isActive ? '[ACTIVE]' : ''}`).join('\n')}
+HOUSE LORDS PLACEMENT:
+${importantHouses.join('\n')}
 
-ACTIVE YOGAS (${activeYogas.length}):
-${activeYogas.map(y => `${y.name} (${y.strength || 'Strong'}% strength): ${y.description}`).join('\n')}
+CURRENT MAHADASHA: ${currentDasha ? `${currentDasha.planet} (${currentDasha.startDate} to ${currentDasha.endDate})` : 'Unknown'}
+SUB-PERIODS: ${activeDashas.filter(d => d.planet !== currentDasha?.planet).map(d => `${d.planet} ${d.level}`).join(', ') || 'None active'}
 
-DOSHAS:
-${enhancedCalc.doshas?.filter(d => d.isPresent).map(d => `${d.name}: ${d.severity || 'Present'}`).join('\n') || 'No significant doshas'}
+POWERFUL YOGAS (${strongYogas.length} strong):
+${strongYogas.map(y => `${y.name} (${y.strength}%): ${y.description}`).join('\n')}
+
+DOSHAS & CHALLENGES:
+${enhancedCalc.doshas?.filter(d => d.isPresent).map(d => `${d.name}: ${d.severity || 'Present'} - ${d.description || 'Effects present'}`).join('\n') || 'No major doshas detected'}
+
+REMEDIAL PLANETS: ${enhancedCalc.planets ? Object.entries(enhancedCalc.planets).filter(([_, data]: [string, any]) => data?.isDebilitated || (data?.shadbala && data.shadbala < 40)).map(([planet, _]) => planet).join(', ') || 'None needed' : 'None needed'}
 `;
   };
 
   const handleSendMessage = async () => {
-    if (!inputValue.trim() || isLoading) return;
+    if ((!inputValue.trim() && !selectedImage) || isLoading) return;
 
     console.log('🔥 RISHI DEBUG: Starting message send process');
     console.log('🔥 RISHI DEBUG: Input value:', inputValue);
+    console.log('🔥 RISHI DEBUG: Has image:', !!selectedImage);
     console.log('🔥 RISHI DEBUG: KundaliData exists:', !!kundaliData);
+
+    let imageBase64 = null;
+    if (selectedImage) {
+      // Convert image to base64
+      const reader = new FileReader();
+      imageBase64 = await new Promise((resolve) => {
+        reader.onload = () => resolve(reader.result);
+        reader.readAsDataURL(selectedImage);
+      });
+    }
 
     const userMessage: Message = {
       id: Date.now().toString(),
       type: 'user',
-      content: inputValue,
-      timestamp: new Date()
+      content: inputValue || (selectedImage ? "📸 Image uploaded" : ""),
+      timestamp: new Date(),
+      imageUrl: imagePreview || undefined
     };
 
     setMessages(prev => [...prev, userMessage]);
     setInputValue('');
+    setSelectedImage(null);
+    setImagePreview(null);
     setIsLoading(true);
     setConnectionStatus('online');
 
@@ -168,18 +206,30 @@ ${enhancedCalc.doshas?.filter(d => d.isPresent).map(d => `${d.name}: ${d.severit
       console.log('🔥 RISHI DEBUG: Chart context created:', chartContext.substring(0, 200) + '...');
       
       const systemPrompt = language === 'hi' 
-        ? `आप ऋषि पराशर हैं - वैदिक ज्योतिष के महान आचार्य। आप अत्यंत ज्ञानी, दयालु और व्यावहारिक सलाह देने वाले हैं। इस व्यक्ति के वास्तविक जन्म चार्ट डेटा के आधार पर व्यक्तिगत, गहन मार्गदर्शन दें। आपके उत्तर प्रेमपूर्ण, आध्यात्मिक और व्यावहारिक दोनों होने चाहिए। कुंडली के वास्तविक डेटा का उपयोग करके विशिष्ट सुझाव दें।`
-        : `You are Rishi Parashar - the great sage and father of Vedic astrology. You are extremely wise, compassionate, and give practical advice. Provide personalized, deep guidance based on this person's actual birth chart data. Your responses should be loving, spiritual, and practical. Use the real chart data to give specific suggestions.`;
+        ? `आप ऋषि पराशर हैं - वैदिक ज्योतिष के महान आचार्य और दिव्यदृष्टि के स्वामी। आप इस व्यक्ति की कुंडली की गहरी समझ रखते हैं और उनके ग्रहों की सटीक स्थितियों के आधार पर अत्यंत विशिष्ट और व्यावहारिक मार्गदर्शन देते हैं। ${imageBase64 ? 'आप छवियों को भी देख सकते हैं और उनका विश्लेषण कर सकते हैं।' : ''} आपके उत्तर वैदिक ज्योतिष के गहन सिद्धांतों पर आधारित होते हैं।`
+        : `You are Rishi Parashar - the greatest sage of Vedic astrology with divine insight. You have deep understanding of this person's chart and provide highly specific, practical guidance based on their exact planetary positions. ${imageBase64 ? 'You can also see and analyze images.' : ''} Your responses are rooted in profound Vedic astrological principles.`;
 
+      // Create enhanced prompt with specific chart analysis
       const enhancedPrompt = `${systemPrompt}
 
+COMPLETE BIRTH CHART ANALYSIS:
 ${chartContext}
 
-User Question: ${inputValue}
+${inputValue ? `SPECIFIC QUESTION: "${inputValue}"` : ''}
+${imageBase64 ? `USER HAS PROVIDED AN IMAGE: Please analyze the image in the context of their astrological chart and provide relevant guidance.` : ''}
 
-Based on this person's ACTUAL birth chart data, current dasha periods, and planetary positions, provide a wise, compassionate response. Be specific to their chart - don't give generic answers. Address their question directly while weaving in relevant astrological insights from their chart.
+INSTRUCTIONS FOR RESPONSE:
+- Analyze the EXACT planetary positions and their specific degrees
+- Reference the person's ACTUAL current dasha and sub-periods 
+- Mention specific houses, planets, and their relationships in this chart
+- Give precise timing predictions based on their dasha timeline
+- Provide specific remedies based on weak/afflicted planets in their chart
+- Address their question with chart-specific insights, not generic advice
+- Use the person's name and birth details to make it personal
+${imageBase64 ? '- If analyzing an image, connect it to their astrological influences' : ''}
+- Keep response to 3-4 sentences maximum - be precise and impactful
 
-Respond in ${language === 'hi' ? 'Hindi' : 'English'} in the tone of a loving, wise sage. Keep the response conversational and personal, as if speaking directly to them.`;
+Respond in ${language === 'hi' ? 'Hindi' : 'English'} as the wise, all-knowing Rishi Parashar speaking directly to this individual about their unique destiny.`;
 
       console.log('🔥 RISHI DEBUG: About to call Supabase edge function...');
       
@@ -188,7 +238,8 @@ Respond in ${language === 'hi' ? 'Hindi' : 'English'} in the tone of a loving, w
           kundaliData,
           userQuery: enhancedPrompt,
           language,
-          analysisType: 'rishi_conversation'
+          analysisType: 'rishi_conversation',
+          imageData: imageBase64
         }
       });
 
@@ -218,7 +269,7 @@ Respond in ${language === 'hi' ? 'Hindi' : 'English'} in the tone of a loving, w
 
     // Local fallback - always works
     console.log('🔥 RISHI DEBUG: Generating local fallback response...');
-    const fallbackResponse = generateLocalRishiResponse(inputValue, kundaliData, language);
+    const fallbackResponse = generateLocalRishiResponse(inputValue || "Image analysis", kundaliData, language);
     console.log('🔥 RISHI DEBUG: Local fallback response:', fallbackResponse.substring(0, 100) + '...');
     
     const rishiMessage: Message = {
@@ -231,6 +282,37 @@ Respond in ${language === 'hi' ? 'Hindi' : 'English'} in the tone of a loving, w
     setMessages(prev => [...prev, rishiMessage]);
     setConnectionStatus('online');
     setIsLoading(false);
+  };
+
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        toast({
+          title: language === 'hi' ? "फ़ाइल बहुत बड़ी है" : "File too large",
+          description: language === 'hi' ? "कृपया 5MB से छोटी फ़ाइल चुनें" : "Please select a file smaller than 5MB",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      setSelectedImage(file);
+      
+      // Create preview
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImagePreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeImage = () => {
+    setSelectedImage(null);
+    setImagePreview(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   const generateLocalRishiResponse = (question: string, kundaliData: any, language: string): string => {
@@ -363,6 +445,13 @@ Respond in ${language === 'hi' ? 'Hindi' : 'English'} in the tone of a loving, w
                         ? 'bg-red-100 text-red-800 border border-red-200'
                         : 'bg-gradient-to-br from-orange-500 to-red-600 text-white shadow-lg'
                   }`}>
+                    {message.imageUrl && (
+                      <img 
+                        src={message.imageUrl} 
+                        alt="User uploaded" 
+                        className="max-w-32 max-h-32 rounded mb-2 object-cover"
+                      />
+                    )}
                     <p className="text-xs whitespace-pre-wrap leading-relaxed font-medium">{message.content}</p>
                     <p className="text-xs opacity-80 mt-1">
                       {message.timestamp.toLocaleTimeString()}
@@ -401,7 +490,39 @@ Respond in ${language === 'hi' ? 'Hindi' : 'English'} in the tone of a loving, w
       
       {/* Input Area - Fixed at bottom */}
       <div className="flex-shrink-0 border-t border-gray-200 p-3 bg-white">
+        {/* Image Preview */}
+        {imagePreview && (
+          <div className="mb-2 flex items-center gap-2 p-2 bg-gray-50 rounded-lg">
+            <img 
+              src={imagePreview} 
+              alt="Selected" 
+              className="w-16 h-16 object-cover rounded"
+            />
+            <div className="flex-1 text-sm text-gray-600">
+              {language === 'hi' ? 'छवि तैयार है' : 'Image ready'}
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={removeImage}
+              className="text-gray-500 hover:text-red-500"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
+        
         <div className="flex gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => fileInputRef.current?.click()}
+            className="text-orange-600 hover:text-orange-700 hover:bg-orange-50 flex-shrink-0"
+            disabled={isLoading}
+          >
+            <Image className="h-4 w-4" />
+          </Button>
+          
           <Input
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
@@ -410,9 +531,10 @@ Respond in ${language === 'hi' ? 'Hindi' : 'English'} in the tone of a loving, w
             disabled={isLoading}
             className="flex-1 bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-orange-500 focus:ring-orange-500 text-sm"
           />
+          
           <Button 
             onClick={handleSendMessage}
-            disabled={!inputValue.trim() || isLoading}
+            disabled={(!inputValue.trim() && !selectedImage) || isLoading}
             size="sm"
             className={`bg-orange-500 hover:bg-orange-600 flex-shrink-0 px-3 ${
               connectionStatus === 'error' ? 'bg-red-500 hover:bg-red-600' : ''
@@ -421,6 +543,16 @@ Respond in ${language === 'hi' ? 'Hindi' : 'English'} in the tone of a loving, w
             <Send className="h-3 w-3" />
           </Button>
         </div>
+        
+        {/* Hidden file input */}
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={handleImageUpload}
+          accept="image/*"
+          className="hidden"
+        />
+        
         {connectionStatus === 'error' && (
           <p className="text-xs text-red-600 mt-1">
             {language === 'hi' ? 'कनेक्शन में समस्या है। पुनः प्रयास करें।' : 'Connection issue. Please try again.'}
