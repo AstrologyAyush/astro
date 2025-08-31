@@ -148,6 +148,7 @@ ${enhancedCalc.doshas?.filter(d => d.isPresent).map(d => `${d.name}: ${d.severit
 
     console.log('🔥 RISHI DEBUG: Starting message send process');
     console.log('🔥 RISHI DEBUG: Input value:', inputValue);
+    console.log('🔥 RISHI DEBUG: KundaliData exists:', !!kundaliData);
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -191,8 +192,10 @@ Respond in ${language === 'hi' ? 'Hindi' : 'English'} in the tone of a loving, w
         }
       });
 
+      console.log('🔥 RISHI DEBUG: Edge function response:', { data, error });
+
       if (error) {
-        console.log('🔥 RISHI DEBUG: Edge function failed, using local fallback');
+        console.log('🔥 RISHI DEBUG: Edge function failed, using local fallback:', error);
         throw new Error('Edge function unavailable');
       }
 
@@ -206,6 +209,7 @@ Respond in ${language === 'hi' ? 'Hindi' : 'English'} in the tone of a loving, w
         setMessages(prev => [...prev, rishiMessage]);
         setConnectionStatus('online');
         console.log('🔥 RISHI DEBUG: Message added successfully');
+        setIsLoading(false);
         return;
       }
     } catch (error) {
@@ -213,7 +217,9 @@ Respond in ${language === 'hi' ? 'Hindi' : 'English'} in the tone of a loving, w
     }
 
     // Local fallback - always works
+    console.log('🔥 RISHI DEBUG: Generating local fallback response...');
     const fallbackResponse = generateLocalRishiResponse(inputValue, kundaliData, language);
+    console.log('🔥 RISHI DEBUG: Local fallback response:', fallbackResponse.substring(0, 100) + '...');
     
     const rishiMessage: Message = {
       id: (Date.now() + 1).toString(),

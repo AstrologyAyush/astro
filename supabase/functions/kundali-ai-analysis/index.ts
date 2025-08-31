@@ -11,6 +11,7 @@ const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY');
 console.log('🔥 EDGE DEBUG: Edge function starting...');
 console.log('🔥 EDGE DEBUG: GEMINI_API_KEY exists:', !!GEMINI_API_KEY);
 console.log('🔥 EDGE DEBUG: GEMINI_API_KEY length:', GEMINI_API_KEY?.length || 0);
+console.log('🔥 EDGE DEBUG: Function deployed and ready to receive requests');
 
 // Enhanced cache with longer TTL for better performance
 const responseCache = new Map();
