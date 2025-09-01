@@ -541,66 +541,71 @@ const EnhancedPersonalityTest: React.FC<PersonalityTestProps> = ({ language, onC
   const progress = ((currentQuestion + 1) / selectedQuestions.length) * 100;
 
   return (
-    <Card className="w-full max-w-4xl mx-auto shadow-2xl border-2 border-orange-200 bg-white/98 backdrop-blur-sm rounded-3xl overflow-hidden">
-      <CardHeader className="bg-gradient-to-br from-orange-100 via-amber-50 to-red-100 p-6 sm:p-8 rounded-t-3xl border-b border-orange-200/50">
-        <div className="text-center mb-6">
-          <Brain className="h-8 w-8 sm:h-10 sm:w-10 text-orange-600 mx-auto mb-3" />
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-orange-800 mb-2 readable-text">
-            {language === 'hi' ? 'गहन व्यक्तित्व विश्लेषण' : 'Deep Personality Analysis'}
+    <Card className="w-full max-w-md mx-auto shadow-xl border-2 border-orange-200 bg-white rounded-2xl overflow-hidden">
+      <CardHeader className="bg-gradient-to-br from-orange-100 to-red-100 p-4 border-b border-orange-200/50">
+        <div className="text-center mb-4">
+          <Brain className="h-6 w-6 text-orange-600 mx-auto mb-2" />
+          <h2 className="text-lg font-bold text-orange-800 mb-1 px-2 break-words">
+            {language === 'hi' ? 'व्यक्तित्व विश्लेषण' : 'Personality Analysis'}
           </h2>
-          <p className="text-orange-700 text-sm sm:text-base md:text-lg font-medium readable-text">
-            {language === 'hi' ? 'मनोवैज्ञानिक रूप से मान्य प्रश्नावली' : 'Psychologically Validated Assessment'}
+          <p className="text-orange-700 text-xs font-medium px-2 break-words">
+            {language === 'hi' ? 'मनोवैज्ञानिक परीक्षण' : 'Psychological Test'}
           </p>
         </div>
         
-        <div className="space-y-3">
-          <div className="flex justify-between text-sm sm:text-base font-semibold text-orange-800">
-            <span>{language === 'hi' ? 'स्थिति' : 'Scenario'} {currentQuestion + 1} / {selectedQuestions.length}</span>
-            <span>{Math.round(progress)}% {language === 'hi' ? 'पूरा' : 'Complete'}</span>
+        <div className="space-y-2">
+          <div className="flex justify-between text-xs font-semibold text-orange-800 px-2">
+            <span>{language === 'hi' ? 'प्रश्न' : 'Question'} {currentQuestion + 1}/{selectedQuestions.length}</span>
+            <span>{Math.round(progress)}%</span>
           </div>
-          <Progress value={progress} className="bg-white/30 h-3" />
+          <Progress value={progress} className="bg-white/30 h-2 mx-2" />
         </div>
       </CardHeader>
 
-      <CardContent className="p-6 sm:p-8 md:p-10">
-        <div className="space-y-6 sm:space-y-8">
-          <div className="text-center sm:text-left">
-            <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-orange-800 mb-4 leading-tight readable-text">
+      <CardContent className="p-4 sm:p-5 md:p-6">
+        <div className="space-y-4 sm:space-y-5">
+          <div className="text-center">
+            <h3 className="text-lg sm:text-xl font-bold text-orange-800 mb-3 leading-tight px-2 break-words">
               {selectedQuestions[currentQuestion].title}
             </h3>
-            <p className="text-gray-800 text-base sm:text-lg md:text-xl leading-relaxed mb-6 px-2 sm:px-0 readable-text">
+            <p className="text-gray-800 text-sm sm:text-base leading-snug mb-4 px-3 break-words hyphens-auto">
               {selectedQuestions[currentQuestion].scenario}
             </p>
-            <div className="flex justify-center sm:justify-start">
-              <Badge variant="outline" className="border-orange-300 text-orange-700 text-sm sm:text-base font-medium px-3 py-1">
-                {language === 'hi' ? 'मनोवैज्ञानिक ढांचा:' : 'Framework:'} {selectedQuestions[currentQuestion].psychologicalFramework}
+            <div className="mx-2">
+              <Badge variant="outline" className="border-orange-300 text-orange-700 text-xs font-medium px-2 py-1 break-words">
+                {language === 'hi' ? 'ढांचा:' : 'Framework:'} {selectedQuestions[currentQuestion].psychologicalFramework}
               </Badge>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 gap-4 sm:gap-6">
+          <div className="space-y-3">
             {selectedQuestions[currentQuestion].options.map((option, index) => (
               <Button
                 key={index}
                 variant="outline"
-                className="text-left h-auto p-4 sm:p-6 border-2 border-orange-200 hover:bg-orange-50 hover:border-orange-400 transition-all duration-300 min-h-[100px] sm:min-h-[120px] rounded-2xl shadow-sm hover:shadow-md transform hover:scale-[1.02] active:scale-[0.98]"
+                className="w-full text-left h-auto p-3 sm:p-4 border-2 border-orange-200 hover:bg-green-50 hover:border-green-400 active:bg-green-100 active:border-green-500 transition-all duration-200 min-h-[80px] rounded-xl shadow-sm hover:shadow-md"
                 onClick={() => handleAnswer(index)}
               >
-                <div className="w-full text-left">
-                  <div className="flex items-start gap-3 sm:gap-4">
-                    <span className="bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-full w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center text-sm sm:text-base font-bold flex-shrink-0 mt-1 shadow-lg">
+                <div className="w-full">
+                  <div className="flex items-start gap-3">
+                    <span className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-green-500 hover:to-green-600 text-white rounded-full w-7 h-7 flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5 shadow-md">
                       {String.fromCharCode(65 + index)}
                     </span>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-gray-800 font-semibold leading-relaxed text-base sm:text-lg md:text-xl break-words readable-text">
+                    <div className="flex-1 min-w-0 pr-2">
+                      <p className="text-gray-800 font-medium leading-snug text-sm sm:text-base break-words hyphens-auto">
                         {option.text}
                       </p>
-                      <div className="mt-3 flex flex-wrap gap-2">
-                        {option.traits.map((trait, traitIndex) => (
-                          <Badge key={traitIndex} variant="secondary" className="text-xs sm:text-sm font-medium px-2 py-1 bg-orange-100 text-orange-700 border border-orange-200">
+                      <div className="mt-2 flex flex-wrap gap-1">
+                        {option.traits.slice(0, 2).map((trait, traitIndex) => (
+                          <Badge key={traitIndex} variant="secondary" className="text-xs font-normal px-2 py-0.5 bg-orange-100 text-orange-700 border border-orange-200 break-words">
                             {trait}
                           </Badge>
                         ))}
+                        {option.traits.length > 2 && (
+                          <Badge variant="secondary" className="text-xs font-normal px-2 py-0.5 bg-gray-100 text-gray-600">
+                            +{option.traits.length - 2}
+                          </Badge>
+                        )}
                       </div>
                     </div>
                   </div>

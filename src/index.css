@@ -342,10 +342,11 @@ input, textarea, select {
   -webkit-overflow-scrolling: touch;
 }
 
-/* Mobile viewport height utility */
-.h-screen-mobile {
-  height: 100vh;
-  height: calc(var(--vh, 1vh) * 100);
+/* Mobile-first CSS utilities */
+.hyphens-auto {
+  hyphens: auto;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .min-h-screen-mobile {
