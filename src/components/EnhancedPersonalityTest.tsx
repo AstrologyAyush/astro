@@ -541,55 +541,63 @@ const EnhancedPersonalityTest: React.FC<PersonalityTestProps> = ({ language, onC
   const progress = ((currentQuestion + 1) / selectedQuestions.length) * 100;
 
   return (
-    <Card className="max-w-4xl mx-auto bg-gradient-to-br from-orange-50 to-red-50 border-orange-200">
-      <CardHeader className="bg-gradient-to-r from-orange-500 to-red-500 text-white">
-        <CardTitle className="text-xl flex items-center gap-2">
-          <Brain className="h-5 w-5" />
-          {language === 'hi' ? 'गहन मनोवैज्ञानिक मूल्यांकन' : 'In-Depth Psychological Assessment'}
-        </CardTitle>
-        <div className="space-y-2">
-          <div className="flex justify-between text-sm">
+    <Card className="w-full max-w-4xl mx-auto shadow-2xl border-2 border-orange-200 bg-white/98 backdrop-blur-sm rounded-3xl overflow-hidden">
+      <CardHeader className="bg-gradient-to-br from-orange-100 via-amber-50 to-red-100 p-6 sm:p-8 rounded-t-3xl border-b border-orange-200/50">
+        <div className="text-center mb-6">
+          <Brain className="h-8 w-8 sm:h-10 sm:w-10 text-orange-600 mx-auto mb-3" />
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-orange-800 mb-2 readable-text">
+            {language === 'hi' ? 'गहन व्यक्तित्व विश्लेषण' : 'Deep Personality Analysis'}
+          </h2>
+          <p className="text-orange-700 text-sm sm:text-base md:text-lg font-medium readable-text">
+            {language === 'hi' ? 'मनोवैज्ञानिक रूप से मान्य प्रश्नावली' : 'Psychologically Validated Assessment'}
+          </p>
+        </div>
+        
+        <div className="space-y-3">
+          <div className="flex justify-between text-sm sm:text-base font-semibold text-orange-800">
             <span>{language === 'hi' ? 'स्थिति' : 'Scenario'} {currentQuestion + 1} / {selectedQuestions.length}</span>
             <span>{Math.round(progress)}% {language === 'hi' ? 'पूरा' : 'Complete'}</span>
           </div>
-          <Progress value={progress} className="bg-white/20" />
+          <Progress value={progress} className="bg-white/30 h-3" />
         </div>
       </CardHeader>
 
-      <CardContent className="p-4 sm:p-6">
-        <div className="space-y-4 sm:space-y-6">
-          <div>
-            <h3 className="text-lg sm:text-xl font-bold text-orange-800 mb-2 leading-tight">
+      <CardContent className="p-6 sm:p-8 md:p-10">
+        <div className="space-y-6 sm:space-y-8">
+          <div className="text-center sm:text-left">
+            <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-orange-800 mb-4 leading-tight readable-text">
               {selectedQuestions[currentQuestion].title}
             </h3>
-            <p className="text-gray-700 text-base sm:text-lg leading-relaxed mb-4 px-1">
+            <p className="text-gray-800 text-base sm:text-lg md:text-xl leading-relaxed mb-6 px-2 sm:px-0 readable-text">
               {selectedQuestions[currentQuestion].scenario}
             </p>
-            <Badge variant="outline" className="border-orange-300 text-orange-700 text-xs sm:text-sm">
-              {language === 'hi' ? 'मनोवैज्ञानिक ढांचा:' : 'Framework:'} {selectedQuestions[currentQuestion].psychologicalFramework}
-            </Badge>
+            <div className="flex justify-center sm:justify-start">
+              <Badge variant="outline" className="border-orange-300 text-orange-700 text-sm sm:text-base font-medium px-3 py-1">
+                {language === 'hi' ? 'मनोवैज्ञानिक ढांचा:' : 'Framework:'} {selectedQuestions[currentQuestion].psychologicalFramework}
+              </Badge>
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 gap-3 sm:gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:gap-6">
             {selectedQuestions[currentQuestion].options.map((option, index) => (
               <Button
                 key={index}
                 variant="outline"
-                className="text-left h-auto p-3 sm:p-4 border-orange-200 hover:bg-orange-100 hover:border-orange-400 transition-all duration-200 min-h-[80px] sm:min-h-[auto]"
+                className="text-left h-auto p-4 sm:p-6 border-2 border-orange-200 hover:bg-orange-50 hover:border-orange-400 transition-all duration-300 min-h-[100px] sm:min-h-[120px] rounded-2xl shadow-sm hover:shadow-md transform hover:scale-[1.02] active:scale-[0.98]"
                 onClick={() => handleAnswer(index)}
               >
                 <div className="w-full text-left">
-                  <div className="flex items-start gap-2 sm:gap-3">
-                    <span className="bg-orange-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">
+                  <div className="flex items-start gap-3 sm:gap-4">
+                    <span className="bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-full w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center text-sm sm:text-base font-bold flex-shrink-0 mt-1 shadow-lg">
                       {String.fromCharCode(65 + index)}
                     </span>
                     <div className="flex-1 min-w-0">
-                      <p className="text-gray-800 font-medium leading-relaxed text-sm sm:text-base break-words pr-2">
+                      <p className="text-gray-800 font-semibold leading-relaxed text-base sm:text-lg md:text-xl break-words readable-text">
                         {option.text}
                       </p>
-                      <div className="mt-2 flex flex-wrap gap-1">
+                      <div className="mt-3 flex flex-wrap gap-2">
                         {option.traits.map((trait, traitIndex) => (
-                          <Badge key={traitIndex} variant="secondary" className="text-xs">
+                          <Badge key={traitIndex} variant="secondary" className="text-xs sm:text-sm font-medium px-2 py-1 bg-orange-100 text-orange-700 border border-orange-200">
                             {trait}
                           </Badge>
                         ))}
