@@ -541,71 +541,58 @@ const EnhancedPersonalityTest: React.FC<PersonalityTestProps> = ({ language, onC
   const progress = ((currentQuestion + 1) / selectedQuestions.length) * 100;
 
   return (
-    <Card className="w-full max-w-md mx-auto shadow-xl border-2 border-orange-200 bg-white rounded-2xl overflow-hidden">
-      <CardHeader className="bg-gradient-to-br from-orange-100 to-red-100 p-4 border-b border-orange-200/50">
-        <div className="text-center mb-4">
-          <Brain className="h-6 w-6 text-orange-600 mx-auto mb-2" />
-          <h2 className="text-lg font-bold text-orange-800 mb-1 px-2 break-words">
-            {language === 'hi' ? 'व्यक्तित्व विश्लेषण' : 'Personality Analysis'}
-          </h2>
-          <p className="text-orange-700 text-xs font-medium px-2 break-words">
-            {language === 'hi' ? 'मनोवैज्ञानिक परीक्षण' : 'Psychological Test'}
-          </p>
-        </div>
-        
+    <Card className="max-w-4xl mx-auto bg-gradient-to-br from-orange-50 to-red-50 border-orange-200">
+      <CardHeader className="bg-gradient-to-r from-orange-500 to-red-500 text-white">
+        <CardTitle className="text-xl flex items-center gap-2">
+          <Brain className="h-5 w-5" />
+          {language === 'hi' ? 'गहन मनोवैज्ञानिक मूल्यांकन' : 'In-Depth Psychological Assessment'}
+        </CardTitle>
         <div className="space-y-2">
-          <div className="flex justify-between text-xs font-semibold text-orange-800 px-2">
-            <span>{language === 'hi' ? 'प्रश्न' : 'Question'} {currentQuestion + 1}/{selectedQuestions.length}</span>
-            <span>{Math.round(progress)}%</span>
+          <div className="flex justify-between text-sm">
+            <span>{language === 'hi' ? 'स्थिति' : 'Scenario'} {currentQuestion + 1} / {selectedQuestions.length}</span>
+            <span>{Math.round(progress)}% {language === 'hi' ? 'पूरा' : 'Complete'}</span>
           </div>
-          <Progress value={progress} className="bg-white/30 h-2 mx-2" />
+          <Progress value={progress} className="bg-white/20" />
         </div>
       </CardHeader>
 
-      <CardContent className="p-4 sm:p-5 md:p-6">
-        <div className="space-y-4 sm:space-y-5">
-          <div className="text-center">
-            <h3 className="text-lg sm:text-xl font-bold text-orange-800 mb-3 leading-tight px-2 break-words">
+      <CardContent className="p-4 sm:p-6">
+        <div className="space-y-4 sm:space-y-6">
+          <div>
+            <h3 className="text-lg sm:text-xl font-bold text-orange-800 mb-2 leading-tight">
               {selectedQuestions[currentQuestion].title}
             </h3>
-            <p className="text-gray-800 text-sm sm:text-base leading-snug mb-4 px-3 break-words hyphens-auto">
+            <p className="text-gray-700 text-base sm:text-lg leading-relaxed mb-4 px-1">
               {selectedQuestions[currentQuestion].scenario}
             </p>
-            <div className="mx-2">
-              <Badge variant="outline" className="border-orange-300 text-orange-700 text-xs font-medium px-2 py-1 break-words">
-                {language === 'hi' ? 'ढांचा:' : 'Framework:'} {selectedQuestions[currentQuestion].psychologicalFramework}
-              </Badge>
-            </div>
+            <Badge variant="outline" className="border-orange-300 text-orange-700 text-xs sm:text-sm">
+              {language === 'hi' ? 'मनोवैज्ञानिक ढांचा:' : 'Framework:'} {selectedQuestions[currentQuestion].psychologicalFramework}
+            </Badge>
           </div>
 
-          <div className="space-y-3">
+          <div className="grid grid-cols-1 gap-3 sm:gap-4">
             {selectedQuestions[currentQuestion].options.map((option, index) => (
               <Button
                 key={index}
                 variant="outline"
-                className="w-full text-left h-auto p-3 sm:p-4 border-2 border-orange-200 hover:bg-green-50 hover:border-green-400 active:bg-green-100 active:border-green-500 transition-all duration-200 min-h-[80px] rounded-xl shadow-sm hover:shadow-md"
+                className="text-left h-auto p-3 sm:p-4 border-orange-200 hover:bg-orange-100 hover:border-orange-400 transition-all duration-200 min-h-[80px] sm:min-h-[auto]"
                 onClick={() => handleAnswer(index)}
               >
-                <div className="w-full">
-                  <div className="flex items-start gap-3">
-                    <span className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-green-500 hover:to-green-600 text-white rounded-full w-7 h-7 flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5 shadow-md">
+                <div className="w-full text-left">
+                  <div className="flex items-start gap-2 sm:gap-3">
+                    <span className="bg-orange-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">
                       {String.fromCharCode(65 + index)}
                     </span>
-                    <div className="flex-1 min-w-0 pr-2">
-                      <p className="text-gray-800 font-medium leading-snug text-sm sm:text-base break-words hyphens-auto">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-gray-800 font-medium leading-relaxed text-sm sm:text-base break-words pr-2">
                         {option.text}
                       </p>
                       <div className="mt-2 flex flex-wrap gap-1">
-                        {option.traits.slice(0, 2).map((trait, traitIndex) => (
-                          <Badge key={traitIndex} variant="secondary" className="text-xs font-normal px-2 py-0.5 bg-orange-100 text-orange-700 border border-orange-200 break-words">
+                        {option.traits.map((trait, traitIndex) => (
+                          <Badge key={traitIndex} variant="secondary" className="text-xs">
                             {trait}
                           </Badge>
                         ))}
-                        {option.traits.length > 2 && (
-                          <Badge variant="secondary" className="text-xs font-normal px-2 py-0.5 bg-gray-100 text-gray-600">
-                            +{option.traits.length - 2}
-                          </Badge>
-                        )}
                       </div>
                     </div>
                   </div>

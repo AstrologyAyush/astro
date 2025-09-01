@@ -251,26 +251,25 @@ const Index = () => {
   };
   
   return (
-    <div className="min-h-screen-mobile bg-gradient-to-br from-orange-50 via-white to-red-50 touch-manipulation tap-highlight-none">
-      <div className="w-full mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-3 sm:py-4 md:py-8 max-w-7xl safe-area-pt safe-area-pb safe-area-pl safe-area-pr">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 touch-manipulation">
+      <div className="container mx-auto px-2 sm:px-4 md:px-6 lg:px-8 py-2 sm:py-4 md:py-8 max-w-7xl">
         {/* Mobile-optimized Astrological Background Image */}
-        <div className="relative w-full h-40 sm:h-48 md:h-56 lg:h-64 xl:h-72 mb-6 sm:mb-8 md:mb-10 overflow-hidden rounded-2xl sm:rounded-3xl shadow-2xl">
+        <div className="relative w-full h-32 sm:h-40 md:h-48 lg:h-56 xl:h-64 mb-4 sm:mb-6 md:mb-8 overflow-hidden rounded-xl sm:rounded-2xl shadow-2xl">
           <img 
             src="/lovable-uploads/18da27cd-3784-4fde-a3ba-199421c6eb86.png" 
             alt="Astrological Chart and Galaxy" 
             className="w-full h-full object-cover object-center transform hover:scale-105 transition-transform duration-700" 
-            loading="eager"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-transparent to-black/50"></div>
-          <div className="absolute inset-0 flex items-center justify-center p-4">
-            <div className="text-center text-white max-w-lg mx-auto">
-              <div className="flex items-center justify-center mb-3 sm:mb-4">
-                <Sparkles className="h-8 w-8 sm:h-10 sm:w-10 md:h-12 md:w-12 text-yellow-300 animate-pulse" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-black/40"></div>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="text-center text-white p-3 sm:p-4 md:p-6 rounded-lg sm:rounded-xl bg-black/20 backdrop-blur-sm">
+              <div className="flex items-center justify-center mb-2 sm:mb-3 md:mb-4">
+                <Sparkles className="h-6 w-6 sm:h-8 sm:w-8 md:h-12 md:w-12 text-yellow-300 animate-pulse" />
               </div>
-              <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold mb-2 sm:mb-3 md:mb-4 drop-shadow-2xl bg-gradient-to-r from-yellow-200 to-orange-200 bg-clip-text text-transparent leading-tight">
+              <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-bold mb-1 sm:mb-2 md:mb-4 drop-shadow-2xl bg-gradient-to-r from-yellow-200 to-orange-200 bg-clip-text text-transparent">
                 {getTranslation('Vedic Astrology Portal', 'वैदिक ज्योतिष पोर्टल')}
               </h1>
-              <p className="text-sm sm:text-base md:text-lg lg:text-xl drop-shadow-lg text-orange-100 leading-relaxed">
+              <p className="text-xs sm:text-sm md:text-base lg:text-lg drop-shadow-lg text-orange-100">
                 {getTranslation('Discover Your Cosmic Blueprint', 'अपना ब्रह्मांडीय खाका खोजें')}
               </p>
             </div>
@@ -287,102 +286,90 @@ const Index = () => {
         />
 
         {/* Mobile-friendly Language Toggle */}
-        <div className="mb-6 sm:mb-8 md:mb-10 flex justify-center">
+        <div className="mb-4 sm:mb-6 md:mb-8">
           <LanguageToggle language={language} onLanguageChange={handleLanguageChange} />
         </div>
 
         {/* Mobile-optimized Rishi Parashar Overview */}
-        <div className="mb-8 sm:mb-10 md:mb-12">
+        <div className="mb-6 sm:mb-8 md:mb-10">
           <RishiParasharOverview language={language} />
         </div>
 
         {/* Mobile-first Main Content */}
         {!kundaliData ? (
           <Tabs defaultValue="kundali" className="w-full">
-            <div className="mb-6 sm:mb-8 md:mb-10">
-              <TabsList className={`${isMobile ? 'mobile-tabs-container flex p-1' : 'grid grid-cols-4'} w-full bg-white/95 backdrop-blur-sm border-2 border-orange-100 rounded-2xl p-2 shadow-xl gap-2 min-h-[80px]`}>
-                <TabsTrigger 
-                  value="kundali" 
-                  className={`${isMobile ? 'mobile-tab-item flex-shrink-0 min-w-[90px]' : ''} flex flex-col items-center gap-2 text-xs sm:text-sm font-semibold px-3 py-4 min-h-[70px] rounded-xl data-[state=active]:bg-gradient-to-br data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 hover:shadow-md transform hover:scale-105 active:scale-95`}
-                >
-                  <Star className="h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0" />
-                  <span className="text-center leading-tight">
-                    {isMobile ? getTranslation('Kundali', 'कुंडली') : getTranslation('Vedic Kundali', 'वैदिक कुंडली')}
-                  </span>
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="numerology" 
-                  className={`${isMobile ? 'mobile-tab-item flex-shrink-0 min-w-[90px]' : ''} flex flex-col items-center gap-2 text-xs sm:text-sm font-semibold px-3 py-4 min-h-[70px] rounded-xl data-[state=active]:bg-gradient-to-br data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 hover:shadow-md transform hover:scale-105 active:scale-95`}
-                >
-                  <Hash className="h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0" />
-                  <span className="text-center leading-tight">
-                    {isMobile ? getTranslation('Numbers', 'अंक') : getTranslation('Numerology', 'न्यूमेरोलॉजी')}
-                  </span>
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="personality" 
-                  className={`${isMobile ? 'mobile-tab-item flex-shrink-0 min-w-[90px]' : ''} flex flex-col items-center gap-2 text-xs sm:text-sm font-semibold px-3 py-4 min-h-[70px] rounded-xl data-[state=active]:bg-gradient-to-br data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 hover:shadow-md transform hover:scale-105 active:scale-95`}
-                >
-                  <Calculator className="h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0" />
-                  <span className="text-center leading-tight">
-                    {isMobile ? getTranslation('Test', 'परीक्षण') : getTranslation('Personality', 'व्यक्तित्व')}
-                  </span>
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="horoscope" 
-                  className={`${isMobile ? 'mobile-tab-item flex-shrink-0 min-w-[90px]' : ''} flex flex-col items-center gap-2 text-xs sm:text-sm font-semibold px-3 py-4 min-h-[70px] rounded-xl data-[state=active]:bg-gradient-to-br data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 hover:shadow-md transform hover:scale-105 active:scale-95`}
-                >
-                  <Sun className="h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0" />
-                  <span className="text-center leading-tight">
-                    {isMobile ? getTranslation('Daily', 'दैनिक') : getTranslation('Horoscope', 'राशिफल')}
-                  </span>
-                </TabsTrigger>
-              </TabsList>
-            </div>
+            <TabsList className={`grid w-full grid-cols-2 lg:grid-cols-4 mb-4 sm:mb-6 md:mb-8 mx-0 bg-white/90 backdrop-blur-sm border-2 border-orange-100 rounded-xl p-1 sm:p-2 shadow-lg h-auto gap-1`}>
+              <TabsTrigger 
+                value="kundali" 
+                className="flex flex-col items-center gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3 py-3 sm:py-4 min-h-[60px] sm:min-h-[70px] rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white transition-all duration-200 hover:shadow-md"
+              >
+                <Star className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 flex-shrink-0" />
+                <span className="text-center leading-tight font-medium">
+                  {isMobile ? getTranslation('Kundali', 'कुंडली') : getTranslation('Precision Vedic Kundali', 'सटीक वैदिक कुंडली')}
+                </span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="numerology" 
+                className="flex flex-col items-center gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3 py-3 sm:py-4 min-h-[60px] sm:min-h-[70px] rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white transition-all duration-200 hover:shadow-md"
+              >
+                <Hash className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 flex-shrink-0" />
+                <span className="text-center leading-tight font-medium">
+                  {isMobile ? getTranslation('Numbers', 'अंक') : getTranslation('Numerology', 'न्यूमेरोलॉजी')}
+                </span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="personality" 
+                className="flex flex-col items-center gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3 py-3 sm:py-4 min-h-[60px] sm:min-h-[70px] rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white transition-all duration-200 hover:shadow-md"
+              >
+                <Calculator className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 flex-shrink-0" />
+                <span className="text-center leading-tight font-medium">
+                  {isMobile ? getTranslation('Test', 'परीक्षण') : getTranslation('Personality Test', 'व्यक्तित्व परीक्षण')}
+                </span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="horoscope" 
+                className="flex flex-col items-center gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3 py-3 sm:py-4 min-h-[60px] sm:min-h-[70px] rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white transition-all duration-200 hover:shadow-md"
+              >
+                <Sun className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 flex-shrink-0" />
+                <span className="text-center leading-tight font-medium">
+                  {isMobile ? getTranslation('Daily', 'दैनिक') : getTranslation('Daily Horoscope', 'दैनिक राशिफल')}
+                </span>
+              </TabsTrigger>
+            </TabsList>
 
             <TabsContent value="kundali" data-testid="kundali-section" className="animate-fade-in">
-              <Card className="w-full max-w-4xl mx-auto shadow-2xl border-2 border-orange-200 bg-white/98 backdrop-blur-sm rounded-3xl overflow-hidden">
-                <CardHeader className="bg-gradient-to-br from-orange-100 via-amber-50 to-red-100 p-6 sm:p-8 md:p-10 border-b border-orange-200/50">
-                  <CardTitle className="text-center text-xl sm:text-2xl md:text-3xl lg:text-4xl text-gray-800 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
-                    <div className="p-3 bg-gradient-to-br from-orange-500 to-red-500 rounded-2xl shadow-lg">
-                      <Crown className="h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-white" />
+              <Card className="max-w-3xl mx-auto shadow-2xl border-2 border-orange-200 bg-white/95 backdrop-blur-sm">
+                <CardHeader className="bg-gradient-to-r from-orange-100 via-amber-50 to-red-100 p-3 sm:p-4 md:p-6 lg:p-8 rounded-t-lg">
+                  <CardTitle className="text-center text-lg sm:text-xl md:text-2xl lg:text-3xl text-gray-800 flex items-center justify-center gap-2 sm:gap-3">
+                    <div className="p-1.5 sm:p-2 bg-gradient-to-r from-orange-500 to-red-500 rounded-full">
+                      <Crown className="h-5 w-5 sm:h-6 sm:w-6 lg:h-7 lg:w-7 text-white flex-shrink-0" />
                     </div>
-                    <span className="text-center leading-tight font-bold">
+                    <span className="text-center leading-tight">
                       {getTranslation('Precision Vedic Kundali', 'सटीक वैदिक कुंडली')}
                     </span>
                   </CardTitle>
-                  <p className="text-center text-gray-700 mt-4 sm:mt-6 text-base sm:text-lg md:text-xl px-4 sm:px-6 leading-relaxed font-medium">
+                  <p className="text-center text-gray-600 mt-3 sm:mt-4 text-sm sm:text-base md:text-lg px-2 sm:px-4 leading-relaxed">
                     {getTranslation('Traditional calculations with Swiss Ephemeris precision - 100+ page detailed analysis', 'Swiss Ephemeris सटीकता के साथ पारंपरिक गणना - 100+ पेज का विस्तृत विश्लेषण')}
                   </p>
                 </CardHeader>
-                <CardContent className="p-6 sm:p-8 md:p-10 bg-gradient-to-b from-white to-orange-50/30">
+                <CardContent className="p-3 sm:p-4 md:p-6 lg:p-8">
                   <BirthDataForm onSubmit={handleKundaliGeneration} isLoading={isLoading} language={language} />
                   
-                  {isLoading && (
-                    <div className="mt-8">
-                      <LoadingSpinner language={language} />
-                    </div>
-                  )}
+                  {isLoading && <LoadingSpinner language={language} />}
                 </CardContent>
               </Card>
             </TabsContent>
 
             <TabsContent value="numerology" className="animate-fade-in">
-              <div className="w-full max-w-4xl mx-auto">
-                <NumerologyCalculator />
-              </div>
+              <NumerologyCalculator />
             </TabsContent>
 
             <TabsContent value="personality" className="animate-fade-in">
-              <div className="w-full max-w-4xl mx-auto">
-                <PersonalityTest language={language} />
-              </div>
+              <PersonalityTest language={language} />
             </TabsContent>
 
             <TabsContent value="horoscope" className="animate-fade-in">
-              <div className="w-full max-w-4xl mx-auto">
-                <EnhancedDailyHoroscope kundaliData={null} />
-              </div>
+              <EnhancedDailyHoroscope kundaliData={null} />
             </TabsContent>
           </Tabs>
         ) : (
