@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useDebounce } from "@/hooks/use-debounce";
 import { MapPin, Clock, Calendar, User } from 'lucide-react';
+import CoordinateInputModal from './CoordinateInputModal';
 
 interface BirthDataFormProps {
   onSubmit: (data: any) => void;
@@ -26,6 +27,7 @@ const BirthDataForm: React.FC<BirthDataFormProps> = ({ onSubmit, isLoading, lang
   });
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [showCoordinateModal, setShowCoordinateModal] = useState(false);
   const debouncedSearchTerm = useDebounce(formData.placeOfBirth, 500);
 
   const getTranslation = (en: string, hi: string) => {
@@ -97,25 +99,24 @@ const BirthDataForm: React.FC<BirthDataFormProps> = ({ onSubmit, isLoading, lang
   };
 
   const handleManualCoordinates = () => {
-    const lat = parseFloat(prompt(getTranslation("Enter Latitude:", "अक्षांश दर्ज करें:")) || "0");
-    const lon = parseFloat(prompt(getTranslation("Enter Longitude:", "देशांतर दर्ज करें:")) || "0");
+    setShowCoordinateModal(true);
+  };
+
+  const handleCoordinateSubmit = (latitude: number, longitude: number) => {
+    setFormData(prev => ({
+      ...prev,
+      latitude,
+      longitude,
+      isLocationSelected: true,
+    }));
     
-    if (lat !== 0 && lon !== 0) {
-      setFormData(prev => ({
-        ...prev,
-        latitude: lat,
-        longitude: lon,
-        isLocationSelected: true,
-      }));
-      
-      toast({
-        title: getTranslation("Manual Coordinates Set", "मैन्युअल निर्देशांक सेट"),
-        description: getTranslation(
-          `Latitude: ${lat}, Longitude: ${lon}`,
-          `अक्षांश: ${lat}, देशांतर: ${lon}`
-        ),
-      });
-    }
+    toast({
+      title: getTranslation("Manual Coordinates Set", "मैन्युअल निर्देशांक सेट"),
+      description: getTranslation(
+        `Latitude: ${latitude.toFixed(4)}, Longitude: ${longitude.toFixed(4)}`,
+        `अक्षांश: ${latitude.toFixed(4)}, देशांतर: ${longitude.toFixed(4)}`
+      ),
+    });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -289,6 +290,13 @@ const BirthDataForm: React.FC<BirthDataFormProps> = ({ onSubmit, isLoading, lang
           )}
         </Button>
       </div>
+
+      <CoordinateInputModal
+        isOpen={showCoordinateModal}
+        onClose={() => setShowCoordinateModal(false)}
+        onSubmit={handleCoordinateSubmit}
+        language={language}
+      />
     </form>
   );
 };
