@@ -87,11 +87,16 @@ serve(async (req) => {
       const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`;
       console.log('🔥 EDGE DEBUG: Gemini URL:', geminiUrl.replace(GEMINI_API_KEY, '[HIDDEN]'));
       
+      // Add timeout to prevent hanging requests
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 25000); // 25 second timeout
+      
       const response = await fetch(geminiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
+        signal: controller.signal,
         body: JSON.stringify((() => {
           const requestContent: any = {
             contents: [{
@@ -134,6 +139,8 @@ serve(async (req) => {
           return requestContent;
         })()),
       });
+      
+      clearTimeout(timeoutId);
 
       console.log('🔥 EDGE DEBUG: Gemini response status:', response.status);
       console.log('🔥 EDGE DEBUG: Gemini response ok:', response.ok);
@@ -161,6 +168,12 @@ serve(async (req) => {
     } catch (apiError) {
       console.error('🔥 EDGE DEBUG: Gemini API failed, using fallback:', apiError);
       console.error('🔥 EDGE DEBUG: API Error details:', apiError.message);
+      console.error('🔥 EDGE DEBUG: API Error name:', apiError.name);
+      
+      if (apiError.name === 'AbortError') {
+        console.error('🔥 EDGE DEBUG: Request was aborted due to timeout');
+      }
+      
       analysis = generateFallbackAnalysis(kundaliData, userQuery, language, analysisType);
     }
 
