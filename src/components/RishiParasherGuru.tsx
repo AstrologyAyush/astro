@@ -250,7 +250,11 @@ Respond in ${language === 'hi' ? 'Hindi' : 'English'} as the wise, all-knowing R
         throw new Error('Edge function unavailable');
       }
 
+      console.log('🔥 RISHI DEBUG: Edge function data received:', data);
+      console.log('🔥 RISHI DEBUG: Analysis content:', data?.analysis?.substring(0, 100));
+
       if (data?.analysis) {
+        console.log('🔥 RISHI DEBUG: Message added successfully');
         const rishiMessage: Message = {
           id: (Date.now() + 1).toString(),
           type: 'rishi',
@@ -259,28 +263,31 @@ Respond in ${language === 'hi' ? 'Hindi' : 'English'} as the wise, all-knowing R
         };
         setMessages(prev => [...prev, rishiMessage]);
         setConnectionStatus('online');
-        console.log('🔥 RISHI DEBUG: Message added successfully');
         setIsLoading(false);
-        return;
+        return; // Exit early - don't run fallback
+      } else {
+        console.log('🔥 RISHI DEBUG: No analysis in response, using fallback');
+        throw new Error('No analysis received');
       }
     } catch (error) {
       console.log('🔥 RISHI DEBUG: Using local fallback due to error:', error?.message);
+      
+      // Local fallback - only when API fails
+      console.log('🔥 RISHI DEBUG: Generating local fallback response...');
+      const fallbackResponse = generateLocalRishiResponse(inputValue || "Image analysis", kundaliData, language);
+      console.log('🔥 RISHI DEBUG: Local fallback response:', fallbackResponse.substring(0, 100) + '...');
+      
+      const rishiMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        type: 'rishi',
+        content: fallbackResponse,
+        timestamp: new Date()
+      };
+
+      setMessages(prev => [...prev, rishiMessage]);
+      setConnectionStatus('offline');
     }
-
-    // Local fallback - always works
-    console.log('🔥 RISHI DEBUG: Generating local fallback response...');
-    const fallbackResponse = generateLocalRishiResponse(inputValue || "Image analysis", kundaliData, language);
-    console.log('🔥 RISHI DEBUG: Local fallback response:', fallbackResponse.substring(0, 100) + '...');
     
-    const rishiMessage: Message = {
-      id: (Date.now() + 1).toString(),
-      type: 'rishi',
-      content: fallbackResponse,
-      timestamp: new Date()
-    };
-
-    setMessages(prev => [...prev, rishiMessage]);
-    setConnectionStatus('online');
     setIsLoading(false);
   };
 
