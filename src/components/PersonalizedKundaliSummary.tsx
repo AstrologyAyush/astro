@@ -16,27 +16,70 @@ const PersonalizedKundaliSummary: React.FC<PersonalizedKundaliSummaryProps> = ({
     return language === 'hi' ? hi : en;
   };
 
+  // Debug kundali data structure
+  console.log('🔍 KUNDALI DEBUG - Full data:', kundaliData);
+  console.log('🔍 KUNDALI DEBUG - Planets:', kundaliData?.planets);
+  console.log('🔍 KUNDALI DEBUG - Ascendant:', kundaliData?.ascendant);
+
   // Extract key information from kundali data
   const getMoonSign = () => {
+    const rashiNames = [
+      'Aries/मेष', 'Taurus/वृष', 'Gemini/मिथुन', 'Cancer/कर्क', 
+      'Leo/सिंह', 'Virgo/कन्या', 'Libra/तुला', 'Scorpio/वृश्चिक',
+      'Sagittarius/धनु', 'Capricorn/मकर', 'Aquarius/कुम्भ', 'Pisces/मीन'
+    ];
+
+    // Try multiple possible data structures
+    let moonRashi = null;
+    
     if (kundaliData?.planets?.MO?.rashi !== undefined) {
-      const rashiNames = [
-        'Aries/मेष', 'Taurus/वृष', 'Gemini/मिथुन', 'Cancer/कर्क', 
-        'Leo/सिंह', 'Virgo/कन्या', 'Libra/तुला', 'Scorpio/वृश्चिक',
-        'Sagittarius/धनु', 'Capricorn/मकर', 'Aquarius/कुम्भ', 'Pisces/मीन'
-      ];
-      return rashiNames[kundaliData.planets.MO.rashi] || 'Unknown/अज्ञात';
+      moonRashi = kundaliData.planets.MO.rashi;
+    } else if (kundaliData?.planets?.Moon?.rashi !== undefined) {
+      moonRashi = kundaliData.planets.Moon.rashi;
+    } else if (kundaliData?.chart?.planets?.MO?.rashi !== undefined) {
+      moonRashi = kundaliData.chart.planets.MO.rashi;
+    } else if (kundaliData?.chart?.planets?.Moon?.rashi !== undefined) {
+      moonRashi = kundaliData.chart.planets.Moon.rashi;
+    } else if (kundaliData?.planets?.MO?.sign !== undefined) {
+      moonRashi = kundaliData.planets.MO.sign;
+    } else if (kundaliData?.planets?.Moon?.sign !== undefined) {
+      moonRashi = kundaliData.planets.Moon.sign;
+    }
+
+    console.log('🔍 MOON DEBUG - Found rashi:', moonRashi);
+    
+    if (moonRashi !== null && moonRashi !== undefined) {
+      return rashiNames[moonRashi] || `Sign ${moonRashi}`;
     }
     return 'Unknown/अज्ञात';
   };
 
   const getAscendant = () => {
+    const rashiNames = [
+      'Aries/मेष', 'Taurus/वृष', 'Gemini/मिथुन', 'Cancer/कर्क', 
+      'Leo/सिंह', 'Virgo/कन्या', 'Libra/तुला', 'Scorpio/वृश्चिक',
+      'Sagittarius/धनु', 'Capricorn/मकर', 'Aquarius/कुम्भ', 'Pisces/मीन'
+    ];
+
+    // Try multiple possible data structures
+    let ascendantSign = null;
+    
     if (kundaliData?.ascendant?.sign !== undefined) {
-      const rashiNames = [
-        'Aries/मेष', 'Taurus/वृष', 'Gemini/मिथुन', 'Cancer/कर्क', 
-        'Leo/सिंह', 'Virgo/कन्या', 'Libra/तुला', 'Scorpio/वृश्चिक',
-        'Sagittarius/धनु', 'Capricorn/मकर', 'Aquarius/कुम्भ', 'Pisces/मीन'
-      ];
-      return rashiNames[kundaliData.ascendant.sign] || 'Unknown/अज्ञात';
+      ascendantSign = kundaliData.ascendant.sign;
+    } else if (kundaliData?.chart?.ascendant?.sign !== undefined) {
+      ascendantSign = kundaliData.chart.ascendant.sign;
+    } else if (kundaliData?.lagna?.sign !== undefined) {
+      ascendantSign = kundaliData.lagna.sign;
+    } else if (kundaliData?.chart?.lagna?.sign !== undefined) {
+      ascendantSign = kundaliData.chart.lagna.sign;
+    } else if (kundaliData?.ascendant?.rashi !== undefined) {
+      ascendantSign = kundaliData.ascendant.rashi;
+    }
+
+    console.log('🔍 ASCENDANT DEBUG - Found sign:', ascendantSign);
+    
+    if (ascendantSign !== null && ascendantSign !== undefined) {
+      return rashiNames[ascendantSign] || `Sign ${ascendantSign}`;
     }
     return 'Unknown/अज्ञात';
   };
