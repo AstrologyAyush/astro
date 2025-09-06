@@ -18,8 +18,9 @@ const PersonalizedKundaliSummary: React.FC<PersonalizedKundaliSummaryProps> = ({
 
   // Debug kundali data structure
   console.log('🔍 KUNDALI DEBUG - Full data:', kundaliData);
-  console.log('🔍 KUNDALI DEBUG - Planets:', kundaliData?.planets);
-  console.log('🔍 KUNDALI DEBUG - Ascendant:', kundaliData?.ascendant);
+  console.log('🔍 KUNDALI DEBUG - Enhanced calculations:', kundaliData?.enhancedCalculations);
+  console.log('🔍 KUNDALI DEBUG - Planets:', kundaliData?.enhancedCalculations?.planets);
+  console.log('🔍 KUNDALI DEBUG - Lagna:', kundaliData?.enhancedCalculations?.lagna);
 
   // Extract key information from kundali data
   const getMoonSign = () => {
@@ -29,27 +30,32 @@ const PersonalizedKundaliSummary: React.FC<PersonalizedKundaliSummaryProps> = ({
       'Sagittarius/धनु', 'Capricorn/मकर', 'Aquarius/कुम्भ', 'Pisces/मीन'
     ];
 
-    // Try multiple possible data structures
+    // Try multiple possible data structures for Moon
     let moonRashi = null;
     
-    if (kundaliData?.planets?.MO?.rashi !== undefined) {
+    // Check enhanced calculations structure
+    if (kundaliData?.enhancedCalculations?.planets?.MO?.rashi !== undefined) {
+      moonRashi = kundaliData.enhancedCalculations.planets.MO.rashi;
+    } 
+    // Check if rashi is 1-indexed, convert to 0-indexed for array access
+    else if (kundaliData?.enhancedCalculations?.planets?.MO?.rashi !== undefined) {
+      moonRashi = kundaliData.enhancedCalculations.planets.MO.rashi - 1;
+    }
+    // Fallback checks
+    else if (kundaliData?.planets?.MO?.rashi !== undefined) {
       moonRashi = kundaliData.planets.MO.rashi;
     } else if (kundaliData?.planets?.Moon?.rashi !== undefined) {
       moonRashi = kundaliData.planets.Moon.rashi;
     } else if (kundaliData?.chart?.planets?.MO?.rashi !== undefined) {
       moonRashi = kundaliData.chart.planets.MO.rashi;
-    } else if (kundaliData?.chart?.planets?.Moon?.rashi !== undefined) {
-      moonRashi = kundaliData.chart.planets.Moon.rashi;
-    } else if (kundaliData?.planets?.MO?.sign !== undefined) {
-      moonRashi = kundaliData.planets.MO.sign;
-    } else if (kundaliData?.planets?.Moon?.sign !== undefined) {
-      moonRashi = kundaliData.planets.Moon.sign;
     }
 
     console.log('🔍 MOON DEBUG - Found rashi:', moonRashi);
     
     if (moonRashi !== null && moonRashi !== undefined) {
-      return rashiNames[moonRashi] || `Sign ${moonRashi}`;
+      // Ensure rashi is in 0-11 range for array access
+      const index = moonRashi >= 1 ? moonRashi - 1 : moonRashi;
+      return rashiNames[index] || `Sign ${moonRashi}`;
     }
     return 'Unknown/अज्ञात';
   };
@@ -61,10 +67,15 @@ const PersonalizedKundaliSummary: React.FC<PersonalizedKundaliSummaryProps> = ({
       'Sagittarius/धनु', 'Capricorn/मकर', 'Aquarius/कुम्भ', 'Pisces/मीन'
     ];
 
-    // Try multiple possible data structures
+    // Try multiple possible data structures for Lagna/Ascendant
     let ascendantSign = null;
     
-    if (kundaliData?.ascendant?.sign !== undefined) {
+    // Check enhanced calculations structure
+    if (kundaliData?.enhancedCalculations?.lagna?.sign !== undefined) {
+      ascendantSign = kundaliData.enhancedCalculations.lagna.sign;
+    }
+    // Fallback checks
+    else if (kundaliData?.ascendant?.sign !== undefined) {
       ascendantSign = kundaliData.ascendant.sign;
     } else if (kundaliData?.chart?.ascendant?.sign !== undefined) {
       ascendantSign = kundaliData.chart.ascendant.sign;
@@ -79,16 +90,18 @@ const PersonalizedKundaliSummary: React.FC<PersonalizedKundaliSummaryProps> = ({
     console.log('🔍 ASCENDANT DEBUG - Found sign:', ascendantSign);
     
     if (ascendantSign !== null && ascendantSign !== undefined) {
-      return rashiNames[ascendantSign] || `Sign ${ascendantSign}`;
+      // Ensure sign is in 0-11 range for array access
+      const index = ascendantSign >= 1 ? ascendantSign - 1 : ascendantSign;
+      return rashiNames[index] || `Sign ${ascendantSign}`;
     }
     return 'Unknown/अज्ञात';
   };
 
   const getStrongestPlanet = () => {
-    if (!kundaliData?.planets) return { name: 'Sun/सूर्य', strength: 85, key: 'SU' };
+    if (!kundaliData?.enhancedCalculations?.planets) return { name: 'Sun/सूर्य', strength: 85, key: 'SU' };
     
     let strongest = { name: 'Sun/सूर्य', strength: 0, key: 'SU' };
-    Object.entries(kundaliData.planets).forEach(([key, planet]: [string, any]) => {
+    Object.entries(kundaliData.enhancedCalculations.planets).forEach(([key, planet]: [string, any]) => {
       const strength = planet?.shadbala || planet?.strength || Math.random() * 100;
       if (strength > strongest.strength) {
         const planetNames: { [key: string]: string } = {
@@ -102,10 +115,10 @@ const PersonalizedKundaliSummary: React.FC<PersonalizedKundaliSummaryProps> = ({
   };
 
   const getWeakestPlanet = () => {
-    if (!kundaliData?.planets) return { name: 'Saturn/शनि', strength: 45, key: 'SA' };
+    if (!kundaliData?.enhancedCalculations?.planets) return { name: 'Saturn/शनि', strength: 45, key: 'SA' };
     
     let weakest = { name: 'Saturn/शनि', strength: 100, key: 'SA' };
-    Object.entries(kundaliData.planets).forEach(([key, planet]: [string, any]) => {
+    Object.entries(kundaliData.enhancedCalculations.planets).forEach(([key, planet]: [string, any]) => {
       const strength = planet?.shadbala || planet?.strength || Math.random() * 100;
       if (strength < weakest.strength) {
         const planetNames: { [key: string]: string } = {
@@ -119,7 +132,7 @@ const PersonalizedKundaliSummary: React.FC<PersonalizedKundaliSummaryProps> = ({
   };
 
   const getMainYogas = () => {
-    const yogas = kundaliData?.yogas || [];
+    const yogas = kundaliData?.enhancedCalculations?.yogas || [];
     return yogas.slice(0, 3).map((yoga: any) => ({
       name: yoga.name || yoga.sanskritName || 'Beneficial Yoga',
       strength: yoga.strength || Math.floor(Math.random() * 40) + 60
