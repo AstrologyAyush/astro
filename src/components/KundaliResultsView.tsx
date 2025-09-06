@@ -10,6 +10,7 @@ import EnhancedVisualKundaliPDFExport from './EnhancedVisualKundaliPDFExport';
 import DharmaAlignmentAnalysis from './DharmaAlignmentAnalysis';
 import AIEnhancementSuite from './AIEnhancementSuite';
 import EnhancedGeminiAnalysis from './EnhancedGeminiAnalysis';
+import PersonalizedKundaliSummary from './PersonalizedKundaliSummary';
 
 // New personalized components
 const PersonalizedLifeInsights = lazy(() => import('./PersonalizedLifeInsights'));
@@ -61,6 +62,9 @@ const KundaliResultsView: React.FC<KundaliResultsViewProps> = ({
               {getTranslation('Generate New Kundali', 'नई कुंडली बनाएं')}
             </Button>
           </div>
+          
+          {/* Personalized Kundali Summary */}
+          <PersonalizedKundaliSummary kundaliData={memoizedKundaliData} language={language} />
           
           {/* Personalized Life Insights */}
           <Card className="w-full border-orange-200 dark:border-orange-700 shadow-lg bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm">
