@@ -56,6 +56,7 @@ export interface EnhancedKundaliAnalysis {
 }
 
 import { supabase } from '@/integrations/supabase/client';
+import { FunctionsHttpError } from '@supabase/supabase-js';
 
 export async function getGeminiKundaliAnalysis(kundaliData: any): Promise<EnhancedKundaliAnalysis> {
   console.log('🚀 Starting Gemini Kundali Analysis...');
@@ -70,6 +71,16 @@ export async function getGeminiKundaliAnalysis(kundaliData: any): Promise<Enhanc
 
     if (error) {
       console.error('❌ Error calling Gemini analysis function:', error);
+      if (error instanceof FunctionsHttpError) {
+        try {
+          const errorJson = await error.context.json();
+          if (errorJson.error === 'GEMINI_API_KEY_NOT_CONFIGURED') {
+            throw new Error(errorJson.message);
+          }
+        } catch (e) {
+          // Ignore parsing error, throw original error
+        }
+      }
       throw new Error(`Edge function error: ${error.message}`);
     }
 
@@ -88,7 +99,10 @@ export async function getGeminiKundaliAnalysis(kundaliData: any): Promise<Enhanc
     
   } catch (error) {
     console.error('💥 Error in getGeminiKundaliAnalysis:', error);
-    // Return fallback analysis instead of throwing
+    if (error.message.includes('Please set the GEMINI_API_KEY')) {
+      throw error;
+    }
+    // Return fallback analysis instead of throwing for other errors
     return getFallbackAnalysis(kundaliData);
   }
 }
