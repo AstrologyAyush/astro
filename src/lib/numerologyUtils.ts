@@ -120,7 +120,8 @@ export const calculateLifePath = (birthDate: Date): { number: number, breakdown:
 
 // 2. Birthday Number - use date directly
 export const calculateBirthday = (birthDate: Date): number => {
-  return birthDate.getDate();
+  const day = birthDate.getDate();
+  return reduceNumber(day).final;
 };
 
 // 3. Expression/Destiny Number
