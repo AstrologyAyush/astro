@@ -42,6 +42,7 @@ const EnhancedGeminiAnalysis: React.FC<EnhancedGeminiAnalysisProps> = ({
 
       const result = await getGeminiKundaliAnalysis(kundaliData);
       console.log('✅ Analysis received:', result);
+      console.log('HEALTH PREDICTIONS IN COMPONENT:', JSON.stringify(result?.healthPredictions, null, 2));
       
       setAnalysis(result);
       toast({

@@ -108,6 +108,7 @@ export async function getGeminiKundaliAnalysis(kundaliData: any): Promise<Enhanc
     });
 
     console.log('📥 Edge function response:', { data, error });
+    console.log('DETAILED HEALTH PREDICTIONS FROM SUPABASE:', JSON.stringify(data?.analysis?.healthPredictions, null, 2));
 
     if (error) {
       console.error('❌ Error calling Gemini analysis function:', error);

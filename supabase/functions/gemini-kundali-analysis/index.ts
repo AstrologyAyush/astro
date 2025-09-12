@@ -25,6 +25,7 @@ serve(async (req) => {
     }
 
     const prompt = createDetailedKundaliPrompt(kundaliData);
+    console.log("GEMINI PROMPT:", prompt);
     
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${geminiApiKey}`, {
       method: 'POST',
@@ -47,17 +48,20 @@ serve(async (req) => {
     });
 
     if (!response.ok) {
-      throw new Error(`Gemini API error: ${response.status}`);
+      const errorBody = await response.text();
+      throw new Error(`Gemini API error: ${response.status} - ${errorBody}`);
     }
 
     const data = await response.json();
     const analysisText = data.candidates[0]?.content?.parts[0]?.text;
+    console.log("GEMINI RAW RESPONSE:", analysisText);
     
     if (!analysisText) {
       throw new Error('No analysis text received from Gemini');
     }
 
     const structuredAnalysis = parseGeminiResponse(analysisText, kundaliData);
+    console.log("PARSED ANALYSIS:", JSON.stringify(structuredAnalysis, null, 2));
     
     return new Response(JSON.stringify({ analysis: structuredAnalysis }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -65,8 +69,13 @@ serve(async (req) => {
 
   } catch (error) {
     console.error('Error in gemini-kundali-analysis function:', error);
+    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
+    const errorDetails = {
+      message: `Failed to generate analysis. The AI service may be temporarily unavailable or the request may have timed out. Details: ${errorMessage}`,
+      rawError: error
+    };
     return new Response(
-      JSON.stringify({ error: error.message }), 
+      JSON.stringify({ error: errorDetails.message }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
@@ -178,38 +187,38 @@ Analyze 10th house planets (${tenthHousePlanets.map((p: any) => p.name).join(', 
 Based on 7th house analysis (${seventhHousePlanets.map((p: any) => p.name).join(', ') || 'Empty'}), Venus position (${venus.rashiName} in ${venus.house}th house), and relevant yogas, predict marriage timing, partner characteristics, family dynamics, and social relationships.
 
 4. HEALTH & VITALITY:
-Analyze the native's health in detail. Provide the output for this section as a valid JSON object enclosed in a ```json ... ``` block. Do not add any text outside the JSON block for this section. The JSON object should have the following structure:
+Analyze the native's health in detail. Provide the output for this section as a valid JSON object enclosed in a ```json ... ``` block. Do not add any text outside the JSON block for this section. The JSON object must have the following structure:
 {
   "overview": {
-    "overallScore": "A percentage string, e.g., '78%'",
-    "constitution": "A short string, e.g., 'Vata-Pitta dominant'",
-    "lifeExpectancy": "A string, e.g., 'Above average (78-82 years)'",
-    "immuneSystem": "A string, e.g., 'Moderate to Strong'"
+    "overallScore": "string",
+    "constitution": "string",
+    "lifeExpectancy": "string",
+    "immuneSystem": "string"
   },
   "vulnerableAreas": [
     {
-      "system": "e.g., 'Digestive System'",
-      "risk": "'Low', 'Medium', or 'High'",
-      "planets": "e.g., 'Mars-Mercury aspect'",
-      "issues": ["An array of strings"]
+      "system": "string",
+      "risk": "string",
+      "planets": "string",
+      "issues": ["string"]
     }
   ],
   "preventiveMeasures": {
-    "dietary": ["An array of strings"],
-    "lifestyle": ["An array of strings"],
-    "supplements": ["An array of strings"]
+    "dietary": ["string"],
+    "lifestyle": ["string"],
+    "supplements": ["string"]
   },
   "mentalHealth": {
-    "score": "A percentage string, e.g., '75%'",
-    "strengths": ["An array of strings"],
-    "challenges": ["An array of strings"],
-    "recommendations": ["An array of strings"]
+    "score": "string",
+    "strengths": ["string"],
+    "challenges": ["string"],
+    "recommendations": ["string"]
   },
   "criticalPeriods": [
     {
-      "period": "e.g., 'Age 28-30'",
-      "focus": "e.g., 'Digestive health monitoring'",
-      "actions": "e.g., 'Establish healthy eating habits'"
+      "period": "string",
+      "focus": "string",
+      "actions": "string"
     }
   ]
 }
@@ -241,16 +250,13 @@ function parseGeminiResponse(analysisText: string, kundaliData: any): any {
         healthPredictions = JSON.parse(healthJsonMatch[1]);
       } catch (e) {
         console.error("Failed to parse health JSON, using fallback.", e);
-        healthPredictions = getPersonalizedHealth(kundaliData);
+        // The function getPersonalizedHealth is not defined here, so we use a default structure
+        healthPredictions = { overview: {}, vulnerableAreas: [], preventiveMeasures: {}, mentalHealth: {}, criticalPeriods: [] };
       }
     } else {
-      // Fallback to old parsing method if JSON not found
-      healthPredictions = {
-        generalHealth: extractParagraph(healthSection, 0) || getPersonalizedHealth(kundaliData).generalHealth,
-        vulnerableAreas: extractHealthAreas(healthSection) || getPersonalizedHealth(kundaliData).vulnerableAreas,
-        preventiveMeasures: extractHealthMeasures(healthSection) || getPersonalizedHealth(kundaliData).preventiveMeasures,
-        mentalWellbeing: extractParagraph(healthSection, -1) || getPersonalizedHealth(kundaliData).mentalWellbeing
-      };
+      // Fallback to a default structure if JSON not found
+      console.warn("Health JSON not found in response, using fallback structure.");
+      healthPredictions = { overview: {}, vulnerableAreas: [], preventiveMeasures: {}, mentalHealth: {}, criticalPeriods: [] };
     }
 
     return {
