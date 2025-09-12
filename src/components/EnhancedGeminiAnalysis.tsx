@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Sparkles, User, Briefcase, Heart, Activity, Target, Clock, RefreshCw } from "lucide-react";
 import { getGeminiKundaliAnalysis, EnhancedKundaliAnalysis } from '@/lib/geminiKundaliAnalysis';
 import { useToast } from "@/hooks/use-toast";
+import AIHealthInsights from '@/components/AIHealthInsights';
 
 interface EnhancedGeminiAnalysisProps {
   kundaliData: any;
@@ -264,45 +265,12 @@ const EnhancedGeminiAnalysis: React.FC<EnhancedGeminiAnalysisProps> = ({
             </TabsContent>
 
             <TabsContent value="health" className="space-y-4">
-              <div className="grid gap-4">
-                <div className="bg-green-50 p-4 rounded-lg">
-                  <h4 className="font-semibold text-green-800 mb-2">
-                    {getTranslation('General Health', 'सामान्य स्वास्थ्य')}
-                  </h4>
-                  <p className="text-green-700">{analysis?.healthPredictions?.generalHealth || getTranslation('Assessing overall health constitution...', 'समग्र स्वास्थ्य संविधान का आकलन...')}</p>
-                </div>
-                <div className="bg-yellow-50 p-4 rounded-lg">
-                  <h4 className="font-semibold text-yellow-800 mb-2">
-                    {getTranslation('Vulnerable Areas', 'संवेदनशील क्षेत्र')}
-                  </h4>
-                  <div className="flex flex-wrap gap-2">
-                    {analysis?.healthPredictions?.vulnerableAreas?.length > 0 ? 
-                      analysis.healthPredictions.vulnerableAreas.map((area, index) => (
-                        <Badge key={index} variant="outline" className="bg-yellow-100 text-yellow-800">
-                          {area}
-                        </Badge>
-                      )) :
-                      <span className="text-yellow-700">{getTranslation('Identifying health patterns...', 'स्वास्थ्य पैटर्न की पहचान...')}</span>
-                    }
-                  </div>
-                </div>
-                <div className="bg-blue-50 p-4 rounded-lg">
-                  <h4 className="font-semibold text-blue-800 mb-2">
-                    {getTranslation('Preventive Measures', 'निवारक उपाय')}
-                  </h4>
-                  <ul className="text-blue-700 space-y-1">
-                    {analysis?.healthPredictions?.preventiveMeasures?.length > 0 ? 
-                      analysis.healthPredictions.preventiveMeasures.map((measure, index) => (
-                        <li key={index} className="flex items-center gap-2">
-                          <span className="w-1.5 h-1.5 bg-blue-600 rounded-full"></span>
-                          {measure}
-                        </li>
-                      )) :
-                      <li className="text-blue-700">{getTranslation('Preparing health recommendations...', 'स्वास्थ्य सिफारिशें तैयार कर रहे हैं...')}</li>
-                    }
-                  </ul>
-                </div>
-              </div>
+              {analysis?.healthPredictions && (
+                <AIHealthInsights
+                  healthData={analysis.healthPredictions}
+                  language={language}
+                />
+              )}
             </TabsContent>
 
             <TabsContent value="spiritual" className="space-y-4">

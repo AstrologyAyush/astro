@@ -5,119 +5,30 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Activity, Heart, Brain, Shield, Apple, AlertTriangle, CheckCircle, Clock } from "lucide-react";
 
+import { HealthPredictions } from '@/lib/geminiKundaliAnalysis';
+
 interface AIHealthInsightsProps {
-  kundaliData: any;
+  healthData: HealthPredictions;
   language: 'hi' | 'en';
 }
 
 const AIHealthInsights: React.FC<AIHealthInsightsProps> = ({ 
-  kundaliData, 
+  healthData,
   language 
 }) => {
   const [activeTab, setActiveTab] = useState('health-overview');
 
   const getTranslation = (en: string, hi: string) => {
-    return language === 'hi' ? hi : en;
+    // Note: The AI response will be in English.
+    // For a full solution, a translation service would be needed here.
+    // For now, we will just return the English text if language is 'hi'.
+    return language === 'hi' ? en : en;
   };
 
-  const healthData = {
-    overview: {
-      overallScore: '78%',
-      constitution: getTranslation('Vata-Pitta dominant', 'वात-पित्त प्रधान'),
-      lifeExpectancy: getTranslation('Above average (78-82 years)', 'औसत से ऊपर (78-82 वर्ष)'),
-      immuneSystem: getTranslation('Moderate to Strong', 'मध्यम से मजबूत')
-    },
-    vulnerableAreas: [
-      {
-        system: getTranslation('Digestive System', 'पाचन तंत्र'),
-        risk: 'Medium',
-        planets: getTranslation('Mars-Mercury aspect', 'मंगल-बुध दृष्टि'),
-        issues: [
-          getTranslation('Acidity and gastric problems', 'अम्लता और गैस्ट्रिक समस्याएं'),
-          getTranslation('Irregular eating patterns', 'अनियमित खाने के पैटर्न'),
-          getTranslation('Food sensitivities', 'खाद्य संवेदनशीलताएं')
-        ]
-      },
-      {
-        system: getTranslation('Nervous System', 'तंत्रिका तंत्र'),
-        risk: 'Low-Medium',
-        planets: getTranslation('Mercury-Saturn influence', 'बुध-शनि प्रभाव'),
-        issues: [
-          getTranslation('Stress and anxiety tendencies', 'तनाव और चिंता की प्रवृत्तियां'),
-          getTranslation('Sleep disorders', 'नींद संबंधी विकार'),
-          getTranslation('Mental fatigue', 'मानसिक थकान')
-        ]
-      },
-      {
-        system: getTranslation('Cardiovascular System', 'हृदय संवहनी तंत्र'),
-        risk: 'Low',
-        planets: getTranslation('Sun-Venus harmony', 'सूर्य-शुक्र सामंजस्य'),
-        issues: [
-          getTranslation('Mild blood pressure fluctuations', 'हल्के रक्तचाप में उतार-चढ़ाव'),
-          getTranslation('Cholesterol management needed after 40', '40 के बाद कोलेस्ट्रॉल प्रबंधन आवश्यक')
-        ]
-      }
-    ],
-    preventiveMeasures: {
-      dietary: [
-        getTranslation('Follow regular meal timings', 'नियमित भोजन समय का पालन करें'),
-        getTranslation('Include more fiber and probiotics', 'अधिक फाइबर और प्रोबायोटिक्स शामिल करें'),
-        getTranslation('Limit spicy and oily foods', 'मसालेदार और तैलीय भोजन सीमित करें'),
-        getTranslation('Stay hydrated with warm water', 'गर्म पानी के साथ हाइड्रेटेड रहें'),
-        getTranslation('Avoid eating late at night', 'रात में देर से खाना खाने से बचें')
-      ],
-      lifestyle: [
-        getTranslation('Regular moderate exercise', 'नियमित मध्यम व्यायाम'),
-        getTranslation('Daily meditation or pranayama', 'दैनिक ध्यान या प्राणायाम'),
-        getTranslation('Maintain consistent sleep schedule', 'निरंतर नींद की अनुसूची बनाए रखें'),
-        getTranslation('Stress management techniques', 'तनाव प्रबंधन तकनीकें'),
-        getTranslation('Regular health checkups', 'नियमित स्वास्थ्य जांच')
-      ],
-      supplements: [
-        getTranslation('Vitamin D (especially in winter)', 'विटामिन डी (विशेषकर सर्दियों में)'),
-        getTranslation('Omega-3 fatty acids', 'ओमेगा-3 फैटी एसिड'),
-        getTranslation('Probiotics for gut health', 'आंत के स्वास्थ्य के लिए प्रोबायोटिक्स'),
-        getTranslation('Magnesium for stress', 'तनाव के लिए मैग्नीशियम')
-      ]
-    },
-    mentalHealth: {
-      score: '75%',
-      strengths: [
-        getTranslation('Good emotional intelligence', 'अच्छी भावनात्मक बुद्धिमत्ता'),
-        getTranslation('Natural optimism', 'प्राकृतिक आशावाद'),
-        getTranslation('Strong willpower', 'मजबूत इच्छाशक्ति'),
-        getTranslation('Ability to bounce back from setbacks', 'असफलताओं से वापसी की क्षमता')
-      ],
-      challenges: [
-        getTranslation('Tendency to overthink', 'अधिक सोचने की प्रवृत्ति'),
-        getTranslation('Perfectionist tendencies', 'पूर्णतावादी प्रवृत्तियां'),
-        getTranslation('Work-life balance issues', 'कार्य-जीवन संतुलन की समस्याएं')
-      ],
-      recommendations: [
-        getTranslation('Practice mindfulness meditation', 'माइंडफुलनेस मेडिटेशन का अभ्यास करें'),
-        getTranslation('Set boundaries between work and personal life', 'कार्य और व्यक्तिगत जीवन के बीच सीमाएं निर्धारित करें'),
-        getTranslation('Regular social interactions', 'नियमित सामाजिक बातचीत'),
-        getTranslation('Pursue creative hobbies', 'रचनात्मक शौक अपनाएं')
-      ]
-    },
-    criticalPeriods: [
-      {
-        period: getTranslation('Age 28-30', 'आयु 28-30'),
-        focus: getTranslation('Digestive health monitoring', 'पाचन स्वास्थ्य निगरानी'),
-        actions: getTranslation('Establish healthy eating habits', 'स्वस्थ खाने की आदतें स्थापित करें')
-      },
-      {
-        period: getTranslation('Age 35-40', 'आयु 35-40'),
-        focus: getTranslation('Cardiovascular screening', 'हृदय संवहनी जांच'),
-        actions: getTranslation('Regular blood pressure and cholesterol monitoring', 'नियमित रक्तचाप और कोलेस्ट्रॉल निगरानी')
-      },
-      {
-        period: getTranslation('Age 45-50', 'आयु 45-50'),
-        focus: getTranslation('Comprehensive health assessment', 'व्यापक स्वास्थ्य मूल्यांकन'),
-        actions: getTranslation('Full body checkup and preventive measures', 'पूर्ण शरीर जांच और निवारक उपाय')
-      }
-    ]
-  };
+  // The hardcoded data is removed. The component will now use healthData from props.
+  if (!healthData) {
+    return <div>{getTranslation('Loading health data...', 'स्वास्थ्य डेटा लोड हो रहा है...')}</div>;
+  }
 
   return (
     <div className="space-y-6">

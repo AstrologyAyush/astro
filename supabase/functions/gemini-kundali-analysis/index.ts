@@ -178,7 +178,42 @@ Analyze 10th house planets (${tenthHousePlanets.map((p: any) => p.name).join(', 
 Based on 7th house analysis (${seventhHousePlanets.map((p: any) => p.name).join(', ') || 'Empty'}), Venus position (${venus.rashiName} in ${venus.house}th house), and relevant yogas, predict marriage timing, partner characteristics, family dynamics, and social relationships.
 
 4. HEALTH & VITALITY:
-Analyze health indicators from 6th house, Mars position, Saturn influences, and vulnerable body parts based on planetary positions. Suggest preventive measures and health practices.
+Analyze the native's health in detail. Provide the output for this section as a valid JSON object enclosed in a ```json ... ``` block. Do not add any text outside the JSON block for this section. The JSON object should have the following structure:
+{
+  "overview": {
+    "overallScore": "A percentage string, e.g., '78%'",
+    "constitution": "A short string, e.g., 'Vata-Pitta dominant'",
+    "lifeExpectancy": "A string, e.g., 'Above average (78-82 years)'",
+    "immuneSystem": "A string, e.g., 'Moderate to Strong'"
+  },
+  "vulnerableAreas": [
+    {
+      "system": "e.g., 'Digestive System'",
+      "risk": "'Low', 'Medium', or 'High'",
+      "planets": "e.g., 'Mars-Mercury aspect'",
+      "issues": ["An array of strings"]
+    }
+  ],
+  "preventiveMeasures": {
+    "dietary": ["An array of strings"],
+    "lifestyle": ["An array of strings"],
+    "supplements": ["An array of strings"]
+  },
+  "mentalHealth": {
+    "score": "A percentage string, e.g., '75%'",
+    "strengths": ["An array of strings"],
+    "challenges": ["An array of strings"],
+    "recommendations": ["An array of strings"]
+  },
+  "criticalPeriods": [
+    {
+      "period": "e.g., 'Age 28-30'",
+      "focus": "e.g., 'Digestive health monitoring'",
+      "actions": "e.g., 'Establish healthy eating habits'"
+    }
+  ]
+}
+Base your analysis on the 6th house, Mars position, Saturn influences, and vulnerable body parts based on planetary positions.
 
 5. SPIRITUAL PATH & DHARMA:
 Based on Jupiter position (${jupiter.rashiName} in ${jupiter.house}th house), Ketu placement (${ketu.rashiName} in ${ketu.house}th house), and 9th/12th house influences, guide the native's spiritual journey, life purpose, karmic lessons, and recommended practices.
@@ -191,17 +226,33 @@ BE SPECIFIC, PERSONALIZED, AND REFERENCE ACTUAL CHART POSITIONS. Avoid generic s
 
 function parseGeminiResponse(analysisText: string, kundaliData: any): any {
   try {
-    // Extract sections by numbered headings (1. CORE PERSONALITY, 2. CAREER, etc.)
-    const sections = analysisText.split(/\d+\.\s+[A-Z\s&]+:/);
-    
-    // Try to extract each section content
     const personalitySection = extractSectionByNumber(analysisText, 1) || analysisText;
     const careerSection = extractSectionByNumber(analysisText, 2) || '';
     const relationshipSection = extractSectionByNumber(analysisText, 3) || '';
     const healthSection = extractSectionByNumber(analysisText, 4) || '';
     const spiritualSection = extractSectionByNumber(analysisText, 5) || '';
     const timingSection = extractSectionByNumber(analysisText, 6) || '';
-    
+
+    // Enhanced health section parsing
+    let healthPredictions;
+    const healthJsonMatch = healthSection.match(/```json\s*([\s\S]*?)\s*```/);
+    if (healthJsonMatch && healthJsonMatch[1]) {
+      try {
+        healthPredictions = JSON.parse(healthJsonMatch[1]);
+      } catch (e) {
+        console.error("Failed to parse health JSON, using fallback.", e);
+        healthPredictions = getPersonalizedHealth(kundaliData);
+      }
+    } else {
+      // Fallback to old parsing method if JSON not found
+      healthPredictions = {
+        generalHealth: extractParagraph(healthSection, 0) || getPersonalizedHealth(kundaliData).generalHealth,
+        vulnerableAreas: extractHealthAreas(healthSection) || getPersonalizedHealth(kundaliData).vulnerableAreas,
+        preventiveMeasures: extractHealthMeasures(healthSection) || getPersonalizedHealth(kundaliData).preventiveMeasures,
+        mentalWellbeing: extractParagraph(healthSection, -1) || getPersonalizedHealth(kundaliData).mentalWellbeing
+      };
+    }
+
     return {
       detailedPersonality: {
         coreNature: extractParagraph(personalitySection, 0) || getPersonalizedPersonality(kundaliData).coreNature,
@@ -221,12 +272,7 @@ function parseGeminiResponse(analysisText: string, kundaliData: any): any {
         familyLife: extractParagraph(relationshipSection, 2) || getPersonalizedRelationships(kundaliData).familyLife,
         friendshipPatterns: extractParagraph(relationshipSection, 3) || getPersonalizedRelationships(kundaliData).friendshipPatterns
       },
-      healthPredictions: {
-        generalHealth: extractParagraph(healthSection, 0) || getPersonalizedHealth(kundaliData).generalHealth,
-        vulnerableAreas: extractHealthAreas(healthSection) || getPersonalizedHealth(kundaliData).vulnerableAreas,
-        preventiveMeasures: extractHealthMeasures(healthSection) || getPersonalizedHealth(kundaliData).preventiveMeasures,
-        mentalWellbeing: extractParagraph(healthSection, -1) || getPersonalizedHealth(kundaliData).mentalWellbeing
-      },
+      healthPredictions: healthPredictions,
       spiritualPath: {
         dharma: extractParagraph(spiritualSection, 0) || getPersonalizedSpiritual(kundaliData).dharma,
         karmaLessons: extractParagraph(spiritualSection, 1) || getPersonalizedSpiritual(kundaliData).karmaLessons,

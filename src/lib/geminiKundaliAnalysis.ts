@@ -16,6 +16,52 @@ interface GeminiResponse {
   }>;
 }
 
+// Detailed Health Predictions Structure
+export interface HealthOverview {
+  overallScore: string;
+  constitution: string;
+  lifeExpectancy: string;
+  immuneSystem: string;
+}
+
+export interface VulnerableArea {
+  system: string;
+  risk: string;
+  planets: string;
+  issues: string[];
+}
+
+export interface PreventiveMeasures {
+  dietary: string[];
+  lifestyle: string[];
+  supplements: string[];
+}
+
+export interface MentalHealth {
+  score: string;
+  strengths: string[];
+  challenges: string[];
+  recommendations: string[];
+}
+
+export interface CriticalPeriod {
+  period: string;
+  focus: string;
+  actions: string;
+}
+
+export interface HealthPredictions {
+  overview: HealthOverview;
+  vulnerableAreas: VulnerableArea[];
+  preventiveMeasures: PreventiveMeasures;
+  mentalHealth: MentalHealth;
+  criticalPeriods: CriticalPeriod[];
+  generalHealth?: string; // Keep for fallback compatibility
+  vulnerableAreasSimple?: string[]; // Keep for fallback compatibility
+  preventiveMeasuresSimple?: string[]; // Keep for fallback compatibility
+  mentalWellbeing?: string; // Keep for fallback compatibility
+}
+
 export interface EnhancedKundaliAnalysis {
   detailedPersonality: {
     coreNature: string;
@@ -35,12 +81,7 @@ export interface EnhancedKundaliAnalysis {
     familyLife: string;
     friendshipPatterns: string;
   };
-  healthPredictions: {
-    generalHealth: string;
-    vulnerableAreas: string[];
-    preventiveMeasures: string[];
-    mentalWellbeing: string;
-  };
+  healthPredictions: HealthPredictions;
   spiritualPath: {
     dharma: string;
     karmaLessons: string;
@@ -142,12 +183,7 @@ function getFallbackAnalysis(kundaliData: any): EnhancedKundaliAnalysis {
       friendshipPatterns: getFriendshipPatterns(planets.ME?.house || planets.Mercury?.house)
     },
     
-    healthPredictions: {
-      generalHealth: getHealthPrediction(ascendant, weakestPlanet?.name),
-      vulnerableAreas: getVulnerableAreas(weakestPlanet?.house, planets.SA?.house || planets.Saturn?.house),
-      preventiveMeasures: getPreventiveMeasures(weakestPlanet?.name, ascendant),
-      mentalWellbeing: getMentalWellbeing(planets.MO?.house || planets.Moon?.house, planets.ME?.house || planets.Mercury?.house)
-    },
+    healthPredictions: getPersonalizedHealthFallback(kundaliData),
     
     spiritualPath: {
       dharma: getDharmaPath(planets.JU?.house || planets.Jupiter?.house, planets.SU?.house || planets.Sun?.house),
@@ -365,53 +401,75 @@ function getFriendshipPatterns(mercuryHouse?: number): string {
   return patterns[mercuryHouse || 11] || 'selective but loyal friendships';
 }
 
-function getHealthPrediction(ascendant: string, weakestPlanet?: string): string {
-  const constitution: Record<string, string> = {
-    'Aries': 'strong physical energy but prone to headaches and stress',
-    'Taurus': 'robust constitution but watch throat and weight issues',
-    'Gemini': 'nervous energy requiring mental stimulation and rest',
-    'Cancer': 'sensitive digestive system needing emotional balance',
-    'Leo': 'strong vitality but watch heart and spine health',
-    'Virgo': 'detailed health awareness with digestive sensitivities'
+function getPersonalizedHealthFallback(kundaliData: any): HealthPredictions {
+  const chart = kundaliData?.chart || kundaliData?.enhancedCalculations || {};
+  const planets = chart?.planets || {};
+  const ascendant = chart?.ascendant || chart?.lagna?.rashiName || 'Unknown';
+  const weakestPlanet = (Object.values(planets) as any[]).sort((a, b) => a.strength - b.strength)[0] || {};
+
+  return {
+    overview: {
+      overallScore: `${65 + Math.floor(Math.random() * 15)}%`,
+      constitution: getAscendantConstitution(ascendant),
+      lifeExpectancy: 'Average (75-80 years)',
+      immuneSystem: 'Moderate'
+    },
+    vulnerableAreas: [
+      {
+        system: 'Digestive System',
+        risk: 'Medium',
+        planets: `6th lord and ${weakestPlanet.name || 'weak planet'} influence`,
+        issues: ['Acidity', 'Indigestion', 'Food sensitivities']
+      },
+      {
+        system: 'Nervous System',
+        risk: 'Low-Medium',
+        planets: 'Mercury and Moon position',
+        issues: ['Stress-related anxiety', 'Occasional sleep disturbance']
+      }
+    ],
+    preventiveMeasures: {
+      dietary: ['Eat regular meals', 'Include fiber', 'Avoid spicy food'],
+      lifestyle: ['Daily exercise', 'Meditation', 'Proper sleep'],
+      supplements: ['Probiotics', 'Vitamin B-complex']
+    },
+    mentalHealth: {
+      score: `${70 + Math.floor(Math.random() * 15)}%`,
+      strengths: ['Resilience', 'Optimism'],
+      challenges: ['Overthinking', 'Worrying tendency'],
+      recommendations: ['Mindfulness', 'Journaling', 'Hobbies']
+    },
+    criticalPeriods: [
+      {
+        period: 'Age 30-35',
+        focus: 'Career-related stress',
+        actions: 'Practice work-life balance'
+      },
+      {
+        period: 'Age 45-50',
+        focus: 'Metabolic health',
+        actions: 'Regular health check-ups'
+      }
+    ]
   };
-  
-  const base = constitution[ascendant] || 'balanced constitution requiring regular care';
-  const weakness = weakestPlanet ? ` Special attention needed for ${weakestPlanet}-related health areas.` : '';
-  
-  return base + weakness;
 }
 
-function getVulnerableAreas(weakestHouse?: number, saturnHouse?: number): string[] {
-  const areas = ['Stress management', 'Regular health checkups'];
-  
-  if (saturnHouse === 1) areas.push('Bone and joint health');
-  if (saturnHouse === 6) areas.push('Chronic health patterns');
-  if (weakestHouse === 6) areas.push('Digestive health');
-  if (weakestHouse === 8) areas.push('Immunity and vitality');
-  
-  return areas;
-}
-
-function getPreventiveMeasures(weakestPlanet?: string, ascendant?: string): string[] {
-  const measures = ['Regular exercise', 'Balanced nutrition', 'Adequate rest'];
-  
-  if (weakestPlanet === 'Saturn') measures.push('Bone health supplements', 'Regular massage');
-  if (weakestPlanet === 'Mars') measures.push('Avoid inflammatory foods', 'Cooling practices');
-  if (ascendant === 'Cancer') measures.push('Emotional wellness practices', 'Digestive care');
-  
-  return measures;
-}
-
-function getMentalWellbeing(moonHouse?: number, mercuryHouse?: number): string {
-  const factors = [];
-  
-  if (moonHouse === 12) factors.push('natural inclination toward meditation and solitude');
-  if (mercuryHouse === 12) factors.push('mental peace through spiritual study');
-  if (moonHouse === 1) factors.push('emotional awareness and mindfulness practices');
-  
-  return factors.length > 0 
-    ? `Mental wellbeing supported by ${factors.join(', ')}`
-    : 'Mental health maintained through balanced lifestyle and stress management';
+function getAscendantConstitution(ascendant: string): string {
+  const constitutions: Record<string, string> = {
+    'Aries': 'Pitta-dominant',
+    'Taurus': 'Kapha-dominant',
+    'Gemini': 'Vata-dominant',
+    'Cancer': 'Kapha-Pitta',
+    'Leo': 'Pitta-dominant',
+    'Virgo': 'Vata-Pitta',
+    'Libra': 'Vata-Kapha',
+    'Scorpio': 'Pitta-Kapha',
+    'Sagittarius': 'Pitta-Kapha',
+    'Capricorn': 'Vata-Kapha',
+    'Aquarius': 'Vata-dominant',
+    'Pisces': 'Kapha-dominant',
+  };
+  return constitutions[ascendant] || 'Balanced';
 }
 
 function getSpiritualPath(jupiterHouse?: number): string {
